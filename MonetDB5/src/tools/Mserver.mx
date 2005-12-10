@@ -15,39 +15,35 @@
 @' Portions created by CWI are Copyright (C) 1997-2005 CWI.
 @' All Rights Reserved.
 
-@f Mserver
+@f mserver
 @a M.L. Kersten, P. Boncz, Niels Nes, Stefan Manegold, Sjoerd Mullender
 @v 5.0
 @* The Monet Server
-@T
-The {\tt Mserver} is the Monet server. It is started by the database
+The program @code{ mserver} is the MonetDB server. It is started by the database
 administrator.  The console is primarilly meant to further initialize
 the server, such as starting internet listeners.
 
 @+ Manual Page
-@T
-The Mserver is a multithreaded program. There is one system thread, and for
+The server is a multithreaded program. There is one system thread, and for
 each service, e.g. a client session or transaction service,
 there is one worker thread.
-As a default, the Mserver also starts the internet listener thread,
+As a default, the server also starts the internet listener thread,
 on the port number specified in the parameter file.
 
 @- Usage
 @verbatim
-Mserver { [ --dbname <db-name> ] 
-          [ --dbfarm <dbfarm> ]
-          [ --dbinit <stmt> ]
-		  [ -c | --config <config-file> ]
-          [ -d | --gdk_debug [value]
-		  [ --set [option=value] set option can be given multiple times
-                                    to override verious options
-        } [ <mal-script> ]
+usage: mserver [options] [script]
+    --dbname=<database_name>
+    --dbfarm=<directory>
+    --dbinit=<stmt>           Server prepare statement
+    --config=<config_file>
+    --debug=<number>          trace server actions[0]
+    --daemon=yes|no           run in background [no]
+    --set <option>=<value>    set environment value
+    --help                    this list of options
 @end verbatim
 
-Since the console has no command-line history nor file name completion,
-you are recommended to use the Mclient program for interactive sessions instead.
-
-The Mserver options have the following meaning:
+The server options have the following meaning:
 @table @code
 @item --dbname <db-name>
 	open the database <db-name>.
@@ -57,6 +53,10 @@ The Mserver options have the following meaning:
         execute the statement first.
 @end itemize
 
+The calling arguments are saved in a file '.mserver.args'
+after they have been parsed. It enables the user or deamon
+shell script to quickly restart a failed server with the previously
+known settings.
 @{
 @+ Implementation
 @h
@@ -73,7 +73,7 @@ The Mserver options have the following meaning:
 /* #define MONET_GLOBAL_DEBUG */
 #endif /* _MONET_GLOBAL_H_ */
 @c
-#include "Mserver.h"
+#include "mserver.h"
 #include "mal.h"
 
 #ifdef _CRTDBG_MAP_ALLOC
@@ -103,9 +103,9 @@ static int malloc_init = 1;
 #if defined(_MSC_VER) && defined(__cplusplus)
 #include <eh.h>
 void
-Mserver_abort()
+mserver_abort()
 {
-	fprintf(stderr, "\n! Mserver_abort() was called by terminate(). !\n");
+	fprintf(stderr, "\n! mserver_abort() was called by terminate(). !\n");
 	fflush(stderr);
 	MT_global_exit(0);
 }
@@ -114,7 +114,7 @@ Mserver_abort()
 void
 usage(char *prog)
 {
-	fprintf(stderr, "usage: %s [options] [script]\n", prog);
+	fprintf(stderr, "Usage: %s [options] [script]\n", prog);
 	fprintf(stderr, "    --dbname=<database_name> \n");
 	fprintf(stderr, "    --dbfarm=<database_directory> \n");
 	fprintf(stderr, "    --help for more options \n");
@@ -123,7 +123,7 @@ usage(char *prog)
 void
 usage2(char *prog)
 {
-	fprintf(stderr, "usage: %s [options] [script]\n", prog);
+	fprintf(stderr, "Usage: %s [options] [script]\n", prog);
 	fprintf(stderr, "    --dbname=<database_name> \n");
 	fprintf(stderr, "    --dbfarm=<directory> \n");
 	fprintf(stderr, "    --dbinit=<stmt>           Server prepare statement\n");
@@ -271,6 +271,30 @@ monet_options.mx.in
 	/* you don;t need the commandline arguments anymore */
 	mo_free_options(set, setlen);
 }
+@-
+The calling arguments are saved in a file '.mserver.args'
+after they have been parsed. It enables the user or deamon
+shell script to quickly restart a failed server with the previously
+known settings.
+@c
+void
+save_arguments(int argc, char **av){
+	FILE *fd;
+	int i;
+	if( (fd= fopen(".mserver.args","w")) ){
+		for(i=1; i<argc; i++)
+/*
+			if( av[i][0]=='-' && av[i][1]=='-' && (s= strchr(av[i],'=')) ){
+				*s= 0;
+				fprintf(fd," %s=\"%s\"",av[i], s+1);
+			} else
+*/
+				fprintf(fd," %s",av[i]);
+		fprintf(fd,"\n");
+		(void) fclose(fd);
+	} else
+		fprintf(stderr,"!ERROR Could not save arguments\n");
+}
 
 int
 main(int argc, char **av)
@@ -280,11 +304,12 @@ main(int argc, char **av)
 	int i, debug = 0, setlen = 0, listing = 0;
 	str dbinit = NULL;
 
-	static struct option long_options[10] = {
+	static struct option long_options[11] = {
 		{"config", 1, 0, 'c'},
 		{"dbname", 1, 0, 0},
 		{"dbfarm", 1, 0, 0},
 		{"dbinit", 1, 0, 0},
+		{"daemon", 1, 0, 0},
 		{"debug", 2, 0, 'd'},
 		{"help", 2, 0, 'h'},
 		{"help", 0, 0, '?'},
@@ -324,7 +349,7 @@ faster system start.
 @c
 
 #if defined(_MSC_VER) && defined(__cplusplus)
-	set_terminate(Mserver_abort);
+	set_terminate(mserver_abort);
 #endif
 /* should be looked into
         if (setlocale(LC_CTYPE, "") == NULL){
@@ -373,6 +398,10 @@ faster system start.
 					fprintf(stderr, "#warning: ignoring multiple --dbinit argument\n");
 				else
 					dbinit = optarg;
+				break;
+			}
+			if (strcmp(long_options[option_index].name, "daemon") == 0) {
+				setlen = mo_add_option(&set, setlen, opt_cmdline, "gdk_daemon", optarg);
 				break;
 			}
 			usage(prog);
@@ -439,8 +468,10 @@ faster system start.
 		return 0;
 
 @-
-Time to execute the script files. Start with the init command[todo]
+Time to safe the calling parameters and execute the script files. 
+Start with the init command[todo]
 @c
+	save_arguments(argc,av);
 	initClientPrg(mal_clients, "main");
 	if (dbinit) {
 		str input = GDKstrdup(dbinit);
