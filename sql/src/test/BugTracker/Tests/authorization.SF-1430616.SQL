@@ -1,4 +1,27 @@
-CREATE USER "voc" WITH PASSWORD 'voc' NAME 'VOC Explorer' SCHEMA "sys";
-select * from users;
-CREATE SCHEMA "voc" AUTHORIZATION "voc";
-ALTER USER "voc" SET SCHEMA "voc";
+#!/bin/sh
+
+# necessary for version number
+source ${TSTSRCBASE}/src/jdbc/build.properties
+
+JAR="${TSTBLDBASE}/src/jdbc/jdbcclient-${JDBC_MAJOR}.${JDBC_MINOR}.jar"
+
+cat << EOF > .monetdb
+user=monetdb
+password=monetdb
+EOF
+
+LANG="en_US.UTF-8"
+export LANG
+
+Mlog   "$MTIMEOUT java -jar \"$JAR\" -h $HOST -p $MAPIPORT -b${TSTDB} -f $RELSRCDIR/authorization.SF-1430616-data.sql"
+	$MTIMEOUT java -jar  "$JAR"  -h $HOST -p $MAPIPORT -b${TSTDB} -f $RELSRCDIR/authorization.SF-1430616-data.sql 
+
+cat << EOF > .monetdb
+user=voc
+password=voc
+EOF
+
+Mlog   "$MTIMEOUT java -jar \"$JAR\" -h $HOST -p $MAPIPORT -b${TSTDB}" 
+	$MTIMEOUT java -jar  "$JAR"  -h $HOST -p $MAPIPORT -b${TSTDB}  
+
+rm -f .monetdb
