@@ -22,7 +22,7 @@ barrier (go,i):= (true,0);
 	mid := mid % values;
 
 t0:= alarm.usec();
-	c:=crackers.crack_SM(b,mid);
+	c:=crackers.crack_sm(b,mid);
 t1:= alarm.usec();
 	time:= t1 - t0;
 	t := t + time;
@@ -34,4 +34,4 @@ exit (go,i);
 
 io.print("");
 t := t / n;
-io.print("One_SM",t);
+io.print("One_sm",t);

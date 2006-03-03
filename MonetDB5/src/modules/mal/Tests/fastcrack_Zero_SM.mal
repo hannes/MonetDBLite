@@ -14,7 +14,7 @@ b:= microbenchmark.uniform(0@0,tuples,values);
 size:= bat.getBatSize(b);
 io.printf(" BAT size %d\n",size);
 
-n:=20;
+n:=100;
 t:=0:lng;
 barrier (go,i):= (true,0);
 	b:= microbenchmark.uniform(0@0,tuples,values);
@@ -22,7 +22,7 @@ barrier (go,i):= (true,0);
 	mid := mid % values;
 
 t0:= alarm.usec();
-	c:=crackers.zcrack_SM(b,mid);
+	c:=crackers.zcrack_sm(b,mid);
 t1:= alarm.usec();
 	time:= t1 - t0;
 	t := t + time;
@@ -34,4 +34,4 @@ exit (go,i);
 
 io.print("");
 t := t / n;
-io.print("Zero_SM",t);
+io.print("Zero_sm",t);
