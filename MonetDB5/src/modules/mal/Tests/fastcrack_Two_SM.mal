@@ -25,16 +25,20 @@ barrier (go,i):= (true,0);
 	redo go := low>hgh;
 
 t0:= alarm.usec();
-	c:=crackers.crack_SM(b,low,hgh);
+	c:=crackers.crack_sm(b,low,hgh);
 t1:= alarm.usec();
 	time:= t1 - t0;
 	t := t + time;
 	v := crackers.crack_validate(c,low,hgh);
-	io.print(low,hgh,time,v);
+	io.print(values,low,hgh,time,v);
+
+	values:int:= mmath.rand();
+	values:= values % tuples;
+	values:= values + 1;
 
 	redo (go,i):= mal.nextElement(1,n);
 exit (go,i);
 
 io.print("");
 t := t / n;
-io.print("Two_SM",t);
+io.print("Two_sm",t);
