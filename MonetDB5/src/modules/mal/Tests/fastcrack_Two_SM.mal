@@ -1,6 +1,7 @@
 # The first reference case for fast cracking
 
 include microbenchmark;
+include crackers;
 
 tuples:=1024;
 values:= tuples;
@@ -15,16 +16,19 @@ n:=100;
 t:=0:lng;
 barrier (go,i):= (true,0);
 	b:= microbenchmark.uniform(0@0,tuples,values);
-	mid:int:= mmath.rand();
-	mid := mid % values;
+	low:int:= mmath.rand();
+	low := low % values;
+	hgh:int:= mmath.rand();
+	hgh := hgh % values;
+	redo go := low>hgh;
 
 t0:= alarm.usec();
-	c:=algebra.select(b,nil:int,mid);
+	c:=crackers.crack_SM(b,low,hgh);
 t1:= alarm.usec();
 	time:= t1 - t0;
 	t := t + time;
-	v := aggr.count(c);
-	io.print(values,nil:int,mid,time,v);
+	v := crackers.crack_validate(c,low,hgh);
+	io.print(values,low,hgh,time,v);
 
 	values:int:= mmath.rand();
 	values:= values % tuples;
@@ -35,4 +39,4 @@ exit (go,i);
 
 io.print("");
 t := t / n;
-io.print("sel_LE_mid",t);
+io.print("Two_SM",t);
