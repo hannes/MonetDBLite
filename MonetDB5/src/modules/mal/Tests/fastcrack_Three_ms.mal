@@ -23,7 +23,7 @@ barrier (go,i):= (true,0);
 	redo go := low>hgh;
 
 t0:= alarm.usec();
-	c:=crackers.zcrack_SM(b,low,hgh);
+	c:=crackers.zcrack_sm(b,low,hgh);
 t1:= alarm.usec();
 	time:= t1 - t0;
 	t := t + time;
@@ -39,4 +39,4 @@ exit (go,i);
 
 io.print("");
 t := t / n;
-io.print("Three_SM",t);
+io.print("Three_sm",t);
