@@ -20,7 +20,7 @@ barrier (go,i):= (true,0);
 	mid := mid % values;
 
 t0:= alarm.usec();
-	c:=crackers.zcrackOrdered_SI(b,mid);
+	c:=crackers.zcrackOrdered_Si(b,mid);
 t1:= alarm.usec();
 	time:= t1 - t0;
 	t := t + time;
@@ -36,4 +36,4 @@ exit (go,i);
 
 io.print("");
 t := t / n;
-io.print("ZeroOrdered_SI",t);
+io.print("ZeroOrdered_Si",t);
