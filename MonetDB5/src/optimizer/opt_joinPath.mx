@@ -14,10 +14,10 @@
 @' Portions created by CWI are Copyright (C) 1997-2006 CWI.
 @' All Rights Reserved.
 
-@f opt_joinpath
+@f opt_joinPath
 @-
-@node Join Paths, Macro Processing,Inline Functions , Optimizer Toolkit
-@- Join Paths
+@node Join Path , , , Toolkit
+@- Join Path Optimization
 The routine @sc{optimizer.joinPath()}
 walks through the program looking for join operations
 and cascades them into multiple join paths.
@@ -62,7 +62,7 @@ comment "internal routine to handle join paths.
 #endif
 @-
 @c
-#include "opt_joinpath.h"
+#include "opt_joinPath.h"
 
 static int
 OPTjoinPathImplementation(MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
