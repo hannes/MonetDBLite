@@ -18,79 +18,36 @@
 
 package nl.cwi.monetdb.xquery.xrpc.wrapper;
 
+import com.sun.org.apache.xml.internal.dtm.ref.DTMNodeList;
 import java.io.*;
 import java.net.*;
+import javax.xml.xpath.*;
+import org.w3c.dom.*;
+
 import nl.cwi.monetdb.xquery.util.*;
 
-public class XrpcWrapperWorker extends Thread {
-	public static final String XRPCD_CALLBACK = "/xrpc";
-	public static final String SOAP_NS =
-		"http://www.w3.org/2003/05/soap-envelope";
-	public static final String XDT_NS =
-		"http://www.w3.org/2005/xpath-datatypes";
-	public static final String XS_NS =
-		"http://www.w3.org/2001/XMLSchema";
-	public static final String XSI_NS =
-		"http://www.w3.org/2001/XMLSchema-instance";
-	public static final String XRPC_NS =
-		"http://monetdb.cwi.nl/XQuery";
-	public static final String XRPC_LOC =
-		"http://monetdb.cwi.nl/XQuery/XRPC.xsd";
-	public static final String SOAP_BODY_START =
-		"<env:Envelope xsi:schemaLocation=\"" + XRPC_NS + " " +
-		XRPC_LOC + "\"> \n" +
-		"<env:Body> \n";
-	public static final String SOAP_BODY_END =
-		"</env:Body>\n" +
-		"</env:Envelope>\n";
-	public static final String SOAP_FAULT_START =
-		"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-		"<env:Envelope xmlns:env=\""+SOAP_NS+"\">\n" +
-		"<env:Body>\n" +
-		"<env:Fault>\n";
-	public static final String SOAP_FAULT_END =
-		"</env:Fault>\n" +
-		"</env:Body>\n" +
-		"</env:Envelope>";
-	public static final String HTTP_OK_HEADER =
-		"HTTP/1.1 200 OK\r\n" +
-		"Content-type: text/xml; charset=\"utf-8\"\r\n\r\n";
-	public static final String HTTP_ERR_400_HEADER =
-		"HTTP/1.1 400 Bad Request\r\n" +
-		"Content-type: text/xml; charset=\"utf-8\"\r\n\r\n";
-	public static final String HTTP_ERR_500_HEADER =
-		"HTTP/1.1 500 Internal Server Error\r\n" +
-		"Content-type: text/xml; charset=\"utf-8\"\r\n\r\n";
-
+public class XRPCWrapperWorker extends Thread {
 	/** Simple counter for XRPC worker threads. */
 	private static int tid = 0;
-
-	class SenderException extends Exception {
-		public SenderException(String reason) {
-			super(reason);
-		}
-	}
-
-	class ReceiverException extends Exception {
-		public ReceiverException(String reason) {
-			super(reason);
-		}
-	}
 
 	private Socket sock;
 	private CmdLineOpts opts;
 	private String rootdir;
+	private String soapPrefix;
+	private String xrpcPrefix;
 	private int contentLength;
 	private boolean debug;
 
-	XrpcWrapperWorker(Socket s, CmdLineOpts o)
+	XRPCWrapperWorker(Socket s, CmdLineOpts o)
 		throws Exception
 	{
-		super("XrpcWrapperWorkerThread-" + tid++);
+		super("XRPCWrapperWorkerThread-" + tid++);
 		sock = s;
 		opts = o;
 		rootdir = o.getOption("rootdir").getArgument();
 		debug = o.getOption("debug").isPresent();
+        soapPrefix = "";
+        xrpcPrefix = "";
 	}
 
 	private void DEBUG(String msg)
@@ -98,293 +55,75 @@ public class XrpcWrapperWorker extends Thread {
 		if(debug) System.out.print(msg);
 	}
 
-	private void sendError(Writer sockOut,
-			String httpErrorHeader,
-			String faultCode,
-			InputStream errorStream,
-			String errMsg)
-	{
-		String errHeader = "ERROR: (TID "+getName()+") sendError(): ";
-
-		try {
-			DEBUG(errHeader + "SOAP Fault message to send:\n" +
-					httpErrorHeader + SOAP_FAULT_START +
-					"<env:Code>\n" +
-					"<env:Value>" + faultCode + "</env:Value>\n" +
-					"</env:Code>\n" +
-					"<env:Reason>\n" +
-					"<env:Text xml:lang=\"en\">\n");
-
-			sockOut.write(httpErrorHeader + SOAP_FAULT_START +
-					"<env:Code>\n" +
-					"<env:Value>" + faultCode + "</env:Value>\n" +
-					"</env:Code>\n" +
-					"<env:Reason>\n" +
-					"<env:Text xml:lang=\"en\">");
-
-			if (errMsg != null) {
-				sockOut.write(errMsg);
-				DEBUG(errMsg);
-			} else {
-				if (errorStream == null) {
-					throw new NullPointerException(
-							"Either an InputStream or a String must " +
-							"be specified.");
-				}
-
-				BufferedReader errIn = new BufferedReader(new
-						InputStreamReader(errorStream));
-				int c;
-				while ((c = errIn.read()) >= 0) {
-					sockOut.write(c);
-					DEBUG(new Character((char)c).toString());
-				}
-				errIn.close();
-			}
-			sockOut.write("\n</env:Text>\n</env:Reason>\n" +
-					SOAP_FAULT_END);
-			DEBUG("\n</env:Text>\n</env:Reason>\n" + SOAP_FAULT_END);
-		} catch (Exception e) {
-			System.err.println(errHeader + "caught exception.\n");
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Read the HTTP header of a request and validate the header.
-	 *
-	 */
-	private void handleHttpReqHeader(BufferedReader sockIn)
-		throws Exception
-	{
-		String infoHeader = "INFO: (TID "+getName()+") handleHttpReqHeader(): ";
-		String errHeader = "ERROR: (TID "+getName()+") handleHttpReqHeader(): ";
-
-		boolean foundPostHeader = false, foundClHeader = false;
-
-		DEBUG(infoHeader + "HTTP header of XRPC request:\n");
-		String ln = sockIn.readLine();
-		/* TODO: should check 'HOST' as well! */
-		while(ln.length() > 0){
-			DEBUG(infoHeader + ln + "\n");
-			if(ln.startsWith("POST")){
-				if(!ln.startsWith(XRPCD_CALLBACK, 5)){
-					throw new SenderException(
-							"Unsupported Request: \"" + ln + "\"");
-				}
-				foundPostHeader = true;
-			} else if(ln.startsWith("Content-Length:")) {
-				try{
-					contentLength = Integer.parseInt(ln.substring(16));
-				} catch(NumberFormatException e) {
-					throw new SenderException("Invalid value of " +
-							"\"Content-Length\": \"" +
-							ln.substring(16) + "\": " + e.getMessage());
-				}
-				foundClHeader = true;
-			}
-			ln = sockIn.readLine();
-		}
-
-		if(!foundPostHeader){
-			throw new SenderException("HTTP header does not contain " +
-					"a \"POST\" method definition.");
-		} else if (!foundClHeader){
-			throw new SenderException("HTTP header does not contain " +
-					"the mandatory \"Content-Length\" field.");
-		}
-	}
-
-	/**
-	 * Read an XRPC request and store it on disk under the given
-	 * filename.  This function also stores the request header (from the
-	 * "Envelope" tag until the "request" tag) in a StringBuffer so that
-	 * the attribute values can be retrieved.
-	 *
-	 * Returns: a StringBuffer if no error occurred;
-	 *          throws a new Exception otherwise.
-	 */
-	private StringBuffer storeXrpcRequest(BufferedReader sockIn,
-			String filename)
-		throws Exception
-	{
-		String infoHeader = "INFO: (TID "+getName()+") getXrpcRequest(): ";
-		String errHeader = "ERROR: (TID "+getName()+") getXrpcRequest(): ";
-
-		StringBuffer buf = new
-			StringBuffer(XrpcWrapper.DEFAULT_BUFSIZE);
-		BufferedWriter fileOut = new
-			BufferedWriter(new FileWriter(filename, false));
-		int len = 0, index = -1;
-
-		DEBUG(infoHeader + "reading XRPC request...\n");
-
-		while (buf.length() < contentLength && index < 0 ) {
-			for(int i = 0 ; i < 10; i++)
-				buf.append((char)(sockIn.read()));
-			index = buf.indexOf("request");
-		}
-
-		/* find the closing symbol of the "request" tag */
-		index = buf.indexOf(">", index + 7);
-		while (buf.length() < contentLength && 
-				buf.charAt(buf.length()-1) != '>'){
-			buf.append((char)(sockIn.read()));
-				}
-		fileOut.write(buf.toString());
-
-		len = buf.length();
-		while (len < contentLength){
-			fileOut.write(sockIn.read());
-			len++;
-		}
-		fileOut.close();
-
-		if (len != contentLength) {
-			new File(filename).delete();
-			throw new SenderException("bytes received: " + len +
-					"should be: " + contentLength);
-		}
-
-		DEBUG(infoHeader + "request (" + len + " bytes) stored in: "
-				+ filename + "\n");
-
-		/* TODO: remove the temporary file 'filename' if necessary */
-		return buf;
-	}
-
-	/**
-	 * Retrieve the value of given 'attribute' from the given
-	 * 'request'.
-	 *
-	 * Returns: a new string containing the value of the attribute;
-	 *          throws Exception if error occurred.
-	 */
-	private String getAttributeValue(StringBuffer request,
-			String attribute)
-		throws Exception
-	{
-		String infoHeader = "INFO: (TID "+getName()+") getAttributeValue(): ";
-		String errHeader = "ERROR: (TID "+getName()+") getAttributeValue(): ";
-
-		int start, end;
-
-		start = request.indexOf(attribute);
-		if(start < 0){
-			throw new SenderException("invalid XRPC request: could " +
-					"not find the attribute \"" + attribute + "\".");
-		}
-		start += attribute.length();
-		start = request.indexOf("\"", start);
-		if(start < 0){
-			throw new SenderException("invalid XRPC request: " +
-					"attribute \"" + attribute +
-					"\" does not have a string value.");
-		}
-		end = request.indexOf("\"", (++start));
-		if(end < 0){
-			throw new SenderException("invalid XRPC request: " +
-					"attribute \"" + attribute +
-					"\" does not have a string value.");
-		}
-
-		DEBUG(infoHeader + attribute + " = " +
-				request.substring(start, end) + "\n");
-		return request.substring(start, end);
-	}
-
-	/**
-	 * Find the prefix of the XRPC namespace.
-	 *
-	 * Returns: the prefix if succeeded,
-	 *          throws new Exception otherwise.
-	 */
-	private String getXrpcPrefix(StringBuffer request)
-		throws Exception
-	{
-		String infoHeader = "INFO: (TID "+getName()+") getXrpcPrefix(): ";
-		String errHeader = "ERROR: (TID "+getName()+") getXrpcPrefix(): ";
-		int nsLen = XRPC_NS.length();
-
-		int start = request.indexOf("Envelope");
-		if(start < 0){
-			throw new SenderException(
-					"XRPC request message not well-formed:" +
-					"could not find the \"Envelope\" tag.");
-		}
-
-		int end = request.indexOf(">", (start += 8));
-		if(end < 0){
-			throw new SenderException(
-					"XRPC request message nog well-formed: " +
-					"could not find the end of the \"Envelope\" tag.");
-		}
-
-		/* Cut off the name space declarations in the "Envelope" tag and
-		 * remove all white space characters. */
-		String str = request.substring(start, end).replaceAll("[ \t\r\n]", "");
-		start = 0;
-		end = str.length();
-		do{
-			start = str.indexOf(XRPC_NS, start);
-			if(str.charAt(start + nsLen) == '"'){
-				end = str.lastIndexOf("=", start);
-				start = str.lastIndexOf("\"", end) + 1;
-				if(str.indexOf("xmlns",start) != start){
-					throw new SenderException(
-							"XRPC request message nog well-formed: " +
-							"\"xmlns\" expected in a namespace declaration.");
-				}
-				DEBUG(infoHeader + "found XRPC namespace identifier: " +
-						str.substring(start + 6, end) + "\n");
-				return str.substring(start + 6, end);
-			}
-			start += nsLen;
-		} while(start < end);
-
-		throw new SenderException(
-				"XRPC request message nog well-formed: " +
-				"declaration of the XRPC namespace \"" + XRPC_NS +
-				"\" not found.");
-	}
-
 	/**
 	 * Generate an XQuery query for the request and write the query
 	 * to a file.
 	 */
 	private void generateQuery(String requestFilename,
-			String queryFilename,
-			StringBuffer requestHeader)
+			                   String queryFilename,
+                               String request)
 		throws Exception
 	{
-		String infoHeader = "INFO: (TID "+getName()+") generateQuery(): ";
-		String errHeader = "ERROR: (TID "+getName()+") generateQuery(): ";
+		String infoHeader = "INFO: ("+getName()+") generateQuery(): ";
+		String errHeader = "ERROR: ("+getName()+") generateQuery(): ";
 
-		String xrpcPrefix = getXrpcPrefix(requestHeader);
-		String xqModule = getAttributeValue(requestHeader, xrpcPrefix+":module");
-		String xqMethod = getAttributeValue(requestHeader, xrpcPrefix+":method");
-		String xqLocation = getAttributeValue(requestHeader, xrpcPrefix+":location");
-		String arityStr = getAttributeValue(requestHeader, "xrpc:arity");
-		long arity = Long.parseLong(arityStr);
+        soapPrefix = XRPCMessage.getNamespacePrefix(
+                        XRPCMessage.XRPC_MSG_TYPE_REQ, request,
+                        XRPCMessage.SOAP_NS);
+        xrpcPrefix = XRPCMessage.getNamespacePrefix(
+                        XRPCMessage.XRPC_MSG_TYPE_REQ, request,
+                        XRPCMessage.XRPC_NS);
+
+        NamespaceContextImpl namespaceContext = new NamespaceContextImpl();
+        namespaceContext.add(soapPrefix, XRPCMessage.SOAP_NS);
+        namespaceContext.add(xrpcPrefix, XRPCMessage.XRPC_NS);
+
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xPath = factory.newXPath();
+        xPath.setNamespaceContext(namespaceContext);
+
+        String xPathExpr = "/" + soapPrefix + ":Envelope/" +
+                                 soapPrefix + ":Body/" +
+                                 xrpcPrefix + ":request";
+        NamedNodeMap attrs = XRPCMessage.getNodeAttributes(xPath, request, xPathExpr);
+		String xqModule = attrs.getNamedItem(xrpcPrefix+":module").getNodeValue();
+		String xqMethod = attrs.getNamedItem(xrpcPrefix+":method").getNodeValue();
+		String xqLocation = attrs.getNamedItem(xrpcPrefix+":location").getNodeValue();
+		String arityStr = attrs.getNamedItem(xrpcPrefix+":arity").getNodeValue();
+
+		int arity = -1;
+        try{
+            arity = Integer.parseInt(arityStr);
+        } catch(NumberFormatException nfe) {
+            throw new XRPCSenderException("Invalid value of the " +
+                    "\"arity\" attribute: \"" + arityStr + "\": " +
+                    nfe.getMessage());
+        }
 
 		try{ 
 			FileWriter fileOut = new FileWriter(queryFilename, false);
 
 			fileOut.write(
-					"import module namespace modfunc = \"" + xqModule + "\"\n" +
-					"            at \"" + xqLocation + "\";\n\n" +
-					"import module namespace wf = \"xrpcwrapper\" \n" +
-					"       at \"" + rootdir + XrpcWrapper.WF_FILE + "\";\n\n" +
-					"declare namespace env=\"" + SOAP_NS + "\";\n" +
-					"declare namespace xs=\"" + XS_NS + "\";\n\n" +
-					"declare namespace xrpc=\"" + XRPC_NS + "\";\n\n" +
-					SOAP_BODY_START + 
-					"<xrpc:response xrpc:module=\"" + xqModule + "\" " +
-					"xrpc:method=\"" + xqMethod + "\">{\n" +
+					"import module namespace modfunc = \"" + xqModule + "\"" +
+                        " at \"" + xqLocation + "\";\n\n" +
+					"import module namespace wf = \"xrpcwrapper\"" +
+                        " at \"" + rootdir + XRPCWrapper.WF_FILE + "\";\n\n" +
+					"declare namespace env=\"" + XRPCMessage.SOAP_NS + "\";\n" +
+					"declare namespace xrpc=\"" + XRPCMessage.XRPC_NS + "\";\n\n" +
+					"declare namespace xs=\"" + XRPCMessage.XS_NS + "\";\n" +
+                    
+                    "<env:Envelope" + 
+                    " xsi:schemaLocation=\"" +
+                        XRPCMessage.XRPC_NS + " " +
+                        XRPCMessage.XRPC_LOC + "\">" +
+                    "<env:Body>" +
+					"<xrpc:response" +
+                    " xrpc:module=\"" + xqModule + "\" " +
+					" xrpc:method=\"" + xqMethod + "\">{\n" +
 					"  for $call in doc(\"" + requestFilename + "\")" +
 					"//" + xrpcPrefix + ":call\n");
 			for(int i = 1; i <= arity; i++){
-				/* XQuery index of item sequences starts from 1 */
+				/* NB: XQuery index of item sequences starts from 1 */
 				fileOut.write("  let $param" + i + " := " +
 						"wf:n2s(\"" + xrpcPrefix + "\", " +
 						"$call/" + xrpcPrefix + ":sequence["+i+"]" +
@@ -397,10 +136,10 @@ public class XrpcWrapperWorker extends Thread {
 			if(arity > 0){
 				fileOut.write("$param" + arity);
 			}
-			fileOut.write("))\n}</xrpc:response>\n" + SOAP_BODY_END);
+			fileOut.write("))\n}" + XRPCMessage.XRPC_RESPONSE_END);
 			fileOut.close();
 		} catch (Exception e){
-			throw new ReceiverException(
+			throw new XRPCReceiverException(
 					"failed to generate query for the request.");
 		}
 
@@ -415,10 +154,8 @@ public class XrpcWrapperWorker extends Thread {
 			BufferedWriter sockOut)
 		throws Exception
 	{
-		String infoHeader = "INFO: (TID "+getName()+") execAndSend(): ";
-		String errHeader = "ERROR: (TID "+getName()+") execAndSend(): ";
-		int ret = -1, len = -1;
-		char[] cbuf = new char[XrpcWrapper.MIN_BUFSIZE];
+		String infoHeader = "INFO: ("+getName()+") execAndSend(): ";
+		String errHeader = "ERROR: ("+getName()+") execAndSend(): ";
 		String command = null;
 		Process proc = null;
 
@@ -428,46 +165,73 @@ public class XrpcWrapperWorker extends Thread {
 			DEBUG(infoHeader + "executing: " + command + "\n");
 			proc = Runtime.getRuntime().exec(command);
 		} catch (OptionsException oe) {
-			throw new ReceiverException("This should not happen: " +
+            /* This exception should never happen */
+			throw new XRPCReceiverException("This should not happen: " +
 					"XRPC wrapper does not know how to execute the " +
 					"XQuery engine: " + oe.getMessage());
 		} catch (Exception e){
-			throw new ReceiverException("Error occurred during " +
-					"execution of command \"" + command + "\":" +
-					e.getMessage());
+			throw new XRPCReceiverException(
+                    "Failed to start executing command \"" +
+                    command + "\":" + e.getMessage());
 		}
 
 		BufferedReader procIn = new BufferedReader(new
 				InputStreamReader(proc.getInputStream()));
+		int c = -1;
 		try{
-			len = procIn.read(cbuf, 0, XrpcWrapper.MIN_BUFSIZE);
-		} catch (Exception e){
+			c = procIn.read();
+		} catch (IOException ioe){
+            System.out.println(infoHeader + "caught IOException " +
+                    "while reading proc's output:");
+            ioe.printStackTrace();
 			/* Don't throw exception, try to read proc's ErrorStream */
-			len = -1;
+			c = -1;
 		}
 
-		if (len >= 0){
+		if (c >= 0){
 			DEBUG(infoHeader + "query execution seems succeeded: " +
 					"got output from the process' InputStream.\n");
 			DEBUG(infoHeader + "sending XRPC response message:\n");
 
-			sockOut.write(HTTP_OK_HEADER);
-			sockOut.write(new String(cbuf, 0, len));
+			sockOut.write(XRPCHTTPConnection.HTTP_OK_HEADER);
+			DEBUG(XRPCHTTPConnection.HTTP_OK_HEADER);
 
-			DEBUG(HTTP_OK_HEADER);
-			DEBUG(new String(cbuf, 0, len));
+            /* Add the XML declaration, if necessary */
+            char[] cbuf = new char[4];
+            procIn.read(cbuf, 0, 4);
 
-			int c;
-			while ( (c = procIn.read()) >= 0) {
-				sockOut.write(c);
+            if((char)c != '<' || cbuf[0] != '?' || cbuf[1] != 'x' || cbuf[2] != 'm' || cbuf[3] != 'l') {
+                sockOut.write(XRPCMessage.XML_DECL);
+                DEBUG(XRPCMessage.XML_DECL);
+            }
+
+            sockOut.write(new Character((char)c).toString());
+            sockOut.write(cbuf, 0, 4);
+            DEBUG(new Character((char)c).toString());
+            DEBUG("" + cbuf[0] + cbuf[1] + cbuf[2] + cbuf[3]);
+
+            while ((c = procIn.read()) >= 0) {
+				sockOut.write(new Character((char)c).toString());
 				DEBUG(new Character((char)c).toString());
 			}
 		} else { /* send SOAP Fault message */
-			sendError(sockOut, HTTP_ERR_500_HEADER, "env:Receiver",
-					proc.getErrorStream(), null);
+            StringBuffer faultReason = new StringBuffer(8192);
+            BufferedReader errIn = new BufferedReader(new
+                    InputStreamReader(proc.getErrorStream()));
+            while ((c = errIn.read()) >= 0) {
+                faultReason.append(new Character((char)c).toString());
+            }
+            errIn.close();
+
+            String faultMsg =
+                XRPCMessage.SOAP_FAULT(soapPrefix+":Receiver",
+                        faultReason.toString());
+            DEBUG(XRPCHTTPConnection.HTTP_ERR_500_HEADER + faultMsg);
+            XRPCHTTPConnection.send(sockOut,
+                    XRPCHTTPConnection.HTTP_ERR_500_HEADER, faultMsg);
 		}
 
-		ret = proc.waitFor();
+		int ret = proc.waitFor();
 		DEBUG(infoHeader + "query execution exits with: " + ret + "\n");
 	}
 
@@ -479,65 +243,95 @@ public class XrpcWrapperWorker extends Thread {
 	 *  3. Call the XQuery engine to execute the query and send the
 	 *     results back
 	 */
-	private void handleXrpcReq(BufferedReader sockIn, BufferedWriter sockOut)
+	private void handleXRPCReq(String request, BufferedWriter sockOut)
 		throws Exception
 	{
-		String infoHeader = "INFO: (TID "+getName()+") handleXrpcReq(): ";
-		String warnHeader = "WARNING: (TID "+getName()+") handleXrpcReq(): ";
+		String infoHeader = "INFO: ("+getName()+") handleXRPCReq(): ";
+		String warnHeader = "WARNING: ("+getName()+") handleXRPCReq(): ";
 
 		String requestFilename = rootdir+"xrpc_request_"+getName()+".xml";
 		String queryFilename = rootdir+"xrpc_wrapper_query_"+getName()+".xq";
 
-		StringBuffer requestHeader = storeXrpcRequest(sockIn, requestFilename);
-		generateQuery(requestFilename, queryFilename, requestHeader);
+		BufferedWriter fileOut = new BufferedWriter(new FileWriter(requestFilename, false));
+		fileOut.write(request.toString());
+        fileOut.close();
+		DEBUG(infoHeader +
+              "request (" + request.length() + " bytes) stored in: " +
+              requestFilename + "\n");
+
+		generateQuery(requestFilename, queryFilename, request);
 		execAndSend(queryFilename, sockOut);
 		DEBUG(infoHeader + "DONE: " + sock + "\n\n");
 
-		try {
-			File fQ = new File(queryFilename);
-			File fR = new File(requestFilename);
+        if(opts.getOption("remove").isPresent()){
+            try {
+                File fQ = new File(queryFilename);
+                File fR = new File(requestFilename);
 
-			if(!opts.getOption("keep").isPresent()){
-				fQ.delete();
-				fR.delete();
-			} else {
-				String arg = opts.getOption("keep").getArgument();
-				if(arg.equals("request")) {
-					fQ.delete();
-				} else if(arg.equals("query")) {
-					fR.delete();
-				} 
-			}
-		} catch (Exception e) {
-			System.out.println(warnHeader +
-					"failed to delete temporary file(s):");
-			e.printStackTrace();
-		}
+                String arg = opts.getOption("remove").getArgument();
+                if(arg.equals("request")) {
+                    fQ.delete();
+                    DEBUG(infoHeader + "request file \"" +
+                            requestFilename + "\" deleted\n");
+                } else if(arg.equals("query")) {
+                    fR.delete();
+                    DEBUG(infoHeader + "query file \"" +
+                            queryFilename + "\" deleted\n");
+                } else if(arg.equals("all")) {
+                    fQ.delete();
+                    fR.delete();
+                    DEBUG(infoHeader + "query file \"" +
+                            queryFilename + "\" deleted\n");
+                    DEBUG(infoHeader + "request file \"" +
+                            requestFilename + "\" deleted\n");
+                }
+            } catch (Exception e) {
+                System.out.println(warnHeader +
+                        "failed to delete temporary file(s):");
+                e.printStackTrace();
+            }
+        }
 	}
 
 	public void run()
 	{
-		String warnHeader = "WARNING: (TID "+getName()+") run(): ";
-		String errHeader = "ERROR: (TID "+getName()+") run(): ";
+		String warnHeader = "WARNING: ("+getName()+") run(): ";
+		String errHeader = "ERROR: ("+getName()+") run(): ";
 
 		BufferedReader sockIn = null;
 		BufferedWriter sockOut = null;
 
-		try{
-			sockIn = new BufferedReader(new
-					InputStreamReader(sock.getInputStream()));
-			sockOut = new BufferedWriter(new
-					OutputStreamWriter(sock.getOutputStream()));
+        try{
+            try{
+                sockIn = new BufferedReader(new
+                        InputStreamReader(sock.getInputStream()));
+                sockOut = new BufferedWriter(new
+                        OutputStreamWriter(sock.getOutputStream()));
 
-			handleHttpReqHeader(sockIn);
-			handleXrpcReq(sockIn, sockOut);
-		} catch (SenderException se) {
-			sendError(sockOut, HTTP_ERR_400_HEADER, "env:Sender",
-					null, se.getMessage());
-		} catch (ReceiverException re) {
-			sendError(sockOut, HTTP_ERR_500_HEADER, "env:Receiver",
-					null, re.getMessage());
-		} catch (Exception e1){
+                String reqMsg = XRPCHTTPConnection.receive(sockIn, XRPCWrapper.XRPCD_CALLBACK);
+                handleXRPCReq(reqMsg, sockOut);
+            } catch (XRPCSenderException se) {
+                String faultMsg =
+                    XRPCMessage.SOAP_FAULT(soapPrefix+":Sender",
+                            se.getMessage());
+                XRPCHTTPConnection.send(sockOut,
+                        XRPCHTTPConnection.HTTP_ERR_404_HEADER, faultMsg);
+                System.err.println(errHeader + "caught exception:");
+                se.printStackTrace();
+                System.err.println(errHeader + "sent SOAP Fault message:");
+                DEBUG(XRPCHTTPConnection.HTTP_ERR_404_HEADER + faultMsg);
+            } catch (XRPCReceiverException re) {
+                String faultMsg =
+                    XRPCMessage.SOAP_FAULT(soapPrefix+":Receiver",
+                            re.getMessage());
+                XRPCHTTPConnection.send(sockOut,
+                        XRPCHTTPConnection.HTTP_ERR_500_HEADER, faultMsg);
+                System.err.println(errHeader + "caught exception:");
+                re.printStackTrace();
+                System.err.println(errHeader + "sent SOAP Fault message:");
+                DEBUG(XRPCHTTPConnection.HTTP_ERR_500_HEADER + faultMsg);
+            }
+        } catch (Exception e1){
 			System.err.println(errHeader + "caught exception:");
 			e1.printStackTrace();
 		} finally {
