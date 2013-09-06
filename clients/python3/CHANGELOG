@@ -1,10 +1,8 @@
-MonetDB Python API changelog
-============================
+# ChangeLog file for python2
+# This file is updated with Maddlog
 
-2013-09-05
-----------
-
-* Add support for unix socket
-* Unix sockets partially working for control protocol
-* Changed defaults for connecting (defaults to unix socket now)
+* Thy Sep  5 2013 Gijs Molenaar <g.j.molenaar@uva.nl>
+- Changed defaults for connecting (defaults to unix socket now).
+- Unix sockets partially working for control protocol.
+- Add support for unix socket.
 
