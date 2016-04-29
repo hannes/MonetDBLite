@@ -24,7 +24,6 @@
 #include "sql_mvc.h"
 #include "sql_execute.h"
 #include "rel_exp.h"
-#include "mal_debugger.h"
 #include <mtime.h>
 #include "optimizer.h"
 #include <unistd.h>
