@@ -1,0 +1,13 @@
+Makefile.am
+Makefile.msc
+Makefile.in
+Makefile
+*.so
+*.lo
+.libs
+*.la
+*.pyc
+.DS_store
+.project
+monetdb_config.h
+monetdb_config.h.in
