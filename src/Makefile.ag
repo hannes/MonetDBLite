@@ -1,4 +1,4 @@
-SUBDIRS = buildtools common gdk monetdb5 sql embedded
+SUBDIRS = buildtools common gdk mal sql embedded
 EXTRA_DIST = configure configure.ac configure.ag libversions
 headers_config = {
 DIR = includedir/monetdb

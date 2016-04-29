@@ -9,7 +9,7 @@
 INCLUDES = .. ../include ../storage \
 		   ../../common/options \
 		   ../../common/stream \
-		   ../../monetdb5/mal \
+		   ../../mal/mal \
 		   ../../gdk
 
 lib_sqlcommon = {

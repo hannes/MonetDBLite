@@ -10,12 +10,12 @@ INCLUDES = .. ../../include ../../common \
 		   ../../../common/options \
 		   ../../../common/stream \
 		   ../../../gdk \
-		   ../../../monetdb5/modules/atoms \
-		   ../../../monetdb5/modules/kernel \
-		   ../../../monetdb5/mal \
-		   ../../../monetdb5/modules/mal \
-		   ../../../monetdb5/optimizer \
-		   ../../../monetdb5/scheduler 
+		   ../../../mal/modules/atoms \
+		   ../../../mal/modules/kernel \
+		   ../../../mal/mal \
+		   ../../../mal/modules/mal \
+		   ../../../mal/optimizer \
+		   ../../../mal/scheduler 
 
 lib_batstore = {
 	NOINST

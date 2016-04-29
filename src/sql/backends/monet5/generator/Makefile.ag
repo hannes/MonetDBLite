@@ -8,12 +8,12 @@ INCLUDES = ../../../include \
 		   ../../../common \
 		   ../../../storage \
 		   ../../../server \
-		   ../../../../monetdb5/modules/atoms \
-		   ../../../../monetdb5/modules/kernel \
-		   ../../../../monetdb5/mal \
-		   ../../../../monetdb5/modules/mal \
-		   ../../../../monetdb5/optimizer \
-		   ../../../../monetdb5/scheduler \
+		   ../../../../mal/modules/atoms \
+		   ../../../../mal/modules/kernel \
+		   ../../../../mal/mal \
+		   ../../../../mal/modules/mal \
+		   ../../../../mal/optimizer \
+		   ../../../../mal/scheduler \
 		   ../../../../common/options \
 		   ../../../../common/stream \
 		   ../../../../gdk
@@ -22,7 +22,7 @@ lib__generator = {
 	MODULE
 	DIR = libdir/monetdb5
 	SOURCES = generator.c  generator.h
-	LIBS = ../../../../monetdb5/tools/libmonetdb5 \
+	LIBS = ../../../../mal/tools/libmonetdb5 \
 		   ../../../../gdk/libbat \
 		   ../../../../common/utils/libmutils
 }

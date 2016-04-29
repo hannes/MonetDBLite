@@ -17,11 +17,11 @@
 
 MTSAFE
 
-INCLUDES = ../monetdb5/mal \
-		   ../monetdb5/modules/atoms \
-		   ../monetdb5/modules/mal \
-		   ../monetdb5/modules/kernel \
-		   ../monetdb5/extras/rapi \
+INCLUDES = ../mal/mal \
+		   ../mal/modules/atoms \
+		   ../mal/modules/mal \
+		   ../mal/modules/kernel \
+		   ../mal/extras/rapi \
 		   ../gdk \
 		   ../common/stream \
 		   ../common/utils \
@@ -37,7 +37,7 @@ INCLUDES = ../monetdb5/mal \
 lib_embedded  = {
 	SOURCES = embedded.c embedded.h inlined_scripts.c
 	VERSION = 1
-	LIBS = ../monetdb5/tools/libmonetdb5 \
+	LIBS = ../mal/tools/libmonetdb5 \
 		../gdk/libbat \
 		$(pcre_LIBS) $(PSAPILIB) \
 		$(SOCKET_LIBS) $(MALLOC_LIBS) $(DL_LIBS) $(PTHREAD_LIBS)
