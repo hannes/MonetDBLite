@@ -41,7 +41,6 @@
 #include "opt_inline.h"
 #include "opt_projectionpath.h"
 #include "opt_matpack.h"
-#include "opt_json.h"
 #include "opt_mergetable.h"
 #include "opt_mitosis.h"
 #include "opt_multiplex.h"
@@ -49,7 +48,6 @@
 #include "opt_pushselect.h"
 #include "opt_qep.h"
 #include "opt_querylog.h"
-#include "opt_recycler.h"
 #include "opt_reduce.h"
 #include "opt_remap.h"
 #include "opt_remoteQueries.h"
@@ -77,14 +75,12 @@ struct{
 	{"inline", &OPTinlineImplementation},
 	{"projectionpath", &OPTprojectionpathImplementation},
 	{"matpack", &OPTmatpackImplementation},
-	{"json", &OPTjsonImplementation},
 	{"mergetable", &OPTmergetableImplementation},
 	{"mitosis", &OPTmitosisImplementation},
 	{"multiplex", &OPTmultiplexImplementation},
 	{"profiler", &OPTprofilerImplementation},
 	{"pushselect", &OPTpushselectImplementation},
 	{"querylog", &OPTquerylogImplementation},
-	{"recycler", &OPTrecyclerImplementation},
 	{"reduce", &OPTreduceImplementation},
 	{"remap", &OPTremapImplementation},
 	{"remoteQueries", &OPTremoteQueriesImplementation},

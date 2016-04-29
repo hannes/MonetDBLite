@@ -7,10 +7,8 @@
 INCLUDES = ../../common/options \
 		   ../../common/stream \
 		   ../../common/utils \
-		   ../../clients/mapilib \
 		   ../../gdk \
-		   ../optimizer \
-		   $(READLINE_INCS) 
+		   ../optimizer 
 MTSAFE
 
 lib_mal = {
@@ -21,7 +19,6 @@ lib_mal = {
 		mal_authorize.c mal_authorize.h \
 		mal_builder.c mal_builder.h \
 		mal_client.c mal_client.h \
-		mal_debugger.c mal_debugger.h \
 		mal_errors.h \
 		mal_exception.c mal_exception.h \
 		mal_factory.c mal_factory.h \
@@ -39,7 +36,6 @@ lib_mal = {
 		mal_parser.c mal_parser.h \
 		mal_profiler.c mal_profiler.h \
 		mal_readline.c mal_readline.h \
-		mal_recycle.c mal_recycle.h \
 		mal_resolve.c mal_resolve.h \
 		mal_sabaoth.c mal_sabaoth.h \
 		mal_scenario.c mal_scenario.h \

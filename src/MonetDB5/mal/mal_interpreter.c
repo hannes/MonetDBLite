@@ -15,8 +15,6 @@
 #include "mal_interpreter.h"
 #include "mal_resource.h"
 #include "mal_listing.h"
-#include "mal_debugger.h"   /* for mdbStep() */
-#include "mal_recycle.h"
 #include "mal_type.h"
 #include "mal_private.h"
 
