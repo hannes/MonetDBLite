@@ -7,13 +7,13 @@
 SUBDIRS = generator
 
 INCLUDES = ../../include ../../common ../../storage ../../server \
-		   ../../../monetdb5/modules/atoms \
-		   ../../../monetdb5/modules/kernel \
-		   ../../../monetdb5/mal \
-		   ../../../monetdb5/modules/mal \
-		   ../../../monetdb5/optimizer \
-		   ../../../monetdb5/scheduler \
-		   ../../../monetdb5/extras/rapi \
+		   ../../../mal/modules/atoms \
+		   ../../../mal/modules/kernel \
+		   ../../../mal/mal \
+		   ../../../mal/modules/mal \
+		   ../../../mal/optimizer \
+		   ../../../mal/scheduler \
+		   ../../../mal/extras/rapi \
 		   ../../../common/options \
 		   ../../../common/stream \
 		   ../../../common/utils \
@@ -49,7 +49,7 @@ lib__sql = {
 		   ../../storage/libstore \
 		   ../../storage/bat/libbatstore \
 		   ../../common/libsqlcommon \
- 		   ../../../monetdb5/tools/libmonetdb5 \
+ 		   ../../../mal/tools/libmonetdb5 \
 		   ../../../gdk/libbat \
 		   ../../../common/stream/libstream \
 		   ../../../common/utils/libmcrypt \
