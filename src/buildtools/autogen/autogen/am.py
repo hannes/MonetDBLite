@@ -1253,8 +1253,6 @@ AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
     fd.write('''
   include $(top_srcdir)/buildtools/conf/rules.mk
 ''')
-    if cwd == topdir:
-        fd.write('include $(top_builddir)/rpm.mk\n')
     fd.close()
 
     return am['InstallList'], am['DocList'], am['OutList']

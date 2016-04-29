@@ -156,11 +156,6 @@ optimizeQuery(Client c)
 
 		if (c->listing)
 			printFunction(c->fdout, mb, 0, c->listing);
-		if (be->mvc->debug) {
-			msg = runMALDebugger(c, c->curprg);
-			if (msg != MAL_SUCCEED)
-				GDKfree(msg); /* ignore error */
-		}
 		return NULL;
 	}
 	addOptimizers(c, mb, pipe);

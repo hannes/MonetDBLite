@@ -24,8 +24,6 @@ __hidden str defaultScenario(Client c)	/* used in src/mal/mal_session.c */
 	__attribute__((__visibility__("hidden")));
 __hidden void exitScenario(Client c)		/* used in src/mal/mal_session.c */
 	__attribute__((__visibility__("hidden")));
-__hidden void mdbStep(Client cntxt, MalBlkPtr mb, MalStkPtr stk, int pc)
-	__attribute__((__visibility__("hidden")));
 
 __hidden str runFactory(Client cntxt, MalBlkPtr mb, MalBlkPtr mbcaller, MalStkPtr stk, InstrPtr pci)
 	__attribute__((__visibility__("hidden")));
@@ -53,9 +51,6 @@ __hidden int malAtomProperty(MalBlkPtr mb, InstrPtr pci)
 	__attribute__((__visibility__("hidden")));
 
 __hidden extern MT_Lock mal_namespaceLock;
-
-__hidden int mdbInit(void)
-	__attribute__((__visibility__("hidden")));
 
 __hidden str createScriptException(MalBlkPtr, int, enum malexception,
 	const char *, _In_z_ _Printf_format_string_ const char *, ...)

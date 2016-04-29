@@ -3515,7 +3515,7 @@ typedef lng ptrdiff_t;
 
 /* These are required to make MonetDB's source tree CRAN-compliant */
 #ifdef HAVE_EMBEDDED_R
-#include "tools/embedded/undef.h"
+#include "embedded/undef.h"
 #endif
 
 #define PROMPT1		"\001\001\n"	/* prompt: ready for new query */

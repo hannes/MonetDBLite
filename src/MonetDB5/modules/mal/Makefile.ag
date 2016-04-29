@@ -30,7 +30,6 @@ lib_mal = {
 		mal_io.c mal_io.h \
 		manual.c manual.h \
 		mat.c mat.h \
-		mdb.c mdb.h \
 		mkey.c mkey.h \
 		manifold.c manifold.h \
 		pcre.c \
@@ -52,7 +51,7 @@ headers_mal = {
 		profiler.mal batExtensions.mal \
 		inspect.mal manual.mal mal_io.mal mkey.mal manifold.mal \
 		iterator.mal clients.mal \
-		factories.mal groupby.mal mdb.mal pcre.mal mat.mal \
+		factories.mal groupby.mal pcre.mal mat.mal \
 		transaction.mal \
 		sample.mal \
 		batmtime.mal querylog.mal sysmon.mal

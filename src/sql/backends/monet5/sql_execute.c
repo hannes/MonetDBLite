@@ -370,8 +370,6 @@ SQLexecutePrepared(Client c, backend *be, cq *q)
 	if (glb && ret) /* error */
 		garbageCollector(c, mb, glb, glb != 0);
 	q->stk = (backend_stack) glb;
-	if (glb && SQLdebug & 1)
-		printStack(GDKstdout, mb, glb);
 	if (pci->argc >= MAXARG)
 		GDKfree(argv);
 	if (pci->retc >= MAXARG)

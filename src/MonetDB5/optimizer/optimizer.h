@@ -17,8 +17,6 @@
 #include "opt_prelude.h"
 
 opt_export str optimizer_prelude(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p);
-opt_export str QOTdebugOptimizers(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
-opt_export str QOTclrdebugOptimizers(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 opt_export str QOToptimize(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 opt_export str QOTshowFlowGraph(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p);
 opt_export str QOTshowPlan(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p);

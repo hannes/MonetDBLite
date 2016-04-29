@@ -89,8 +89,6 @@ int mal_init(void){
 
 	tstAligned();
 	MCinit();
-	if (mdbInit()) 
-		return -1;
 	monet_memory = MT_npages() * MT_pagesize();
 	initNamespace();
 	initParser();
@@ -98,7 +96,6 @@ int mal_init(void){
 	initHeartbeat();
 #endif
 	initResource();
-	RECYCLEinit();
 	if( malBootstrap() == 0)
 		return -1;
 	/* set up the profiler if needed, output sent to console */
@@ -125,7 +122,6 @@ void mserver_reset(void)
 	setHeartbeat(-1);
 	stopProfiler();
 	QOTstatisticsExit();
-	RECYCLEdrop(mal_clients); 
 	AUTHreset(); 
 	if ((err = msab_wildRetreat()) != NULL) {
 		fprintf(stderr, "!%s", err);
