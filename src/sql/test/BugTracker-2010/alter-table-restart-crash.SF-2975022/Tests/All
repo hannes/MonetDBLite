@@ -1,4 +1,0 @@
-# this test causes the database to get into a state that the server
-# cannot recover from
-t-1
-t-2
