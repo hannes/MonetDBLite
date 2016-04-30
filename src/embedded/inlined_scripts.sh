@@ -14,6 +14,7 @@ cd ../
 --enable-debug --enable-silent-rules --disable-assert --disable-strict --disable-int128
 
 make -j clean install
+make clean
 
 python embedded/inlined_scripts.py $PREFIX/lib/monetdb5/ .
 

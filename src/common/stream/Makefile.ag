@@ -10,9 +10,7 @@ MTSAFE
 
 INCLUDES = $(zlib_CFLAGS) \
 		   $(BZ_CFLAGS) \
-		   $(liblzma_CFLAGS) \
-		   $(openssl_CFLAGS) \
-		   $(curl_CFLAGS)
+		   $(liblzma_CFLAGS)
 
 lib_stream  =  {
 	SOURCES = stream.c stream.h stream_socket.h
@@ -21,20 +19,5 @@ lib_stream  =  {
 		   $(zlib_LIBS) \
 		   $(BZ_LIBS) \
 		   $(liblzma_LIBS) \
-		   $(openssl_LIBS) \
-		   $(curl_LIBS) \
 		   $(LTLIBICONV)
-}
-
-headers_common = {
-	DIR = includedir/monetdb
-	HEADERS = h
-	SOURCES = stream_socket.h stream.h
-}
-
-headers_pc = {
-	COND = NOT_WIN32
-	HEADERS = pc
-	DIR = libdir/pkgconfig
-	SOURCES = monetdb-stream.pc.in
 }

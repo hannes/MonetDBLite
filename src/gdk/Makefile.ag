@@ -29,9 +29,8 @@ lib_gdk = {
 		gdk_imprints.c gdk_imprints.h \
 		gdk_join.c gdk_project.c \
 		gdk_unique.c \
-		gdk_firstn.c \
-		bat.feps bat1.feps bat2.feps \
-		libbat.rc
+		gdk_firstn.c
+		
 	LIBS = ../common/options/libmoptions \
 		../common/stream/libstream \
 		../common/utils/libmutils \
@@ -39,25 +38,3 @@ lib_gdk = {
 		$(MALLOC_LIBS) $(PTHREAD_LIBS) $(DL_LIBS) $(PSAPILIB) $(KVM_LIBS)
 }
 
-headers_h = {
-	DIR = includedir/monetdb
-	HEADERS = h
-	SOURCES = \
-		gdk.h \
-		gdk_atomic.h \
-		gdk_atoms.h \
-		gdk_bbp.h \
-		gdk_calc.h \
-		gdk_delta.h \
-		gdk_posix.h \
-		gdk_hash.h \
-		gdk_system.h \
-		gdk_utils.h
-}
-
-headers_pc = {
-	COND = NOT_WIN32
-	HEADERS = pc
-	DIR = libdir/pkgconfig
-	SOURCES = monetdb-gdk.pc.in
-}

@@ -2,5 +2,3 @@ language: r
 r:
   - release
   - devel
-before_install:
-   - (cd src; ./bootstrap)
