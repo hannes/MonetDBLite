@@ -4,3 +4,4 @@ r:
   - devel
 r_packages:
   - MonetDB.R
+  - DBI
