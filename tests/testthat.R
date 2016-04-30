@@ -1,2 +1,2 @@
 library(testthat)
-test_check("testthat")
+test_check("MonetDBLite")
