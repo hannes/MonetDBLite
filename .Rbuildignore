@@ -2,3 +2,5 @@ src/buildtools/autogen
 src/buildtools/doc
 Makefile.ag
 Makefile.msc
+.hgeol
+.travis.yml

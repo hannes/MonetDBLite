@@ -1,4 +1,3 @@
-Makefile.am
 Makefile.msc
 Makefile
 src/config.log
