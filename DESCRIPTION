@@ -9,4 +9,3 @@ URL: http://www.monetdb.org
 SystemRequirements: GNU make
 Depends: R (>= 3.2.0)
 Suggests: testthat
-Enhances: MonetDB.R

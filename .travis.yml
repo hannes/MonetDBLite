@@ -2,6 +2,3 @@ language: r
 r:
   - release
   - devel
-r_packages:
-  - MonetDB.R
-  - DBI
