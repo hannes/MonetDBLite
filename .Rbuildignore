@@ -4,3 +4,4 @@ Makefile.ag
 Makefile.msc
 .hgeol
 .travis.yml
+init.sh
