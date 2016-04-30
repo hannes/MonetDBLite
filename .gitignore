@@ -1,7 +1,9 @@
 Makefile.am
 Makefile.msc
-Makefile.in
 Makefile
+src/config.log
+src/config.status
+*.in
 *.so
 *.lo
 .libs
@@ -10,4 +12,3 @@ Makefile
 .DS_store
 .project
 monetdb_config.h
-monetdb_config.h.in
