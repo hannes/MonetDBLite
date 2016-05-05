@@ -12,3 +12,4 @@ src/config.status
 .cproject
 monetdb_config.h
 autom4te.cache
+MonetDBLite_*.tar.gz

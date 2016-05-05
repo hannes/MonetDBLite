@@ -5,6 +5,8 @@ Makefile.msc
 .hgeol
 .travis.yml
 init.sh
+hgimport.sh
+buildandtest.sh
 .*\.la
 .*\.lo
 .git
