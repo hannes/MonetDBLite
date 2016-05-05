@@ -2,5 +2,4 @@ language: r
 r:
   - release
   - devel
-before_install:
-   - (cd src; ./bootstrap)
+warnings_are_errors: false
