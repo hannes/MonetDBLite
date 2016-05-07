@@ -2,7 +2,4 @@ language: r
 r:
   - release
   - devel
-os:
-  - linux
-  - osx
 warnings_are_errors: false
