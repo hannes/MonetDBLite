@@ -9,4 +9,6 @@ hgimport.sh
 buildandtest.sh
 .*\.la
 .*\.lo
+.*\.sql
+.*\.mal
 .git
