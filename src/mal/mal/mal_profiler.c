@@ -20,6 +20,7 @@
 #include "mal_profiler.h"
 #include "mal_runtime.h"
 #include "mal_resource.h"
+#include "mal_utils.h"
 
 static void cachedProfilerEvent(MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 

@@ -16,6 +16,7 @@
 #include "mal_exception.h"
 #include "mal_interpreter.h"
 #include "mal_namespace.h"
+#include "mal_utils.h"
 
 #ifdef WIN32
 #if !defined(LIBMAL) && !defined(LIBATOMS) && !defined(LIBKERNEL) && !defined(LIBMAL) && !defined(LIBOPTIMIZER) && !defined(LIBSCHEDULER) && !defined(LIBMONETDB5)
