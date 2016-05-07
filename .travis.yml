@@ -5,8 +5,4 @@ r:
 os:
   - linux
   - osx
-
-compiler:
-  - gcc
-  - clang
 warnings_are_errors: false
