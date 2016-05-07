@@ -1,5 +1,7 @@
 src/buildtools/autogen
 src/buildtools/doc
+src/buildtools/doc
+src/autom4te.cache
 Makefile.ag
 Makefile.msc
 .hgeol
@@ -7,8 +9,10 @@ Makefile.msc
 init.sh
 hgimport.sh
 buildandtest.sh
+.git
 .*\.la
 .*\.lo
 .*\.sql
 .*\.mal
-.git
+.*\.ag
+.*\.msc

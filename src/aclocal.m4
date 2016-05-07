@@ -1430,7 +1430,7 @@ m4_include([buildtools/conf/libtool.m4])
 m4_include([buildtools/conf/ltoptions.m4])
 m4_include([buildtools/conf/ltsugar.m4])
 m4_include([buildtools/conf/ltversion.m4])
-m4_include([buildtools/conf/lt-obsolete.m4])
+m4_include([buildtools/conf/lt~obsolete.m4])
 # iconv.m4 serial 19 (gettext-0.18.2)
 dnl Copyright (C) 2000-2002, 2007-2014 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
