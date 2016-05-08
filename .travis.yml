@@ -3,3 +3,5 @@ r:
   - release
   - devel
 warnings_are_errors: false
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
