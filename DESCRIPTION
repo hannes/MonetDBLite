@@ -5,7 +5,8 @@ Author: MonetDB Development Team
 Maintainer: Hannes Muehleisen <hannes@cwi.nl>
 Description: An in-process version of MonetDB, a relational database focused on analytical tasks. Similar to SQLite, the database runs entirely inside the R shell, with the main difference  that queries complete much faster thanks to MonetDB's columnar architecture.
 License: MPL (== 2.0)
-URL: http://www.monetdb.org
+URL: https://github.com/hannesmuehleisen/MonetDBLite
+BugReports: https://github.com/hannesmuehleisen/MonetDBLite/issues
 SystemRequirements: GNU make
 Depends: R (>= 3.2.0)
 Suggests: testthat
