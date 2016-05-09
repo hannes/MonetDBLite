@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import zlib
 
 # these includes are skipped
 blacklist = ('remote', 'srvpool', 'mal_mapi', 'json', 'json_util', 'mcurl', 'xml', 'batxml', 'recycle', 'txtsim', 'tokenizer', 'zorder', '70_vault', '80_lsst', '80_udf', '23_skyserver', '24_zorder', '40_json', '80_udf')
@@ -36,10 +37,10 @@ def to_hex(s, n=1024):
     return "\n" + result + "0}"
 
 os.chdir(sys.argv[1])
-s = mal_include("mal_init.mal")
+s = zlib.compress(mal_include("mal_init.mal"), 9)
 outf = open(sys.argv[2], "w")
-outf.write("char mal_init_inline_arr[] = " + to_hex(s) + ";\n")
-outf.write("char* mal_init_inline = mal_init_inline_arr;\n")
+outf.write("unsigned char mal_init_inline_arr[] = " + to_hex(s) + ";\n")
+outf.write("unsigned char* mal_init_inline = 0;\n")
 
 s = ""
 files = os.listdir("createdb")
@@ -48,6 +49,7 @@ for f in files:
     if f.endswith(".sql") and not f.startswith(blacklist):
         print(f)
         s += open(os.path.join("createdb", f)).read() + "\n"
-outf.write("\nchar createdb_inline_arr[] = " + to_hex(s) + ";\n")
-outf.write("char* createdb_inline = createdb_inline_arr;\n")
+s = zlib.compress(s, 9)
+outf.write("\nunsigned char createdb_inline_arr[] = " + to_hex(s) + ";\n")
+outf.write("unsigned char* createdb_inline = 0;\n")
 

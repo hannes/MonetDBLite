@@ -28,6 +28,10 @@
 #include "res_table.h"
 #include "sql_scenario.h"
 
+
+#include "decompress.c"
+#include "inlined_scripts.c"
+
 #include <locale.h>
 
 int monetdb_embedded_initialized = 0;
@@ -64,6 +68,8 @@ void monetdb_disconnect(void* conn) {
 #define NULLFILE "/dev/null"
 #endif
 
+#define EMBEDDED_SCRIPT_SIZE_MAX 10485760 // 10 MB
+
 char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	opt *set = NULL;
 	volatile int setlen = 0;
@@ -87,6 +93,23 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	}
 
 	if (monetdb_embedded_initialized) goto cleanup;
+
+	// decompress scripts
+	if (!mal_init_inline) {
+		size_t decompress_len_mal = EMBEDDED_SCRIPT_SIZE_MAX;
+		size_t decompress_len_sql = EMBEDDED_SCRIPT_SIZE_MAX;
+		mal_init_inline = GDKmalloc(decompress_len_mal);
+		createdb_inline = GDKmalloc(decompress_len_sql);
+		if (!mal_init_inline || !createdb_inline) {
+			retval = GDKstrdup("Memory allocation failed");
+			goto cleanup;
+		}
+		if (uncompress(mal_init_inline, &decompress_len_mal, mal_init_inline_arr, sizeof(mal_init_inline_arr)) != 0 ||
+			uncompress(createdb_inline, &decompress_len_sql, createdb_inline_arr, sizeof(createdb_inline_arr)) != 0) {
+			retval = GDKstrdup("Script decompression failed");
+			goto cleanup;
+		}
+	}
 
 	embedded_stdout = fopen(NULLFILE, "w");
 	embedded_stderr = fopen(NULLFILE, "w");

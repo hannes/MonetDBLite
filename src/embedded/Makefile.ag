@@ -35,7 +35,7 @@ INCLUDES = ../mal/mal \
 		   $(pcre_CFLAGS)
 
 lib_embedded  = {
-	SOURCES = embedded.c embedded.h inlined_scripts.c
+	SOURCES = embedded.c embedded.h
 	VERSION = 1
 	LIBS = ../mal/tools/libmonetdb5 \
 		../gdk/libbat \
