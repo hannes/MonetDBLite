@@ -35,16 +35,12 @@ def to_hex(s, n=1024):
         result += ",".join(str(ord(c)) for c in chunk) +  ",\n"
     return "\n" + result + "0}"
 
-wd = os.getcwd()
-
 os.chdir(sys.argv[1])
 s = mal_include("mal_init.mal")
-os.chdir(wd)
-outf = open("embedded/inlined_scripts.c", "w")
+outf = open(sys.argv[2], "w")
 outf.write("char mal_init_inline_arr[] = " + to_hex(s) + ";\n")
 outf.write("char* mal_init_inline = mal_init_inline_arr;\n")
 
-os.chdir(sys.argv[1])
 s = ""
 files = os.listdir("createdb")
 files.sort()
@@ -52,7 +48,6 @@ for f in files:
     if f.endswith(".sql") and not f.startswith(blacklist):
         print(f)
         s += open(os.path.join("createdb", f)).read() + "\n"
-os.chdir(wd)
 outf.write("\nchar createdb_inline_arr[] = " + to_hex(s) + ";\n")
 outf.write("char* createdb_inline = createdb_inline_arr;\n")
 
