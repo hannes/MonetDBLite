@@ -13,3 +13,9 @@ extern FILE* embedded_stderr;
 #define srand(seed) ((void) (seed))
 extern int embedded_r_rand(void);
 #define rand embedded_r_rand
+
+#undef PTRFMT
+#undef PTRFMTCAST
+
+#define PTRFMT "%p"
+#define PTRFMTCAST (void *)
