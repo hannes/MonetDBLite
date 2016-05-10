@@ -8,5 +8,6 @@ License: MPL (== 2.0)
 URL: https://github.com/hannesmuehleisen/MonetDBLite
 BugReports: https://github.com/hannesmuehleisen/MonetDBLite/issues
 SystemRequirements: GNU make
-Depends: R (>= 3.2.0), MonetDB.R (>= 1.0.1)
+Depends: R (>= 3.2.0)
+Imports: MonetDB.R (>= 1.0.1)
 Suggests: testthat
