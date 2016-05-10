@@ -10,13 +10,12 @@
 * the latest released version from CRAN with
 
     ```R
-    install.packages(c("MonetDB.R", "MonetDBLite"))
+    install.packages("MonetDBLite")
     ````
 
 * the latest development version from github with
 
     ```R
-    install.packages("MonetDB.R"))
     devtools::install_github("hannesmuehleisen/MonetDBLite")
     ```
 
