@@ -96,8 +96,8 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 
 	// decompress scripts
 	if (!mal_init_inline) {
-		size_t decompress_len_mal = EMBEDDED_SCRIPT_SIZE_MAX;
-		size_t decompress_len_sql = EMBEDDED_SCRIPT_SIZE_MAX;
+		mz_ulong decompress_len_mal = EMBEDDED_SCRIPT_SIZE_MAX;
+		mz_ulong decompress_len_sql = EMBEDDED_SCRIPT_SIZE_MAX;
 		mal_init_inline = GDKmalloc(decompress_len_mal);
 		createdb_inline = GDKmalloc(decompress_len_sql);
 		if (!mal_init_inline || !createdb_inline) {
