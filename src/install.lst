@@ -1,13 +1,5 @@
 
 	$(includedir)/monetdb/monetdb_config.h
-buildtools/
-buildtools/conf/
-	$(prefix)/website.html#NATIVE_WIN32
-	$(sysconfdir)/tmpfiles.d/monetdbd.conf#NOT_WIN32
-	$(prefix)/banner.bmp#NATIVE_WIN32
-	$(prefix)/monetdb.ico#NATIVE_WIN32
-	$(bindir)/Maddlog#HAVE_DEVELOPER
-	$(prefix)/license.rtf#NATIVE_WIN32
 common/
 common/stream/
 	$(libdir)/libstream.so

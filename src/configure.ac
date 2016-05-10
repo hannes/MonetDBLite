@@ -3539,13 +3539,11 @@ dnl bootstrap adds a (long) list of file names inside the
 dnl AC_CONFIG_FILES command
 AC_CONFIG_FILES([
 Makefile
-buildtools/Makefile
 common/Makefile
 gdk/Makefile
 mal/Makefile
 sql/Makefile
 embedded/Makefile
-buildtools/conf/Makefile
 common/stream/Makefile
 common/options/Makefile
 common/utils/Makefile

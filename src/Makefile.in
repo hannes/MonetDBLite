@@ -172,7 +172,10 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/monetdb_config.h.in \
 	$(top_srcdir)/buildtools/conf/config.sub \
 	$(top_srcdir)/buildtools/conf/install-sh \
 	$(top_srcdir)/buildtools/conf/ltmain.sh \
-	$(top_srcdir)/buildtools/conf/missing
+	$(top_srcdir)/buildtools/conf/missing buildtools/conf/compile \
+	buildtools/conf/config.guess buildtools/conf/config.rpath \
+	buildtools/conf/config.sub buildtools/conf/install-sh \
+	buildtools/conf/ltmain.sh buildtools/conf/missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -515,7 +518,7 @@ zlib_LIBS = @zlib_LIBS@
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 ACLOCAL_AMFLAGS = -I buildtools/conf
 AM_CPPFLAGS = -I$(srcdir)
-SUBDIRS = buildtools common gdk mal sql embedded
+SUBDIRS = common gdk mal sql embedded
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
 EXTRA_DIST = Makefile.ag Makefile.msc configure configure.ac configure.ag libversions monetdb_config.h

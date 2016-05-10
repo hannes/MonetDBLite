@@ -2,7 +2,7 @@
 
 PREFIX=/tmp/monetdblite-init-stage
 SRCDIR=`pwd`
-ø
+
 rm -r $PREFIX
 mkdir -p $PREFIX/install
 mkdir -p $PREFIX/build

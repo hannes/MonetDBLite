@@ -1,6 +1,4 @@
 
-buildtools/
-buildtools/conf/
 common/
 common/stream/
 common/options/
