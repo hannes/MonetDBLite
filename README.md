@@ -22,12 +22,3 @@
 
 If you encounter a bug, please file a minimal reproducible example on [github](https://github.com/hannesmuehleisen/MonetDBLite/issues). For questions and other discussion, please use [stack overflow](http://stackoverflow.com/questions/tagged/monetdblite) with the tag `monetdblite`.
 
-    ```R
-    install.packages("MonetDB.R"))
-    devtools::install_github("hannesmuehleisen/MonetDBLite")
-    ```
-## Basic Usage
-
-Here is how one would write a `data.frame` to the database and get the results of a SQL query. Keep in mind that data will be persistent in the folder that is provided. 
-
-
