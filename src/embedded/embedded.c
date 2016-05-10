@@ -98,14 +98,14 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	if (!mal_init_inline) {
 		mz_ulong decompress_len_mal = EMBEDDED_SCRIPT_SIZE_MAX;
 		mz_ulong decompress_len_sql = EMBEDDED_SCRIPT_SIZE_MAX;
-		mal_init_inline = GDKmalloc(decompress_len_mal);
-		createdb_inline = GDKmalloc(decompress_len_sql);
+		mal_init_inline = GDKzalloc(decompress_len_mal);
+		createdb_inline = GDKzalloc(decompress_len_sql);
 		if (!mal_init_inline || !createdb_inline) {
 			retval = GDKstrdup("Memory allocation failed");
 			goto cleanup;
 		}
-		if (uncompress(mal_init_inline, &decompress_len_mal, mal_init_inline_arr, sizeof(mal_init_inline_arr)) != 0 ||
-			uncompress(createdb_inline, &decompress_len_sql, createdb_inline_arr, sizeof(createdb_inline_arr)) != 0) {
+		if (mz_uncompress(mal_init_inline, &decompress_len_mal, mal_init_inline_arr, sizeof(mal_init_inline_arr)) != 0 ||
+			mz_uncompress(createdb_inline, &decompress_len_sql, createdb_inline_arr, sizeof(createdb_inline_arr)) != 0) {
 			retval = GDKstrdup("Script decompression failed");
 			goto cleanup;
 		}
