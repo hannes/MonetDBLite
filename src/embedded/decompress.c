@@ -272,16 +272,7 @@ enum
   TDEFL_FORCE_ALL_RAW_BLOCKS          = 0x80000
 };
 
-void *tdefl_compress_mem_to_heap(const void *pSrc_buf, size_t src_buf_len, size_t *pOut_len, int flags);
-
-size_t tdefl_compress_mem_to_mem(void *pOut_buf, size_t out_buf_len, const void *pSrc_buf, size_t src_buf_len, int flags);
-
-void *tdefl_write_image_to_png_file_in_memory_ex(const void *pImage, int w, int h, int num_chans, size_t *pLen_out, mz_uint level, mz_bool flip);
-void *tdefl_write_image_to_png_file_in_memory(const void *pImage, int w, int h, int num_chans, size_t *pLen_out);
-
 typedef mz_bool (*tdefl_put_buf_func_ptr)(const void* pBuf, int len, void *pUser);
-
-mz_bool tdefl_compress_mem_to_output(const void *pBuf, size_t buf_len, tdefl_put_buf_func_ptr pPut_buf_func, void *pPut_buf_user, int flags);
 
 enum { TDEFL_MAX_HUFF_TABLES = 3, TDEFL_MAX_HUFF_SYMBOLS_0 = 288, TDEFL_MAX_HUFF_SYMBOLS_1 = 32, TDEFL_MAX_HUFF_SYMBOLS_2 = 19, TDEFL_LZ_DICT_SIZE = 32768, TDEFL_LZ_DICT_SIZE_MASK = TDEFL_LZ_DICT_SIZE - 1, TDEFL_MIN_MATCH_LEN = 3, TDEFL_MAX_MATCH_LEN = 258 };
 
@@ -334,18 +325,6 @@ typedef struct
   mz_uint8 m_output_buf[TDEFL_OUT_BUF_SIZE];
 } tdefl_compressor;
 
-tdefl_status tdefl_init(tdefl_compressor *d, tdefl_put_buf_func_ptr pPut_buf_func, void *pPut_buf_user, int flags);
-
-tdefl_status tdefl_compress(tdefl_compressor *d, const void *pIn_buf, size_t *pIn_buf_size, void *pOut_buf, size_t *pOut_buf_size, tdefl_flush flush);
-
-tdefl_status tdefl_compress_buffer(tdefl_compressor *d, const void *pIn_buf, size_t in_buf_size, tdefl_flush flush);
-
-tdefl_status tdefl_get_prev_return_status(tdefl_compressor *d);
-mz_uint32 tdefl_get_adler32(tdefl_compressor *d);
-
-#ifndef MINIZ_NO_ZLIB_APIS
-mz_uint tdefl_create_comp_flags_from_zip_params(int level, int window_bits, int strategy);
-#endif 
 #ifdef __cplusplus
 }
 #endif
