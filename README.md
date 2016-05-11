@@ -44,11 +44,11 @@ dbWriteTable(con, "mtcars", mtcars)
 
 Pro Tip: Use [`fread`](http://www.inside-r.org/packages/cran/data.table/docs/fread) from the [`data.table` package](https://github.com/Rdatatable/data.table/wiki) to read larger CSV files into R, then use dbWriteTable to add them to the database.
 
-You can also use the convenience function [`monetdb.read.csv`](http://www.inside-r.org/packages/cran/monetdb.r/docs/monetdb.read.csv) to directly import from CSV:
+You can also directly import from a CSV by providing a file name instead of a data.frame to `dbWriteTable`:
 ```R
 csvfile <- tempfile()
 write.table(mtcars, csvfile, sep=",", row.names = FALSE)
-MonetDB.R::monetdb.read.csv(con, csvfile, "mtcars2")
+dbWriteTable(con, "mtcars2", csvfile)
 ```
 
 The SQL interface of MonetDBLite can also be used to manually create a table and import data:
