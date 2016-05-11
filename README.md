@@ -52,10 +52,7 @@ The SQL interface of MonetDBLite can also be used to manually create a table and
 ```R
 dbBegin(con)
 dbSendQuery(con, "CREATE TABLE mtcars3 (mpg DOUBLE PRECISION, cyl INTEGER, disp DOUBLE PRECISION, hp INTEGER, drat DOUBLE PRECISION, wt DOUBLE PRECISION, qsec DOUBLE PRECISION, vs INTEGER, am INTEGER, gear INTEGER, carb INTEGER)")
-
-
-
-COPY OFFSET 2 INTO mtcars3 FROM '/private/var/folders/3v/3sdy3h4j67q2crtfvh_5kqt80000gn/T/Rtmplw0xii/file11b77584b9f86' USING DELIMITERS ',','\n','"' NULL as ''
+dbSendQuery(con, paste0("COPY OFFSET 2 INTO mtcars3 FROM '",csvfile,"' USING DELIMITERS ',','\n','\"' NULL as ''"))
 dbCommit(con)
 ```
 
