@@ -47,7 +47,7 @@ Pro Tip: Use [`fread`](http://www.inside-r.org/packages/cran/data.table/docs/fre
 You can also directly import from a CSV by providing a file name instead of a data.frame to `dbWriteTable`:
 ```R
 csvfile <- tempfile()
-write.table(mtcars, csvfile, sep=",", row.names = FALSE)
+write.csv(mtcars, csvfile, row.names = FALSE)
 dbWriteTable(con, "mtcars2", csvfile)
 ```
 
