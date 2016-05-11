@@ -21,3 +21,41 @@
 
 If you encounter a bug, please file a minimal reproducible example on [github](https://github.com/hannesmuehleisen/MonetDBLite/issues). For questions and other discussion, please use [stack overflow](http://stackoverflow.com/questions/tagged/monetdblite) with the tag `monetdblite`.
 
+
+## Startup
+
+MonetDBLite uses a [`DBI`](https://github.com/rstats-db/DBI) interface trought the [`MonetDB.R`](https://cran.r-project.org/web/packages/MonetDB.R/) package. To startup a server, create a DBI connection as follows:
+
+```R
+library(DBI)
+dbdir <- tempdir()
+con <- dbConnect(MonetDB.R::MonetDBLite(), dbdir)
+```
+
+If you want to keep the database around for later, change `dbdir` to point to some meaningful path.
+
+## Data Import
+
+Writing a R `data.frame` into MonetDBLite is efficient, the easiest way of creating a table is through [`dbWriteTable`](http://www.inside-r.org/packages/cran/DBI/docs/dbWriteTable):
+```R
+dbWriteTable(con, "mtcars", mtcars)
+```
+
+You can also use the convenience function [`monetdb.read.csv`](http://www.inside-r.org/packages/cran/monetdb.r/docs/monetdb.read.csv) to directly import from CSV:
+```R
+csvfile <- tempfile()
+write.table(mtcars, csvfile, sep=",", row.names = FALSE)
+MonetDB.R::monetdb.read.csv(con, csvfile, "mtcars2")
+```
+
+The SQL interface of MonetDBLite can also be used to manually create a table and import data:
+```R
+dbBegin(con)
+dbSendQuery(con, "CREATE TABLE mtcars3 (mpg DOUBLE PRECISION, cyl INTEGER, disp DOUBLE PRECISION, hp INTEGER, drat DOUBLE PRECISION, wt DOUBLE PRECISION, qsec DOUBLE PRECISION, vs INTEGER, am INTEGER, gear INTEGER, carb INTEGER)")
+
+
+
+COPY OFFSET 2 INTO mtcars3 FROM '/private/var/folders/3v/3sdy3h4j67q2crtfvh_5kqt80000gn/T/Rtmplw0xii/file11b77584b9f86' USING DELIMITERS ',','\n','"' NULL as ''
+dbCommit(con)
+```
+
