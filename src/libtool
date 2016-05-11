@@ -1,6 +1,6 @@
 #! /bin/sh
 # Generated automatically by config.status (MonetDB) 11.23.0
-# Libtool was configured on host herbert2.local:
+# Libtool was configured on host dakar.da.cwi.nl:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 
 # Provide generalized library-building support services.
@@ -165,10 +165,10 @@ old_postuninstall_cmds=""
 lock_old_archive_extraction=yes
 
 # A C compiler.
-LTCC="gcc"
+LTCC="clang"
 
 # LTCC compiler flags.
-LTCFLAGS="-g -O2 \$(X_CFLAGS)"
+LTCFLAGS="-I/usr/local/include -I/usr/local/include/freetype2 -I/opt/X11/include -Wall -Wno-unused -pedantic -I/Library/Frameworks/R.framework/Resources/include -fPIC -D_XPG6 -g -I/usr/local/Cellar/libatomic_ops/7.4.2/include -I/usr/local/Cellar/libatomic_ops/7.4.2/include \$(X_CFLAGS)"
 
 # Take the output of nm and produce a listing of raw symbols and C names.
 global_symbol_pipe="sed -n -e 's/^.*[	 ]\\([BCDEGRST][BCDEGRST]*\\)[	 ][	 ]*_\\([_A-Za-z][_A-Za-z0-9]*\\)\$/\\1 _\\2 \\2/p' | sed '/ __gnu_lto/d'"
@@ -285,7 +285,7 @@ finish_eval=""
 hardcode_into_libs=no
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/Library/Developer/CommandLineTools/usr/lib/clang/7.3.0  /usr/local/lib"
+sys_lib_search_path_spec="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/7.3.0  /usr/local/lib"
 
 # Detected run-time system search path for libraries.
 sys_lib_dlsearch_path_spec="/usr/local/lib /lib /usr/lib"
@@ -308,7 +308,7 @@ striplib="strip -x"
 
 
 # The linker used to build libraries.
-LD="/Library/Developer/CommandLineTools/usr/bin/ld"
+LD="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld"
 
 # How to create reloadable object files.
 reload_flag=" -r"
@@ -318,7 +318,7 @@ reload_cmds="\$LTCC \$LTCFLAGS -nostdlib \$wl-r -o \$output\$reload_objs"
 old_archive_cmds="\$AR \$AR_FLAGS \$oldlib\$oldobjs~\$RANLIB \$tool_oldlib"
 
 # A language specific compiler.
-CC="gcc"
+CC="clang"
 
 # Is the compiler the GNU compiler?
 with_gcc=yes
