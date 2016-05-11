@@ -42,8 +42,6 @@ Writing a R `data.frame` into MonetDBLite is efficient, the easiest way of creat
 dbWriteTable(con, "mtcars", mtcars)
 ```
 
-Pro Tip: Use [`fread`](http://www.inside-r.org/packages/cran/data.table/docs/fread) from the [`data.table` package](https://github.com/Rdatatable/data.table/wiki) to read larger CSV files into R, then use dbWriteTable to add them to the database.
-
 You can also directly import from a CSV by providing a file name instead of a `data.frame` to `dbWriteTable`:
 ```R
 csvfile <- tempfile()
