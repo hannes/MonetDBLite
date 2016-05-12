@@ -8,7 +8,7 @@
 
 ## Installation
 
-* the latest released version from CRAN with
+* the latest released version from [CRAN](https://cran.r-project.org/web/packages/MonetDBLite/) with
 
     ```R
     install.packages("MonetDBLite")
@@ -25,7 +25,7 @@ If you encounter a bug, please file a minimal reproducible example on [github](h
 
 ## Startup
 
-MonetDBLite uses a [`DBI`](https://github.com/rstats-db/DBI) interface trought the [`MonetDB.R`](https://cran.r-project.org/web/packages/MonetDB.R/) package. To startup a server, create a DBI connection as follows:
+MonetDBLite uses a [`DBI`](https://github.com/rstats-db/DBI) interface through the [`MonetDB.R`](https://cran.r-project.org/web/packages/MonetDB.R/) package. To startup a server, create a DBI connection as follows:
 
 ```R
 library(DBI)
