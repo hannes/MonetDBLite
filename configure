@@ -16,6 +16,7 @@ CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS -I$R_INCLUDE_DIR $CPICFLAGS -D_XPG6" \
 --enable-optimize --enable-silent-rules --disable-int128
 
 rm libmonetdb5.so
+touch src/aclocal.m4
 
 echo '
 
