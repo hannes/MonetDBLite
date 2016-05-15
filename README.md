@@ -4,11 +4,11 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MonetDBLite)](http://cran.r-project.org/package=MonetDBLite) 
 ![](http://cranlogs.r-pkg.org/badges/MonetDBLite)
 
-[MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/). It is similar in functionality to [RSQLite](https://cran.r-project.org/web/packages/RSQLite/index.html), but typically completes queries much faster due to its *columnar* storage architecture and bulk query processing model. MonetDBLite is based on [MonetDB](https://www.monetdb.org/Home).
+[MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/). It is similar in functionality to [RSQLite](http://cran.r-project.org/package=RSQLite), but typically completes queries much faster due to its *columnar* storage architecture and bulk query processing model. MonetDBLite is based on [MonetDB](https://www.monetdb.org/Home).
 
 ## Installation
 
-* the latest released version from [CRAN](https://cran.r-project.org/web/packages/MonetDBLite/) with
+* the latest released version from [CRAN](http://cran.r-project.org/package=MonetDBLite) with
 
     ```R
     install.packages("MonetDBLite")
@@ -25,7 +25,7 @@ If you encounter a bug, please file a minimal reproducible example on [github](h
 
 ## Startup
 
-MonetDBLite uses a [`DBI`](https://github.com/rstats-db/DBI) interface through the [`MonetDB.R`](https://cran.r-project.org/web/packages/MonetDB.R/) package. To startup a server, create a DBI connection as follows:
+MonetDBLite uses a [`DBI`](http://cran.r-project.org/package=DBI) interface through the [`MonetDB.R`](http://cran.r-project.org/package=MonetDB.R) package. To startup a server, create a DBI connection as follows:
 
 ```R
 library(DBI)
