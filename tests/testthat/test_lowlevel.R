@@ -1,12 +1,6 @@
-
 library(testthat)
+library(MonetDBLite)
 
-basedir <- Sys.getenv("TSTTRGDIR")
-if (basedir != "") {
-	library(MonetDBLite, quietly=T, lib.loc=file.path(basedir, "rlibdir"))
-} else {
-	library(MonetDBLite)
-}
 dbdir <- file.path(tempdir(), "db1")
 dbdir2 <- file.path(tempdir(), "db2")
 
