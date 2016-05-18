@@ -232,3 +232,23 @@ test_that("connections from previous run cannot be reused", {
 
 
 
+# https://www.monetdb.org/bugzilla/show_bug.cgi?id=3925
+test_that("dynamic NULL AS statements translate cleanly", {
+
+	monetdb_embedded_startup(dbdir3)
+	con <- monetdb_embedded_connect()
+	
+	single_missing <- structure(list(col1 = NA_integer_), "`__rows`" = 1, .Names = "col1", row.names = c(NA, 1L), class = "data.frame")
+	
+	expect_equal( monetdb_embedded_query( con , "SELECT NULL AS col1" )$tuples , single_missing )
+	expect_equal( monetdb_embedded_query( con , "SELECT NULL * 7 AS col1" )$tuples , single_missing )
+	
+	null_plus_one <- structure(list(col1 = NA, col2 = "gdk_dbpath"), "__rows" = 21, .Names = c("col1", "col2"), row.names = 1L, class = "data.frame")
+	
+	expect_equal( monetdb_embedded_query( con , "SELECT NULL AS col1 , name AS col2 FROM Sys.env()" )$tuples[ 1 , ] , null_plus_one )
+	
+	monetdb_embedded_disconnect(con)
+	monetdb_embedded_shutdown()
+	
+})
+
