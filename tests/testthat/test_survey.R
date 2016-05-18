@@ -70,6 +70,7 @@ test_that("db allows ?svyby commands", {
 	expect_true(is.na(svyby(~api00,~comp_imp+sch_wide,design=dclus1,svymean,drop.empty.groups=FALSE)[2,3]) )
 	expect_equal(round(svyby(~api00,~comp_imp+sch_wide,design=dclus1,svymean)[2,3],3),654.074)
 
+	expect_true( dbDisconnect( dclus1$db$connection , shutdown = TRUE ) )
 	
 })
 
