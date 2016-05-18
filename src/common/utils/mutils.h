@@ -44,13 +44,22 @@ mutils_export char *dirname(char *path);
 
 #endif
 
-#ifndef S_IWGRP
-/* if one doesn't exist, presumably they all don't exist - Not so on MinGW */
+#ifndef S_IRUSR
 #define S_IRUSR 0000400		/* read permission, owner */
+#endif
+#ifndef S_IWUSR
 #define S_IWUSR 0000200		/* write permission, owner */
+#endif
+#ifndef S_IRGRP
 #define S_IRGRP 0000040		/* read permission, group */
+#endif
+#ifndef S_IWGRP
 #define S_IWGRP 0000020		/* write permission, grougroup */
+#endif
+#ifndef S_IROTH
 #define S_IROTH 0000004		/* read permission, other */
+#endif
+#ifndef S_IWOTH
 #define S_IWOTH 0000002		/* write permission, other */
 #endif
 
