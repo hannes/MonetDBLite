@@ -237,47 +237,39 @@ test_that("dynamic NULL AS statements translate cleanly", {
 
 	monetdb_embedded_startup(dbdir3)
 	con <- monetdb_embedded_connect()
-	
-	single_missing <- structure(list(col1 = NA_integer_), "`__rows`" = 1, .Names = "col1", row.names = c(NA, 1L), class = "data.frame")
-	
-	expect_equal( monetdb_embedded_query( con , "SELECT NULL AS col1" )$tuples , single_missing )
-	expect_equal( monetdb_embedded_query( con , "SELECT NULL * 7 AS col1" )$tuples , single_missing )
-	
-	null_plus_one <- structure(list(col1 = NA, col2 = "gdk_dbpath"), "__rows" = 21, .Names = c("col1", "col2"), row.names = 1L, class = "data.frame")
-	
-	expect_equal( monetdb_embedded_query( con , "SELECT NULL AS col1 , name AS col2 FROM Sys.env()" )$tuples[ 1 , ] , null_plus_one )
+		
+	expect_equal( monetdb_embedded_query( con , "SELECT CAST(NULL AS INTEGER) AS col1" )$tuples$col1 , as.integer(NA) )
+	expect_equal( monetdb_embedded_query( con , "SELECT CAST(NULL * 7 AS INTEGER) AS col1" )$tuples$col1 , as.integer(NA) )
+		
+	expect_equal( monetdb_embedded_query( con , "SELECT CAST(NULL AS INTEGER) AS col1 , name AS col2 FROM Sys.env()" )$tuples[ 1 , 1] , as.integer(NA) )
 	
 	monetdb_embedded_disconnect(con)
 	monetdb_embedded_shutdown()
 	
 })
 
-
-
 test_that("check for database corruption at the conclusion of all other tests", {
 
-	corruption_sniff <- "select tables.name, columns.name, location from tables inner join columns on tables.id=columns.table_id left join storage on tables.name=storage.table and columns.name=storage.column where location is null"
+	corruption_sniff <- "select tables.name, columns.name, location from tables inner join columns on tables.id=columns.table_id left join storage on tables.name=storage.table and columns.name=storage.column where location is null and tables.name not in ('tables', 'columns', 'users', 'querylog_catalog', 'querylog_calls', 'querylog_history', 'tracelog', 'sessions', 'optimizers', 'environment', 'queue', 'rejects', 'storage', 'storagemodel', 'tablestoragemodel')"
 
 	monetdb_embedded_startup(dbdir)
 	con <- monetdb_embedded_connect()
 	cs <- monetdb_embedded_query( con , corruption_sniff )
-	expect_equal( cs$type, "1" )
-	expect_true( nrow( cs$tuples ) > 100 )
+	expect_equal(as.character(cs$type), "1")
+	expect_equal(0, nrow( cs$tuples ))
 	monetdb_embedded_shutdown()
 
-	
 	monetdb_embedded_startup(dbdir2)
 	con <- monetdb_embedded_connect()
 	cs <- monetdb_embedded_query( con , corruption_sniff )
-	expect_equal( cs$type, "1" )
-	expect_true( nrow( cs$tuples ) > 100 )
+	expect_equal( as.character(cs$type), "1" )
+	expect_equal(0, nrow( cs$tuples ))
 	monetdb_embedded_shutdown()
 
 	monetdb_embedded_startup(dbdir3)
 	con <- monetdb_embedded_connect()
 	cs <- monetdb_embedded_query( con , corruption_sniff )
-	expect_equal( cs$type, "1" )
-	expect_true( nrow( cs$tuples ) > 100 )
+	expect_equal( as.character(cs$type), "1" )
+	expect_equal(0, nrow( cs$tuples))
 	monetdb_embedded_shutdown()
-
 })

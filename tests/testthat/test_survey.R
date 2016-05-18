@@ -37,7 +37,7 @@ test_that("db allows database-backed survey designs", {
 
 
 
-test_that("db allows ?svyby commands", {
+test_that("db allows svyby commands", {
 
 	data(api)
 	dclus1 <- svydesign(id = ~dnum, weight=~pw,data = 'apiclus1',fpc = ~fpc, dbtype="MonetDBLite",dbname = dbfolder)
