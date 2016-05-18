@@ -519,7 +519,7 @@ mvc_reset(mvc *m, bstream *rs, stream *ws, int debug, int globalvars)
 		fprintf(stderr, "#mvc_reset\n");
 	tr = m->session->tr;
 	if (tr && tr->parent) {
-		m->session->active = 0;
+		assert(m->session->active == 0);
 		store_lock();
 		while (tr->parent->parent != NULL) 
 			tr = sql_trans_destroy(tr);

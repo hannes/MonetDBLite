@@ -29,6 +29,12 @@ OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded -name "*.
 
 $CC -shared -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37/libs/$R_ARCH/ -lpcre `$R_CMD config --ldflags`
 
+if [ ! -s libmonetdb5.dll]
+then
+	echo "library file was not created, something went wrong"
+	exit -1
+fi
+
 cd ../
 mkdir -p $R_PACKAGE_DIR/libs/$R_ARCH/
 cp src/embedded/windows/pcre-8.37/libs/$R_ARCH/pcre.dll $R_PACKAGE_DIR/libs/$R_ARCH/
