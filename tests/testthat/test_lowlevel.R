@@ -252,3 +252,32 @@ test_that("dynamic NULL AS statements translate cleanly", {
 	
 })
 
+
+
+test_that("check for database corruption at the conclusion of all other tests", {
+
+	corruption_sniff <- "select tables.name, columns.name, location from tables inner join columns on tables.id=columns.table_id left join storage on tables.name=storage.table and columns.name=storage.column where location is null"
+
+	monetdb_embedded_startup(dbdir)
+	con <- monetdb_embedded_connect()
+	cs <- monetdb_embedded_query( con , corruption_sniff )
+	expect_equal( cs$type, "1" )
+	expect_true( nrow( cs$tuples ) > 100 )
+	monetdb_embedded_shutdown()
+
+	
+	monetdb_embedded_startup(dbdir2)
+	con <- monetdb_embedded_connect()
+	cs <- monetdb_embedded_query( con , corruption_sniff )
+	expect_equal( cs$type, "1" )
+	expect_true( nrow( cs$tuples ) > 100 )
+	monetdb_embedded_shutdown()
+
+	monetdb_embedded_startup(dbdir3)
+	con <- monetdb_embedded_connect()
+	cs <- monetdb_embedded_query( con , corruption_sniff )
+	expect_equal( cs$type, "1" )
+	expect_true( nrow( cs$tuples ) > 100 )
+	monetdb_embedded_shutdown()
+
+})
