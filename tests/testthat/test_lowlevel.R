@@ -3,6 +3,7 @@ library(MonetDBLite)
 
 dbdir <- file.path(tempdir(), "db1")
 dbdir2 <- file.path(tempdir(), "db2")
+dbdir3 <- file.path(tempdir() , "space MonetDB" )
 
 test_that("db starts up", {
 	expect_error(monetdb_embedded_startup("/dev/null"))
@@ -204,6 +205,17 @@ test_that("db starts up in other directory", {
 	expect_equal(ncol(res$tuples), 1)
 	expect_equal(res$tuples$a2, 84)
 
+	monetdb_embedded_disconnect(con)
+	monetdb_embedded_shutdown()
+})
+
+test_that("db allows spaces in directory names", {
+	monetdb_embedded_startup(dbdir3)
+	con <- monetdb_embedded_connect()
+	
+	res <- monetdb_embedded_query(con, "SELECT name , value FROM Sys.env()")$tuples
+	expect_equal( res[ res$name == 'gdk_dbname' , 'value' ] , 'space MonetDB' )
+	
 	monetdb_embedded_disconnect(con)
 	monetdb_embedded_shutdown()
 })
