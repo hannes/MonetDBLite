@@ -432,16 +432,18 @@ void
 MCstopClients(Client cntxt)
 {
 	Client c = mal_clients;
-
 	MT_lock_set(&mal_contextLock);
-	for(c= mal_clients +1;  c < mal_clients+MAL_MAXCLIENTS; c++)
-	if( cntxt != c){
-		if ( c->mode == RUNCLIENT)
-			c->mode = FINISHCLIENT; 
-		else if (c->mode == FREECLIENT)
-			c->mode = BLOCKCLIENT;
+	for (c = mal_clients + 1; c < mal_clients + MAL_MAXCLIENTS; c++) {
+		if (cntxt != c){
+			if (c->mode == RUNCLIENT){
+				c->mode = FINISHCLIENT;
+				SQLexitClient(c);
+			}
+			else if (c->mode == FREECLIENT)
+				c->mode = BLOCKCLIENT;
+		}
 	}
-	shutdowninprogress =1;
+	shutdowninprogress = 1;
 	MT_lock_unset(&mal_contextLock);
 }
 
@@ -457,7 +459,7 @@ MCactiveClients(void)
 		running += (cntxt->mode == RUNCLIENT);
 		blocked += (cntxt->mode == BLOCKCLIENT);
 	}
-	return finishing+running +1 /* the admin */;
+	return finishing + running + 1 /* the admin */;
 }
 
 void
