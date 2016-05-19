@@ -103,7 +103,7 @@ static SEXP bat_to_sexp(BAT* b) {
 				return NULL;
 			}
 			/* special case where we exploit the duplicate-eliminated string heap */
-			if (GDK_ELIMDOUBLES(b->T->vheap)) {
+			if (0 && GDK_ELIMDOUBLES(b->T->vheap)) {
 				SEXP* sexp_ptrs = GDKzalloc(b->T->vheap->free * sizeof(SEXP));
 				if (!sexp_ptrs) {
 					return NULL;

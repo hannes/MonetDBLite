@@ -25,7 +25,6 @@ test_that("db allows database-backed survey designs", {
 	y <- cbind( x , repweights )
 	names( y ) <- tolower( names( y ) )
 	# this is just a try
-	gc()
 	dbWriteTable( db , 'rclus1' , y )
 
 	rclus1<-svrepdesign(data='rclus1', type="BRR", repweights="x[1-4]", combined.weights=FALSE,dbtype="MonetDBLite",dbname = dbfolder)

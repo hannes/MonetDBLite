@@ -230,7 +230,17 @@ test_that("connections from previous run cannot be reused", {
 	monetdb_embedded_shutdown()
 })
 
-
+test_that("running transactions connections dont prevent restart", {
+	monetdb_embedded_startup(dbdir)
+	con <- monetdb_embedded_connect()
+	monetdb_embedded_query(con, "START TRANSACTION")
+	monetdb_embedded_query(con, "CREATE TABLE foo (i integer)")
+	monetdb_embedded_query(con, "INSERT INTO foo VALUES (42)")
+	monetdb_embedded_shutdown()
+	monetdb_embedded_startup(dbdir)
+	con <- monetdb_embedded_connect()
+	monetdb_embedded_shutdown()
+})
 
 # https://www.monetdb.org/bugzilla/show_bug.cgi?id=3925
 test_that("dynamic NULL AS statements translate cleanly", {
