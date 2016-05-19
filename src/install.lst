@@ -105,14 +105,6 @@ sql/backends/monet5/
 	$(libdir)/monetdb5/sql_aggr_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/sql_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/sql_decimal_hge.mal#HAVE_HGE
-sql/backends/monet5/generator/
-	$(libdir)/monetdb5/createdb/90_generator.sql
-	$(libdir)/monetdb5/autoload/90_generator.mal
-	$(libdir)/monetdb5/createdb/90_generator_hge.sql#HAVE_HGE
-	$(libdir)/monetdb5/generator.mal
-	$(libdir)/monetdb5/lib_generator.so
-	$(libdir)/monetdb5/autoload/90_generator_hge.mal#HAVE_HGE
-	$(libdir)/monetdb5/generator_hge.mal#HAVE_HGE
 sql/scripts/
 	$(libdir)/monetdb5/createdb/80_statistics.sql
 	$(libdir)/monetdb5/createdb/39_analytics.sql

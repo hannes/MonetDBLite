@@ -44,7 +44,6 @@
 #include "mal_namespace.h"
 #include "mal_linker.h"
 #include "bat5.h"
-#include "msabaoth.h"
 #include <mtime.h>
 #include "optimizer.h"
 #include "opt_statistics.h"
@@ -183,31 +182,19 @@ SQLprelude(void *ret)
 #endif
 	/* only register availability of scenarios AFTER we are inited! */
 	s->name = "sql";
-	tmp = msab_marchScenario(s->name);
-	if (tmp != MAL_SUCCEED)
-		return (tmp);
 	ms->name = "msql";
-	tmp = msab_marchScenario(ms->name);
-	return tmp;
+	return MAL_SUCCEED;
 }
 
 str
 SQLepilogue(void *ret)
 {
-	char *s = "sql", *m = "msql";
-	str res;
-
 	(void) ret;
 	if (SQLinitialized) {
 		mvc_exit();
 		SQLinitialized = FALSE;
 	}
-	/* this function is never called, but for the style of it, we clean
-	 * up our own mess */
-	res = msab_retreatScenario(m);
-	if (!res)
-		return msab_retreatScenario(s);
-	return res;
+	return MAL_SUCCEED;
 }
 
 MT_Id sqllogthread, minmaxthread;

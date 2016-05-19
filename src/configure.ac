@@ -3563,7 +3563,6 @@ mal/modules/kernel/Makefile
 mal/modules/mal/Makefile
 sql/storage/bat/Makefile
 sql/backends/monet5/Makefile
-sql/backends/monet5/generator/Makefile
 ])
 AC_OUTPUT
 

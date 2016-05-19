@@ -27,7 +27,6 @@ int have_hge;
 #include "mal_interpreter.h"
 #include "mal_namespace.h"  /* for initNamespace() */
 #include "mal_client.h"
-#include "mal_sabaoth.h"
 #include "mal_dataflow.h"
 #include "mal_profiler.h"
 #include "mal_private.h"
@@ -123,19 +122,9 @@ void mserver_reset(void)
 	stopProfiler();
 	QOTstatisticsExit();
 	AUTHreset(); 
-	if ((err = msab_wildRetreat()) != NULL) {
-		fprintf(stderr, "!%s", err);
-		free(err);
-	}
-	if ((err = msab_registerStop()) != NULL) {
-		fprintf(stderr, "!%s", err);
-		free(err);
-	}
-	/* TODO: make sure this is still required
 #ifdef HAVE_EMBEDDED
-	MTIMEreset();
+	MTIMEepilogue(NULL);
 #endif
-*/
 	mal_factory_reset();
 	mal_dataflow_reset();
 	THRdel(mal_clients->mythread);

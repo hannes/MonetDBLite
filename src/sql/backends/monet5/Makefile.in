@@ -196,27 +196,11 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(dist_lib_sql_la_SOURCES) $(nodist_lib_sql_la_SOURCES)
 DIST_SOURCES = $(dist_lib_sql_la_SOURCES)
-RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
-	ctags-recursive dvi-recursive html-recursive info-recursive \
-	install-data-recursive install-dvi-recursive \
-	install-exec-recursive install-html-recursive \
-	install-info-recursive install-pdf-recursive \
-	install-ps-recursive install-recursive installcheck-recursive \
-	installdirs-recursive pdf-recursive ps-recursive \
-	tags-recursive uninstall-recursive
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
-  distclean-recursive maintainer-clean-recursive
-am__recursive_targets = \
-  $(RECURSIVE_TARGETS) \
-  $(RECURSIVE_CLEAN_TARGETS) \
-  $(am__extra_recursive_targets)
-AM_RECURSIVE_TARGETS = $(am__recursive_targets:-recursive=) TAGS CTAGS \
-	distdir
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -236,34 +220,8 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-am__relativize = \
-  dir0=`pwd`; \
-  sed_first='s,^\([^/]*\)/.*$$,\1,'; \
-  sed_rest='s,^[^/]*/*,,'; \
-  sed_last='s,^.*/\([^/]*\)$$,\1,'; \
-  sed_butlast='s,/*[^/]*$$,,'; \
-  while test -n "$$dir1"; do \
-    first=`echo "$$dir1" | sed -e "$$sed_first"`; \
-    if test "$$first" != "."; then \
-      if test "$$first" = ".."; then \
-        dir2=`echo "$$dir0" | sed -e "$$sed_last"`/"$$dir2"; \
-        dir0=`echo "$$dir0" | sed -e "$$sed_butlast"`; \
-      else \
-        first2=`echo "$$dir2" | sed -e "$$sed_first"`; \
-        if test "$$first2" = "$$first"; then \
-          dir2=`echo "$$dir2" | sed -e "$$sed_rest"`; \
-        else \
-          dir2="../$$dir2"; \
-        fi; \
-        dir0="$$dir0"/"$$first"; \
-      fi; \
-    fi; \
-    dir1=`echo "$$dir1" | sed -e "$$sed_rest"`; \
-  done; \
-  reldir="$$dir2"
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
@@ -568,7 +526,6 @@ lib_sql_la_LIBADD = ../../server/libsqlserver.la ../../storage/libstore.la ../..
 nodist_lib_sql_la_SOURCES = 
 dist_lib_sql_la_SOURCES = sql.c sql.h mal_backend.c mal_backend.h sql_user.c sql_user.h sql_scenario.c sql_scenario.h sql_execute.c sql_execute.h sql_assert.c sql_assert.h sql_upgrades.c sql_upgrades.h rel_bin.c rel_bin.h sql_statement.c sql_statement.h sql_statistics.c sql_statistics.h sql_gencode.c sql_gencode.h sql_optimizer.c sql_optimizer.h sql_result.c sql_result.h sql_readline.c sql_readline.h sql_cast.c sql_cast.h sql_cast_impl_down_from_flt.h sql_cast_impl_down_from_int.h sql_cast_impl_up_to_flt.h sql_cast_impl_up_to_int.h sql_round.c sql_round_impl.h sql_bat2time.c sql_fround.c sql_fround_impl.h sql_rank.c sql_rank.h
 lib_sql_la_LDFLAGS = -module -avoid-version
-SUBDIRS = generator
 AM_CPPFLAGS = -I$(srcdir) -I../../include -I$(srcdir)/../../include -I../../common -I$(srcdir)/../../common -I../../storage -I$(srcdir)/../../storage -I../../server -I$(srcdir)/../../server -I../../../mal/modules/atoms -I$(srcdir)/../../../mal/modules/atoms -I../../../mal/modules/kernel -I$(srcdir)/../../../mal/modules/kernel -I../../../mal/mal -I$(srcdir)/../../../mal/mal -I../../../mal/modules/mal -I$(srcdir)/../../../mal/modules/mal -I../../../mal/optimizer -I$(srcdir)/../../../mal/optimizer -I../../../mal/scheduler -I$(srcdir)/../../../mal/scheduler -I../../../mal/extras/rapi -I$(srcdir)/../../../mal/extras/rapi -I../../../common/options -I$(srcdir)/../../../common/options -I../../../common/stream -I$(srcdir)/../../../common/stream -I../../../common/utils -I$(srcdir)/../../../common/utils -I../../../gdk -I$(srcdir)/../../../gdk
 @HAVE_HGE_TRUE@C_41_sql_hge_mal = 41_sql_hge.mal
 @HAVE_HGE_TRUE@C_sql_aggr_hge_mal = sql_aggr_hge.mal
@@ -579,7 +536,7 @@ MOSTLYCLEANFILES =
 EXTRA_DIST = Makefile.ag Makefile.msc 40_sql.mal 41_sql_hge.mal mal_backend.c mal_backend.h rel_bin.c rel_bin.h sql.c sql.h sql.mal sql_aggr_bte.mal sql_aggr_dbl.mal sql_aggr_flt.mal sql_aggr_hge.mal sql_aggr_int.mal sql_aggr_lng.mal sql_aggr_sht.mal sql_aggr_wrd.mal sql_assert.c sql_assert.h sql_bat2time.c sql_cast.c sql_cast.h sql_cast_impl_down_from_flt.h sql_cast_impl_down_from_int.h sql_cast_impl_up_to_flt.h sql_cast_impl_up_to_int.h sql_decimal.mal sql_decimal_hge.mal sql_execute.c sql_execute.h sql_fround.c sql_fround_impl.h sql_gencode.c sql_gencode.h sql_hge.mal sql_inspect.mal sql_optimizer.c sql_optimizer.h sql_rank.c sql_rank.h sql_rank.mal sql_readline.c sql_readline.h sql_result.c sql_result.h sql_round.c sql_round_impl.h sql_scenario.c sql_scenario.h sql_statement.c sql_statement.h sql_statistics.c sql_statistics.h sql_upgrades.c sql_upgrades.h sql_user.c sql_user.h
 sql_LTLIBRARIES = lib_sql.la
 all: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) all-recursive
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .lo .o .obj
@@ -672,61 +629,14 @@ mostlyclean-libtool:
 clean-libtool:
 	-rm -rf .libs _libs
 
-# This directory's subdirectories are mostly independent; you can cd
-# into them and run 'make' without going through this Makefile.
-# To change the values of 'make' variables: instead of editing Makefiles,
-# (1) if the variable is set in 'config.status', edit 'config.status'
-#     (which will cause the Makefiles to be regenerated when you run 'make');
-# (2) otherwise, pass the desired values on the 'make' command line.
-$(am__recursive_targets):
-	@fail=; \
-	if $(am__make_keepgoing); then \
-	  failcom='fail=yes'; \
-	else \
-	  failcom='exit 1'; \
-	fi; \
-	dot_seen=no; \
-	target=`echo $@ | sed s/-recursive//`; \
-	case "$@" in \
-	  distclean-* | maintainer-clean-*) list='$(DIST_SUBDIRS)' ;; \
-	  *) list='$(SUBDIRS)' ;; \
-	esac; \
-	for subdir in $$list; do \
-	  echo "Making $$target in $$subdir"; \
-	  if test "$$subdir" = "."; then \
-	    dot_seen=yes; \
-	    local_target="$$target-am"; \
-	  else \
-	    local_target="$$target"; \
-	  fi; \
-	  ($(am__cd) $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
-	  || eval $$failcom; \
-	done; \
-	if test "$$dot_seen" = "no"; then \
-	  $(MAKE) $(AM_MAKEFLAGS) "$$target-am" || exit 1; \
-	fi; test -z "$$fail"
-
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
-tags: tags-recursive
+tags: tags-am
 TAGS: tags
 
 tags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
 	set x; \
 	here=`pwd`; \
-	if ($(ETAGS) --etags-include --version) >/dev/null 2>&1; then \
-	  include_option=--etags-include; \
-	  empty_fix=.; \
-	else \
-	  include_option=--include; \
-	  empty_fix=; \
-	fi; \
-	list='$(SUBDIRS)'; for subdir in $$list; do \
-	  if test "$$subdir" = .; then :; else \
-	    test ! -f $$subdir/TAGS || \
-	      set "$$@" "$$include_option=$$here/$$subdir/TAGS"; \
-	  fi; \
-	done; \
 	$(am__define_uniq_tagged_files); \
 	shift; \
 	if test -z "$(ETAGS_ARGS)$$*$$unique"; then :; else \
@@ -739,7 +649,7 @@ tags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
 	      $$unique; \
 	  fi; \
 	fi
-ctags: ctags-recursive
+ctags: ctags-am
 
 CTAGS: ctags
 ctags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
@@ -752,7 +662,7 @@ GTAGS:
 	here=`$(am__cd) $(top_builddir) && pwd` \
 	  && $(am__cd) $(top_srcdir) \
 	  && gtags -i $(GTAGS_ARGS) "$$here"
-cscopelist: cscopelist-recursive
+cscopelist: cscopelist-am
 
 cscopelist-am: $(am__tagged_files)
 	list='$(am__tagged_files)'; \
@@ -801,53 +711,27 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
-	@list='$(DIST_SUBDIRS)'; for subdir in $$list; do \
-	  if test "$$subdir" = .; then :; else \
-	    $(am__make_dryrun) \
-	      || test -d "$(distdir)/$$subdir" \
-	      || $(MKDIR_P) "$(distdir)/$$subdir" \
-	      || exit 1; \
-	    dir1=$$subdir; dir2="$(distdir)/$$subdir"; \
-	    $(am__relativize); \
-	    new_distdir=$$reldir; \
-	    dir1=$$subdir; dir2="$(top_distdir)"; \
-	    $(am__relativize); \
-	    new_top_distdir=$$reldir; \
-	    echo " (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) top_distdir="$$new_top_distdir" distdir="$$new_distdir" \\"; \
-	    echo "     am__remove_distdir=: am__skip_length_check=: am__skip_mode_fix=: distdir)"; \
-	    ($(am__cd) $$subdir && \
-	      $(MAKE) $(AM_MAKEFLAGS) \
-	        top_distdir="$$new_top_distdir" \
-	        distdir="$$new_distdir" \
-		am__remove_distdir=: \
-		am__skip_length_check=: \
-		am__skip_mode_fix=: \
-	        distdir) \
-	      || exit 1; \
-	  fi; \
-	done
 	$(MAKE) $(AM_MAKEFLAGS) \
 	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
 	  dist-hook
 check-am: all-am
 check: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) check-recursive
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES)
-installdirs: installdirs-recursive
-installdirs-am:
+installdirs:
 	for dir in "$(DESTDIR)$(sqldir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) install-recursive
-install-exec: install-exec-recursive
-install-data: install-data-recursive
-uninstall: uninstall-recursive
+	$(MAKE) $(AM_MAKEFLAGS) install-am
+install-exec: install-exec-am
+install-data: install-data-am
+uninstall: uninstall-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 
-installcheck: installcheck-recursive
+installcheck: installcheck-am
 install-strip:
 	if test -z '$(STRIP)'; then \
 	  $(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
@@ -871,90 +755,88 @@ maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
-clean: clean-recursive
+clean: clean-am
 
 clean-am: clean-generic clean-libtool clean-sqlLTLIBRARIES \
 	mostlyclean-am
 
-distclean: distclean-recursive
+distclean: distclean-am
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
 
-dvi: dvi-recursive
+dvi: dvi-am
 
 dvi-am:
 
-html: html-recursive
+html: html-am
 
 html-am:
 
-info: info-recursive
+info: info-am
 
 info-am:
 
 install-data-am: install-sqlLTLIBRARIES
 
-install-dvi: install-dvi-recursive
+install-dvi: install-dvi-am
 
 install-dvi-am:
 
 install-exec-am: install-exec-local
 
-install-html: install-html-recursive
+install-html: install-html-am
 
 install-html-am:
 
-install-info: install-info-recursive
+install-info: install-info-am
 
 install-info-am:
 
 install-man:
 
-install-pdf: install-pdf-recursive
+install-pdf: install-pdf-am
 
 install-pdf-am:
 
-install-ps: install-ps-recursive
+install-ps: install-ps-am
 
 install-ps-am:
 
 installcheck-am:
 
-maintainer-clean: maintainer-clean-recursive
+maintainer-clean: maintainer-clean-am
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
-mostlyclean: mostlyclean-recursive
+mostlyclean: mostlyclean-am
 
 mostlyclean-am: mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool
 
-pdf: pdf-recursive
+pdf: pdf-am
 
 pdf-am:
 
-ps: ps-recursive
+ps: ps-am
 
 ps-am:
 
 uninstall-am: uninstall-local uninstall-sqlLTLIBRARIES
 
-.MAKE: $(am__recursive_targets) all check install install-am \
-	install-strip
+.MAKE: all check install install-am install-strip
 
-.PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am check \
-	check-am clean clean-generic clean-libtool \
-	clean-sqlLTLIBRARIES cscopelist-am ctags ctags-am dist-hook \
-	distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-exec-local install-html \
+.PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
+	clean-libtool clean-sqlLTLIBRARIES cscopelist-am ctags \
+	ctags-am dist-hook distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-exec-local install-html \
 	install-html-am install-info install-info-am install-man \
 	install-pdf install-pdf-am install-ps install-ps-am \
 	install-sqlLTLIBRARIES install-strip installcheck \
-	installcheck-am installdirs installdirs-am maintainer-clean \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags tags-am uninstall uninstall-am uninstall-local \
@@ -969,7 +851,7 @@ lib_sql_la-mal_backend.lo: mal_backend.c sql.h ../../include/sql_mem.h mal_backe
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_sql_la_CFLAGS) $(CFLAGS) $(mal_backend_CFLAGS) -c -o lib_sql_la-mal_backend.lo `test -f 'mal_backend.c' || echo '$(srcdir)/'`mal_backend.c
 lib_sql_la-sql_user.lo: sql_user.c sql_user.h sql.h ../../include/sql_mem.h mal_backend.h ../../../mal/modules/atoms/../../mal/mal.h ../../../mal/modules/atoms/../../../common/stream/stream_socket.h ../../../mal/modules/atoms/streams.h ../../../mal/mal/mal.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal_resolve.h ../../../mal/mal/mal_profiler.h ../../../mal/mal/mal_client.h ../../server/../include/sql_mem.h ../../server/../../gdk/gdk.h ../../server/sql_scan.h ../../server/../include/sql_list.h ../../server/../../common/stream/stream.h ../../server/../common/sql_types.h ../../server/../common/sql_backend.h ../../server/../include/sql_catalog.h ../../server/../include/sql_relation.h ../../server/../storage/sql_storage.h ../../server/../include/sql_keyword.h ../../server/sql_atom.h ../../server/../include/sql_query.h ../../server/sql_mvc.h ../../server/sql_symbol.h ../../server/sql_qc.h ../../common/../include/sql_mem.h ../../common/../include/sql_catalog.h ../../common/../include/sql_relation.h ../../common/sql_types.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_backend.h ../../../mal/mal/mal_scenario.h ../../../mal/mal/mal_session.h ../../../mal/mal/mal_instruction.h ../../../mal/mal/mal_type.h ../../../mal/mal/mal_stack.h ../../../mal/mal/mal_namespace.h ../../../mal/mal/mal_module.h ../../../mal/mal/mal_exception.h ../../../mal/mal/mal_errors.h ../../../mal/mal/mal_function.h ../../../mal/mal/mal_interpreter.h ../../../mal/modules/mal/tablet.h ../../../mal/modules/atoms/../../../gdk/gdk.h ../../../mal/modules/atoms/../../mal/mal_exception.h ../../../mal/modules/atoms/mtime.h ../../../mal/modules/atoms/blob.h ../../../mal/modules/mal/mkey.h ../../../mal/modules/atoms/str.h ../../server/sql_privileges.h ../../server/sql_decimal.h ../../server/sql_parser.h ../../server/sql_env.h sql_statement.h ../../../mal/modules/mal/querylog.h ../../storage/bat/bat_storage.h ../../storage/bat/bat_utils.h sql_cast.h ../../../mal/modules/kernel/../../mal/mal.h ../../../mal/modules/kernel/../../../gdk/gdk.h ../../../mal/modules/kernel/bat5.h ../../../mal/mal/mal_authorize.h ../../../common/utils/mcrypt.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_sql_la_CFLAGS) $(CFLAGS) $(sql_user_CFLAGS) -c -o lib_sql_la-sql_user.lo `test -f 'sql_user.c' || echo '$(srcdir)/'`sql_user.c
-lib_sql_la-sql_scenario.lo: sql_scenario.c mal_backend.h ../../../mal/modules/atoms/../../mal/mal.h ../../../mal/modules/atoms/../../../common/stream/stream_socket.h ../../../mal/modules/atoms/streams.h ../../../mal/mal/mal.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal_resolve.h ../../../mal/mal/mal_profiler.h ../../../mal/mal/mal_client.h ../../server/../include/sql_mem.h ../../server/../../gdk/gdk.h ../../server/sql_scan.h ../../server/../include/sql_list.h ../../server/../../common/stream/stream.h ../../server/../common/sql_types.h ../../server/../common/sql_backend.h ../../server/../include/sql_catalog.h ../../server/../include/sql_relation.h ../../server/../storage/sql_storage.h ../../server/../include/sql_keyword.h ../../server/sql_atom.h ../../server/../include/sql_query.h ../../server/sql_mvc.h ../../server/sql_symbol.h ../../server/sql_qc.h sql_scenario.h sql.h ../../include/sql_mem.h ../../common/../include/sql_mem.h ../../common/../include/sql_catalog.h ../../common/../include/sql_relation.h ../../common/sql_types.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_backend.h ../../../mal/mal/mal_scenario.h ../../../mal/mal/mal_session.h ../../../mal/mal/mal_instruction.h ../../../mal/mal/mal_type.h ../../../mal/mal/mal_stack.h ../../../mal/mal/mal_namespace.h ../../../mal/mal/mal_module.h ../../../mal/mal/mal_exception.h ../../../mal/mal/mal_errors.h ../../../mal/mal/mal_function.h ../../../mal/mal/mal_interpreter.h ../../../mal/modules/mal/tablet.h ../../../mal/modules/atoms/../../../gdk/gdk.h ../../../mal/modules/atoms/../../mal/mal_exception.h ../../../mal/modules/atoms/mtime.h ../../../mal/modules/atoms/blob.h ../../../mal/modules/mal/mkey.h ../../../mal/modules/atoms/str.h ../../server/sql_privileges.h ../../server/sql_decimal.h ../../server/sql_parser.h ../../server/sql_env.h sql_statement.h ../../../mal/modules/mal/querylog.h ../../storage/bat/bat_storage.h ../../storage/bat/bat_utils.h sql_cast.h sql_result.h ../../../common/stream/stream.h ../../include/sql_catalog.h sql_gencode.h sql_optimizer.h sql_assert.h sql_execute.h sql_readline.h sql_user.h ../../server/sql_datetime.h ../../../mal/modules/mal/mal_io.h ../../../mal/mal/mal_parser.h ../../../mal/mal/mal_builder.h ../../../mal/mal/mal_linker.h ../../../mal/modules/kernel/../../mal/mal.h ../../../mal/modules/kernel/../../../gdk/gdk.h ../../../mal/modules/kernel/bat5.h ../../../common/utils/msabaoth.h ../../../mal/optimizer/../mal/mal_interpreter.h ../../../mal/optimizer/../mal/mal_scenario.h ../../../mal/optimizer/../mal/mal_namespace.h ../../../mal/optimizer/opt_support.h ../../../mal/optimizer/../mal/mal.h ../../../mal/optimizer/../mal/mal_function.h ../../../mal/optimizer/../mal/mal_builder.h ../../../mal/optimizer/opt_prelude.h ../../../mal/optimizer/optimizer.h ../../../mal/optimizer/opt_statistics.h ../../../mal/optimizer/opt_pipes.h ../../../mal/optimizer/opt_mitosis.h sql_upgrades.h
+lib_sql_la-sql_scenario.lo: sql_scenario.c mal_backend.h ../../../mal/modules/atoms/../../mal/mal.h ../../../mal/modules/atoms/../../../common/stream/stream_socket.h ../../../mal/modules/atoms/streams.h ../../../mal/mal/mal.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal_resolve.h ../../../mal/mal/mal_profiler.h ../../../mal/mal/mal_client.h ../../server/../include/sql_mem.h ../../server/../../gdk/gdk.h ../../server/sql_scan.h ../../server/../include/sql_list.h ../../server/../../common/stream/stream.h ../../server/../common/sql_types.h ../../server/../common/sql_backend.h ../../server/../include/sql_catalog.h ../../server/../include/sql_relation.h ../../server/../storage/sql_storage.h ../../server/../include/sql_keyword.h ../../server/sql_atom.h ../../server/../include/sql_query.h ../../server/sql_mvc.h ../../server/sql_symbol.h ../../server/sql_qc.h sql_scenario.h sql.h ../../include/sql_mem.h ../../common/../include/sql_mem.h ../../common/../include/sql_catalog.h ../../common/../include/sql_relation.h ../../common/sql_types.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_backend.h ../../../mal/mal/mal_scenario.h ../../../mal/mal/mal_session.h ../../../mal/mal/mal_instruction.h ../../../mal/mal/mal_type.h ../../../mal/mal/mal_stack.h ../../../mal/mal/mal_namespace.h ../../../mal/mal/mal_module.h ../../../mal/mal/mal_exception.h ../../../mal/mal/mal_errors.h ../../../mal/mal/mal_function.h ../../../mal/mal/mal_interpreter.h ../../../mal/modules/mal/tablet.h ../../../mal/modules/atoms/../../../gdk/gdk.h ../../../mal/modules/atoms/../../mal/mal_exception.h ../../../mal/modules/atoms/mtime.h ../../../mal/modules/atoms/blob.h ../../../mal/modules/mal/mkey.h ../../../mal/modules/atoms/str.h ../../server/sql_privileges.h ../../server/sql_decimal.h ../../server/sql_parser.h ../../server/sql_env.h sql_statement.h ../../../mal/modules/mal/querylog.h ../../storage/bat/bat_storage.h ../../storage/bat/bat_utils.h sql_cast.h sql_result.h ../../../common/stream/stream.h ../../include/sql_catalog.h sql_gencode.h sql_optimizer.h sql_assert.h sql_execute.h sql_readline.h sql_user.h ../../server/sql_datetime.h ../../../mal/modules/mal/mal_io.h ../../../mal/mal/mal_parser.h ../../../mal/mal/mal_builder.h ../../../mal/mal/mal_linker.h ../../../mal/modules/kernel/../../mal/mal.h ../../../mal/modules/kernel/../../../gdk/gdk.h ../../../mal/modules/kernel/bat5.h ../../../mal/optimizer/../mal/mal_interpreter.h ../../../mal/optimizer/../mal/mal_scenario.h ../../../mal/optimizer/../mal/mal_namespace.h ../../../mal/optimizer/opt_support.h ../../../mal/optimizer/../mal/mal.h ../../../mal/optimizer/../mal/mal_function.h ../../../mal/optimizer/../mal/mal_builder.h ../../../mal/optimizer/opt_prelude.h ../../../mal/optimizer/optimizer.h ../../../mal/optimizer/opt_statistics.h ../../../mal/optimizer/opt_pipes.h ../../../mal/optimizer/opt_mitosis.h sql_upgrades.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_sql_la_CFLAGS) $(CFLAGS) $(sql_scenario_CFLAGS) -c -o lib_sql_la-sql_scenario.lo `test -f 'sql_scenario.c' || echo '$(srcdir)/'`sql_scenario.c
 lib_sql_la-sql_execute.lo: sql_execute.c mal_backend.h ../../../mal/modules/atoms/../../mal/mal.h ../../../mal/modules/atoms/../../../common/stream/stream_socket.h ../../../mal/modules/atoms/streams.h ../../../mal/mal/mal.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal_resolve.h ../../../mal/mal/mal_profiler.h ../../../mal/mal/mal_client.h ../../server/../include/sql_mem.h ../../server/../../gdk/gdk.h ../../server/sql_scan.h ../../server/../include/sql_list.h ../../server/../../common/stream/stream.h ../../server/../common/sql_types.h ../../server/../common/sql_backend.h ../../server/../include/sql_catalog.h ../../server/../include/sql_relation.h ../../server/../storage/sql_storage.h ../../server/../include/sql_keyword.h ../../server/sql_atom.h ../../server/../include/sql_query.h ../../server/sql_mvc.h ../../server/sql_symbol.h ../../server/sql_qc.h sql_scenario.h sql.h ../../include/sql_mem.h ../../common/../include/sql_mem.h ../../common/../include/sql_catalog.h ../../common/../include/sql_relation.h ../../common/sql_types.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_backend.h ../../../mal/mal/mal_scenario.h ../../../mal/mal/mal_session.h ../../../mal/mal/mal_instruction.h ../../../mal/mal/mal_type.h ../../../mal/mal/mal_stack.h ../../../mal/mal/mal_namespace.h ../../../mal/mal/mal_module.h ../../../mal/mal/mal_exception.h ../../../mal/mal/mal_errors.h ../../../mal/mal/mal_function.h ../../../mal/mal/mal_interpreter.h ../../../mal/modules/mal/tablet.h ../../../mal/modules/atoms/../../../gdk/gdk.h ../../../mal/modules/atoms/../../mal/mal_exception.h ../../../mal/modules/atoms/mtime.h ../../../mal/modules/atoms/blob.h ../../../mal/modules/mal/mkey.h ../../../mal/modules/atoms/str.h ../../server/sql_privileges.h ../../server/sql_decimal.h ../../server/sql_parser.h ../../server/sql_env.h sql_statement.h ../../../mal/modules/mal/querylog.h ../../storage/bat/bat_storage.h ../../storage/bat/bat_utils.h sql_cast.h sql_result.h ../../../common/stream/stream.h ../../include/sql_catalog.h sql_gencode.h sql_optimizer.h sql_execute.h ../../server/rel_exp.h ../../../mal/optimizer/../mal/mal_interpreter.h ../../../mal/optimizer/../mal/mal_scenario.h ../../../mal/optimizer/../mal/mal_namespace.h ../../../mal/optimizer/opt_support.h ../../../mal/optimizer/../mal/mal.h ../../../mal/optimizer/../mal/mal_function.h ../../../mal/optimizer/../mal/mal_builder.h ../../../mal/optimizer/opt_prelude.h ../../../mal/optimizer/optimizer.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_sql_la_CFLAGS) $(CFLAGS) $(sql_execute_CFLAGS) -c -o lib_sql_la-sql_execute.lo `test -f 'sql_execute.c' || echo '$(srcdir)/'`sql_execute.c
@@ -1018,7 +900,7 @@ sql_optimizer.o sql_optimizer.lo: sql_optimizer.c ../../../mal/mal/mal_builder.h
 mal_backend.o mal_backend.lo: mal_backend.c sql.h ../../include/sql_mem.h mal_backend.h ../../../mal/modules/atoms/../../mal/mal.h ../../../mal/modules/atoms/../../../common/stream/stream_socket.h ../../../mal/modules/atoms/streams.h ../../../mal/mal/mal.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal_resolve.h ../../../mal/mal/mal_profiler.h ../../../mal/mal/mal_client.h ../../server/../include/sql_mem.h ../../server/../../gdk/gdk.h ../../server/sql_scan.h ../../server/../include/sql_list.h ../../server/../../common/stream/stream.h ../../server/../common/sql_types.h ../../server/../common/sql_backend.h ../../server/../include/sql_catalog.h ../../server/../include/sql_relation.h ../../server/../storage/sql_storage.h ../../server/../include/sql_keyword.h ../../server/sql_atom.h ../../server/../include/sql_query.h ../../server/sql_mvc.h ../../server/sql_symbol.h ../../server/sql_qc.h ../../common/../include/sql_mem.h ../../common/../include/sql_catalog.h ../../common/../include/sql_relation.h ../../common/sql_types.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_backend.h ../../../mal/mal/mal_scenario.h ../../../mal/mal/mal_session.h ../../../mal/mal/mal_instruction.h ../../../mal/mal/mal_type.h ../../../mal/mal/mal_stack.h ../../../mal/mal/mal_namespace.h ../../../mal/mal/mal_module.h ../../../mal/mal/mal_exception.h ../../../mal/mal/mal_errors.h ../../../mal/mal/mal_function.h ../../../mal/mal/mal_interpreter.h ../../../mal/modules/mal/tablet.h ../../../mal/modules/atoms/../../../gdk/gdk.h ../../../mal/modules/atoms/../../mal/mal_exception.h ../../../mal/modules/atoms/mtime.h ../../../mal/modules/atoms/blob.h ../../../mal/modules/mal/mkey.h ../../../mal/modules/atoms/str.h ../../server/sql_privileges.h ../../server/sql_decimal.h ../../server/sql_parser.h ../../server/sql_env.h sql_statement.h ../../../mal/modules/mal/querylog.h ../../storage/bat/bat_storage.h ../../storage/bat/bat_utils.h sql_cast.h
 sql.o sql.lo: sql.c sql.h ../../include/sql_mem.h mal_backend.h ../../../mal/modules/atoms/../../mal/mal.h ../../../mal/modules/atoms/../../../common/stream/stream_socket.h ../../../mal/modules/atoms/streams.h ../../../mal/mal/mal.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal_resolve.h ../../../mal/mal/mal_profiler.h ../../../mal/mal/mal_client.h ../../server/../include/sql_mem.h ../../server/../../gdk/gdk.h ../../server/sql_scan.h ../../server/../include/sql_list.h ../../server/../../common/stream/stream.h ../../server/../common/sql_types.h ../../server/../common/sql_backend.h ../../server/../include/sql_catalog.h ../../server/../include/sql_relation.h ../../server/../storage/sql_storage.h ../../server/../include/sql_keyword.h ../../server/sql_atom.h ../../server/../include/sql_query.h ../../server/sql_mvc.h ../../server/sql_symbol.h ../../server/sql_qc.h ../../common/../include/sql_mem.h ../../common/../include/sql_catalog.h ../../common/../include/sql_relation.h ../../common/sql_types.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_backend.h ../../../mal/mal/mal_scenario.h ../../../mal/mal/mal_session.h ../../../mal/mal/mal_instruction.h ../../../mal/mal/mal_type.h ../../../mal/mal/mal_stack.h ../../../mal/mal/mal_namespace.h ../../../mal/mal/mal_module.h ../../../mal/mal/mal_exception.h ../../../mal/mal/mal_errors.h ../../../mal/mal/mal_function.h ../../../mal/mal/mal_interpreter.h ../../../mal/modules/mal/tablet.h ../../../mal/modules/atoms/../../../gdk/gdk.h ../../../mal/modules/atoms/../../mal/mal_exception.h ../../../mal/modules/atoms/mtime.h ../../../mal/modules/atoms/blob.h ../../../mal/modules/mal/mkey.h ../../../mal/modules/atoms/str.h ../../server/sql_privileges.h ../../server/sql_decimal.h ../../server/sql_parser.h ../../server/sql_env.h sql_statement.h ../../../mal/modules/mal/querylog.h ../../storage/bat/bat_storage.h ../../storage/bat/bat_utils.h sql_cast.h sql_result.h ../../../common/stream/stream.h ../../include/sql_catalog.h sql_gencode.h ../../storage/../include/sql_catalog.h ../../storage/../../gdk/gdk_logger.h ../../storage/sql_storage.h sql_scenario.h ../../storage/store_sequence.h sql_optimizer.h ../../server/sql_datetime.h ../../server/rel_optimizer.h ../../server/rel_semantic.h ../../server/rel_partition.h ../../server/rel_distribute.h ../../server/sql_semantic.h ../../server/rel_select.h ../../server/rel_rel.h ../../server/rel_exp.h ../../server/rel_dump.h rel_bin.h ../../../mal/modules/mal/bbp.h ../../../mal/optimizer/opt_prelude.h ../../../mal/optimizer/opt_support.h ../../../mal/optimizer/../mal/mal.h ../../../mal/optimizer/../mal/mal_function.h ../../../mal/optimizer/../mal/mal_scenario.h ../../../mal/optimizer/../mal/mal_builder.h ../../../mal/optimizer/opt_pipes.h ../../../mal/modules/mal/clients.h ../../../mal/mal/mal_resource.h
 sql_user.o sql_user.lo: sql_user.c sql_user.h sql.h ../../include/sql_mem.h mal_backend.h ../../../mal/modules/atoms/../../mal/mal.h ../../../mal/modules/atoms/../../../common/stream/stream_socket.h ../../../mal/modules/atoms/streams.h ../../../mal/mal/mal.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal_resolve.h ../../../mal/mal/mal_profiler.h ../../../mal/mal/mal_client.h ../../server/../include/sql_mem.h ../../server/../../gdk/gdk.h ../../server/sql_scan.h ../../server/../include/sql_list.h ../../server/../../common/stream/stream.h ../../server/../common/sql_types.h ../../server/../common/sql_backend.h ../../server/../include/sql_catalog.h ../../server/../include/sql_relation.h ../../server/../storage/sql_storage.h ../../server/../include/sql_keyword.h ../../server/sql_atom.h ../../server/../include/sql_query.h ../../server/sql_mvc.h ../../server/sql_symbol.h ../../server/sql_qc.h ../../common/../include/sql_mem.h ../../common/../include/sql_catalog.h ../../common/../include/sql_relation.h ../../common/sql_types.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_backend.h ../../../mal/mal/mal_scenario.h ../../../mal/mal/mal_session.h ../../../mal/mal/mal_instruction.h ../../../mal/mal/mal_type.h ../../../mal/mal/mal_stack.h ../../../mal/mal/mal_namespace.h ../../../mal/mal/mal_module.h ../../../mal/mal/mal_exception.h ../../../mal/mal/mal_errors.h ../../../mal/mal/mal_function.h ../../../mal/mal/mal_interpreter.h ../../../mal/modules/mal/tablet.h ../../../mal/modules/atoms/../../../gdk/gdk.h ../../../mal/modules/atoms/../../mal/mal_exception.h ../../../mal/modules/atoms/mtime.h ../../../mal/modules/atoms/blob.h ../../../mal/modules/mal/mkey.h ../../../mal/modules/atoms/str.h ../../server/sql_privileges.h ../../server/sql_decimal.h ../../server/sql_parser.h ../../server/sql_env.h sql_statement.h ../../../mal/modules/mal/querylog.h ../../storage/bat/bat_storage.h ../../storage/bat/bat_utils.h sql_cast.h ../../../mal/modules/kernel/../../mal/mal.h ../../../mal/modules/kernel/../../../gdk/gdk.h ../../../mal/modules/kernel/bat5.h ../../../mal/mal/mal_authorize.h ../../../common/utils/mcrypt.h
-sql_scenario.o sql_scenario.lo: sql_scenario.c mal_backend.h ../../../mal/modules/atoms/../../mal/mal.h ../../../mal/modules/atoms/../../../common/stream/stream_socket.h ../../../mal/modules/atoms/streams.h ../../../mal/mal/mal.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal_resolve.h ../../../mal/mal/mal_profiler.h ../../../mal/mal/mal_client.h ../../server/../include/sql_mem.h ../../server/../../gdk/gdk.h ../../server/sql_scan.h ../../server/../include/sql_list.h ../../server/../../common/stream/stream.h ../../server/../common/sql_types.h ../../server/../common/sql_backend.h ../../server/../include/sql_catalog.h ../../server/../include/sql_relation.h ../../server/../storage/sql_storage.h ../../server/../include/sql_keyword.h ../../server/sql_atom.h ../../server/../include/sql_query.h ../../server/sql_mvc.h ../../server/sql_symbol.h ../../server/sql_qc.h sql_scenario.h sql.h ../../include/sql_mem.h ../../common/../include/sql_mem.h ../../common/../include/sql_catalog.h ../../common/../include/sql_relation.h ../../common/sql_types.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_backend.h ../../../mal/mal/mal_scenario.h ../../../mal/mal/mal_session.h ../../../mal/mal/mal_instruction.h ../../../mal/mal/mal_type.h ../../../mal/mal/mal_stack.h ../../../mal/mal/mal_namespace.h ../../../mal/mal/mal_module.h ../../../mal/mal/mal_exception.h ../../../mal/mal/mal_errors.h ../../../mal/mal/mal_function.h ../../../mal/mal/mal_interpreter.h ../../../mal/modules/mal/tablet.h ../../../mal/modules/atoms/../../../gdk/gdk.h ../../../mal/modules/atoms/../../mal/mal_exception.h ../../../mal/modules/atoms/mtime.h ../../../mal/modules/atoms/blob.h ../../../mal/modules/mal/mkey.h ../../../mal/modules/atoms/str.h ../../server/sql_privileges.h ../../server/sql_decimal.h ../../server/sql_parser.h ../../server/sql_env.h sql_statement.h ../../../mal/modules/mal/querylog.h ../../storage/bat/bat_storage.h ../../storage/bat/bat_utils.h sql_cast.h sql_result.h ../../../common/stream/stream.h ../../include/sql_catalog.h sql_gencode.h sql_optimizer.h sql_assert.h sql_execute.h sql_readline.h sql_user.h ../../server/sql_datetime.h ../../../mal/modules/mal/mal_io.h ../../../mal/mal/mal_parser.h ../../../mal/mal/mal_builder.h ../../../mal/mal/mal_linker.h ../../../mal/modules/kernel/../../mal/mal.h ../../../mal/modules/kernel/../../../gdk/gdk.h ../../../mal/modules/kernel/bat5.h ../../../common/utils/msabaoth.h ../../../mal/optimizer/../mal/mal_interpreter.h ../../../mal/optimizer/../mal/mal_scenario.h ../../../mal/optimizer/../mal/mal_namespace.h ../../../mal/optimizer/opt_support.h ../../../mal/optimizer/../mal/mal.h ../../../mal/optimizer/../mal/mal_function.h ../../../mal/optimizer/../mal/mal_builder.h ../../../mal/optimizer/opt_prelude.h ../../../mal/optimizer/optimizer.h ../../../mal/optimizer/opt_statistics.h ../../../mal/optimizer/opt_pipes.h ../../../mal/optimizer/opt_mitosis.h sql_upgrades.h
+sql_scenario.o sql_scenario.lo: sql_scenario.c mal_backend.h ../../../mal/modules/atoms/../../mal/mal.h ../../../mal/modules/atoms/../../../common/stream/stream_socket.h ../../../mal/modules/atoms/streams.h ../../../mal/mal/mal.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal_resolve.h ../../../mal/mal/mal_profiler.h ../../../mal/mal/mal_client.h ../../server/../include/sql_mem.h ../../server/../../gdk/gdk.h ../../server/sql_scan.h ../../server/../include/sql_list.h ../../server/../../common/stream/stream.h ../../server/../common/sql_types.h ../../server/../common/sql_backend.h ../../server/../include/sql_catalog.h ../../server/../include/sql_relation.h ../../server/../storage/sql_storage.h ../../server/../include/sql_keyword.h ../../server/sql_atom.h ../../server/../include/sql_query.h ../../server/sql_mvc.h ../../server/sql_symbol.h ../../server/sql_qc.h sql_scenario.h sql.h ../../include/sql_mem.h ../../common/../include/sql_mem.h ../../common/../include/sql_catalog.h ../../common/../include/sql_relation.h ../../common/sql_types.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_backend.h ../../../mal/mal/mal_scenario.h ../../../mal/mal/mal_session.h ../../../mal/mal/mal_instruction.h ../../../mal/mal/mal_type.h ../../../mal/mal/mal_stack.h ../../../mal/mal/mal_namespace.h ../../../mal/mal/mal_module.h ../../../mal/mal/mal_exception.h ../../../mal/mal/mal_errors.h ../../../mal/mal/mal_function.h ../../../mal/mal/mal_interpreter.h ../../../mal/modules/mal/tablet.h ../../../mal/modules/atoms/../../../gdk/gdk.h ../../../mal/modules/atoms/../../mal/mal_exception.h ../../../mal/modules/atoms/mtime.h ../../../mal/modules/atoms/blob.h ../../../mal/modules/mal/mkey.h ../../../mal/modules/atoms/str.h ../../server/sql_privileges.h ../../server/sql_decimal.h ../../server/sql_parser.h ../../server/sql_env.h sql_statement.h ../../../mal/modules/mal/querylog.h ../../storage/bat/bat_storage.h ../../storage/bat/bat_utils.h sql_cast.h sql_result.h ../../../common/stream/stream.h ../../include/sql_catalog.h sql_gencode.h sql_optimizer.h sql_assert.h sql_execute.h sql_readline.h sql_user.h ../../server/sql_datetime.h ../../../mal/modules/mal/mal_io.h ../../../mal/mal/mal_parser.h ../../../mal/mal/mal_builder.h ../../../mal/mal/mal_linker.h ../../../mal/modules/kernel/../../mal/mal.h ../../../mal/modules/kernel/../../../gdk/gdk.h ../../../mal/modules/kernel/bat5.h ../../../mal/optimizer/../mal/mal_interpreter.h ../../../mal/optimizer/../mal/mal_scenario.h ../../../mal/optimizer/../mal/mal_namespace.h ../../../mal/optimizer/opt_support.h ../../../mal/optimizer/../mal/mal.h ../../../mal/optimizer/../mal/mal_function.h ../../../mal/optimizer/../mal/mal_builder.h ../../../mal/optimizer/opt_prelude.h ../../../mal/optimizer/optimizer.h ../../../mal/optimizer/opt_statistics.h ../../../mal/optimizer/opt_pipes.h ../../../mal/optimizer/opt_mitosis.h sql_upgrades.h
 sql_round.o sql_round.lo: sql_round.c sql.h ../../include/sql_mem.h mal_backend.h ../../../mal/modules/atoms/../../mal/mal.h ../../../mal/modules/atoms/../../../common/stream/stream_socket.h ../../../mal/modules/atoms/streams.h ../../../mal/mal/mal.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal_resolve.h ../../../mal/mal/mal_profiler.h ../../../mal/mal/mal_client.h ../../server/../include/sql_mem.h ../../server/../../gdk/gdk.h ../../server/sql_scan.h ../../server/../include/sql_list.h ../../server/../../common/stream/stream.h ../../server/../common/sql_types.h ../../server/../common/sql_backend.h ../../server/../include/sql_catalog.h ../../server/../include/sql_relation.h ../../server/../storage/sql_storage.h ../../server/../include/sql_keyword.h ../../server/sql_atom.h ../../server/../include/sql_query.h ../../server/sql_mvc.h ../../server/sql_symbol.h ../../server/sql_qc.h ../../common/../include/sql_mem.h ../../common/../include/sql_catalog.h ../../common/../include/sql_relation.h ../../common/sql_types.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_backend.h ../../../mal/mal/mal_scenario.h ../../../mal/mal/mal_session.h ../../../mal/mal/mal_instruction.h ../../../mal/mal/mal_type.h ../../../mal/mal/mal_stack.h ../../../mal/mal/mal_namespace.h ../../../mal/mal/mal_module.h ../../../mal/mal/mal_exception.h ../../../mal/mal/mal_errors.h ../../../mal/mal/mal_function.h ../../../mal/mal/mal_interpreter.h ../../../mal/modules/mal/tablet.h ../../../mal/modules/atoms/../../../gdk/gdk.h ../../../mal/modules/atoms/../../mal/mal_exception.h ../../../mal/modules/atoms/mtime.h ../../../mal/modules/atoms/blob.h ../../../mal/modules/mal/mkey.h ../../../mal/modules/atoms/str.h ../../server/sql_privileges.h ../../server/sql_decimal.h ../../server/sql_parser.h ../../server/sql_env.h sql_statement.h ../../../mal/modules/mal/querylog.h ../../storage/bat/bat_storage.h ../../storage/bat/bat_utils.h sql_cast.h sql_result.h ../../../common/stream/stream.h ../../include/sql_catalog.h sql_gencode.h ../../storage/../include/sql_catalog.h ../../storage/../../gdk/gdk_logger.h ../../storage/sql_storage.h sql_scenario.h ../../storage/store_sequence.h ../../server/sql_datetime.h ../../server/rel_optimizer.h ../../server/rel_distribute.h ../../server/rel_semantic.h ../../server/sql_semantic.h ../../server/rel_select.h ../../server/rel_exp.h ../../server/rel_dump.h rel_bin.h ../../../mal/modules/mal/clients.h sql_round_impl.h
 install-exec-local-40_sql.mal: 40_sql.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/autoload

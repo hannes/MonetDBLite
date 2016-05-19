@@ -21,6 +21,5 @@ sql/storage/bat/
 sql/server/
 sql/backends/
 sql/backends/monet5/
-sql/backends/monet5/generator/
 sql/scripts/
 embedded/

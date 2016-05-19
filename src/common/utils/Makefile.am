@@ -11,7 +11,6 @@ libmcrypt_la-mcrypt.lo: mcrypt.c mcrypt.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmcrypt_la_CFLAGS) $(CFLAGS) $(mcrypt_CFLAGS) -c -o libmcrypt_la-mcrypt.lo `test -f 'mcrypt.c' || echo '$(srcdir)/'`mcrypt.c
 nodist_libmcrypt_la_SOURCES =
 dist_libmcrypt_la_SOURCES = mcrypt.h mcrypt.c
-msabaoth.o msabaoth.lo: msabaoth.c msabaoth.h mutils.h muuid.h
 muuid.o muuid.lo: muuid.c muuid.h
 mutils.o mutils.lo: mutils.c mutils.h s_nextafterf.c
 mcrypt.o mcrypt.lo: mcrypt.c mcrypt.h
@@ -25,12 +24,6 @@ libmutils_la-prompt.lo: prompt.c mprompt.h
 nodist_libmutils_la_SOURCES =
 dist_libmutils_la_SOURCES = mutils.h mutils.c prompt.c mprompt.h
 CFLAGS += $(THREAD_SAVE_FLAGS)
-libmsabaoth_la_CFLAGS=-DLIBMSABAOTH $(AM_CFLAGS)
-msabaothdir = $(libdir)
-libmsabaoth_la-msabaoth.lo: msabaoth.c msabaoth.h mutils.h muuid.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmsabaoth_la_CFLAGS) $(CFLAGS) $(msabaoth_CFLAGS) -c -o libmsabaoth_la-msabaoth.lo `test -f 'msabaoth.c' || echo '$(srcdir)/'`msabaoth.c
-nodist_libmsabaoth_la_SOURCES =
-dist_libmsabaoth_la_SOURCES = msabaoth.h msabaoth.c
 AM_CPPFLAGS = -I$(srcdir) $(openssl_CFLAGS)
 libmuuid_la_CFLAGS=-DLIBMUUID $(AM_CFLAGS)
 muuiddir = $(libdir)
@@ -40,11 +33,10 @@ nodist_libmuuid_la_SOURCES =
 dist_libmuuid_la_SOURCES = muuid.h muuid.c
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
-EXTRA_DIST = Makefile.ag Makefile.msc math_private.h mcrypt.c mcrypt.h mprompt.h msabaoth.c msabaoth.h mutils.c mutils.h muuid.c muuid.h prompt.c s_nextafterf.c strptime.c
-noinst_LTLIBRARIES = libmcrypt.la libmutils.la libmsabaoth.la libmuuid.la
+EXTRA_DIST = Makefile.ag Makefile.msc math_private.h mcrypt.c mcrypt.h mprompt.h mutils.c mutils.h muuid.c muuid.h prompt.c s_nextafterf.c strptime.c
+noinst_LTLIBRARIES = libmcrypt.la libmutils.la libmuuid.la
 install-mcryptLTLIBRARIES:
 install-mutilsLTLIBRARIES:
-install-msabaothLTLIBRARIES:
 install-muuidLTLIBRARIES:
 
   include $(top_srcdir)/buildtools/conf/rules.mk

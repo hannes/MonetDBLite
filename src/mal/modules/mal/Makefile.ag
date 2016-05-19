@@ -35,7 +35,6 @@ lib_mal = {
 		pcre.c \
 		profiler.c profiler.h \
 		querylog.c querylog.h \
-		sabaoth.c sabaoth.h \
 		sysmon.c sysmon.h \
 		tablet.c tablet.h \
 		tokenizer.c tokenizer.h \

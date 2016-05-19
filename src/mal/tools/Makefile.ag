@@ -21,7 +21,6 @@ lib_monetdb5 = {
 		../../common/stream/libstream \
 		../../common/utils/libmcrypt \
 		../../common/utils/libmuuid \
-		../../common/utils/libmsabaoth \
 		$(UUID_LIBS) \
 		$(MATH_LIBS) $(SOCKET_LIBS) $(MALLOC_LIBS) $(PTHREAD_LIBS) \
 		$(DL_LIBS) $(READLINE_LIBS) $(openssl_LIBS) $(pcre_LIBS) \
