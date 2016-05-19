@@ -118,6 +118,7 @@ static SEXP bat_to_sexp(BAT* b) {
 							sexp_ptrs[offset] = mkCharCE(t, CE_UTF8);
 						}
 					}
+					assert(sexp_ptrs[offset]);
 					SET_STRING_ELT(varvalue, j++, sexp_ptrs[offset]);
 				}
 				GDKfree(sexp_ptrs);
