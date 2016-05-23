@@ -29,7 +29,7 @@ OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit
 
 $CC -shared -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37/libs/$R_ARCH/ -lpcre `$R_CMD config --ldflags`
 
-if [ ! -s libmonetdb5.dll]
+if [ ! -s libmonetdb5.dll ]
 then
 	echo "library file was not created, something went wrong"
 	exit -1
