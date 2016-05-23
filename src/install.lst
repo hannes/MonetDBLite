@@ -132,3 +132,5 @@ sql/scripts/
 embedded/
 	$(libdir)/libembedded.so
 	$(libdir)/libembeddedr.so
+mapisplit/
+	$(libdir)/libmapisplit.so

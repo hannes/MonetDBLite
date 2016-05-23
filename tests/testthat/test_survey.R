@@ -1,14 +1,12 @@
 library(testthat)
 library(DBI)
-library(MonetDB.R)
-library(MonetDBLite)
 library(survey)
 
 dbfolder <- file.path(tempdir(), "svydir")
 
 test_that("db allows database-backed survey designs", {
 
-	db <- dbConnect( MonetDB.R::MonetDBLite() , dbfolder )
+	db <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )
 
 	data(api)
 	x <- apiclus1

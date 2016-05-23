@@ -1005,7 +1005,9 @@ exp_fix_scale(mvc *sql, sql_subtype *ct, sql_exp *e, int both, int always)
 			res->scale = 0;
 			return exp_binop(sql->sa, e, exp_atom(sql->sa, a), c);
 		} else {
+#ifndef HAVE_EMBEDDED
 			printf("scale_down missing (%s)\n", et->type->base.name);
+#endif
 		}
 	}
 	return e;

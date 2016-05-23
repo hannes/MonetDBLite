@@ -1,5 +1,3 @@
-# we need this to find our MAL scripts and DLLs on Windows
-
 monetdb_embedded_env <- new.env(parent=emptyenv())
 monetdb_embedded_env$is_started <- FALSE
 monetdb_embedded_env$started_dir <- ""

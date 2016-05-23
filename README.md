@@ -24,7 +24,7 @@ If you encounter a bug, please file a minimal reproducible example on [github](h
 
 ## Startup
 
-MonetDBLite uses a [`DBI`](http://cran.r-project.org/package=DBI) interface through the [`MonetDB.R`](http://cran.r-project.org/package=MonetDB.R) package. To startup a server, create a DBI connection as follows:
+MonetDBLite provides a [`DBI`](http://cran.r-project.org/package=DBI) interface. To startup a server, create a DBI connection as follows:
 
 ```R
 library(DBI)
