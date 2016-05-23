@@ -2,7 +2,7 @@ library(testthat)
 library(DBI)
 library(MonetDB.R)
 library(MonetDBLite)
-library(survey)
+suppressPackageStartupMessages(library(survey))
 
 dbfolder <- file.path(tempdir(), "svydir")
 
@@ -53,8 +53,7 @@ test_that("db allows svyby commands", {
 	expect_equal( round(svyby(~api99, list(school_type=apiclus1$stype), rclus1, svymean, vartype="cv")[3,3],3) , 0.022 )
 	expect_equal( round( svyby(~api99+api00, ~stype+sch_wide, rclus1, svymean, keep.var=FALSE)[3,3],3),611.375)
 	
-	mns<-svyby(~api99, ~stype, rclus1, svymean,covmat=TRUE)
-	expect_equal(round(SE(svycontrast(mns, c(E = 1, M = -1))),2)[1,1],10.11)
+	expect_equal(round(SE(svycontrast(svyby(~api99, ~stype, rclus1, svymean,covmat=TRUE), c(E = 1, M = -1))),2)[1,1],10.11)
 
 	## extractor functions
 	a<-svyby(~enroll, ~stype, rclus1, svytotal, deff=TRUE, verbose=TRUE,vartype=c("se","cv","cvpct","var"))
