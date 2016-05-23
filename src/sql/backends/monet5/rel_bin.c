@@ -2610,7 +2610,6 @@ rel2bin_groupby( mvc *sql, sql_rel *rel, list *refs)
 			stmt *gbcol = exp_bin(sql, e, sub, NULL, NULL, NULL, NULL, NULL); 
 	
 			if (!gbcol) {
-				assert(0);
 				return NULL;
 			}
 			groupby = stmt_group(sql->sa, gbcol, grp, ext, cnt);
