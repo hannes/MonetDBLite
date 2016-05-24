@@ -798,8 +798,9 @@ setMethod("dbFetch", signature(res="MonetDBEmbeddedResult", n="numeric"), def=fu
     return(res@env$resp$tuples[(res@env$delivered - n + 1):(res@env$delivered),, drop=F])
   }
   else {
+    start <- res@env$delivered + 1
     res@env$delivered <- res@env$info$rows
-    return(res@env$resp$tuples)
+    return(res@env$resp$tuples[start:res@env$info$rows,, drop=F])
   }
 })
 

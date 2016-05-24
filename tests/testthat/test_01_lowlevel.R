@@ -282,4 +282,7 @@ test_that("check for database corruption at the conclusion of all other tests", 
 	expect_equal( as.character(cs$type), "1" )
 	expect_equal(0, nrow( cs$tuples))
 	monetdb_embedded_shutdown()
+
+	expect_false(monetdb_embedded_env$is_started)
+	expect_equal(monetdb_embedded_env$started_dir, "")
 })

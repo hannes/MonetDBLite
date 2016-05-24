@@ -58,6 +58,7 @@ void monetdb_disconnect(void* conn) {
 	if (!MCvalid((Client) conn)) {
 		return;
 	}
+	SQLexitClient((Client) conn);
 	MCcloseClient((Client) conn);
 }
 
