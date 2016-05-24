@@ -13,7 +13,6 @@ test_that("db starts up", {
 	expect_equal(monetdb_embedded_startup(dbdir), TRUE)
 })
 
-
 test_that("one can connect", {
 	con <- monetdb_embedded_connect()
 	expect_that(con, is_a("monetdb_embedded_connection"))

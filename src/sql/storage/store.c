@@ -1654,6 +1654,10 @@ store_exit(void)
 		sql_trans_destroy(gtrans);
 		gtrans = NULL;
 	}
+
+	// this is required to not create phantom dependencies after same-process restart
+	store_oid = 0;
+
 #ifdef STORE_DEBUG
 	fprintf(stderr, "#store exit unlocked\n");
 #endif
