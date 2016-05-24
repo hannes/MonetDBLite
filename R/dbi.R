@@ -227,14 +227,15 @@ setMethod("dbListFields", signature(conn="MonetDBConnection", name = "character"
   if (!dbExistsTable(conn, name))
     stop(paste0("Unknown table: ", name));
   df <- dbGetQuery(conn, paste0("select columns.name as name from sys.columns join sys.tables on \
-    columns.table_id=tables.id where tables.name='", name, "';"))	
+    columns.table_id=tables.id where tables.name='", name))	
   df$name
 })
 
 setMethod("dbExistsTable", signature(conn="MonetDBConnection", name = "character"), def=function(conn, name, ...) {
-  name <- quoteIfNeeded(conn, name)
-  return(as.character(name) %in% 
-    dbListTables(conn, sys_tables=T))
+  name <- quoteIfNeeded(conn, as.character(name))
+  unquoted_name <- gsub("(^\"|\"$)", "", name)
+  tables <- dbListTables(conn, sys_tables=T)
+  return(name %in% tables || unquoted_name %in% tables)
 })
 
 setMethod("dbGetException", "MonetDBConnection", def=function(conn, ...) {
