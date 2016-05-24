@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/hannesmuehleisen/MonetDBLite.svg?branch=master)](https://travis-ci.org/hannesmuehleisen/MonetDBLite)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MonetDBLite)](http://cran.r-project.org/package=MonetDBLite) 
+[![](http://cranlogs.r-pkg.org/badges/MonetDBLite)](http://monetdb.cwi.nl/testweb/web/eanthony/wilbur.png)
 
 [MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/). It is similar in functionality to [RSQLite](http://cran.r-project.org/package=RSQLite), but typically completes queries much faster due to its *columnar* storage architecture and bulk query processing model. MonetDBLite is based on [MonetDB](https://www.monetdb.org/Home).
 
