@@ -25,7 +25,7 @@ R --quiet -e "setwd('src/embedded/windows/'); tf <- tempfile(); download.file('h
 
 cd src
 
-touch aclocal.m4 Makefile.in 
+touch aclocal.m4
 rm libmonetdb5.dll
 
 make -j
