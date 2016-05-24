@@ -30,6 +30,7 @@ rm libmonetdb5.dll
 
 make -j
 if [ $? -ne 0 ]
+then
 	echo "build failure"
 	exit 1
 fi
