@@ -2,11 +2,16 @@ library(testthat)
 library(dplyr)
 library(nycflights13)
 
+dbdir <- file.path(tempdir(), "dplyrdir")
+my_db_sqlite <- FALSE
+my_db_monetdb <- FALSE
+flights_sqlite <- FALSE
+flights_monetdb <- FALSE
+
 
 test_that("we can connect", {
-	dbdir <- tempdir()
-	my_db_sqlite <- src_sqlite(tempfile(), create = T)
-	my_db_monetdb <- src_monetdb(embedded=dbdir)
+	my_db_sqlite <<- src_sqlite(tempfile(), create = T)
+	my_db_monetdb <<- src_monetdb(embedded=dbdir)
 })
 
 # TEMPORARY until https://github.com/hannesmuehleisen/MonetDBLite/issues/15
@@ -15,11 +20,11 @@ flights$time_hour <- as.numeric( flights$time_hour )
 
 test_that("dplyr copy_to()", {
 
-	flights_sqlite <- copy_to(my_db_sqlite, flights, temporary = FALSE, indexes = list(
+	flights_sqlite <<- copy_to(my_db_sqlite, flights, temporary = FALSE, indexes = list(
 	  c("year", "month", "day"), "carrier", "tailnum"))
-	flights_sqlite <- tbl(nycflights13_sqlite(), "flights")
+	flights_sqlite <<- tbl(nycflights13_sqlite(), "flights")
 
-	flights_monetdb <- copy_to(my_db_monetdb, flights, temporary = FALSE, indexes = list(
+	flights_monetdb <<- copy_to(my_db_monetdb, flights, temporary = FALSE, indexes = list(
 	  c("year", "month", "day"), "carrier", "tailnum"))
 })
 
@@ -118,6 +123,9 @@ test_that("dplyr group_by", {
 	)
 })
 
+test_that("shutdown", {
+	DBI::dbDisconnect(my_db_monetdb$con, shutdown=T)
+})
 
 
 # # # # # # # # FAILS # # # # # # # #

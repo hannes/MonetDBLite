@@ -31,10 +31,11 @@ test_that("db allows database-backed survey designs", {
 	expect_equal(class(rclus1)[1],"DBIrepdesign")
 	expect_equal(svytable(~sch_wide+stype, rclus1)[2,2],11)
 
-	dbDisconnect( db , shutdown = TRUE )
-	
-})
+	close(dclus1)
+	close(rclus1)
 
+	dbDisconnect( db , shutdown = TRUE )
+})
 
 
 test_that("db allows svyby commands", {
@@ -42,7 +43,10 @@ test_that("db allows svyby commands", {
 	data(api)
 	dclus1 <- svydesign(id = ~dnum, weight=~pw,data = 'apiclus1',fpc = ~fpc, dbtype="MonetDBLite", dbname = dbfolder)
 	rclus1<-svrepdesign(data='rclus1', type="BRR", repweights="x[1-4]", combined.weights=FALSE,dbtype="MonetDBLite",dbname = dbfolder)
-	
+
+	open(dclus1)
+	open(rclus1)
+
 	expect_equal( round(SE( svyby(~api99, ~stype, dclus1, svymean) )[2],2) , 41.76 )
 	expect_equal( round( svyby(~api99, ~stype, dclus1, svyquantile, quantiles=0.5,ci=TRUE,vartype="ci")[2,3] , 3 ) , 428.481 )
 	expect_equal( round( data.frame(svyby(~api99+api00, ~stype, dclus1, svymean, deff=TRUE,vartype="ci"))[2,8],3) , 2.212 )
@@ -51,9 +55,7 @@ test_that("db allows svyby commands", {
 	
 	expect_equal( round(svyby(~api99, list(school_type=apiclus1$stype), rclus1, svymean, vartype="cv")[3,3],3) , 0.022 )
 	expect_equal( round( svyby(~api99+api00, ~stype+sch_wide, rclus1, svymean, keep.var=FALSE)[3,3],3),611.375)
-	
-	mns<-svyby(~api99, ~stype, rclus1, svymean,covmat=TRUE)
-	expect_equal(round(SE(svycontrast(mns, c(E = 1, M = -1))),2)[1,1],10.11)
+	expect_equal(round(SE(svycontrast(svyby(~api99, ~stype, rclus1, svymean,covmat=TRUE), c(E = 1, M = -1))),2)[1,1],10.11)
 
 	## extractor functions
 	a<-svyby(~enroll, ~stype, rclus1, svytotal, deff=TRUE, verbose=TRUE,vartype=c("se","cv","cvpct","var"))
@@ -71,6 +73,5 @@ test_that("db allows svyby commands", {
 	expect_equal(round(svyby(~api00,~comp_imp+sch_wide,design=dclus1,svymean)[2,3],3),654.074)
 
 	expect_true( dbDisconnect( dclus1$db$connection , shutdown = TRUE ) )
-	
 })
 
