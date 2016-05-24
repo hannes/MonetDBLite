@@ -15,8 +15,8 @@ CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS -I$R_INCLUDE_DIR $CPICFLAGS -D_XPG6" \
 --without-samtools --without-sphinxclient --without-geos --without-samtools --without-readline \
 --enable-optimize --enable-silent-rules --disable-int128
 
+touch aclocal.m4 Makefile.in
 rm libmonetdb5.so
-touch src/aclocal.m4
 
 echo '
 
