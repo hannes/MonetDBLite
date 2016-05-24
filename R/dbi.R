@@ -227,7 +227,7 @@ setMethod("dbListFields", signature(conn="MonetDBConnection", name = "character"
   if (!dbExistsTable(conn, name))
     stop(paste0("Unknown table: ", name));
   df <- dbGetQuery(conn, paste0("select columns.name as name from sys.columns join sys.tables on \
-    columns.table_id=tables.id where tables.name='", name))	
+    columns.table_id=tables.id where tables.name='", name, "'"))	
   df$name
 })
 
@@ -496,7 +496,9 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
     dbSendUpdate(conn, ct)
   }
   if (length(value[[1]])) {
-    classes <- unlist(lapply(value, class))
+    classes <- unlist(lapply(value, function(v){
+      class(v)[[1]]
+    }))
     for (c in names(classes[classes=="character"])) {
       value[[c]] <- enc2utf8(value[[c]])
     }
@@ -507,9 +509,10 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
       if (csvdump) {
         warning("Ignoring csvdump setting in embedded mode")
       }
-      # convert Date cols to characters
-      # TODO: use type mapping to select correct converters
       for (c in names(classes[classes=="Date"])) {
+        value[[c]] <- as.character(value[[c]])
+      }
+      for (c in names(classes[classes=="POSIXct"])) {
         value[[c]] <- as.character(value[[c]])
       }
 
