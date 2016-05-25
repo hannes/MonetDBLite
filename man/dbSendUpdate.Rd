@@ -35,13 +35,18 @@
   \code{\link[DBI]{dbSendQuery}}
 }
 \examples{
-\dontrun{
-# connect to MonetDB
-conn <- dbConnect(MonetDBLite(), "monetdb://localhost/acs")
+
+# initiate a MonetDBLite server
+library(DBI)
+dbdir <- tempdir()
+conn <- dbConnect(MonetDBLite(), embedded=dbdir)
+
 # create table
 dbSendUpdate(conn, "CREATE TABLE foo(a INT,b VARCHAR(100))")
 # insert value, bind parameters to placeholders in statement
 dbSendUpdate(conn, "INSERT INTO foo VALUES(?,?)", 42, "bar")
 
-}}
+
+dbDisconnect(conn,shutdown=TRUE)
+}
 \keyword{interface}

@@ -23,8 +23,12 @@
   Returns \code{TRUE} if the transaction command was successful.
 }
 \examples{
-\dontrun{
-conn <- dbConnect(MonetDBLite(), "monetdb://localhost/acs")
+
+# initiate a MonetDBLite server
+library(DBI)
+dbdir <- tempdir()
+conn <- dbConnect(MonetDBLite(), embedded=dbdir)
+
 dbSendUpdate(conn, "CREATE TABLE foo(a INT,b VARCHAR(100))")
 dbTransaction(conn)
 dbSendUpdate(conn, "INSERT INTO foo VALUES(?,?)", 42, "bar")
@@ -34,4 +38,6 @@ dbSendUpdate(conn, "INSERT INTO foo VALUES(?,?)", 43, "bar")
 dbRollback(conn)
 
 # only 42 will be in table foo
-}}
+
+dbDisconnect(conn,shutdown=TRUE)
+}
