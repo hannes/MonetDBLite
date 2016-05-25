@@ -58,6 +58,6 @@ my_db <- src_monetdb(embedded=dbdir)
 # my_tbl <- tbl(my_db, "my_iris")
 
 # shut down the database
-dbDisconnect(my_db$con, shutdown=T)
+dbDisconnect(my_db$con, shutdown=TRUE)
 }
 
