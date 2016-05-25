@@ -21,7 +21,7 @@ mq(dbname, query, ...)
 
 \seealso{
   \code{\link[DBI]{dbConnect}}
-  \code{\link[MonetDB.R]{mc}}
+  \code{\link[MonetDBLite]{mc}}
 }
 \examples{
 \dontrun{

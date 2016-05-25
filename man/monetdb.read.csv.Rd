@@ -15,8 +15,8 @@
   sep=delim, ...)
 }
 \arguments{
-  \item{conn}{A MonetDB.R database connection. Created using \code{\link[DBI]{dbConnect}} with the 
-  \code{\link[MonetDB.R]{MonetDB.R}} database driver.}
+  \item{conn}{A MonetDBLite database connection. Created using \code{\link[DBI]{dbConnect}} with the 
+  \code{\link[MonetDBLite]{MonetDBLite}} database driver.}
   \item{files}{A single string or a vector of strings containing the absolute file names of the CSV files to be imported.}
   \item{tablename}{Name of the database table the CSV files should be imported in. Created if necessary.}
   \item{header}{Whether or not the CSV files contain a header line.}
@@ -46,11 +46,11 @@
 \dontrun{
 library(DBI)
 # connect to MonetDB
-conn <- dbConnect(MonetDB.R::MonetDB(), dbname = "demo")
+conn <- dbConnect(MonetDBLite::MonetDB(), dbname = "demo")
 # write test data to temporary CSV file
 file <- tempfile()
 write.table(iris, file, sep=",")
 # create table and import CSV
-MonetDB.R::monetdb.read.csv(conn, file, "iris")
+MonetDBLite::monetdb.read.csv(conn, file, "iris")
 }}
 \keyword{interface}

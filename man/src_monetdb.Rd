@@ -15,7 +15,7 @@
 \alias{db_save_query.MonetDBConnection}
 \alias{sql_subquery.MonetDBConnection}
 
-\title{dplyr integration from MonetDB.R}
+\title{dplyr integration from MonetDBLite}
 \usage{
 src_monetdb(dbname, host = "localhost", port = 50000L, user = "monetdb",
   password = "monetdb", con=FALSE, ...)
@@ -50,7 +50,7 @@ If you are running a local database, you only need to define the name of the dat
 library(dplyr)
 # Connection basics ---------------------------------------------------------
 # To connect to a database first create a src:
-my_db <- MonetDB.R::src_monetdb(dbname="demo")
+my_db <- MonetDBLite::src_monetdb(dbname="demo")
 # Then reference a tbl within that src
 my_tbl <- tbl(my_db, "my_table")
 }

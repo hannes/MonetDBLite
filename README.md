@@ -31,7 +31,7 @@ MonetDBLite provides a [`DBI`](http://cran.r-project.org/package=DBI) interface.
 ```R
 library(DBI)
 dbdir <- tempdir()
-con <- dbConnect(MonetDB.R::MonetDBLite(), dbdir)
+con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 ```
 
 If you want to keep the database around for later, change `dbdir` to point to some meaningful path.

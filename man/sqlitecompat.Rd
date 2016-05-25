@@ -17,7 +17,7 @@ isIdCurrent(dbObj, ...)
 initExtension(dbObj, ...)
 }
 \arguments{
-  \item{dbObj}{A MonetDB.R database connection. Created using \code{\link[DBI]{dbConnect}} with the 
-    \code{\link[MonetDB.R]{MonetDB.R}} database driver.}
+  \item{dbObj}{A MonetDBLite database connection. Created using \code{\link[DBI]{dbConnect}} with the 
+    \code{\link[MonetDBLite]{MonetDBLite}} database driver.}
   \item{...}{Additional parameters. Currently not in use.}
 }

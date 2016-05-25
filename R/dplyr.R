@@ -1,7 +1,7 @@
 src_monetdb <- function(dbname="demo", host = "localhost", port = 50000L, user = "monetdb",
   password = "monetdb", con = FALSE, ...) {
   if (!inherits(con, "MonetDBConnection") || !DBI::dbIsValid(con)) {
-    con <- DBI::dbConnect(MonetDB.R(), dbname = dbname , host = host, port = port,
+    con <- DBI::dbConnect(MonetDBLite(), dbname = dbname , host = host, port = port,
       user = user, password = password, ...)
   }
   s <- dplyr::src_sql("monetdb", con, info = DBI::dbGetInfo(con))

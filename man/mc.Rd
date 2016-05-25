@@ -5,7 +5,7 @@
    Shorthand connection constructor for MonetDB
 }
 \description{
-  \code{mc(...)} provides a short way of connecting to a MonetDB database. It is equivalent to \code{dbConnect(MonetDB.R(),...)}
+  \code{mc(...)} provides a short way of connecting to a MonetDB database. It is equivalent to \code{dbConnect(MonetDBLite(),...)}
 }
 \usage{
 mc(dbname="demo", user="monetdb", password="monetdb", host="localhost", port=50000, 

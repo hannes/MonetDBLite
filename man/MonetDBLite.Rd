@@ -25,5 +25,5 @@
 \examples{
 \dontrun{
 library(DBI)
-conn <- dbConnect(MonetDB.R::MonetDBLite())
+conn <- dbConnect(MonetDBLite::MonetDBLite())
 }}

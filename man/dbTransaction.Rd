@@ -15,8 +15,8 @@
   dbTransaction(conn, ...)
 }
 \arguments{
-  \item{conn}{A MonetDB.R database connection. Created using \code{\link[DBI]{dbConnect}} 
-   with the \code{\link[MonetDB.R]{MonetDB.R}} database driver.}
+  \item{conn}{A MonetDBLite database connection. Created using \code{\link[DBI]{dbConnect}} 
+   with the \code{\link[MonetDBLite]{MonetDBLite}} database driver.}
    \item{...}{Future use.}
  }
 \value{
@@ -24,7 +24,7 @@
 }
 \examples{
 \dontrun{
-conn <- dbConnect(MonetDB.R(), "monetdb://localhost/acs")
+conn <- dbConnect(MonetDBLite(), "monetdb://localhost/acs")
 dbSendUpdate(conn, "CREATE TABLE foo(a INT,b VARCHAR(100))")
 dbTransaction(conn)
 dbSendUpdate(conn, "INSERT INTO foo VALUES(?,?)", 42, "bar")
