@@ -15,23 +15,29 @@
   dbTransaction(conn, ...)
 }
 \arguments{
-  \item{conn}{A MonetDB.R database connection. Created using \code{\link[DBI]{dbConnect}} 
-   with the \code{\link[MonetDB.R]{MonetDB.R}} database driver.}
+  \item{conn}{A MonetDBLite database connection. Created using \code{\link[DBI]{dbConnect}} 
+   with the \code{\link[MonetDBLite]{MonetDBLite}} database driver.}
    \item{...}{Future use.}
  }
 \value{
   Returns \code{TRUE} if the transaction command was successful.
 }
 \examples{
-\dontrun{
-conn <- dbConnect(MonetDB.R(), "monetdb://localhost/acs")
-dbSendUpdate(conn, "CREATE TABLE foo(a INT,b VARCHAR(100))")
-dbTransaction(conn)
-dbSendUpdate(conn, "INSERT INTO foo VALUES(?,?)", 42, "bar")
-dbCommit(conn)
-dbTransaction(conn)
-dbSendUpdate(conn, "INSERT INTO foo VALUES(?,?)", 43, "bar")
-dbRollback(conn)
+
+# initiate a MonetDBLite server
+library(DBI)
+dbdir <- file.path( tempdir() , "transaction" )
+con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
+
+dbSendUpdate(con, "CREATE TABLE foo(a INT,b VARCHAR(100))")
+dbTransaction(con)
+dbSendUpdate(con, "INSERT INTO foo VALUES(?,?)", 42, "bar")
+dbCommit(con)
+dbTransaction(con)
+dbSendUpdate(con, "INSERT INTO foo VALUES(?,?)", 43, "bar")
+dbRollback(con)
 
 # only 42 will be in table foo
-}}
+
+dbDisconnect(con,shutdown=TRUE)
+}

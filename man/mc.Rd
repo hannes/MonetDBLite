@@ -2,10 +2,10 @@
 \alias{mc}
 
 \title{
-   Shorthand connection constructor for MonetDB
+   Shorthand connection constructor for external MonetDB
 }
 \description{
-  \code{mc(...)} provides a short way of connecting to a MonetDB database. It is equivalent to \code{dbConnect(MonetDB.R(),...)}
+  \code{mc(...)} provides a short way of connecting to an external MonetDB database. It is equivalent to \code{dbConnect(MonetDB.R(),...)}
 }
 \usage{
 mc(dbname="demo", user="monetdb", password="monetdb", host="localhost", port=50000, 
@@ -24,7 +24,7 @@ mc(dbname="demo", user="monetdb", password="monetdb", host="localhost", port=500
 
   }
 \value{
-  Returns a DBI connection to the specified MonetDB database.
+  Returns a DBI connection to the specified external MonetDB database.
 }
 
 \seealso{

@@ -23,7 +23,7 @@
   Since it has no parameters, it is most commonly used inline with the \code{\link[DBI]{dbConnect}} call.
 }
 \examples{
-\dontrun{
 library(DBI)
-conn <- dbConnect(MonetDB.R::MonetDBLite())
-}}
+con <- dbConnect(MonetDBLite::MonetDBLite())
+dbDisconnect(con,shutdown=TRUE)
+}

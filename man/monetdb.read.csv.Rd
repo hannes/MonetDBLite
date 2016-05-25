@@ -3,10 +3,10 @@
 \alias{monet.read.csv}
 
 \title{
-  Import a CSV file into MonetDB
+  Import a CSV file into MonetDBLite
 }
 \description{
-  Instruct MonetDB to read a CSV file, optionally also create the table for it.
+  Instruct MonetDBLite to read a CSV file, optionally also create the table for it.
 }
 \usage{
    monetdb.read.csv (conn, files, tablename, header=TRUE, 
@@ -15,8 +15,8 @@
   sep=delim, ...)
 }
 \arguments{
-  \item{conn}{A MonetDB.R database connection. Created using \code{\link[DBI]{dbConnect}} with the 
-  \code{\link[MonetDB.R]{MonetDB.R}} database driver.}
+  \item{conn}{A MonetDBLite database connection. Created using \code{\link[DBI]{dbConnect}} with the 
+  \code{\link[MonetDBLite]{MonetDBLite}} database driver.}
   \item{files}{A single string or a vector of strings containing the absolute file names of the CSV files to be imported.}
   \item{tablename}{Name of the database table the CSV files should be imported in. Created if necessary.}
   \item{header}{Whether or not the CSV files contain a header line.}
@@ -43,14 +43,19 @@
   \code{dbWriteTable} in \code{\link[DBI]{DBIConnection-class}}
 }
 \examples{
-\dontrun{
+
+# initiate a MonetDBLite server
 library(DBI)
-# connect to MonetDB
-conn <- dbConnect(MonetDB.R::MonetDB(), dbname = "demo")
+dbdir <- file.path( tempdir() , 'readcsv' )
+con <- dbConnect( MonetDBLite::MonetDBLite() , dbdir )
+
 # write test data to temporary CSV file
 file <- tempfile()
-write.table(iris, file, sep=",")
+write.table(iris, file, sep=",", row.names=FALSE)
+
 # create table and import CSV
-MonetDB.R::monetdb.read.csv(conn, file, "iris")
-}}
+monetdb.read.csv(con, file, "iris")
+
+dbDisconnect(con,shutdown=TRUE)
+}
 \keyword{interface}

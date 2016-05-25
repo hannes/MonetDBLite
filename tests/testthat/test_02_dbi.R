@@ -182,7 +182,7 @@ test_that("we can disconnect", {
 	expect_false(dbIsValid(con))
 	con2 <- dbConnect(MonetDBLite::MonetDBLite(), dbfolder)
 	expect_true(dbIsValid(con2))
-	dbDisconnect(con2, shutdown=T)
+	dbDisconnect(con2, shutdown=TRUE)
 	expect_false(dbIsValid(con2))
 	con <<- NULL
 	gc()

@@ -22,8 +22,8 @@
   dbSendUpdate( conn, statement, ..., async=FALSE )
 }
 \arguments{
-  \item{conn}{A MonetDB.R database connection. Created using \code{\link[DBI]{dbConnect}} 
-   with the \code{\link[MonetDB.R]{MonetDB.R}} database driver.}
+  \item{conn}{A MonetDBLite database connection. Created using \code{\link[DBI]{dbConnect}} 
+   with the \code{\link[MonetDBLite]{MonetDBLite}} database driver.}
    \item{statement}{A SQL statement to be sent to the database, e.g. 'UPDATE' or 'INSERT'.}
    \item{...}{Parameters to be bound to '?' characters in the query, similar to JDBC.}
    \item{async}{Behave like \code{dbSendUpdateAsync}? Defaults to \code{FALSE}.}
@@ -35,13 +35,18 @@
   \code{\link[DBI]{dbSendQuery}}
 }
 \examples{
-\dontrun{
-# connect to MonetDB
-conn <- dbConnect(MonetDB.R(), "monetdb://localhost/acs")
-# create table
-dbSendUpdate(conn, "CREATE TABLE foo(a INT,b VARCHAR(100))")
-# insert value, bind parameters to placeholders in statement
-dbSendUpdate(conn, "INSERT INTO foo VALUES(?,?)", 42, "bar")
 
-}}
+# initiate a MonetDBLite server
+library(DBI)
+dbdir <- file.path( tempdir() , "sendupdate" )
+con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
+
+# create table
+dbSendUpdate(con, "CREATE TABLE foo(a INT,b VARCHAR(100))")
+# insert value, bind parameters to placeholders in statement
+dbSendUpdate(con, "INSERT INTO foo VALUES(?,?)", 42, "bar")
+
+
+dbDisconnect(con,shutdown=TRUE)
+}
 \keyword{interface}

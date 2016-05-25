@@ -4,7 +4,7 @@
 
 
 \title{
-  Get list of available databases from monetdbd
+  Get list of available databases from external monetdbd
 }
 \description{
   The \code{monetdbd} daemon can be used to manage multiple MonetDB databases in UNIX-like systems. This function connects to it and retrieves information about the available databases. Please note that \code{monetdbd} has to be configured to allow TCP control connections first. This can be done by setting a passphrase, e.g. "examplepassphrase" (\code{monetdbd set passphrase=examplepassphrase /path/to/dbfarm}) and then switching on remote control (\code{monetdbd set control=true /path/to/dbfarm}). 
