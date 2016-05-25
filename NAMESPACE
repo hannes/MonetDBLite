@@ -7,7 +7,7 @@ export(monet.read.csv,monetdb.read.csv)
 # those are not in the DBI
 exportMethods(dbSendUpdate,dbSendUpdateAsync,dbTransaction,mdbapply,isIdCurrent,initExtension)
 # shorthands
-export(mc,mq)
+export(mc,ml)
 
 # control.R
 export(monetdb.server.setup)
