@@ -35,7 +35,7 @@
 \examples{
 \dontrun{
 library(DBI)
-conn <- dbConnect(MonetDBLite::MonetDB(), dbname = "demo")
+conn <- dbConnect(MonetDBLite::MonetDB.R(), dbname = "demo")
 dbWriteTable(conn, "iris", iris)
 dbListTables(conn)
 dbGetQuery(conn, "SELECT COUNT(*) FROM iris")
