@@ -21,6 +21,7 @@ ml(...)
   \code{\link[DBI]{dbConnect}}
 }
 \examples{
+  library(DBI)
   dbdir <- file.path( tempdir() , "ml" )
   con <- ml(dbdir)
   dbDisconnect(con, shutdown = TRUE)
