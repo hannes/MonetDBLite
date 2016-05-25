@@ -151,6 +151,7 @@ test_that("transactions are on ACID", {
 
 
 test_that("strings can have exotic characters", {
+	skip_on_os("windows")
 	dbSendQuery(con, "create table monetdbtest (a string)")
 	expect_true(dbExistsTable(con, tname))
 	dbSendQuery(con, "INSERT INTO monetdbtest VALUES ('Роман Mühleisen')")

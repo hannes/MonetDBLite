@@ -6,7 +6,6 @@ dbdir2 <- file.path(tempdir(), "db2")
 dbdir3 <- file.path(tempdir() , "space MonetDB" )
 
 test_that("db starts up", {
-	expect_error(monetdb_embedded_startup("/dev/null"))
 	dbdir <- tempdir()
 	expect_equal(monetdb_embedded_startup(dbdir), TRUE)
 	expect_error(monetdb_embedded_startup("/tmp"))
