@@ -32,11 +32,9 @@ mc <- function(dbname="demo", user="monetdb", password="monetdb", host="localhos
   dbConnect(MonetDB.R(), dbname, user, password, host, port, timeout, wait, language, ...)
 }
 
-mq <- function(dbname, query, ...) {
-  conn <- mc(dbname, ...)
-  res <- dbGetQuery(conn, query)
-  dbDisconnect(conn)
-  return(res)
+# shorthand for connecting to the DB, very handy, e.g. dbListTables(ml(tempdir()))
+ml <- function(...) {
+  dbConnect(MonetDBLite(),...)
 }
 
 setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="monetdb", 

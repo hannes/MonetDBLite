@@ -2,7 +2,7 @@
 \alias{mc}
 
 \title{
-   Shorthand connection constructor for MonetDB
+   Shorthand connection constructor for external MonetDB
 }
 \description{
   \code{mc(...)} provides a short way of connecting to an external MonetDB database. It is equivalent to \code{dbConnect(MonetDB.R(),...)}
