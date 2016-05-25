@@ -52,10 +52,10 @@ con <- dbConnect( MonetDBLite() , embedded = dbdir )
 # write test data to temporary CSV file
 file <- tempfile()
 write.table(iris, file, sep=",", row.names=FALSE)
+
 # create table and import CSV
-MonetDBLite::monetdb.read.csv(con, file, "iris")
+monetdb.read.csv(con, file, "iris")
 
 dbDisconnect(con,shutdown=TRUE)
-
 }
 \keyword{interface}
