@@ -26,11 +26,11 @@
 \examples{
 \dontrun{
 library(DBI)
-conn <- dbConnect(MonetDB.R(), "demo")
+con <- dbConnect(MonetDB.R(), "demo")
 data(mtcars)
-dbWriteTable(conn, "mtcars", mtcars)
+dbWriteTable(con, "mtcars", mtcars)
 
-mpgplus42 <- mdbapply(conn, "mtcars", "double", function(d) {
+mpgplus42 <- mdbapply(con, "mtcars", "double", function(d) {
 	d$mpg + 42
 })
 }}

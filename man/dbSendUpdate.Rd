@@ -39,14 +39,14 @@
 # initiate a MonetDBLite server
 library(DBI)
 dbdir <- file.path( tempdir() , "sendupdate" )
-conn <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
+con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 
 # create table
-dbSendUpdate(conn, "CREATE TABLE foo(a INT,b VARCHAR(100))")
+dbSendUpdate(con, "CREATE TABLE foo(a INT,b VARCHAR(100))")
 # insert value, bind parameters to placeholders in statement
-dbSendUpdate(conn, "INSERT INTO foo VALUES(?,?)", 42, "bar")
+dbSendUpdate(con, "INSERT INTO foo VALUES(?,?)", 42, "bar")
 
 
-dbDisconnect(conn,shutdown=TRUE)
+dbDisconnect(con,shutdown=TRUE)
 }
 \keyword{interface}

@@ -47,15 +47,15 @@
 # initiate a MonetDBLite server
 library(DBI)
 dbdir <- file.path( tempdir() , 'readcsv' )
-conn <- dbConnect( MonetDBLite::MonetDBLite() , dbdir )
+con <- dbConnect( MonetDBLite::MonetDBLite() , dbdir )
 
 # write test data to temporary CSV file
 file <- tempfile()
 write.table(iris, file, sep=",", row.names=FALSE)
 
 # create table and import CSV
-monetdb.read.csv(conn, file, "iris")
+monetdb.read.csv(con, file, "iris")
 
-dbDisconnect(conn,shutdown=TRUE)
+dbDisconnect(con,shutdown=TRUE)
 }
 \keyword{interface}

@@ -232,16 +232,16 @@ monetdbd.liststatus <- monetdb.liststatus <- function(passphrase, host="localhos
   return(dbdf[order(dbdf$dbname), ])
 }
 
-monetdb.server.getpid <- function (con) {
-  as.integer(dbGetQuery(con, "select value from env() where name='monet_pid'")[[1]])
+monetdb.server.getpid <- function (conn) {
+  as.integer(dbGetQuery(conn, "select value from env() where name='monet_pid'")[[1]])
 }
 
 # this is somewhat evil, no admin rights required to kill server. Even works on closed connections.
-monetdb.server.shutdown <- function(con) {
+monetdb.server.shutdown <- function(conn) {
   .Deprecated("Consider using MonetDBLite")
-  stopifnot(inherits(con, "MonetDBConnection"))
+  stopifnot(inherits(conn, "MonetDBConnection"))
   # reconnect with MAL scenario
-  newparms <- con@connenv$params
+  newparms <- conn@connenv$params
   newparms$language <- "mal"
   newconn <- do.call("dbConnect", newparms)
   # construct and call MAL function that calls mal_exit()

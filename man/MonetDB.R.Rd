@@ -37,10 +37,10 @@
 \examples{
 \dontrun{
 library(DBI)
-conn <- dbConnect(MonetDBLite::MonetDB.R(), dbname = "demo")
-dbWriteTable(conn, "iris", iris)
-dbListTables(conn)
-dbGetQuery(conn, "SELECT COUNT(*) FROM iris")
-d <- dbReadTable(conn, "iris")
+con <- dbConnect(MonetDBLite::MonetDB.R(), dbname = "demo")
+dbWriteTable(con, "iris", iris)
+dbListTables(con)
+dbGetQuery(con, "SELECT COUNT(*) FROM iris")
+d <- dbReadTable(con, "iris")
 }}
 \keyword{interface}

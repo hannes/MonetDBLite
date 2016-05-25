@@ -24,9 +24,9 @@ Unlike an embedded instance, initiating an external server process requires \hre
 monetdb.server.setup(database.directory,monetdb.program.path, 
 	dbname = "demo", dbport = 50000)
 monetdb.server.start(bat.file)
-monetdb.server.getpid(con)
+monetdb.server.getpid(conn)
 monetdb.server.stop(correct.pid, wait = TRUE)
-monetdb.server.shutdown(con)
+monetdb.server.shutdown(conn)
 }
 \arguments{
   \item{database.directory}{Path to the directory where the initialization script and all data will be stored. Must be empty or non-existant.}
@@ -36,7 +36,7 @@ monetdb.server.shutdown(con)
    \item{bat.file}{Path to the external MonetDB startup script. This path is returned by \code{monetdb.server.setup}}
    \item{correct.pid}{Process ID of the running external MonetDB server. This number is returned by \code{monetdb.server.start}}
   \item{wait}{Wait for the server to shut down or return immediately}
-  \item{con}{A DBI connection to external MonetDB}
+  \item{conn}{A DBI connection to external MonetDB}
  }
 \value{
   \code{monetdb.server.setup} returns the path to an external MonetDB startup script, which can used many times

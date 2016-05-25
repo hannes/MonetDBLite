@@ -27,17 +27,17 @@
 # initiate a MonetDBLite server
 library(DBI)
 dbdir <- file.path( tempdir() , "transaction" )
-conn <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
+con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 
-dbSendUpdate(conn, "CREATE TABLE foo(a INT,b VARCHAR(100))")
-dbTransaction(conn)
-dbSendUpdate(conn, "INSERT INTO foo VALUES(?,?)", 42, "bar")
-dbCommit(conn)
-dbTransaction(conn)
-dbSendUpdate(conn, "INSERT INTO foo VALUES(?,?)", 43, "bar")
-dbRollback(conn)
+dbSendUpdate(con, "CREATE TABLE foo(a INT,b VARCHAR(100))")
+dbTransaction(con)
+dbSendUpdate(con, "INSERT INTO foo VALUES(?,?)", 42, "bar")
+dbCommit(con)
+dbTransaction(con)
+dbSendUpdate(con, "INSERT INTO foo VALUES(?,?)", 43, "bar")
+dbRollback(con)
 
 # only 42 will be in table foo
 
-dbDisconnect(conn,shutdown=TRUE)
+dbDisconnect(con,shutdown=TRUE)
 }
