@@ -1,6 +1,5 @@
-\name{MonetDBLite}
-\alias{MonetDBLite-package}
-\alias{MonetDBLite}
+\name{MonetDB.R}
+\alias{MonetDB.R}
 \alias{MonetDBR}
 \alias{MonetDB}
 \alias{MonetR}
