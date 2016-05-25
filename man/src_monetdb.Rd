@@ -51,7 +51,7 @@ library(dplyr)
 # Connection basics ---------------------------------------------------------
 # To connect to a database first create a src:
 dbdir <- file.path(tempdir(), "dplyrdir")
-my_db <- src_monetdb(embedded=dbdir)
+my_db <- MonetDBLite::src_monetdb(embedded=dbdir)
 
 # my_iris <- copy_to(my_db, iris)
 # Then reference a tbl within that src
