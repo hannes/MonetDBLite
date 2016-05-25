@@ -124,7 +124,7 @@ test_that("dplyr group_by", {
 })
 
 test_that("shutdown", {
-	DBI::dbDisconnect(my_db_monetdb$con, shutdown=T)
+	DBI::dbDisconnect(my_db_monetdb$con, shutdown=TRUE)
 })
 
 
