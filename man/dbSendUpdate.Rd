@@ -38,7 +38,7 @@
 
 # initiate a MonetDBLite server
 library(DBI)
-dbdir <- tempdir()
+dbdir <- file.path( tempdir() , "sendupdate" )
 conn <- dbConnect(MonetDBLite(), embedded=dbdir)
 
 # create table

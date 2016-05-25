@@ -26,7 +26,7 @@
 
 # initiate a MonetDBLite server
 library(DBI)
-dbdir <- tempdir()
+dbdir <- file.path( tempdir() , "transaction" )
 conn <- dbConnect(MonetDBLite(), embedded=dbdir)
 
 dbSendUpdate(conn, "CREATE TABLE foo(a INT,b VARCHAR(100))")

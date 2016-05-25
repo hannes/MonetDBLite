@@ -46,7 +46,7 @@
 
 # initiate a MonetDBLite server
 library(DBI)
-dbdir <- tempdir()
+dbdir <- file.path( tempdir() , 'readcsv' )
 conn <- dbConnect( MonetDBLite() , embedded = dbdir )
 
 # write test data to temporary CSV file
