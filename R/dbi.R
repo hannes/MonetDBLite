@@ -29,7 +29,7 @@ setMethod("dbGetInfo", "MonetDBDriver", def=function(dbObj, ...)
 mc <- function(dbname="demo", user="monetdb", password="monetdb", host="localhost", port=50000L, 
                timeout=86400L, wait=FALSE, language="sql", ...) {
   
-  dbConnect(MonetDBLite(), dbname, user, password, host, port, timeout, wait, language, ...)
+  dbConnect(MonetDB.R(), dbname, user, password, host, port, timeout, wait, language, ...)
 }
 
 mq <- function(dbname, query, ...) {
