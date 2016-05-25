@@ -3,7 +3,7 @@
 \alias{mdbapply,MonetDBConnection-method}
 
 \title{
-  Apply a R function to a MonetDB table.
+  Apply a R function to an external MonetDB table.
 }
 \description{
 \code{dbApply} is used to switch the data from the normal auto-commiting mode into transactional mode. Here, changes to the database will not be permanent until \code{dbCommit} is called. If the changes are not to be kept around, you can use \code{dbRollback} to undo all the changes since \code{dbTransaction} was called.
@@ -14,9 +14,9 @@
 }
 \arguments{
   \item{conn}{An external MonetDB.R database connection. Created using \code{\link[DBI]{dbConnect}} 
-   with the \code{\link[MonetDB.R]{MonetDB.R}} database driver.}
+   with the \code{\link[MonetDB.R]{MonetDB.R}} external database driver.}
    \item{table}{An external MonetDB database table. Can also be a view or temporary table.}
-   \item{fun}{A R function to be run on the database table. The function gets passed a single \code{data.frame} argument which represents the database table. The function needs to return a single vector (for now).}
+   \item{fun}{A R function to be run on the external database table. The function gets passed a single \code{data.frame} argument which represents the database table. The function needs to return a single vector (for now).}
    \item{...}{Other parameters to be passed to the function}
 
  }
@@ -25,6 +25,7 @@
 }
 \examples{
 \dontrun{
+library(DBI)
 conn <- dbConnect(MonetDB.R(), "demo")
 data(mtcars)
 dbWriteTable(conn, "mtcars", mtcars)
