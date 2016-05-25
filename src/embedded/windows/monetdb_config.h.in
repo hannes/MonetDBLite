@@ -802,7 +802,7 @@
 #define MX_CXX_SUFFIX "cxx"
 
 /* Define if you do not want assertions */
-/* #undef NDEBUG */
+#undef NDEBUG
 
 /* Name of package */
 #define PACKAGE "MonetDB"
