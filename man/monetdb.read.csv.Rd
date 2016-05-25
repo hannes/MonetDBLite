@@ -3,10 +3,10 @@
 \alias{monet.read.csv}
 
 \title{
-  Import a CSV file into MonetDB
+  Import a CSV file into MonetDBLite
 }
 \description{
-  Instruct MonetDB to read a CSV file, optionally also create the table for it.
+  Instruct MonetDBLite to read a CSV file, optionally also create the table for it.
 }
 \usage{
    monetdb.read.csv (conn, files, tablename, header=TRUE, 
@@ -43,14 +43,19 @@
   \code{dbWriteTable} in \code{\link[DBI]{DBIConnection-class}}
 }
 \examples{
-\dontrun{
+
+# initiate a MonetDBLite server
 library(DBI)
-# connect to MonetDB
-conn <- dbConnect(MonetDBLite::MonetDB(), dbname = "demo")
+dbdir <- tempdir()
+con <- dbConnect( MonetDBLite() , embedded = dbdir )
+
 # write test data to temporary CSV file
 file <- tempfile()
-write.table(iris, file, sep=",")
+write.table(iris, file, sep=",", row.names=FALSE)
 # create table and import CSV
-MonetDBLite::monetdb.read.csv(conn, file, "iris")
-}}
+MonetDBLite::monetdb.read.csv(con, file, "iris")
+
+dbDisconnect(con,shutdown=TRUE)
+
+}
 \keyword{interface}
