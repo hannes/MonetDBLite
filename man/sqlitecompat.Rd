@@ -7,7 +7,7 @@
 \alias{isIdCurrent,MonetDBResult-method}
 
 \title{
-  Compatibility functions for RSQlite
+  Compatibility functions for RSQLite
 }
 \description{
 Some functions that RSQlite has and that we support to allow MonetDBLite being used as a drop-in replacement.
