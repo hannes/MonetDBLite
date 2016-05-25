@@ -7,12 +7,12 @@ dbfolder <- file.path(tempdir(), "svydir")
 
 test_that("db allows database-backed survey designs", {
 
-	db <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )
+	con <- dbConnect( MonetDBLite::MonetDBLite() , dbfolder )
 
 	data(api)
 	x <- apiclus1
 	names( x ) <- gsub( "\\." , "_" , names( x ) )
-	dbWriteTable( db , 'apiclus1' , x )
+	dbWriteTable( con , 'apiclus1' , x )
 	dclus1 <- svydesign(id = ~dnum, weight=~pw,data = 'apiclus1',fpc = ~fpc, dbtype="MonetDBLite",dbname = dbfolder)
 
 	expect_equal(class(dclus1)[1],"DBIsvydesign")
@@ -24,7 +24,7 @@ test_that("db allows database-backed survey designs", {
 	y <- cbind( x , repweights )
 	names( y ) <- tolower( names( y ) )
 	# this is just a try
-	dbWriteTable( db , 'rclus1' , y )
+	dbWriteTable( con , 'rclus1' , y )
 
 	rclus1<-svrepdesign(data='rclus1', type="BRR", repweights="x[1-4]", combined.weights=FALSE,dbtype="MonetDBLite",dbname = dbfolder)
 
@@ -34,7 +34,7 @@ test_that("db allows database-backed survey designs", {
 	close(dclus1)
 	close(rclus1)
 
-	dbDisconnect( db , shutdown = TRUE )
+	dbDisconnect( con , shutdown = TRUE )
 })
 
 
