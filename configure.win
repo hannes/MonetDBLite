@@ -25,7 +25,7 @@ R --quiet -e "setwd('src/embedded/windows/'); tf <- tempfile(); download.file('h
 
 cd src
 
-touch aclocal.m4 Makefile.in
+touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
 rm libmonetdb5.dll
 
 make -j
