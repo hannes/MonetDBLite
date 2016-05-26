@@ -504,17 +504,15 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
       levels(value[[c]]) <- enc2utf8(levels(value[[c]]))
     }
     if (inherits(conn, "MonetDBEmbeddedConnection")) {
-      if (csvdump) {
-        warning("Ignoring csvdump setting in embedded mode")
-      }
       for (c in names(classes[classes=="Date"])) {
         value[[c]] <- as.character(value[[c]])
       }
       for (c in names(classes[classes=="POSIXct"])) {
         value[[c]] <- as.character(value[[c]])
       }
-
-      insres <- monetdb_embedded_append(conn@connenv$conn, qname, value)
+      schema <- "sys"
+      if (temporary) schema <- "tmp"
+      insres <- monetdb_embedded_append(conn@connenv$conn, qname, value, schema)
       if (!is.logical(insres)) {
         stop("Failed to insert data: ", insres)
       }

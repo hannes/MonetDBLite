@@ -1,5 +1,6 @@
 \name{src_monetdb}
 \alias{src_monetdb}
+\alias{src_monetdblite}
 \alias{tbl.src_monetdb}
 \alias{src_desc.src_monetdb}
 \alias{src_translate_env.src_monetdb}
@@ -20,6 +21,8 @@
 src_monetdb(dbname, host = "localhost", port = 50000L, user = "monetdb",
   password = "monetdb", con=FALSE, ...)
 
+src_monetdb(dbdir = tempdir(), ...)
+
 \method{tbl}{src_monetdb}(src, from, ...)
 }
 \arguments{
@@ -35,6 +38,8 @@ src_monetdb(dbname, host = "localhost", port = 50000L, user = "monetdb",
 database connector, \code{dbConnect}.}
 
 \item{src}{a MonetDB src created with \code{src_monetdb}.}
+
+\item{dbdir}{a directory to start MonetDBLite in}
 
 \item{from}{Either a string giving the name of table in database, or SQL described a derived table or compound join.}
 }
