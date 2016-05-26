@@ -58,9 +58,8 @@ library(dplyr)
 dbdir <- file.path(tempdir(), "dplyrdir")
 my_db <- MonetDBLite::src_monetdb(embedded=dbdir)
 
-my_iris <- copy_to(my_db, iris)
-# Then reference a tbl within that src
-my_tbl <- tbl(my_db, "my_iris")
+my_iris  <- copy_to(my_db, iris)
+my_iris2 <- tbl(my_db, 'iris')
 
 # shut down the database
 dbDisconnect(my_db$con, shutdown=TRUE)
