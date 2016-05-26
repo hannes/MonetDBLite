@@ -510,8 +510,13 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
       for (c in names(classes[classes=="POSIXct"])) {
         value[[c]] <- as.character(value[[c]])
       }
+
+      # figure out whether the table is in the sys or the tmp schema
       schema <- "sys"
-      if (temporary) schema <- "tmp"
+      if (dbGetQuery(conn, paste0("select count(*) as is_tmp_schema from sys.tables join sys.schemas on tables.schema_id=schemas.id where tables.name='", gsub("(^\"|\"$)", "", name), "' and schemas.name='tmp'"))$is_tmp_schema) {
+        schema <- "tmp"
+      }
+
       insres <- monetdb_embedded_append(conn@connenv$conn, qname, value, schema)
       if (!is.logical(insres)) {
         stop("Failed to insert data: ", insres)

@@ -881,10 +881,12 @@ rel_create_table(mvc *sql, sql_schema *ss, int temp, const char *sname, const ch
 	if (sname && !(s = mvc_bind_schema(sql, sname)))
 		return sql_error(sql, 02, "3F000!CREATE TABLE: no such schema '%s'", sname);
 
+#ifndef HAVE_EMBEDDED // I take full responsibility, HM
 	if (temp != SQL_PERSIST && tt == tt_table && 
 			commit_action == CA_COMMIT)
 		commit_action = CA_DELETE;
-	
+#endif
+
 	if (temp != SQL_DECLARED_TABLE) {
 		if (temp != SQL_PERSIST && tt == tt_table) {
 			s = mvc_bind_schema(sql, "tmp");
