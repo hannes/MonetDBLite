@@ -5,7 +5,7 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MonetDBLite)](http://cran.r-project.org/package=MonetDBLite) 
 [![](http://cranlogs.r-pkg.org/badges/MonetDBLite)](http://monetdb.cwi.nl/testweb/web/eanthony/wilbur.png)
 
-[MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/). It is similar in functionality to [RSQLite](http://cran.r-project.org/package=RSQLite) and works seamlessly with [the dplyr grammar of data manipulation](https://cran.rstudio.com/web/packages/dplyr/vignettes/databases.html), but typically completes queries much faster due to its *columnar* storage architecture and bulk query processing model. MonetDBLite is based on [MonetDB](https://www.monetdb.org/Home).
+[MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/) and does not require the installation of any external software. It is similar in functionality to [RSQLite](http://cran.r-project.org/package=RSQLite) and works seamlessly with [the dplyr grammar of data manipulation](https://cran.rstudio.com/web/packages/dplyr/vignettes/databases.html), but typically completes queries much faster due to its *columnar* storage architecture and bulk query processing model. MonetDBLite is based on [MonetDB](https://www.monetdb.org/Home).
 
 ## Installation
 
@@ -62,7 +62,7 @@ Note how we wrap the two commands in a transaction using `dbBegin` and `dbCommit
 
 ## Shutdown
 
-MonetDBLite does not allow multiple concurrent embedded sessions. To shutdown a server, include the `shutdown=TRUE` parameter:
+MonetDBLite allows multiple concurrent *connections* to a single database, but does not allow more than one concurrent embedded server session (actively-running database). This is not an issue for most users since a single database can store thousands of individual tables.  To switch between databases, however, the first server must be shut down before the second can be opened.  To shutdown a server, include the `shutdown=TRUE` parameter:
 
 ```R
 dbDisconnect(con, shutdown=TRUE)
