@@ -560,11 +560,9 @@ setMethod("dbDataType", signature(dbObj="MonetDBConnection", obj = "ANY"), def =
 
 setMethod("dbRemoveTable", signature(conn="MonetDBConnection", name = "character"), def=function(conn, name, ...) {
   name <- quoteIfNeeded(conn, name)
-  if (dbExistsTable(conn, name)) {
-    dbSendUpdate(conn, paste("DROP TABLE", name))
-    return(invisible(TRUE))
-  }
-  return(invisible(FALSE))
+  if (!dbExistsTable(conn, name)) stop("No such table: ", name)
+  dbSendUpdate(conn, paste("DROP TABLE", name))
+  return(invisible(TRUE))
 })
 
 # for compatibility with RMonetDB (and dbWriteTable support), we will allow parameters to this 
