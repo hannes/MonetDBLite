@@ -49,27 +49,28 @@ mal/modules/mal/
 	$(libdir)/monetdb5/autoload/00_iterator_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_language_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_batExtensions_hge.mal#HAVE_HGE
-	$(libdir)/monetdb5/clients.mal
+	$(libdir)/monetdb5/pcre.mal
+	$(libdir)/monetdb5/manifold.mal
+	$(libdir)/monetdb5/sysmon.mal
+	$(libdir)/monetdb5/groupby.mal
+	$(libdir)/monetdb5/mal_init.mal
+	$(libdir)/monetdb5/bbp.mal
+	$(libdir)/monetdb5/mal_io.mal
 	$(libdir)/monetdb5/batExtensions.mal
 	$(libdir)/monetdb5/manual.mal
-	$(libdir)/monetdb5/iterator.mal
 	$(libdir)/monetdb5/language.mal
-	$(libdir)/monetdb5/transaction.mal
-	$(libdir)/monetdb5/manifold.mal
-	$(libdir)/monetdb5/mal_io.mal
-	$(libdir)/monetdb5/querylog.mal
 	$(libdir)/monetdb5/factories.mal
-	$(libdir)/monetdb5/batmtime.mal
 	$(libdir)/monetdb5/inspect.mal
-	$(libdir)/monetdb5/sample.mal
-	$(libdir)/monetdb5/bbp.mal
-	$(libdir)/monetdb5/groupby.mal
-	$(libdir)/monetdb5/mkey.mal
-	$(libdir)/monetdb5/sysmon.mal
-	$(libdir)/monetdb5/pcre.mal
 	$(libdir)/monetdb5/mat.mal
-	$(libdir)/monetdb5/mal_init.mal
 	$(libdir)/monetdb5/profiler.mal
+	$(libdir)/monetdb5/iterator.mal
+	$(libdir)/monetdb5/transaction.mal
+	$(libdir)/monetdb5/sample.mal
+	$(libdir)/monetdb5/orderidx.mal
+	$(libdir)/monetdb5/querylog.mal
+	$(libdir)/monetdb5/clients.mal
+	$(libdir)/monetdb5/batmtime.mal
+	$(libdir)/monetdb5/mkey.mal
 	$(libdir)/monetdb5/autoload/01_batcalc.mal
 	$(libdir)/monetdb5/autoload/01_calc.mal
 mal/optimizer/
@@ -93,7 +94,6 @@ sql/backends/monet5/
 	$(libdir)/monetdb5/sql_aggr_lng.mal
 	$(libdir)/monetdb5/sql_inspect.mal
 	$(libdir)/monetdb5/sql_aggr_flt.mal
-	$(libdir)/monetdb5/sql_aggr_wrd.mal
 	$(libdir)/monetdb5/sql_rank.mal
 	$(libdir)/monetdb5/sql_aggr_int.mal
 	$(libdir)/monetdb5/sql_aggr_bte.mal
@@ -124,6 +124,7 @@ sql/scripts/
 	$(libdir)/monetdb5/createdb/45_uuid.sql
 	$(libdir)/monetdb5/createdb/16_tracelog.sql
 	$(libdir)/monetdb5/createdb/99_system.sql
+	$(libdir)/monetdb5/createdb/18_index.sql
 	$(libdir)/monetdb5/createdb/15_querylog.sql
 	$(libdir)/monetdb5/createdb/27_rejects.sql
 	$(libdir)/monetdb5/createdb/14_inet.sql

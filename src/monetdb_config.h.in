@@ -105,6 +105,9 @@
 /* Define if the fits module is to be enabled */
 #undef HAVE_FITS
 
+/* Define if fork exists */
+#undef HAVE_FORK
+
 /* Define to 1 if you have the `fpclass' function. */
 #undef HAVE_FPCLASS
 
@@ -200,6 +203,9 @@
 
 /* Define if you have the pthread library */
 #undef HAVE_LIBPTHREAD
+
+/* Define if we can link to python */
+#undef HAVE_LIBPY
 
 /* Define if you have libR installed */
 #undef HAVE_LIBR
@@ -369,6 +375,9 @@
 
 /* Define to 1 if you have the <semaphore.h> header file. */
 #undef HAVE_SEMAPHORE_H
+
+/* Define if semtimedop exists */
+#undef HAVE_SEMTIMEDOP
 
 /* Define to 1 if you have the `setenv' function. */
 #undef HAVE_SETENV

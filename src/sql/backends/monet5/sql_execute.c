@@ -191,21 +191,16 @@ static str
 SQLrun(Client c, mvc *m){
 	str msg= MAL_SUCCEED;
 	MalBlkPtr old;
-			
-	// first consider running in debug mode
-	if( m->emod & mod_debug)
-		msg = runMALDebugger(c, c->curprg->def);
-	 else{
-		if( m->emod & mod_trace){
-			c->curprg->def = copyMalBlk(old = c->curprg->def);
-			SQLsetTrace(c);
-			msg = runMAL(c, c->curprg->def, 0, 0);
-			stopTrace(0);
-			freeMalBlk(c->curprg->def);
-			c->curprg->def = old;
-		} else
-			msg = runMAL(c, c->curprg->def, 0, 0);
-	}
+	if( m->emod & mod_trace){
+		c->curprg->def = copyMalBlk(old = c->curprg->def);
+		SQLsetTrace(c);
+		msg = runMAL(c, c->curprg->def, 0, 0);
+		stopTrace(0);
+		freeMalBlk(c->curprg->def);
+		c->curprg->def = old;
+	} else
+		msg = runMAL(c, c->curprg->def, 0, 0);
+
 	return msg;
 }
 
