@@ -6,6 +6,12 @@ CFLAGS=`"${R_HOME}/bin/R" CMD config CFLAGS`
 CPPFLAGS=`"${R_HOME}/bin/R" CMD config CPPFLAGS`
 CPICFLAGS=`"${R_HOME}/bin/R" CMD config CPICFLAGS`
 
+OPTFLAG="--enable-optimize"
+if [ ! -z $MONETDBLITE_DEBUG ] ; then
+	echo "Using debug flags"
+	OPTFLAG="--enable-debug"
+fi
+
 CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS -I$R_INCLUDE_DIR $CPICFLAGS -D_XPG6" \
 ./configure --enable-embedded --enable-embedded-r \
 --disable-fits --disable-geom --disable-rintegration --disable-gsl --disable-netcdf \
@@ -13,7 +19,7 @@ CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS -I$R_INCLUDE_DIR $CPICFLAGS -D_XPG6" \
 --without-openssl --without-uuid --without-curl --without-bz2 --without-lzma --without-libxml2 \
 --without-perl --without-python2 --without-python3 --without-unixodbc --disable-mapi \
 --without-samtools --without-sphinxclient --without-geos --without-samtools --without-readline \
---enable-optimize --enable-silent-rules --disable-int128
+$OPTFLAG --enable-silent-rules --disable-int128
 
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
 rm libmonetdb5.so
