@@ -950,6 +950,9 @@ heapinit(COLrec *col, const char *buf, int *hashash, const char *HT, int oidsize
 	/* silently convert chr columns to bte */
 	if (strcmp(type, "chr") == 0)
 		strcpy(type, "bte");
+	/* silently convert wrd columns to int or lng */
+	else if (strcmp(type, "wrd") == 0)
+		strcpy(type, width == SIZEOF_INT ? "int" : "lng");
 #ifdef HAVE_HGE
 	else if (strcmp(type, "hge") == 0)
 		havehge = 1;
@@ -4237,6 +4240,17 @@ BBPdiskscan(const char *parent)
 			delete = b == NULL;
 			if (!delete)
 				b->T->imprints = (Imprints *) 1;
+		} else if (strncmp(p + 1, "horderidx", 9) == 0) {
+			delete = TRUE;
+		} else if (strncmp(p + 1, "torderidx", 9) == 0) {
+#ifdef PERSISTENTIDX
+			BAT *b = getdesc(bid);
+			delete = b == NULL;
+			if (!delete)
+				b->T->orderidx = (Heap *) 1;
+#else
+			delete = TRUE;
+#endif
 		} else if (strncmp(p + 1, "priv", 4) != 0 &&
 			   strncmp(p + 1, "new", 3) != 0 &&
 			   strncmp(p + 1, "head", 4) != 0 &&

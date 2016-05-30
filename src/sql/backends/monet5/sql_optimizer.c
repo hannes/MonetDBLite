@@ -124,8 +124,32 @@ addOptimizers(Client c, MalBlkPtr mb, char *pipe)
 				q->token = REMsymbol;	/* they are ignored */
 		}
 	}
-	if (be->mvc->emod & mod_debug)
-		addtoMalBlkHistory(mb, "getStatistics");
+	if (be->mvc->emod & mod_debug){
+		addtoMalBlkHistory(mb);
+		c->curprg->def->keephistory = TRUE;
+	} else
+		c->curprg->def->keephistory = FALSE;
+}
+
+static str
+sqlJIToptimizer(Client c, MalBlkPtr mb, backend *be)
+{
+	str msg;
+	str pipe = getSQLoptimizer(be->mvc);
+
+	addOptimizers(c, mb, pipe);
+	msg = optimizeMALBlock(c, mb);
+	if (msg)
+		return msg;
+
+	/* time to execute the optimizers */
+	if (c->debug)
+		optimizerCheck(c, mb, "sql.baseline", -1, 0);
+#ifdef _SQL_OPTIMIZER_DEBUG
+	mnstr_printf(GDKout, "End Optimize Query\n");
+	printFunction(GDKout, mb, 0, LIST_MAL_ALL);
+#endif
+	return MAL_SUCCEED;
 }
 
 str
@@ -133,11 +157,10 @@ optimizeQuery(Client c)
 {
 	MalBlkPtr mb;
 	backend *be;
-	str msg = 0, pipe;
+	str msg = 0;
 
 	be = (backend *) c->sqlcontext;
 	assert(be && be->mvc);	/* SQL clients should always have their state set */
-	pipe = getSQLoptimizer(be->mvc);
 
 	trimMalBlk(c->curprg->def);
 	c->blkmode = 0;
@@ -159,19 +182,7 @@ optimizeQuery(Client c)
 			printFunction(c->fdout, mb, 0, c->listing);
 		return NULL;
 	}
-	addOptimizers(c, mb, pipe);
-	msg = optimizeMALBlock(c, mb);
-	if (msg)
-		return msg;
-
-	/* time to execute the optimizers */
-	if (c->debug)
-		optimizerCheck(c, mb, "sql.baseline", -1, 0);
-#ifdef _SQL_OPTIMIZER_DEBUG
-	mnstr_printf(GDKout, "End Optimize Query\n");
-	printFunction(GDKout, mb, 0, LIST_MAL_ALL);
-#endif
-	return NULL;
+	return sqlJIToptimizer(c,mb,be);
 }
 
 void

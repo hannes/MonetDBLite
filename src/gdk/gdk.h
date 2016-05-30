@@ -96,9 +96,6 @@
  *  Unique @strong{long int} values uses as object identifier. Highest
  *	    bit cleared always.  Thus, oids-s are 31-bit numbers on
  *	    32-bit systems, and 63-bit numbers on 64-bit systems.
- * @item wrd:
- *  Machine-word sized integers
- *  (32-bit on 32-bit systems, 64-bit on 64-bit systems).
  * @item ptr:
  * Memory pointer values. DEPRECATED.  Can only be stored in transient
  * BATs.
@@ -534,16 +531,15 @@
 #define TYPE_bat	4	/* BAT id: index in BBPcache */
 #define TYPE_int	5
 #define TYPE_oid	6
-#define TYPE_wrd	7
-#define TYPE_ptr	8	/* C pointer! */
-#define TYPE_flt	9
-#define TYPE_dbl	10
-#define TYPE_lng	11
+#define TYPE_ptr	7	/* C pointer! */
+#define TYPE_flt	8
+#define TYPE_dbl	9
+#define TYPE_lng	10
 #ifdef HAVE_HGE
-#define TYPE_hge	12
-#define TYPE_str	13
-#else
+#define TYPE_hge	11
 #define TYPE_str	12
+#else
+#define TYPE_str	11
 #endif
 #define TYPE_any	255	/* limit types to <255! */
 
@@ -568,8 +564,6 @@ typedef size_t oid;
 #endif
 #endif
 
-#define SIZEOF_WRD	SIZEOF_SSIZE_T
-typedef ssize_t wrd;
 typedef int bat;		/* Index into BBP */
 typedef void *ptr;		/* Internal coding of types */
 
@@ -613,6 +607,8 @@ typedef size_t BUN;
 #else
 #define BUN_NONE ((BUN) LLONG_MAX)
 #endif
+#define BUN_MSK (~BUN_NONE)
+#define BUN_UNMSK BUN_NONE
 #define BUN_MAX (BUN_NONE - 1)	/* maximum allowed size of a BAT */
 
 #define BUN2 2
@@ -641,9 +637,12 @@ typedef enum { GDK_FAIL, GDK_SUCCEED } gdk_return;
 
 /* Heap storage modes */
 typedef enum {
-	STORE_MEM = 0,		/* load into GDKmalloced memory */
-	STORE_MMAP = 1,		/* mmap() into virtual memory */
-	STORE_PRIV = 2,		/* BAT copy of copy-on-write mmap */
+	STORE_MEM     = 0,		/* load into GDKmalloced memory */
+	STORE_MMAP    = 1,		/* mmap() into virtual memory */
+	STORE_PRIV    = 2,		/* BAT copy of copy-on-write mmap */
+    STORE_CMEM    = 3,      /* Indicates the value is stored in regular C memory rather than GDK memory.*/
+    STORE_NOWN    = 4,      /* Indicates that the bat does not own the chunk of memory and is not in charge of freeing it.*/
+    STORE_MMAPABS = 5,      /* mmap() into virtual memory from an absolute path (not part of dbfarm) */
 	STORE_INVALID		/* invalid value, used to indicate error */
 } storage_t;
 
@@ -675,7 +674,6 @@ typedef struct {
 } Hash;
 
 typedef struct Imprints Imprints;
-
 
 /*
  * @+ Binary Association Tables
@@ -737,7 +735,6 @@ typedef struct {
 		oid oval;
 		sht shval;
 		bte btval;
-		wrd wval;
 		flt fval;
 		ptr pval;
 		bat bval;
@@ -791,12 +788,13 @@ gdk_export int VALisnil(const ValRecord *v);
  *           bit    hsorted;          // are head values currently ordered?
  *           bit    hvarsized;        // for speed: head type is varsized?
  *           bit    hnonil;           // head has no nils
- *           oid    halign;          // alignment OID for head.
+ *           oid    halign;           // alignment OID for head.
  *           // Head storage
  *           int    hloc;             // byte-offset in BUN for head elements
  *           Heap   *hheap;           // heap for varsized head values
  *           Hash   *hhash;           // linear chained hash table on head
  *           Imprints *himprints;     // column imprints index on head
+ *           orderidx horderidx;      // order oid index on head
  *           // Tail properties
  *           int    ttype;            // Tail type number
  *           str    tident;           // name for tail column
@@ -810,6 +808,7 @@ gdk_export int VALisnil(const ValRecord *v);
  *           Heap   *theap;           // heap for varsized tail values
  *           Hash   *thash;           // linear chained hash table on tail
  *           Imprints *timprints;     // column imprints index on tail
+ *           orderidx torderidx;      // order oid index on tail
  *  } BAT;
  * @end verbatim
  *
@@ -885,9 +884,12 @@ typedef struct {
 	Heap *vheap;		/* space for the varsized data. */
 	Hash *hash;		/* hash table */
 	Imprints *imprints;	/* column imprints index */
+	Heap *orderidx;		/* order oid index */
 
 	PROPrec *props;		/* list of dynamic properties stored in the bat descriptor */
 } COLrec;
+
+#define ORDERIDXOFF		2
 
 /* assert that atom width is power of 2, i.e., width == 1<<shift */
 #define assert_shift_width(shift,width) assert(((shift) == 0 && (width) == 0) || ((unsigned)1<<(shift)) == (unsigned)(width))
@@ -955,6 +957,10 @@ typedef int (*GDKfcn) ();
 #define tident		T->id
 #define halign		H->align
 #define talign		T->align
+#define horderidx	H->orderidx
+#define torderidx	T->orderidx
+
+
 
 /*
  * @- Heap Management
@@ -1337,6 +1343,10 @@ gdk_export BUN SORTfnd(BAT *b, const void *v);
 gdk_export BUN SORTfndfirst(BAT *b, const void *v);
 gdk_export BUN SORTfndlast(BAT *b, const void *v);
 
+gdk_export BUN ORDERfnd(BAT *b, const void *v);
+gdk_export BUN ORDERfndfirst(BAT *b, const void *v);
+gdk_export BUN ORDERfndlast(BAT *b, const void *v);
+
 gdk_export BUN BUNfnd(BAT *b, const void *right);
 
 #define BUNfndVOID(b, v)						\
@@ -1582,6 +1592,8 @@ gdk_export size_t BATmemsize(BAT *b, int dirty);
 
 gdk_export char *GDKfilepath(int farmid, const char *dir, const char *nme, const char *ext);
 gdk_export gdk_return GDKcreatedir(const char *nme);
+
+gdk_export void OIDXdestroy(BAT *b);
 
 /*
  * @- Printing
@@ -2053,10 +2065,12 @@ gdk_export oid OIDnew(oid inc);
  *  BAThash (BAT *b, BUN masksize)
  * @end multitable
  *
- * The current BAT implementation supports two search accelerators:
- * hashing and imprints.  The routine BAThash makes sure that a hash
- * accelerator on the tail of the BAT exists. GDK_FAIL is returned
- * upon failure to create the supportive structures.
+ * The current BAT implementation supports three search accelerators:
+ * hashing, imprints, and oid ordered index.
+ *
+ * The routine BAThash makes sure that a hash accelerator on the tail of the
+ * BAT exists. GDK_FAIL is returned upon failure to create the supportive
+ * structures.
  */
 gdk_export gdk_return BAThash(BAT *b, BUN masksize);
 
@@ -2074,7 +2088,13 @@ gdk_export gdk_return BAThash(BAT *b, BUN masksize);
  */
 
 gdk_export gdk_return BATimprints(BAT *b);
+gdk_export void IMPSdestroy(BAT *b);
 gdk_export lng IMPSimprintsize(BAT *b);
+
+/* The ordered index structure */
+
+gdk_export gdk_return BATorderidx(BAT *b, int stable);
+gdk_export gdk_return GDKmergeidx(BAT *b, BAT**a, int n_ar);
 
 /*
  * @- Multilevel Storage Modes

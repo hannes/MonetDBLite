@@ -29,20 +29,6 @@ eligible(MalBlkPtr mb)
 	return 1;
 }
 
-/* The plans are marked with the concurrent user load.
- *  * If this has changed, we may want to recompile the query
- *   */
-int
-OPTmitosisPlanOverdue(Client cntxt, str fname)
-{
-    Symbol s;
-
-    s = findSymbol(cntxt->nspace, userRef, fname);
-    if(s )
-        return s->def->activeClients != MCactiveClients();
-    return 0;
-}
-
 int
 OPTmitosisImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
 {
@@ -76,7 +62,7 @@ OPTmitosisImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
 		    	getFunctionId(p) != subprodRef)
 			return 0;
 
-		if (p->argc > 2 && getModuleId(p) == rapiRef && 
+		if (p->argc > 2 && (getModuleId(p) == rapiRef || getModuleId(p) == pyapiRef) && 
 		        getFunctionId(p) == subeval_aggrRef)
 			return 0;
 

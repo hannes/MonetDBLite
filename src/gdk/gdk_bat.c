@@ -124,6 +124,11 @@ BATcreatedesc(int tt, int heapnames, int role)
 	 */
 	BBPinsert(bs);
 	/*
+ 	* Default zero for order oid index
+ 	*/
+	bn->torderidx = 0;
+	bn->horderidx = 0;
+	/*
 	 * fill in heap names, so HEAPallocs can resort to disk for
 	 * very large writes.
 	 */
@@ -413,6 +418,7 @@ BATextend(BAT *b, BUN newcap)
 		return GDK_FAIL;
 	HASHdestroy(b);
 	IMPSdestroy(b);
+	OIDXdestroy(b);
 	return GDK_SUCCEED;
 }
 
@@ -439,6 +445,7 @@ BATclear(BAT *b, int force)
 	/* kill all search accelerators */
 	HASHdestroy(b);
 	IMPSdestroy(b);
+	OIDXdestroy(b);
 
 	/* we must dispose of all inserted atoms */
 	if ((b->batDeleted == b->batInserted || force) &&
@@ -517,6 +524,7 @@ BATfree(BAT *b)
 	b->T->props = NULL;
 	HASHfree(b);
 	IMPSfree(b);
+	OIDXfree(b);
 	if (b->htype)
 		HEAPfree(&b->H->heap, 0);
 	else
@@ -1066,6 +1074,7 @@ BUNappend(BAT *b, const void *t, bit force)
 
 
 	IMPSdestroy(b); /* no support for inserts in imprints yet */
+	OIDXdestroy(b);
 
 	/* first adapt the hashes; then the user-defined accelerators.
 	 * REASON: some accelerator updates (qsignature) use the hashes!
@@ -1128,6 +1137,7 @@ BUNdelete(BAT *b, oid o)
 		}
 	}
 	IMPSdestroy(b);
+	OIDXdestroy(b);
 	HASHdestroy(b);
 	return GDK_SUCCEED;
 }
