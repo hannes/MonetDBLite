@@ -24394,8 +24394,6 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 have_hge=yes; why_have_hge=''
-else
-  if test x$enable_int128 = xyes; then as_fn_error $? "128-bit integers not supported by platform" "$LINENO" 5; fi
 fi
 ac_fn_c_check_type "$LINENO" "__int128_t" "ac_cv_type___int128_t" "$ac_includes_default"
 if test "x$ac_cv_type___int128_t" = xyes; then :
@@ -24405,8 +24403,6 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 have_hge=yes; why_have_hge=''
-else
-  if test x$enable_int128 = xyes; then as_fn_error $? "128-bit integers not supported by platform" "$LINENO" 5; fi
 fi
 ac_fn_c_check_type "$LINENO" "__uint128_t" "ac_cv_type___uint128_t" "$ac_includes_default"
 if test "x$ac_cv_type___uint128_t" = xyes; then :
@@ -24416,10 +24412,13 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 have_hge=yes; why_have_hge=''
-else
-  if test x$enable_int128 = xyes; then as_fn_error $? "128-bit integers not supported by platform" "$LINENO" 5; fi
 fi
 
+	if test $have_hge = no; then
+		if test x$enable_int128 = xyes; then
+			as_fn_error $? "128-bit integers not supported by platform" "$LINENO" 5
+		fi
+	fi
 	;;
 no)
 	have_hge=no
@@ -25697,6 +25696,9 @@ eval "Erundir=${Erundir}"
 Qlibdir="$libdir"
 Xlibdir="`$translatepath "$libdir"`"
 QXlibdir="`echo "$Xlibdir" | sed 's/\\\\/\\\\\\\\/g'`"
+Elibdir="`echo "$Xlibdir" | sed 's/{exec_prefix}/{prefix}/'`"
+eval "Elibdir=${Elibdir}"
+QElibdir="`echo "$Elibdir" | sed 's/\\\\/\\\\\\\\/g'`"
 
 
 
@@ -25783,6 +25785,11 @@ _ACEOF
 
 cat >>confdefs.h <<_ACEOF
 #define BINDIR "$QEbindir"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define LIBDIR "$QElibdir"
 _ACEOF
 
 

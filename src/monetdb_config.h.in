@@ -609,6 +609,9 @@
 /* Define as SQLLEN * or SQLPOINTER depending on the include file */
 #undef LENP_OR_POINTER_T
 
+/* location where libraries are installed */
+#undef LIBDIR
+
 /* Format to print 64 bit signed integers. */
 #undef LLFMT
 
