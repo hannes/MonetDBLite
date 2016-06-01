@@ -441,6 +441,7 @@ MCstopClients(Client cntxt)
 		if (cntxt != c){
 			if (c->mode == RUNCLIENT){
 				c->mode = FINISHCLIENT;
+				// TODO: have a function pointer in the client context for this call
 				SQLexitClient(c);
 			}
 			else if (c->mode == FREECLIENT)
