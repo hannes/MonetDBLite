@@ -1,3 +1,6 @@
+#define RSTR(somestr) mkCharCE(somestr, CE_UTF8)
+
+
 #define BAT_TO_SXP(bat,tpe,retsxp,newfun,ptrfun,ctype,naval,memcopy)\
 	do {													\
 		tpe v; size_t j;									\
@@ -115,7 +118,7 @@ static SEXP bat_to_sexp(BAT* b) {
 						if (strcmp(t, str_nil) == 0) {
 							sexp_ptrs[offset] = NA_STRING;
 						} else {
-							sexp_ptrs[offset] = mkCharCE(t, CE_UTF8);
+							sexp_ptrs[offset] = RSTR(t);
 						}
 					}
 					assert(sexp_ptrs[offset]);
@@ -126,8 +129,8 @@ static SEXP bat_to_sexp(BAT* b) {
 			else {
 				if (b->T->nonil) {
 					BATloop(b, p, q) {
-						SET_STRING_ELT(varvalue, j++, mkCharCE(
-							(const char *) BUNtail(li, p), CE_UTF8));
+						SET_STRING_ELT(varvalue, j++, RSTR(
+							(const char *) BUNtail(li, p)));
 					}
 				}
 				else {
@@ -136,7 +139,7 @@ static SEXP bat_to_sexp(BAT* b) {
 						if (strcmp(t, str_nil) == 0) {
 							SET_STRING_ELT(varvalue, j++, NA_STRING);
 						} else {
-							SET_STRING_ELT(varvalue, j++, mkCharCE(t, CE_UTF8));
+							SET_STRING_ELT(varvalue, j++, RSTR(t));
 						}
 					}
 				}
