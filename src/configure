@@ -25467,6 +25467,9 @@ eval "Erundir=${Erundir}"
 Qlibdir="$libdir"
 Xlibdir="`$translatepath "$libdir"`"
 QXlibdir="`echo "$Xlibdir" | sed 's/\\\\/\\\\\\\\/g'`"
+Elibdir="`echo "$Xlibdir" | sed 's/{exec_prefix}/{prefix}/'`"
+eval "Elibdir=${Elibdir}"
+QElibdir="`echo "$Elibdir" | sed 's/\\\\/\\\\\\\\/g'`"
 
 
 
@@ -25553,6 +25556,11 @@ _ACEOF
 
 cat >>confdefs.h <<_ACEOF
 #define BINDIR "$QEbindir"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define LIBDIR "$QElibdir"
 _ACEOF
 
 
