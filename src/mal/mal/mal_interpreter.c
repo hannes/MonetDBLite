@@ -692,11 +692,6 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 						stk->cmd = 0;
 						stkpc = mb->stop;
 					}
-					ret = runMALsequence(cntxt, pci->blk, 1, pci->blk->stop, nstk, stk, pci);
-					for (ii = 0; ii < nstk->stktop; ii++)
-						if (ATOMextern(nstk->stk[ii].vtype))
-							GDKfree(nstk->stk[ii].val.pval);
-					GDKfree(nstk);
 				}
 				ret = runFactory(cntxt, pci->blk, mb, stk, pci);
 			}
