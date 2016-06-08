@@ -111,6 +111,18 @@ test_that("csv import works", {
 	expect_false(dbExistsTable(con, tname3))
 })
 
+test_that("fwf import works", {
+	tf <- tempfile()
+	gdata::write.fwf(mtcars, tf, colnames = FALSE)
+	expect_false(dbExistsTable(con, "mtcars"))
+	dbSendQuery(con, "CREATE TABLE mtcars (mpg DOUBLE PRECISION, cyl DOUBLE PRECISION, disp DOUBLE PRECISION, hp DOUBLE PRECISION, drat DOUBLE PRECISION, wt DOUBLE PRECISION, qsec DOUBLE PRECISION, vs DOUBLE PRECISION, am DOUBLE PRECISION, gear DOUBLE PRECISION, carb DOUBLE PRECISION)")
+	expect_true(dbExistsTable(con, "mtcars"))
+	res <- dbSendQuery(con, paste0("COPY INTO mtcars FROM '", tf, "' FWF (4, 2, 6, 4, 5, 6, 6, 2, 2, 2, 2)"))
+	expect_equal(nrow(mtcars), nrow(dbReadTable(con, "mtcars")))
+	dbRemoveTable(con, "mtcars")
+	expect_false(dbExistsTable(con, "mtcars"))
+})
+
 
 test_that("various parameters to dbWriteTable work as expected", {
 	dbWriteTable(con, tname, mtcars, append=F, overwrite=F)

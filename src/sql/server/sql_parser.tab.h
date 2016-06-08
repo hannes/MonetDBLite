@@ -338,28 +338,29 @@
      DELIMITERS = 554,
      STDIN = 555,
      STDOUT = 556,
-     INDEX = 557,
-     AS = 558,
-     TRIGGER = 559,
-     OF = 560,
-     BEFORE = 561,
-     AFTER = 562,
-     ROW = 563,
-     STATEMENT = 564,
-     sqlNEW = 565,
-     OLD = 566,
-     EACH = 567,
-     REFERENCING = 568,
-     OVER = 569,
-     PARTITION = 570,
-     CURRENT = 571,
-     EXCLUDE = 572,
-     FOLLOWING = 573,
-     PRECEDING = 574,
-     OTHERS = 575,
-     TIES = 576,
-     RANGE = 577,
-     UNBOUNDED = 578
+     FWF = 557,
+     INDEX = 558,
+     AS = 559,
+     TRIGGER = 560,
+     OF = 561,
+     BEFORE = 562,
+     AFTER = 563,
+     ROW = 564,
+     STATEMENT = 565,
+     sqlNEW = 566,
+     OLD = 567,
+     EACH = 568,
+     REFERENCING = 569,
+     OVER = 570,
+     PARTITION = 571,
+     CURRENT = 572,
+     EXCLUDE = 573,
+     FOLLOWING = 574,
+     PRECEDING = 575,
+     OTHERS = 576,
+     TIES = 577,
+     RANGE = 578,
+     UNBOUNDED = 579
    };
 #endif
 /* Tokens.  */
@@ -662,28 +663,29 @@
 #define DELIMITERS 554
 #define STDIN 555
 #define STDOUT 556
-#define INDEX 557
-#define AS 558
-#define TRIGGER 559
-#define OF 560
-#define BEFORE 561
-#define AFTER 562
-#define ROW 563
-#define STATEMENT 564
-#define sqlNEW 565
-#define OLD 566
-#define EACH 567
-#define REFERENCING 568
-#define OVER 569
-#define PARTITION 570
-#define CURRENT 571
-#define EXCLUDE 572
-#define FOLLOWING 573
-#define PRECEDING 574
-#define OTHERS 575
-#define TIES 576
-#define RANGE 577
-#define UNBOUNDED 578
+#define FWF 557
+#define INDEX 558
+#define AS 559
+#define TRIGGER 560
+#define OF 561
+#define BEFORE 562
+#define AFTER 563
+#define ROW 564
+#define STATEMENT 565
+#define sqlNEW 566
+#define OLD 567
+#define EACH 568
+#define REFERENCING 569
+#define OVER 570
+#define PARTITION 571
+#define CURRENT 572
+#define EXCLUDE 573
+#define FOLLOWING 574
+#define PRECEDING 575
+#define OTHERS 576
+#define TIES 577
+#define RANGE 578
+#define UNBOUNDED 579
 
 
 
@@ -702,7 +704,7 @@ typedef union YYSTYPE
 	sql_subtype	type;
 }
 /* Line 1529 of yacc.c.  */
-#line 706 "y.tab.h"
+#line 708 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
