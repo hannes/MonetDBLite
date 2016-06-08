@@ -1038,6 +1038,7 @@ enable_rintegration
 enable_odbc
 enable_testing
 enable_developer
+enable_sanitizer
 enable_console
 enable_jdbc
 enable_merocontrol
@@ -1775,6 +1776,8 @@ Optional Features:
   --enable-testing        enable support for testing (default=auto)
   --enable-developer      enable support for MonetDB development (default=yes
                           for development sources)
+  --enable-sanitizer      enable support for the GCC address sanitizer
+                          (default=no)
   --enable-console        enables direct console on the server (involves
                           security risks) (default=yes)
   --enable-jdbc           build the MonetDB JDBC driver
@@ -4248,6 +4251,15 @@ if test "${enable_developer+set}" = set; then :
   enableval=$enable_developer; enable_developer=$enableval
 else
   enable_developer=$dft_developer
+fi
+
+
+dft_sanitizer=no
+# Check whether --enable-sanitizer was given.
+if test "${enable_sanitizer+set}" = set; then :
+  enableval=$enable_sanitizer; enable_sanitizer=$enableval
+else
+  enable_sanitizer=$dft_sanitizer
 fi
 
 
@@ -8866,6 +8878,170 @@ $as_echo "$ac_res" >&6; }
 									;;
 esac
 fi
+if test "x$enable_sanitizer" != xno; then
+case "$GCC" in
+yes)
+	# if no specific sanitizer was specified, use address sanitizer
+	if test "x$enable_sanitizer" = xyes; then
+
+	cache_var=m_cv_cc_has__fsanitize_address
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${CC} supports -fsanitize=address" >&5
+$as_echo_n "checking whether ${CC} supports -fsanitize=address... " >&6; }
+if eval \${${cache_var}+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+	SAVE_FLAGS="${CFLAGS}"
+	# compile a small program that has enough challenges to trigger
+	# the compiler to actually do something, such that it needs to
+	# actually look at the flags given
+	CFLAGS="${SAVE_FLAGS} ${X_CFLAGS} -fsanitize=address"
+				cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
+#if -_LARGEFILE64_SOURCE - -1 == 1
+#include <stdio.h>
+#endif
+int main(int argc, char **av) {
+	char buf[24];
+	double d = atof("4.2");
+	if (argc == 0 || strchr(av[0], av[0][0]) != NULL)
+		snprintf(buf, sizeof(buf), "%f", d);
+	return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval ${cache_var}=yes
+else
+  eval ${cache_var}=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	CFLAGS="${SAVE_FLAGS}"
+
+fi
+eval ac_res=\$${cache_var}
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+	eval "test \"x\$${cache_var}\" = xyes && X_CFLAGS=\"${X_CFLAGS} -fsanitize=address\""
+
+	else
+
+	cache_var=`$as_echo "m_cv_cc_has_-fsanitize=$enable_sanitizer" | $as_tr_sh`
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${CC} supports -fsanitize=$enable_sanitizer" >&5
+$as_echo_n "checking whether ${CC} supports -fsanitize=$enable_sanitizer... " >&6; }
+if eval \${${cache_var}+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+	SAVE_FLAGS="${CFLAGS}"
+	# compile a small program that has enough challenges to trigger
+	# the compiler to actually do something, such that it needs to
+	# actually look at the flags given
+	CFLAGS="${SAVE_FLAGS} ${X_CFLAGS} -fsanitize=$enable_sanitizer"
+				cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
+#if -_LARGEFILE64_SOURCE - -1 == 1
+#include <stdio.h>
+#endif
+int main(int argc, char **av) {
+	char buf[24];
+	double d = atof("4.2");
+	if (argc == 0 || strchr(av[0], av[0][0]) != NULL)
+		snprintf(buf, sizeof(buf), "%f", d);
+	return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval ${cache_var}=yes
+else
+  eval ${cache_var}=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	CFLAGS="${SAVE_FLAGS}"
+
+fi
+eval ac_res=\$${cache_var}
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+	eval "test \"x\$${cache_var}\" = xyes && X_CFLAGS=\"${X_CFLAGS} -fsanitize=$enable_sanitizer\""
+
+		if test "x$enable_sanitizer" = xthread; then
+			X_CFLAGS="$X_CFLAGS -DNO_ATOMIC_INSTRUCTIONS"
+		fi
+	fi
+
+	cache_var=m_cv_cc_has__fno_omit_frame_pointer
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${CC} supports -fno-omit-frame-pointer" >&5
+$as_echo_n "checking whether ${CC} supports -fno-omit-frame-pointer... " >&6; }
+if eval \${${cache_var}+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+	SAVE_FLAGS="${CFLAGS}"
+	# compile a small program that has enough challenges to trigger
+	# the compiler to actually do something, such that it needs to
+	# actually look at the flags given
+	CFLAGS="${SAVE_FLAGS} ${X_CFLAGS} -fno-omit-frame-pointer"
+				cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
+#if -_LARGEFILE64_SOURCE - -1 == 1
+#include <stdio.h>
+#endif
+int main(int argc, char **av) {
+	char buf[24];
+	double d = atof("4.2");
+	if (argc == 0 || strchr(av[0], av[0][0]) != NULL)
+		snprintf(buf, sizeof(buf), "%f", d);
+	return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval ${cache_var}=yes
+else
+  eval ${cache_var}=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	CFLAGS="${SAVE_FLAGS}"
+
+fi
+eval ac_res=\$${cache_var}
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+	eval "test \"x\$${cache_var}\" = xyes && X_CFLAGS=\"${X_CFLAGS} -fno-omit-frame-pointer\""
+
+	;;
+*)
+	as_fn_error $? "--enable-sanitizer only supported with GCC" "$LINENO" 5
+	;;
+esac
+fi
+
 
 
 
@@ -28095,6 +28271,7 @@ for comp in \
 	'debug     ' \
 	'optimize  ' \
 	'developer ' \
+	'sanitizer ' \
 	'instrument' \
 	'profile   ' \
 ; do
