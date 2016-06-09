@@ -119,8 +119,13 @@ test_that("fwf import works", {
 	expect_true(dbExistsTable(con, "mtcars"))
 	res <- dbSendQuery(con, paste0("COPY INTO mtcars FROM '", tf, "' FWF (4, 2, 6, 4, 5, 6, 6, 2, 2, 2, 2)"))
 	expect_equal(nrow(mtcars), nrow(dbReadTable(con, "mtcars")))
+	expect_identical(unlist(mtcars), unlist(dbReadTable(con, "mtcars")))
+	dbWriteTable(con, "mtcars2", mtcars)
+	expect_identical(dbReadTable(con, "mtcars"),dbReadTable(con, "mtcars2"))
 	dbRemoveTable(con, "mtcars")
+	dbRemoveTable(con, "mtcars2")
 	expect_false(dbExistsTable(con, "mtcars"))
+	expect_false(dbExistsTable(con, "mtcars2"))
 })
 
 
