@@ -13,6 +13,7 @@ src_monetdb <- function(dbname="demo", host = "localhost", port = 50000L, user =
   # this is a (dirty) hack so we don't need to depend on dplyr
   dplyrMt <- getNamespace("dplyr")$.__S3MethodsTable__.
 
+  dplyrMt[["sql_translate_env.MonetDBConnection"]]     <- sql_translate_env.MonetDBConnection
   dplyrMt[["src_translate_env.src_monetdb"]]           <- src_translate_env.src_monetdb
   dplyrMt[["src_desc.src_monetdb"]]                    <- src_desc.src_monetdb
   dplyrMt[["tbl.src_monetdb"]]                         <- tbl.src_monetdb
@@ -30,6 +31,23 @@ src_monetdb <- function(dbname="demo", host = "localhost", port = 50000L, user =
   s
 }
 
+sql_translate_env.MonetDBConnection <- function(con) {
+  dplyr::sql_variant(
+    scalar = dplyr::sql_translator(.parent = dplyr::base_scalar,
+      `!=` = dplyr::sql_infix("<>")
+    ),
+    aggregate = dplyr::sql_translator(.parent = dplyr::base_agg, 
+      n = function() dplyr::sql("COUNT(*)"),
+      sd =  dplyr::sql_prefix("STDDEV_SAMP"),
+      var = dplyr::sql_prefix("VAR_SAMP"),
+      median = dplyr::sql_prefix("MEDIAN")
+    ), #FIXME n_distinct
+    window = dplyr::sql_translator(.parent = dplyr::base_win)
+  )
+}
+
+
+# old, dplyr < 0.5
 src_translate_env.src_monetdb <- function(x) {
   dplyr::sql_variant(
     dplyr::sql_translator(.parent = dplyr::base_scalar,
@@ -82,7 +100,8 @@ db_query_fields.MonetDBConnection <- function(con, sql, ...) {
 }
 
 db_query_fields.MonetDBEmbeddedConnection <- function(con, sql, ...) {
-  names(DBI::dbGetQuery(con, dplyr::build_sql("SELECT * FROM ", sql), execute = F))
+  if (dplyr::is.ident(sql)) sql <- dplyr::build_sql("SELECT * FROM ", sql)
+  names(DBI::dbGetQuery(con, sql, execute = F))
 }
 
 db_query_rows.MonetDBConnection <- function(con, sql, ...) {
