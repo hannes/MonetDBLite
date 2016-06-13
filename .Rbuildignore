@@ -17,5 +17,4 @@
 .*\.mal
 .*\.ag
 .*\.msc
-^Readme\.md
 ^speed_comparisons\.png
