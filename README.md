@@ -7,9 +7,9 @@
 
 [MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/) and does not require the installation of any external software. MonetDBLite is based on free and open-source [MonetDB](https://www.monetdb.org/Home), a product of the [Centrum Wiskunde & Informatica](http://cwi.nl).
 
-MonetDBLite is similar in functionality to [RSQLite](http://cran.r-project.org/package=RSQLite), but typically completes queries blazingly fast due to its *columnar* storage architecture and bulk query processing model.  Since both of these embedded SQL options rely on the the R [DBI](http://cran.r-project.org/package=DBI) package, the transfer of legacy `RSQLite` code over to `MonetDBLite` should be a cinch.
+MonetDBLite is similar in functionality to [RSQLite](http://cran.r-project.org/package=RSQLite), but typically completes queries blazingly fast due to its *columnar* storage architecture and bulk query processing model.  Since both of these embedded SQL options rely on the the R [DBI](http://cran.r-project.org/package=DBI) interface, the conversion of legacy `RSQLite` project syntax over to `MonetDBLite` code should be a cinch.
 
-MonetDBLite works seamlessly with [the dplyr grammar of data manipulation](https://github.com/hadley/dplyr).  For a detailed tutorial of how to work with database-backed dplyr commands, see [the dplyr databases vignette](https://cran.rstudio.com/web/packages/dplyr/vignettes/databases.html).  To reproduce this vignette using MonetDBLite, simply replace the functions ending with `*_sqlite` with the suffix `*_monetdb` instead.
+MonetDBLite works seamlessly with [the dplyr grammar of data manipulation](https://github.com/hadley/dplyr).  For a detailed tutorial of how to work with database-backed dplyr commands, see [the dplyr databases vignette](https://cran.rstudio.com/web/packages/dplyr/vignettes/databases.html).  To reproduce this vignette using MonetDBLite rather than RSQLite, simply replace the functions ending with `*_sqlite` with the suffix `*_monetdb` instead.
 
 
 ## Installation
@@ -36,9 +36,7 @@ MonetDBLite outperforms all other SQL databases currently accessible by the R la
 
 ## Painless Startup
 
-MonetDBLite provides a [`DBI`](http://cran.r-project.org/package=DBI) interface.
-
-##### Temporary Database
+* Temporary Database
 
 To create a server (or to reconnect to a previously-initiated one), create a DBI connection as follows:
 
@@ -48,9 +46,9 @@ dbdir <- tempdir()
 con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 ```
 
-##### Permanent Database
+* Permanent Database
 
-If you want to store the database permanently, you will need to initiate the `dbdir` using an empty folder on your local machine.
+If you want to store a database permanently, you should set the `dbdir` to some empty folder path on your local machine.
 
 ```R
 library(DBI)
@@ -60,12 +58,12 @@ con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 
 ###### Notes
 
-1. MonetDB may hiccup when using network drives.  Use a MonetDBLite server stored on the same machine as the R session.
+1. MonetDB may hiccup when using network drives, use servers stored on the same machine as the R session.
 2. Failure to specify a database directory - `con <- dbConnect(MonetDBLite::MonetDBLite())` - will initiate the server within your current working directory.
 
 ## Versatile Data Importation
 
-##### Copying a data.frame object into a table within the MonetDBLite database
+* Copying a data.frame object into a table within the MonetDBLite database
 
 An R `data.frame` can be efficiently stored in a table within the database using [`dbWriteTable`](http://www.inside-r.org/packages/cran/DBI/docs/dbWriteTable):
 
@@ -74,7 +72,7 @@ An R `data.frame` can be efficiently stored in a table within the database using
 dbWriteTable(con, "mtcars", mtcars)
 ```
 
-##### Copying a CSV file into a table within the MonetDBLite database
+* Copying a CSV file into a table within the MonetDBLite database
 
 You can also directly load data from a CSV by providing the local file path of a `.csv` file to `dbWriteTable`:
 
@@ -87,7 +85,7 @@ write.csv(mtcars, csvfile, row.names = FALSE)
 dbWriteTable(con, "mtcars2", csvfile)
 ```
 
-##### Manually constructing a SQL table
+* Manually constructing a SQL table
 
 The SQL interface of MonetDBLite can also be used to manually create a table and import data:
 ```R
@@ -111,7 +109,7 @@ Note how we wrap the two commands in a transaction using `dbBegin` and `dbCommit
 
 This section reviews how to pass SQL queries to an embedded server session and then pull those results into R.  If you are interested in learning SQL syntax, perhaps review the [w3schools SQL tutorial](http://www.w3schools.com/sql/) or the (MonetDB SQL Reference Manual](https://www.monetdb.org/Documentation/SQLreference).
 
-##### dbGetQuery
+* dbGetQuery
 
 The `dbGetQuery` function sends a SQL `SELECT` statement to the server session and then returns the result as a `data.frame` object.
 
@@ -124,7 +122,7 @@ dbGetQuery(con, "SELECT COUNT(*) FROM mtcars" )
 ```
 
 
-##### dbSendQuery
+* dbSendQuery
 
 The `dbSendQuery` function opens up a connection to a particular resultant `data.frame` object.  Once initiated, the `res` object can then be accessed repeatedly with a `fetch` command.
 
@@ -137,7 +135,7 @@ dbHasCompleted(res)
 dbClearResult(res)
 ```
 
-##### dbSendUpdate
+* dbSendUpdate
 
 The `dbSendUpdate` function should be used to make edits to tables within the database.
 
