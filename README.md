@@ -32,7 +32,7 @@ If you encounter a bug, please file a minimal reproducible example on [github](h
 
 MonetDBLite outperforms all other SQL databases currently accessible by the R language and ranks competitively among other [High Performace Computing](https://cran.r-project.org/web/views/HighPerformanceComputing.html) options available to R users.  For more detail, see [Szilard Pafka's bennchmarks](https://github.com/szilard/benchm-databases).
 
-<center><img src="https://raw.githubusercontent.com/ajdamico/MonetDBLite/master/speed_comparisons.png" width="500"></center>
+<img align="center" src="https://raw.githubusercontent.com/ajdamico/MonetDBLite/master/speed_comparisons.png" width="500">
 
 
 ## Painless Startup
