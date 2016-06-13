@@ -2545,7 +2545,7 @@ trans_init(sql_trans *t, backend_stack stk, sql_trans *ot)
 	t->name = NULL;
 	if (bs_debug) 
 		fprintf(stderr, "#trans (%p) init (%d,%d,%d)\n", 
-			t, t->wstime, t->stime, t->schema_number ); 
+				(void *) t, t->wstime, t->stime, t->schema_number );
 	return t;
 }
 
