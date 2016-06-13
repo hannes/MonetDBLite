@@ -5,9 +5,11 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MonetDBLite)](http://cran.r-project.org/package=MonetDBLite) 
 [![](http://cranlogs.r-pkg.org/badges/MonetDBLite)](http://monetdb.cwi.nl/testweb/web/sisyphus/wilbur.png)
 
-[MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/) and does not require the installation of any external software. It is similar in functionality to [RSQLite](http://cran.r-project.org/package=RSQLite) and works seamlessly with [the dplyr grammar of data manipulation](https://cran.rstudio.com/web/packages/dplyr/vignettes/databases.html), but typically completes queries much faster due to its *columnar* storage architecture and bulk query processing model. MonetDBLite is based on free and open-source [MonetDB](https://www.monetdb.org/Home), a product of the [Centrum Wiskunde & Informatica](http://cwi.nl).
+[MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/) and does not require the installation of any external software. MonetDBLite is based on free and open-source [MonetDB](https://www.monetdb.org/Home), a product of the [Centrum Wiskunde & Informatica](http://cwi.nl).
 
-Both `MonetDBLite` and `RSQLite` rely on `library(DBI)` for their selection of functions, making the transfer of legacy `RSQLite` code over to `MonetDBLite` a cinch.  MonetDBLite behaves like a blazingly fast RSQLite.
+MonetDBLite is similar in functionality to [RSQLite](http://cran.r-project.org/package=RSQLite), but typically completes queries blazingly fast due to its *columnar* storage architecture and bulk query processing model.  Since both of these embedded SQL options rely on the the R [DBI](http://cran.r-project.org/package=DBI) package, the transfer of legacy `RSQLite` code over to `MonetDBLite` should be a cinch.
+
+MonetDBLite works seamlessly with [the dplyr grammar of data manipulation](https://github.com/hadley/dplyr).  For a detailed tutorial of how to work with database-backed dplyr commands, see [the dplyr databases vignette](https://cran.rstudio.com/web/packages/dplyr/vignettes/databases.html).  To reproduce this vignette using MonetDBLite, simply replace the functions ending with `*_sqlite` with the suffix `*_monetdb` instead.
 
 
 ## Installation
@@ -48,7 +50,7 @@ con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 
 ##### Permanent Database
 
-If you want to store the database permanently on your local machine, you will need to initiate the `dbdir` using an empty folder on your local machine.
+If you want to store the database permanently, you will need to initiate the `dbdir` using an empty folder on your local machine.
 
 ```R
 library(DBI)
@@ -58,23 +60,23 @@ con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 
 ###### Notes
 
-1. MonetDB often suffers hiccups when using network drives.  Whenever possible, connect to a MonetDBLite server stored on the same machine as the R session.
-2. Failure to specify a database directory, i.e. `con <- dbConnect(MonetDBLite::MonetDBLite())` will initiate the server within your current working directory.
+1. MonetDB may hiccup when using network drives.  Use a MonetDBLite server stored on the same machine as the R session.
+2. Failure to specify a database directory - `con <- dbConnect(MonetDBLite::MonetDBLite())` - will initiate the server within your current working directory.
 
-## Data Importation
+## Versatile Data Importation
 
-##### Copying a `data.frame` object into a table within the MonetDBLite database.
+##### Copying a data.frame object into a table within the MonetDBLite database
 
-Writing a R `data.frame` into MonetDBLite is efficient.  The most straightforward way of transferring a `data.frame` into a table stored within the database is through [`dbWriteTable`](http://www.inside-r.org/packages/cran/DBI/docs/dbWriteTable):
+An R `data.frame` can be efficiently stored in a table within the database using [`dbWriteTable`](http://www.inside-r.org/packages/cran/DBI/docs/dbWriteTable):
 
 ```R
 # directly copy a data.frame object to a table within the database
 dbWriteTable(con, "mtcars", mtcars)
 ```
 
-##### Copying a CSV file into a table within the MonetDBLite database.
+##### Copying a CSV file into a table within the MonetDBLite database
 
-You can also directly import from a CSV by providing a file name instead of a `data.frame` to `dbWriteTable`:
+You can also directly load data from a CSV by providing the local file path of a `.csv` file to `dbWriteTable`:
 
 ```R
 # construct an example CSV file on the local disk
@@ -103,12 +105,52 @@ dbSendQuery(con, paste0("COPY OFFSET 2 INTO mtcars3 FROM '", csvfile, "' USING D
 dbCommit(con)
 ```
 
-###### Notes
+Note how we wrap the two commands in a transaction using `dbBegin` and `dbCommit`. This creates all-or-nothing semantics. See the MonetDB documentation for details on [how to create a table](https://www.monetdb.org/Documentation/Manuals/SQLreference/Tables) and [how to perform bulk input](https://www.monetdb.org/Documentation/Manuals/SQLreference/CopyInto).
 
-1. Note how we wrap the two commands in a transaction using `dbBegin` and `dbCommit`. This creates all-or-nothing semantics. See the MonetDB documentation for details on [how to create a table](https://www.monetdb.org/Documentation/Manuals/SQLreference/Tables) and [how to perform bulk input](https://www.monetdb.org/Documentation/Manuals/SQLreference/CopyInto).
+## Reading and Writing (Queries and Updates)
+
+This section reviews how to pass SQL queries to an embedded server session and then pull those results into R.  If you are interested in learning SQL syntax, perhaps review the [w3schools SQL tutorial](http://www.w3schools.com/sql/) or the (MonetDB SQL Reference Manual](https://www.monetdb.org/Documentation/SQLreference).
+
+##### dbGetQuery
+
+The `dbGetQuery` function sends a SQL `SELECT` statement to the server session and then returns the result as a `data.frame` object.
+
+```R
+# calculate the average miles per gallon, grouped by number of cylinders
+dbGetQuery(con, "SELECT cyl, AVG(mpg) FROM mtcars GROUP BY cyl" )
+
+# calculate the number of records in the _mtcars_ table
+dbGetQuery(con, "SELECT COUNT(*) FROM mtcars" )
+```
 
 
-#### Data Export
+##### dbSendQuery
+
+The `dbSendQuery` function opens up a connection to a particular resultant `data.frame` object.  Once initiated, the `res` object can then be accessed repeatedly with a `fetch` command.
+
+```R
+res <- dbSendQuery(con, "SELECT wt, gear FROM mtcars")
+first_sixteen_records <- fetch(res, n=16)
+dbHasCompleted(res)
+second_sixteen_records <- fetch(res, n=16)
+dbHasCompleted(res)
+dbClearResult(res)
+```
+
+##### dbSendUpdate
+
+The `dbSendUpdate` function should be used to make edits to tables within the database.
+
+```R
+# add a new column of kilometers per liter
+dbSendUpdate(con, "ALTER TABLE mtcars ADD COLUMN kpl DOUBLE PRECISION" )
+
+# populate that new column with kilometers per liter
+dbSendUpdate(con, "UPDATE mtcars SET kpl = mpg * 0.425144" )
+```
+
+
+## Glamorous Data Export
 
 The contents of an entire table within the database can be transferred to an R `data.frame` object with [`dbReadTable`](http://www.inside-r.org/packages/cran/DBI/docs/dbReadTable).  Since MonetDBLite is most useful for the storage and analysis of large datasets, there might be limited utility to copying an entire table into working RAM in R.  The `dbReadTable` function and a SQL `SELECT * FROM tablename` command are equivalent:
 
@@ -120,6 +162,32 @@ x <- dbReadTable(con, "mtcars")
 y <- dbGetQuery(con, "SELECT * FROM mtcars" )
 ```
 
+## Special database informational functions
+
+Certain administrative commands can be sent using either `dbSendUpdate` or with a custom DBI function:
+
+```R
+# remove the table `mtcars2` from the database
+dbSendUpdate(con, "DROP TABLE mtcars2" )
+
+# remove the table `mtcars3` from the database
+dbRemoveTable(con, "mtcars3" )
+```
+
+Other administrative commands can be sent using `dbGetQuery` or with a custom DBI function:
+```R
+# list the column names of the mtcars table within the database
+names(dbGetQuery(con, "SELECT * FROM mtcars LIMIT 1" ))
+
+# list the column names of the mtcars table within the database
+dbListFields(con, "mtcars" )
+```
+
+Still other administrative commands are much easier to simply use the custom DBI function:
+```R
+# print the names of all tables within the current database
+dbListTables(con)
+```
 
 
 ## Shutdown
