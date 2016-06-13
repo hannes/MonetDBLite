@@ -30,9 +30,9 @@ If you encounter a bug, please file a minimal reproducible example on [github](h
 
 ## Speed Comparisons
 
-MonetDBLite outperforms all other SQL databases currently accessible by the R language and ranks competitively among other [High Performace Computing](https://cran.r-project.org/web/views/HighPerformanceComputing.html) options available to R users.  For more detail about these results, see [Szilard Pafka's bennchmarks](https://github.com/szilard/benchm-databases).
+MonetDBLite outperforms all other SQL databases currently accessible by the R language and ranks competitively among other [High Performace Computing](https://cran.r-project.org/web/views/HighPerformanceComputing.html) options available to R users.  For more detail, see [Szilard Pafka's bennchmarks](https://github.com/szilard/benchm-databases).
 
-<img src="https://raw.githubusercontent.com/ajdamico/MonetDBLite/master/speed_comparisons.png" width="500">
+<center><img src="https://raw.githubusercontent.com/ajdamico/MonetDBLite/master/speed_comparisons.png" width="500"></center>
 
 
 ## Painless Startup
@@ -115,7 +115,7 @@ Note how we wrap the two commands in a transaction using `dbBegin` and `dbCommit
 
 This section reviews how to pass SQL queries to an embedded server session and then pull those results into R.  If you are interested in learning SQL syntax, perhaps review the [w3schools SQL tutorial](http://www.w3schools.com/sql/) or the [MonetDB SQL Reference Manual](https://www.monetdb.org/Documentation/SQLreference).
 
-The `dbGetQuery` function sends a SQL `SELECT` statement to the server session and then returns the result as a `data.frame` object.
+The `dbGetQuery` function sends a `SELECT` statement to the server, then returns the result as a `data.frame`:
 
 ```R
 # calculate the average miles per gallon, grouped by number of cylinders
@@ -126,7 +126,7 @@ dbGetQuery(con, "SELECT COUNT(*) FROM mtcars" )
 ```
 
 
-The `dbSendQuery` function opens up a connection to a particular resultant `data.frame` object.  Once initiated, the `res` object can then be accessed repeatedly with a `fetch` command:
+The `dbSendQuery` function can open a connection to some read-only query.  Once initiated, the `res` object below can then be accessed repeatedly with a `fetch` command:
 
 ```R
 res <- dbSendQuery(con, "SELECT wt, gear FROM mtcars")
@@ -196,4 +196,4 @@ MonetDBLite allows multiple concurrent *connections* to a single database, but d
 dbDisconnect(con, shutdown=TRUE)
 ```
 
-MonetDBLite does not allow multiple R sessions to connect to a single database concurrently.  As soon as a single R session loads an embedded server, that server is locked to other R console windows.
+MonetDBLite does not allow multiple R sessions to connect to a single database concurrently.  As soon as a single R session loads an embedded server, that server is locked down and inaccessible to other R consoles.
