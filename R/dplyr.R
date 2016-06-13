@@ -68,7 +68,7 @@ src_desc <- function(x) UseMethod("src_desc")
 
 src_desc.src_monetdb <- function(x) {
   if (inherits(x$con, "MonetDBEmbeddedConnection")) {
-    paste0("MonetDBLite ", packageVersion("MonetDBLite"), " (", MonetDBLite:::monetdb_embedded_env$started_dir, ")")
+    paste0("MonetDBLite ", packageVersion("MonetDBLite"), " (", monetdb_embedded_env$started_dir, ")")
   } else {
     paste0("MonetDB ",x$info$monet_version, " (",x$info$monet_release, ")")
   }
