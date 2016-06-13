@@ -28,7 +28,7 @@ If you encounter a bug, please file a minimal reproducible example on [github](h
 
 ## Speed Comparisons
 
-MonetDBLite outperforms other SQL databases available in R and ranks competitively among other High Performace Computing options available to R users.
+MonetDBLite outperforms all other SQL databases currently accessible by the R language and ranks competitively among other [High Performace Computing](https://cran.r-project.org/web/views/HighPerformanceComputing.html) options available to R users.
 
 ![Alt text](speed_comparisons.png?raw=true "Speed Comparisons")
 
@@ -36,7 +36,7 @@ MonetDBLite outperforms other SQL databases available in R and ranks competitive
 
 MonetDBLite provides a [`DBI`](http://cran.r-project.org/package=DBI) interface.
 
-### Temporary Database
+##### Temporary Database
 
 To create a server (or to reconnect to a previously-initiated one), create a DBI connection as follows:
 
@@ -46,7 +46,7 @@ dbdir <- tempdir()
 con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 ```
 
-### Permanent Database
+##### Permanent Database
 
 If you want to store the database permanently on your local machine, you will need to initiate the `dbdir` using an empty folder on your local machine.
 
@@ -56,14 +56,14 @@ dbdir <- "C:/path/to/database_directory"
 con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 ```
 
-#### Notes
+###### Notes
 
 1. MonetDB often suffers hiccups when using network drives.  Whenever possible, connect to a MonetDBLite server stored on the same machine as the R session.
 2. Failure to specify a database directory, i.e. `con <- dbConnect(MonetDBLite::MonetDBLite())` will initiate the server within your current working directory.
 
 ## Data Importation
 
-### Copying a `data.frame` object into a table within the MonetDBLite database.
+##### Copying a `data.frame` object into a table within the MonetDBLite database.
 
 Writing a R `data.frame` into MonetDBLite is efficient.  The most straightforward way of transferring a `data.frame` into a table stored within the database is through [`dbWriteTable`](http://www.inside-r.org/packages/cran/DBI/docs/dbWriteTable):
 
@@ -72,7 +72,7 @@ Writing a R `data.frame` into MonetDBLite is efficient.  The most straightforwar
 dbWriteTable(con, "mtcars", mtcars)
 ```
 
-### Copying a CSV file into a table within the MonetDBLite database.
+##### Copying a CSV file into a table within the MonetDBLite database.
 
 You can also directly import from a CSV by providing a file name instead of a `data.frame` to `dbWriteTable`:
 
@@ -85,7 +85,7 @@ write.csv(mtcars, csvfile, row.names = FALSE)
 dbWriteTable(con, "mtcars2", csvfile)
 ```
 
-### Manually constructing a SQL table
+##### Manually constructing a SQL table
 
 The SQL interface of MonetDBLite can also be used to manually create a table and import data:
 ```R
@@ -103,12 +103,12 @@ dbSendQuery(con, paste0("COPY OFFSET 2 INTO mtcars3 FROM '", csvfile, "' USING D
 dbCommit(con)
 ```
 
-#### Notes
+###### Notes
 
 1. Note how we wrap the two commands in a transaction using `dbBegin` and `dbCommit`. This creates all-or-nothing semantics. See the MonetDB documentation for details on [how to create a table](https://www.monetdb.org/Documentation/Manuals/SQLreference/Tables) and [how to perform bulk input](https://www.monetdb.org/Documentation/Manuals/SQLreference/CopyInto).
 
 
-## Data Export
+#### Data Export
 
 The contents of an entire table within the database can be transferred to an R `data.frame` object with [`dbReadTable`](http://www.inside-r.org/packages/cran/DBI/docs/dbReadTable).  Since MonetDBLite is most useful for the storage and analysis of large datasets, there might be limited utility to copying an entire table into working RAM in R.  The `dbReadTable` function and a SQL `SELECT * FROM tablename` command are equivalent:
 
