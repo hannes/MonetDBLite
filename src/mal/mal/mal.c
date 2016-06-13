@@ -122,15 +122,11 @@ void mserver_reset(void)
 	stopProfiler();
 	QOTstatisticsExit();
 	AUTHreset(); 
-#ifdef HAVE_EMBEDDED
-	MTIMEepilogue(NULL);
-#endif
 	mal_factory_reset();
 	mal_dataflow_reset();
 	THRdel(mal_clients->mythread);
 	GDKreset(0);	// terminate all other threads
 	mal_client_reset();
-	mal_module_reset();
 	mal_module_reset();
   	mal_linker_reset();
 	mal_resource_reset();
