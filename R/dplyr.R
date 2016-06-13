@@ -67,10 +67,17 @@ src_translate_env.src_monetdb <- function(x) {
 src_desc <- function(x) UseMethod("src_desc")
 
 src_desc.src_monetdb <- function(x) {
-  paste0("MonetDB ",x$info$monet_version, " (",x$info$monet_release, ")")
+  if (inherits(x$con, "MonetDBEmbeddedConnection")) {
+    paste0("MonetDBLite ", packageVersion("MonetDBLite"), " (", MonetDBLite:::monetdb_embedded_env$started_dir, ")")
+  } else {
+    paste0("MonetDB ",x$info$monet_version, " (",x$info$monet_release, ")")
+  }
 }
 
 tbl.src_monetdb <- function(src, from, ...) {
+  if(!grepl("^\\s*SELECT\\s+.*", as.character(from), ignore.case=T, perl=T)) {
+    from <- dplyr::build_sql("SELECT * FROM ", dplyr::ident(from))
+  }
   monetdb_check_subquery(from)
   dplyr::tbl_sql("monetdb", src = src, from = from, ...)
 }
@@ -96,11 +103,14 @@ sample_frac.tbl_monetdb <- function(tbl, frac=1, replace = FALSE, weight = NULL)
 
 db_query_fields.MonetDBConnection <- function(con, sql, ...) {
   # prepare gives us column info without actually running a query. Nice.
-  DBI::dbGetQuery(con, dplyr::build_sql("PREPARE SELECT * FROM ", sql))$column
+  DBI::dbGetQuery(con, dplyr::build_sql("PREPARE ", sql))$column
 }
 
 db_query_fields.MonetDBEmbeddedConnection <- function(con, sql, ...) {
-  if (dplyr::is.ident(sql)) sql <- dplyr::build_sql("SELECT * FROM ", sql)
+  # this is a fix for dplyr < 0.5
+  if(!grepl("^\\s*SELECT\\s+.*", as.character(sql), ignore.case=T, perl=T)) {
+    sql <- dplyr::build_sql("SELECT * FROM ", sql)
+  }
   names(DBI::dbGetQuery(con, sql, execute = F))
 }
 
@@ -137,7 +147,9 @@ db_analyze.MonetDBConnection <- function(con, table, ...) {
 sql_subquery.MonetDBConnection <- function(con, sql, name = unique_name(), ...) {
   if (dplyr::is.ident(sql)) return(sql)
   monetdb_check_subquery(sql)
-  dplyr::build_sql("(", sql, ") AS ", dplyr::ident(name), con = con)
+  if (length(name) != 1) name <- unique_name()
+  nn <- dplyr::ident(name)
+  dplyr::build_sql("(", sql, ") AS ", nn, con = con)
 }
 
 monetdb_check_subquery <- function(sql) {
