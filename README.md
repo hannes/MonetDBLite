@@ -36,9 +36,7 @@ MonetDBLite outperforms all other SQL databases currently accessible by the R la
 
 ## Painless Startup
 
-* Temporary Database
-
-To create a server (or to reconnect to a previously-initiated one), create a DBI connection as follows:
+* To create a temporary server (or to reconnect to a previously-initiated one), create a DBI connection as follows:
 
 ```R
 library(DBI)
@@ -46,9 +44,7 @@ dbdir <- tempdir()
 con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 ```
 
-* Permanent Database
-
-If you want to store a database permanently, you should set the `dbdir` to some empty folder path on your local machine.
+* If you want to store a database permanently, you should set the `dbdir` to some empty folder path on your local machine.
 
 ```R
 library(DBI)
@@ -63,18 +59,14 @@ con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 
 ## Versatile Data Importation
 
-* Copying a data.frame object into a table within the MonetDBLite database
-
-An R `data.frame` can be efficiently stored in a table within the database using [`dbWriteTable`](http://www.inside-r.org/packages/cran/DBI/docs/dbWriteTable):
+* To efficiently copy a `data.frame` object into a table within the MonetDBLite database, use [`dbWriteTable`](http://www.inside-r.org/packages/cran/DBI/docs/dbWriteTable):
 
 ```R
 # directly copy a data.frame object to a table within the database
 dbWriteTable(con, "mtcars", mtcars)
 ```
 
-* Copying a CSV file into a table within the MonetDBLite database
-
-You can also directly load data from a CSV by providing the local file path of a `.csv` file to `dbWriteTable`:
+* To directly load a CSV file into a table within the MonetDBLite database, provide the local file path of a `.csv` file to `dbWriteTable`:
 
 ```R
 # construct an example CSV file on the local disk
@@ -83,11 +75,13 @@ write.csv(mtcars, csvfile, row.names = FALSE)
 
 # directly copy a csv file to a table within the database
 dbWriteTable(con, "mtcars2", csvfile)
+
+# append the same table to the bottom of the previous table
+dbWriteTable(con, "mtcars2", csvfile, append=TRUE)
 ```
 
-* Manually constructing a SQL table
+* The SQL interface of MonetDBLite can also be used to manually create a table and import data:
 
-The SQL interface of MonetDBLite can also be used to manually create a table and import data:
 ```R
 # construct an example CSV file on the local disk
 csvfile <- tempfile()
@@ -95,10 +89,13 @@ write.csv(mtcars, csvfile, row.names = FALSE)
 
 # start a SQL transaction
 dbBegin(con)
+
 # construct an empty table within the database, using a manually-defined structure
 dbSendQuery(con, "CREATE TABLE mtcars3 (mpg DOUBLE PRECISION, cyl INTEGER, disp DOUBLE PRECISION, hp INTEGER, drat DOUBLE PRECISION, wt DOUBLE PRECISION, qsec DOUBLE PRECISION, vs INTEGER, am INTEGER, gear INTEGER, carb INTEGER)")
+
 # copy the contents of a CSV file into the database, using the MonetDB COPY INTO command
 dbSendQuery(con, paste0("COPY OFFSET 2 INTO mtcars3 FROM '", csvfile, "' USING DELIMITERS ',','\n','\"' NULL as ''"))
+
 # finalize the SQL transaction
 dbCommit(con)
 ```
@@ -109,9 +106,7 @@ Note how we wrap the two commands in a transaction using `dbBegin` and `dbCommit
 
 This section reviews how to pass SQL queries to an embedded server session and then pull those results into R.  If you are interested in learning SQL syntax, perhaps review the [w3schools SQL tutorial](http://www.w3schools.com/sql/) or the (MonetDB SQL Reference Manual](https://www.monetdb.org/Documentation/SQLreference).
 
-* dbGetQuery
-
-The `dbGetQuery` function sends a SQL `SELECT` statement to the server session and then returns the result as a `data.frame` object.
+* The `dbGetQuery` function sends a SQL `SELECT` statement to the server session and then returns the result as a `data.frame` object.
 
 ```R
 # calculate the average miles per gallon, grouped by number of cylinders
@@ -122,9 +117,7 @@ dbGetQuery(con, "SELECT COUNT(*) FROM mtcars" )
 ```
 
 
-* dbSendQuery
-
-The `dbSendQuery` function opens up a connection to a particular resultant `data.frame` object.  Once initiated, the `res` object can then be accessed repeatedly with a `fetch` command.
+* The `dbSendQuery` function opens up a connection to a particular resultant `data.frame` object.  Once initiated, the `res` object can then be accessed repeatedly with a `fetch` command.
 
 ```R
 res <- dbSendQuery(con, "SELECT wt, gear FROM mtcars")
@@ -135,9 +128,7 @@ dbHasCompleted(res)
 dbClearResult(res)
 ```
 
-* dbSendUpdate
-
-The `dbSendUpdate` function should be used to make edits to tables within the database.
+* The `dbSendUpdate` function should be used to make edits to tables within the database.
 
 ```R
 # add a new column of kilometers per liter
