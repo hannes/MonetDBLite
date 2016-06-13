@@ -30,14 +30,14 @@ If you encounter a bug, please file a minimal reproducible example on [github](h
 
 ## Speed Comparisons
 
-MonetDBLite outperforms all other SQL databases currently accessible by the R language and ranks competitively among other [High Performace Computing](https://cran.r-project.org/web/views/HighPerformanceComputing.html) options available to R users.  For more detail about the results below, see [Szilard Pafka's bennchmarks](https://github.com/szilard/benchm-databases).
+MonetDBLite outperforms all other SQL databases currently accessible by the R language and ranks competitively among other [High Performace Computing](https://cran.r-project.org/web/views/HighPerformanceComputing.html) options available to R users.  For more detail about these results, see [Szilard Pafka's bennchmarks](https://github.com/szilard/benchm-databases).
 
-<img src="https://raw.githubusercontent.com/ajdamico/MonetDBLite/master/speed_comparisons.png" width="48">
+<img src="https://raw.githubusercontent.com/ajdamico/MonetDBLite/master/speed_comparisons.png" width="500">
 
 
 ## Painless Startup
 
-If you want to store a database permanently, set the `dbdir` to some empty folder path on your local machine.
+If you want to store a database permanently (or to reconnect to a previously-initiated one), set the `dbdir` to some folder path on your local machine.  A new database that you would like to store permanently should be directed to an empty folder:
 
 ```R
 library(DBI)
@@ -45,14 +45,14 @@ dbdir <- "C:/path/to/database_directory"
 con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 ```
 
-To create a temporary server (or to reconnect to a previously-initiated one), create a DBI connection as follows:
+To create a temporary server, create a DBI connection as follows:
 
 ```R
 library(DBI)
 con <- dbConnect(MonetDBLite::MonetDBLite())
 ```
 
-Note that the above temporary server command is equivalent to initiating the server in `tempdir()`:
+Note that the above temporary server command is equivalent to initiating the server in the `tempdir()` of your R session:
 ```R
 library(DBI)
 dbdir <- tempdir()
@@ -60,10 +60,8 @@ con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
 ```
 
 
-###### Notes
+Note that MonetDB may hiccup when using network drives, use servers stored on the same machine as the R session.
 
-1. MonetDB may hiccup when using network drives, use servers stored on the same machine as the R session.
-2. Failure to specify a database directory - `con <- dbConnect(MonetDBLite::MonetDBLite())` - will initiate the server within your current working directory.
 
 ## Versatile Data Importation
 
@@ -74,7 +72,7 @@ To efficiently copy a `data.frame` object into a table within the MonetDBLite da
 dbWriteTable(con, "mtcars", mtcars)
 ```
 
-To directly load a CSV file into a table within the MonetDBLite database, provide the local file path of a `.csv` file to `dbWriteTable`:
+To load a CSV file into a table within the database, provide the local file path of a `.csv` file to `dbWriteTable`:
 
 ```R
 # construct an example CSV file on the local disk
@@ -86,6 +84,9 @@ dbWriteTable(con, "mtcars2", csvfile)
 
 # append the same table to the bottom of the previous table
 dbWriteTable(con, "mtcars2", csvfile, append=TRUE)
+
+# overwrite the table with a new table
+dbWriteTable(con, "mtcars2", csvfile, overwrite=TRUE)
 ```
 
 The SQL interface of MonetDBLite can also be used to manually create a table and import data:
@@ -125,7 +126,7 @@ dbGetQuery(con, "SELECT COUNT(*) FROM mtcars" )
 ```
 
 
-The `dbSendQuery` function opens up a connection to a particular resultant `data.frame` object.  Once initiated, the `res` object can then be accessed repeatedly with a `fetch` command.
+The `dbSendQuery` function opens up a connection to a particular resultant `data.frame` object.  Once initiated, the `res` object can then be accessed repeatedly with a `fetch` command:
 
 ```R
 res <- dbSendQuery(con, "SELECT wt, gear FROM mtcars")
@@ -136,14 +137,14 @@ dbHasCompleted(res)
 dbClearResult(res)
 ```
 
-The `dbSendUpdate` function should be used to make edits to tables within the database.
+The `dbSendQuery` function should also be used to make edits to tables within the database:
 
 ```R
 # add a new column of kilometers per liter
-dbSendUpdate(con, "ALTER TABLE mtcars ADD COLUMN kpl DOUBLE PRECISION" )
+dbSendQuery(con, "ALTER TABLE mtcars ADD COLUMN kpl DOUBLE PRECISION" )
 
 # populate that new column with kilometers per liter
-dbSendUpdate(con, "UPDATE mtcars SET kpl = mpg * 0.425144" )
+dbSendQuery(con, "UPDATE mtcars SET kpl = mpg * 0.425144" )
 ```
 
 
@@ -161,11 +162,11 @@ y <- dbGetQuery(con, "SELECT * FROM mtcars" )
 
 ## Special database informational functions
 
-Certain administrative commands can be sent using either `dbSendUpdate` or with a custom DBI function:
+Certain administrative commands can be sent using either `dbSendQuery` or with a custom DBI function:
 
 ```R
 # remove the table `mtcars2` from the database
-dbSendUpdate(con, "DROP TABLE mtcars2" )
+dbSendQuery(con, "DROP TABLE mtcars2" )
 
 # remove the table `mtcars3` from the database
 dbRemoveTable(con, "mtcars3" )
