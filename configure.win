@@ -20,8 +20,8 @@ cp src/embedded/windows/monetdb_config.h.in src/
 sh src/embedded/windows/pmc.sh
 
 # download/unpack some dependencies
-R --quiet -e "download.file('http://dev.monetdb.org/Assets/R/misc/msvcr100-$BITS.dll', 'src/embedded/windows/msvcr100.dll', mode='wb')"
-R --quiet -e "setwd('src/embedded/windows/'); tf <- tempfile(); download.file('http://dev.monetdb.org/Assets/R/misc/pcre-8.37.zip', tf, mode='wb'); unzip(tf)"
+R --quiet -e "download.file('https://github.com/hannesmuehleisen/MonetDBLite/raw/bb652b076adca70456c51a7cd068ba837c37b7cc/windows-buildfiles/msvcr100-$BITS.dll', 'src/embedded/windows/msvcr100.dll', mode='wb')"
+R --quiet -e "setwd('src/embedded/windows/'); tf <- tempfile(); download.file('https://github.com/hannesmuehleisen/MonetDBLite/raw/bb652b076adca70456c51a7cd068ba837c37b7cc/windows-buildfiles/pcre-8.37.zip', tf, mode='wb'); unzip(tf)"
 
 cd src
 
