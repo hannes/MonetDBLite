@@ -18,3 +18,4 @@
 .*\.ag
 .*\.msc
 ^speed_comparisons\.png
+^windows-buildfiles
