@@ -9,7 +9,7 @@
 
 MonetDBLite is similar in functionality to [RSQLite](http://cran.r-project.org/package=RSQLite), but typically completes queries blazingly fast due to its *columnar* storage architecture and bulk query processing model.  Since both of these embedded SQL options rely on the the R [DBI](http://cran.r-project.org/package=DBI) interface, the conversion of legacy `RSQLite` project syntax over to `MonetDBLite` code should be a cinch.
 
-MonetDBLite works seamlessly with [the dplyr grammar of data manipulation](https://github.com/hadley/dplyr).  For a detailed tutorial of how to work with database-backed dplyr commands, see [the dplyr databases vignette](https://cran.rstudio.com/web/packages/dplyr/vignettes/databases.html).  To reproduce this vignette using MonetDBLite rather than RSQLite, simply replace the functions ending with `*_sqlite` with the suffix `*_monetdb` instead.
+MonetDBLite works seamlessly with [the dplyr grammar of data manipulation](https://github.com/hadley/dplyr).  For a detailed tutorial of how to work with database-backed dplyr commands, see [the dplyr databases vignette](https://cran.r-project.org/web/packages/dplyr/vignettes/databases.html).  To reproduce this vignette using MonetDBLite rather than RSQLite, simply replace the functions ending with `*_sqlite` with the suffix `*_monetdb` instead.
 
 
 ## Installation
