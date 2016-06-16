@@ -5,7 +5,7 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MonetDBLite)](http://cran.r-project.org/package=MonetDBLite) 
 [![](http://cranlogs.r-pkg.org/badges/MonetDBLite)](http://www.example.com)
 
-[MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/) and does not require the installation of any external software. MonetDBLite is based on free and open-source [MonetDB](https://www.monetdb.org/Home), a product of the [Centrum Wiskunde & Informatica](http://cwi.nl).
+[MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a SQL database that runs inside the [R environment for statistical computing](https://www.r-project.org/) and does not require the installation of any external software. MonetDBLite is based on free and open-source [MonetDB](https://www.monetdb.org/Home), a product of the [Centrum Wiskunde & Informatica](http://www.cwi.nl).
 
 MonetDBLite is similar in functionality to [RSQLite](http://cran.r-project.org/package=RSQLite), but typically completes queries blazingly fast due to its *columnar* storage architecture and bulk query processing model.  Since both of these embedded SQL options rely on the the R [DBI](http://cran.r-project.org/package=DBI) interface, the conversion of legacy `RSQLite` project syntax over to `MonetDBLite` code should be a cinch.
 
@@ -26,7 +26,7 @@ MonetDBLite works seamlessly with [the dplyr grammar of data manipulation](https
     devtools::install_github("hannesmuehleisen/MonetDBLite")
     ```
 
-If you encounter a bug, please file a minimal reproducible example on [github](https://github.com/hannesmuehleisen/MonetDBLite/issues). For questions and other discussion, please use [stack overflow](http://stackoverflow.com/questions/tagged/monetdblite) with the tag `monetdblite`.  The development version of MonetDBLite endures [sisyphean perpetual testing](http://monetdb.cwi.nl/testweb/web/sisyphus/) on both unix and windows machines.
+If you encounter a bug, please file a minimal reproducible example on [github](https://github.com/hannesmuehleisen/MonetDBLite/issues). For questions and other discussion, please use [stack overflow](http://stackoverflow.com/questions/tagged/monetdblite) with the tag `monetdblite`.  The development version of MonetDBLite endures [sisyphean perpetual testing](http://homepages.cwi.nl/~hannes/sisyphus/) on both unix and windows machines.
 
 ## Speed Comparisons
 
