@@ -11,6 +11,7 @@ install:
   ps: Bootstrap
 
 # Adapt as necessary starting from here
+clone_depth: 50
 
 environment:
 #  global:
