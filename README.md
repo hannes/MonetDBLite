@@ -30,7 +30,7 @@ If you encounter a bug, please file a minimal reproducible example on [github](h
 
 ## Speed Comparisons
 
-MonetDBLite outperforms all other SQL databases currently accessible by the R language and ranks competitively among other [High Performace Computing](https://cran.r-project.org/web/views/HighPerformanceComputing.html) options available to R users.  For more detail, see [Szilard Pafka's bennchmarks](https://github.com/szilard/benchm-databases).
+MonetDBLite outperforms all other SQL databases currently accessible by the R language and ranks competitively among other [High Performace Computing](https://cran.r-project.org/web/views/HighPerformanceComputing.html) options available to R users.  For more detail, see [Szilard Pafka's benchmarks](https://github.com/szilard/benchm-databases).
 
 <p align="center"><img src="https://raw.githubusercontent.com/hannesmuehleisen/MonetDBLite/master/speed_comparisons.png" width="500"></p>
 
