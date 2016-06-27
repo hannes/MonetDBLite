@@ -22531,8 +22531,8 @@ esac
 
 
 # fits, only used by sql
-org_have_cfitsio=no
-have_cfitsio=$org_have_cfitsio
+org_have_fits=no
+have_fits=$org_have_fits
 if test "x$enable_fits" != xno; then
 
 pkg_failed=no
@@ -22593,13 +22593,13 @@ fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$cfitsio_PKG_ERRORS" >&5
 
-	have_cfitsio=no; why_have_cfitsio="(cfitsio library not found)"
+	have_fits="no"; why_have_fits="(cfitsio library not found)"
 		 if test "x$enable_fits" = xyes; then as_fn_error $? "cfitsio library required for FITS support" "$LINENO" 5; fi;
 		 enable_fits=no; disable_fits="(cfitsio library not found)"
 elif test $pkg_failed = untried; then
      	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-	have_cfitsio=no; why_have_cfitsio="(cfitsio library not found)"
+	have_fits="no"; why_have_fits="(cfitsio library not found)"
 		 if test "x$enable_fits" = xyes; then as_fn_error $? "cfitsio library required for FITS support" "$LINENO" 5; fi;
 		 enable_fits=no; disable_fits="(cfitsio library not found)"
 else
@@ -22607,12 +22607,12 @@ else
 	cfitsio_LIBS=$pkg_cv_cfitsio_LIBS
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-	have_cfitsio=yes;
+	have_fits="yes";
 $as_echo "#define HAVE_FITS 1" >>confdefs.h
 
 fi
 fi
- if test x"$have_cfitsio" != xno; then
+ if test x"$have_fits" != xno; then
   HAVE_FITS_TRUE=
   HAVE_FITS_FALSE='#'
 else
