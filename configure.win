@@ -9,9 +9,14 @@ then
 fi
 
 CC=`$R_CMD config CC`
+ADD_CFLAGS="-O3"
+if [ ! -z $MONETDBLITE_DEBUG ] ; then
+	echo "Using debug flags"
+	ADD_CFLAGS="-O0 -g"
+fi
 
 # patch sedscript for build/install/library paths
-sed -e "s|%CC%|$CC|" -e "s|%PREFIX%|${R_PACKAGE_DIR}/libs|" -e "s|%SRCDIR%|$SRC|" -e "s|%RINCLUDE%|${R_HOME}/include|" src/embedded/windows/sedscript.tpl > src/embedded/windows/sedscript
+sed -e "s|%CC%|$CC|" -e "s|%ADD_CFLAGS%|$ADD_CFLAGS|" -e "s|%PREFIX%|${R_PACKAGE_DIR}/libs|" -e "s|%SRCDIR%|$SRC|" -e "s|%RINCLUDE%|${R_HOME}/include|" src/embedded/windows/sedscript.tpl > src/embedded/windows/sedscript
 
 # this is copied from NT/monetdb_config.h.in in the packaging script
 cp src/embedded/windows/monetdb_config.h.in src/
@@ -38,7 +43,7 @@ fi
 
 OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
 
-$CC -shared -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37/libs/$R_ARCH/ -lpcre `$R_CMD config --ldflags`
+$CC $ADD_CFLAGS -shared -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37/libs/$R_ARCH/ -lpcre `$R_CMD config --ldflags`
 
 if [ ! -s libmonetdb5.dll ]
 then
