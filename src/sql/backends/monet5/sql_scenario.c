@@ -191,7 +191,9 @@ SQLepilogue(void *ret)
 {
 	(void) ret;
 	Client c = mal_clients;
+
 	if (SQLinitialized) {
+		MT_lock_set(&sql_contextLock);
 		// exit all clients
 		for (c = mal_clients + 1; c < mal_clients + MAL_MAXCLIENTS; c++) {
 			if (c->mode == RUNCLIENT){
@@ -200,6 +202,7 @@ SQLepilogue(void *ret)
 		}
 		mvc_exit();
 		SQLinitialized = FALSE;
+		MT_lock_unset(&sql_contextLock);
 	}
 	return MAL_SUCCEED;
 }
