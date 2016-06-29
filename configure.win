@@ -53,5 +53,5 @@ fi
 
 cd ../
 mkdir -p $R_PACKAGE_DIR/libs/$R_ARCH/
-cp src/embedded/windows/pcre-8.37/libs/$R_ARCH/pcre.dll $R_PACKAGE_DIR/libs/$R_ARCH/
-cp src/embedded/windows/msvcr100.dll $R_PACKAGE_DIR/libs/$R_ARCH/
+cp src/embedded/windows/pcre-8.37/libs/$R_ARCH/pcre.dll "$R_PACKAGE_DIR/libs/$R_ARCH/"
+cp src/embedded/windows/msvcr100.dll "$R_PACKAGE_DIR/libs/$R_ARCH/"
