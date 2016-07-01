@@ -38,4 +38,8 @@ blob_export var_t blobsize(size_t nitems);
 blob_export int sqlblob_tostr(str *tostr, int *l, const blob *p);
 blob_export int sqlblob_fromstr(char *instr, int *l, blob **val);
 
+blob_export var_t BLOBput(Heap *h, var_t *bun, blob *val);
+blob_export blob * BLOBnull(void);
+
+
 #endif /* __BLOB_H__ */

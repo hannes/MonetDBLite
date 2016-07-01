@@ -1,4 +1,4 @@
-#define RSTR(somestr) mkCharCE(somestr, CE_UTF8)
+ #define RSTR(somestr) mkCharCE(somestr, CE_UTF8)
 
 
 #define BAT_TO_SXP(bat,tpe,retsxp,newfun,ptrfun,ctype,naval,memcopy)\
@@ -107,6 +107,7 @@ static SEXP bat_to_sexp(BAT* b) {
 			}
 			/* special case where we exploit the duplicate-eliminated string heap */
 			if (GDK_ELIMDOUBLES(b->T->vheap)) {
+				size_t n_protects = 0;
 				SEXP* sexp_ptrs = GDKzalloc(b->T->vheap->free * sizeof(SEXP));
 				if (!sexp_ptrs) {
 					return NULL;
@@ -118,12 +119,14 @@ static SEXP bat_to_sexp(BAT* b) {
 						if (strcmp(t, str_nil) == 0) {
 							sexp_ptrs[offset] = NA_STRING;
 						} else {
-							sexp_ptrs[offset] = RSTR(t);
+							sexp_ptrs[offset] = PROTECT(RSTR(t));
+							n_protects++;
 						}
 					}
 					assert(sexp_ptrs[offset]);
 					SET_STRING_ELT(varvalue, j++, sexp_ptrs[offset]);
 				}
+				UNPROTECT(n_protects);
 				GDKfree(sexp_ptrs);
 			}
 			else {
@@ -230,6 +233,30 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		}
 		break;
 	}
+	}
+	if (type == TYPE_sqlblob) { // TYPE_blob is dynamic so we can't switch on it
+		size_t i = 0;
+		var_t bun_offset = 0;
+		blob *ele_blob;
+		b = BATnew(TYPE_void, TYPE_sqlblob, cnt, TRANSIENT);
+		if (!IS_LIST(s) || !b) return NULL;
+		for (i = 0; i < cnt; i++) {
+			SEXP list_ele = VECTOR_ELT(s, i);
+			size_t blob_len = LENGTH(list_ele);
+			if (!list_ele || !IS_RAW(list_ele)) {
+				GDKfree(ele_blob);
+				return NULL;
+			}
+			if (blob_len > 0) {
+				ele_blob = GDKmalloc(blobsize(blob_len));
+				ele_blob->nitems = blob_len;
+				memcpy(ele_blob->data, RAW_POINTER(list_ele), blob_len);
+			} else {
+				ele_blob = BLOBnull();
+			}
+			BLOBput(b->T->vheap, &bun_offset, ele_blob);
+			BUNappend(b, &bun_offset, FALSE);
+		}
 	}
 
 	if (b) {

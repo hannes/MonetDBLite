@@ -192,6 +192,13 @@ test_that("we can have empty result sets", {
 	expect_true(!is.null(dbGetQuery(con, "SELECT * FROM tables WHERE 1=0")))
 })
 
+test_that("we can write raw values", {
+	dbBegin(con)
+	dbWriteTable(con, tname, data.frame(a=c(1,2), b=I(list(raw(42), raw(43)))))
+	expect_true(dbExistsTable(con, tname))
+	dbRollback(con)
+})
+
 
 test_that("we can disconnect", {
 	expect_true(dbIsValid(con))

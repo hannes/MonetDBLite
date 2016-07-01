@@ -41,8 +41,6 @@ blob_export int BLOBtostr(str *tostr, int *l, blob *pin);
 blob_export int BLOBfromstr(char *instr, int *l, blob **val);
 blob_export int BLOBnequal(blob *l, blob *r);
 blob_export BUN BLOBhash(blob *b);
-blob_export blob * BLOBnull(void);
-blob_export var_t BLOBput(Heap *h, var_t *bun, blob *val);
 blob_export void BLOBdel(Heap *h, var_t *index);
 blob_export int BLOBlength(blob *p);
 blob_export void BLOBheap(Heap *heap, size_t capacity);
@@ -611,3 +609,4 @@ BLOBsqlblob_fromstr(sqlblob **b, str *s)
 	sqlblob_fromstr(*s, &len, b);
 	return MAL_SUCCEED;
 }
+

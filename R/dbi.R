@@ -553,7 +553,7 @@ setMethod("dbDataType", signature(dbObj="MonetDBConnection", obj = "ANY"), def =
   if (is.logical(obj)) "BOOLEAN"
   else if (is.integer(obj)) "INTEGER"
   else if (is.numeric(obj)) "DOUBLE PRECISION"
-  else if (is.raw(obj)) "BLOB"
+  else if (is.list(obj) && all(vapply(obj, typeof, FUN.VALUE = "character") == "raw")) "BLOB"
   else "STRING"
 }, valueClass = "character")
 
