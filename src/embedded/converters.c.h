@@ -243,12 +243,12 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		for (i = 0; i < cnt; i++) {
 			SEXP list_ele = VECTOR_ELT(s, i);
 			size_t blob_len = LENGTH(list_ele);
-			if (!list_ele || !IS_RAW(list_ele)) {
-				GDKfree(ele_blob);
-				return NULL;
-			}
+			if (!list_ele || !IS_RAW(list_ele)) return NULL;
 			if (blob_len > 0) {
 				ele_blob = GDKmalloc(blobsize(blob_len));
+				if (!ele_blob) {
+					return NULL;
+				}
 				ele_blob->nitems = blob_len;
 				memcpy(ele_blob->data, RAW_POINTER(list_ele), blob_len);
 			} else {
@@ -256,6 +256,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 			}
 			BLOBput(b->T->vheap, &bun_offset, ele_blob);
 			BUNappend(b, &bun_offset, FALSE);
+			GDKfree(ele_blob);
 		}
 	}
 
