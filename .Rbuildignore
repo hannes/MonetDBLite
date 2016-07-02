@@ -19,3 +19,4 @@
 .*\.msc
 ^speed_comparisons\.png
 ^windows-buildfiles
+^shim_package\.sh
