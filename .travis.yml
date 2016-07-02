@@ -7,4 +7,4 @@ r:
   - devel
 
 after_success:
-  - test $TRAVIS_R_VERSION_STRING = "release" && R CMD INSTALL $PKG_TARBALL && source shim_package.sh && Rscript -e 'covr::codecov()'
+  - test $TRAVIS_R_VERSION_STRING = "release" && Rscript -e 'covr::codecov()'
