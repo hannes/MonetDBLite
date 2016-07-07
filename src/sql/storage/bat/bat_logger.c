@@ -296,8 +296,8 @@ bl_destroy(void)
 	logger *l = bat_logger;
 
 	bat_logger = NULL;
+	// this breaks in embedded mode
 	if (l) {
-		// FIXME: either of those corrupts stuff
 		//logger_exit(l);
 		//logger_destroy(l);
 	}

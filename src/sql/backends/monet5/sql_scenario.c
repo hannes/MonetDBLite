@@ -236,8 +236,10 @@ SQLinit(void)
 	monet5_user_init(&be_funcs);
 
 	msg = MTIMEtimezone(&tz, &gmt);
-	if (msg)
+	if (msg) {
+		MT_lock_unset(&sql_contextLock);
 		return msg;
+	}
 	(void) tz;
 	if (debug_str)
 		SQLdebug = strtol(debug_str, NULL, 10);
@@ -245,8 +247,10 @@ SQLinit(void)
 		SQLdebug |= 64;
 	if (readonly)
 		SQLdebug |= 32;
-	if ((SQLnewcatalog = mvc_init(SQLdebug, store_bat, readonly, single_user, 0)) < 0)
+	if ((SQLnewcatalog = mvc_init(SQLdebug, store_bat, readonly, single_user, 0)) < 0) {
+		MT_lock_unset(&sql_contextLock);
 		throw(SQL, "SQLinit", "Catalogue initialization failed");
+	}
 	SQLinitialized = TRUE;
 	MT_lock_unset(&sql_contextLock);
 	if (MT_create_thread(&sqllogthread, (void (*)(void *)) mvc_logmanager, NULL, MT_THR_JOINABLE) != 0) {
