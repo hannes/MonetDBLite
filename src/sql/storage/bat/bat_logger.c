@@ -415,6 +415,12 @@ bl_reload_shared(void)
 	return logger_reload(bat_logger_shared);
 }
 
+static int
+bl_isdestroyed(void)
+{
+	return bat_logger == NULL;
+}
+
 int 
 bat_logger_init( logger_functions *lf )
 {
@@ -428,6 +434,8 @@ bat_logger_init( logger_functions *lf )
 	lf->log_tstart = bl_tstart;
 	lf->log_tend = bl_tend;
 	lf->log_sequence = bl_sequence;
+	lf->log_isdestroyed = bl_isdestroyed;
+
 	return LOG_OK;
 }
 

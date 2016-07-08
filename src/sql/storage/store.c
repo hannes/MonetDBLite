@@ -1625,6 +1625,7 @@ store_exit(void)
 #ifdef STORE_DEBUG
 	fprintf(stderr, "#store exit locked\n");
 #endif
+
 	/* busy wait till the logmanager is ready */
 	while (logging) {
 		MT_lock_unset(&bs_lock);
@@ -1694,7 +1695,7 @@ store_manager(void)
 {
 	const int timeout = GDKdebug & FORCEMITOMASK ? 10 : 50;
 
-	while (!GDKexiting()) {
+	while (!GDKexiting() && !logger_funcs.log_isdestroyed()) {
 		int res = LOG_OK;
 		int t;
 		lng shared_transactions_drift = -1;
@@ -1717,22 +1718,23 @@ store_manager(void)
 		}
 
 		MT_lock_set(&bs_lock);
-        	if (GDKexiting()) {
-            		MT_lock_unset(&bs_lock);
-            		return;
-        	}
-        	if ((!need_flush && logger_funcs.changes() < 1000000 && shared_transactions_drift < shared_drift_threshold)) {
-            		MT_lock_unset(&bs_lock);
-            		continue;
-        	}
+		if (GDKexiting() || logger_funcs.log_isdestroyed()) {
+			MT_lock_unset(&bs_lock);
+			return;
+		}
+		if ((!need_flush && logger_funcs.changes() < 1000000 && shared_transactions_drift < shared_drift_threshold)) {
+			MT_lock_unset(&bs_lock);
+			continue;
+		}
 		need_flush = 0;
-        	while (store_nr_active) { /* find a moment to flush */
-            		MT_lock_unset(&bs_lock);
-			if (GDKexiting())
+		while (store_nr_active) { /* find a moment to flush */
+			MT_lock_unset(&bs_lock);
+			if (GDKexiting()) {
 				return;
-            		MT_sleep_ms(timeout);
-            		MT_lock_set(&bs_lock);
-        	}
+			}
+			MT_sleep_ms(timeout);
+			MT_lock_set(&bs_lock);
+		}
 
 		if (create_shared_logger) {
 			/* (re)load data from shared write-ahead log */
@@ -1774,8 +1776,9 @@ store_manager(void)
 		logging = 0;
 		MT_lock_unset(&bs_lock);
 
-		if (res != LOG_OK)
+		if (res != LOG_OK) {
 			GDKfatal("write-ahead logging failure, disk full?");
+		}
 	}
 }
 
