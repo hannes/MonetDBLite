@@ -65,7 +65,7 @@ SEXP monetdb_startup_R(SEXP dbdirsexp, SEXP silentsexp, SEXP sequentialsexp) {
 	char* res = NULL;
 
 	if (monetdb_embedded_initialized) {
-		return ScalarLogical(0);
+		error("MonetDBLite already initialized");
 	}
 
 #if defined(WIN32) && !defined(_WIN64)
