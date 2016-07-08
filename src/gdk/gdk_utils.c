@@ -96,7 +96,11 @@ GDKenvironment(const char *dbpath)
 char *
 GDKgetenv(const char *name)
 {
-	BUN b = BUNfnd(GDKkey, (ptr) name);
+	BUN b;
+	if (!GDKkey || !GDKval) {
+		return NULL;
+	}
+	b = BUNfnd(GDKkey, (ptr) name);
 
 	if (b != BUN_NONE) {
 		BATiter GDKenvi = bat_iterator(GDKval);
