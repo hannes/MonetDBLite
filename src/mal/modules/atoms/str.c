@@ -1094,10 +1094,10 @@ strPrelude(void *ret)
 	if (UTF8_upperBat == NULL) {
 		int i = UTF8_CONVERSIONS;
 
-		UTF8_upperBat = BATnew(TYPE_void, TYPE_int, UTF8_CONVERSIONS, TRANSIENT);
+		UTF8_upperBat = COLnew(0, TYPE_int, UTF8_CONVERSIONS, TRANSIENT);
 		if (UTF8_upperBat == NULL)
 			return NULL;
-		UTF8_lowerBat = BATnew(TYPE_void, TYPE_int, UTF8_CONVERSIONS, TRANSIENT);
+		UTF8_lowerBat = COLnew(0, TYPE_int, UTF8_CONVERSIONS, TRANSIENT);
 		if (UTF8_lowerBat == NULL) {
 			BBPreclaim(UTF8_upperBat);
 			UTF8_upperBat = NULL;
@@ -1107,8 +1107,6 @@ strPrelude(void *ret)
 			BUNappend(UTF8_upperBat, &UTF8_lower_upper[i].upper, FALSE);
 			BUNappend(UTF8_lowerBat, &UTF8_lower_upper[i].lower, FALSE);
 		}
-		BATseqbase(UTF8_upperBat, 0);
-		BATseqbase(UTF8_lowerBat, 0);
 		BATname(UTF8_upperBat, "monet_unicode_toupper");
 		BATname(UTF8_lowerBat, "monet_unicode_tolower");
 	}
@@ -1588,7 +1586,7 @@ STRConcat(str *res, const str *val1, const str *val2)
 str
 STRLength(int *res, const str *arg1)
 {
-	size_t l;
+	int l;
 	const char *s = *arg1;
 
 	if (strNil(s)) {
@@ -1597,7 +1595,7 @@ STRLength(int *res, const str *arg1)
 	}
 	l =  UTF8_strlen(s);
 	assert(l <INT_MAX);
-	*res = (int) l;
+	*res = l;
 	return MAL_SUCCEED;
 }
 
@@ -1622,9 +1620,7 @@ STRTail(str *res, const str *arg1, const int *offset)
 		*res = GDKstrdup(str_nil);
 	} else {
 		if (off < 0) {
-			size_t l = UTF8_strlen(s);
-			int len = (int) l;
-			assert(l < INT_MAX);
+			int len = UTF8_strlen(s);
 
 			if (len == int_nil) {
 				*res = GDKstrdup(str_nil);

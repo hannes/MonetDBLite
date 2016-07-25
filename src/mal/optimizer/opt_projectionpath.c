@@ -77,7 +77,7 @@ OPTprojectionPrefix(Client cntxt, MalBlkPtr mb, int prefixlength)
 			/* create the factored out prefix projection */
 			r = copyInstruction(p);
 			r->argc = prefixlength;
-			getArg(r,0) = newTmpVariable(mb, newBatType( TYPE_oid, getColumnType(getArgType(mb,r,r->argc-1))));
+			getArg(r,0) = newTmpVariable(mb, newBatType(getBatType(getArgType(mb,r,r->argc-1))));
 			setVarUDFtype(mb, getArg(r,0));
 			if( r->argc == 3)
 				setFunctionId(r,projectionRef);
@@ -160,6 +160,8 @@ OPTprojectionpathImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, Instr
 	InstrPtr *old;
 	int *varcnt;		/* use count */
 	int limit,slimit;
+	char buf[256];
+	lng usec = GDKusec();
 
 	(void) cntxt;
 	(void) stk;
@@ -243,7 +245,7 @@ OPTprojectionpathImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, Instr
 			 * We already know that all heads are void. Only the last element may have a non-oid type.
 			 */
 			for(j=1; j<q->argc-1; j++)
-				if( getColumnType(getArgType(mb,q,j)) != TYPE_oid  && getColumnType(getArgType(mb,q,j)) != TYPE_void ){
+				if( getBatType(getArgType(mb,q,j)) != TYPE_oid  && getBatType(getArgType(mb,q,j)) != TYPE_void ){
 					/* don't use the candidate list */
 					freeInstruction(q);
 					goto wrapup;
@@ -251,7 +253,7 @@ OPTprojectionpathImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, Instr
 
 			/* fix the type */
 			setVarUDFtype(mb, getArg(q,0));
-			setVarType(mb, getArg(q,0), newBatType( TYPE_oid, getColumnType(getArgType(mb,q,q->argc-1))));
+			setVarType(mb, getArg(q,0), newBatType(getBatType(getArgType(mb,q,q->argc-1))));
 			if ( getFunctionId(q) == projectionRef )
 				setFunctionId(q,projectionpathRef);
 			q->typechk = TYPE_UNKNOWN;
@@ -309,5 +311,16 @@ OPTprojectionpathImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, Instr
 		mnstr_printf(cntxt->fdout,"#projectionpath optimizer result \n");
 		printFunction(cntxt->fdout,mb, 0, LIST_MAL_ALL);
 	}
+
+    /* Defense line against incorrect plans */
+    if( actions > 0){
+        chkTypes(cntxt->fdout, cntxt->nspace, mb, FALSE);
+        chkFlow(cntxt->fdout, mb);
+        chkDeclarations(cntxt->fdout, mb);
+    }
+    /* keep all actions taken as a post block comment */
+    snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","projectionpath",actions,GDKusec() - usec);
+    newComment(mb,buf);
+
 	return actions;
 }

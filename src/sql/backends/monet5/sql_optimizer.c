@@ -83,11 +83,11 @@ SQLgetSpace(mvc *m, MalBlkPtr mb)
 str
 getSQLoptimizer(mvc *m)
 {
-	ValRecord *val = stack_get_var(m, "optimizer");
+	char *opt = stack_get_string(m, "optimizer");
 	char *pipe = "default_pipe";
 
-	if (val && val->val.sval)
-		pipe = val->val.sval;
+	if (opt)
+		pipe = opt;
 	return pipe;
 }
 
@@ -124,11 +124,6 @@ addOptimizers(Client c, MalBlkPtr mb, char *pipe)
 				q->token = REMsymbol;	/* they are ignored */
 		}
 	}
-	if (be->mvc->emod & mod_debug){
-		addtoMalBlkHistory(mb);
-		c->curprg->def->keephistory = TRUE;
-	} else
-		c->curprg->def->keephistory = FALSE;
 }
 
 static str
@@ -138,7 +133,10 @@ sqlJIToptimizer(Client c, MalBlkPtr mb, backend *be)
 	str pipe = getSQLoptimizer(be->mvc);
 
 	addOptimizers(c, mb, pipe);
+
+	mb->keephistory = be->mvc->emod & mod_debug;
 	msg = optimizeMALBlock(c, mb);
+	mb->keephistory = FALSE;
 	if (msg)
 		return msg;
 
@@ -162,7 +160,6 @@ optimizeQuery(Client c)
 	be = (backend *) c->sqlcontext;
 	assert(be && be->mvc);	/* SQL clients should always have their state set */
 
-	trimMalBlk(c->curprg->def);
 	c->blkmode = 0;
 	mb = c->curprg->def;
 	chkProgram(c->fdout, c->nspace, mb);

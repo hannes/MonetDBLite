@@ -383,6 +383,8 @@ SQLtrans(mvc *m)
 		mvc_trans(m);
 		s = m->session;
 		if (!s->schema) {
+			if (s->schema_name)
+				GDKfree(s->schema_name);
 			s->schema_name = monet5_user_get_def_schema(m, m->user_id);
 			assert(s->schema_name);
 			s->schema = find_sql_schema(s->tr, s->schema_name);
@@ -920,6 +922,12 @@ SQLparser(Client c)
 	 * this point if this is a recursive call. */
 	if (!m->sa)
 		m->sa = sa_create();
+	if (!m->sa) {
+		mnstr_printf(out, "!Could not create SQL allocator\n");
+		mnstr_flush(out);
+		c->mode = FINISHCLIENT;
+		throw(SQL, "SQLparser", "Could not create SQL allocator");
+	}
 
 	m->emode = m_normal;
 	m->emod = mod_none;

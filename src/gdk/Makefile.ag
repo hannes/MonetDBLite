@@ -1,3 +1,4 @@
+
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0.  If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -30,8 +31,8 @@ lib_gdk = {
 		gdk_imprints.c gdk_imprints.h \
 		gdk_join.c gdk_project.c \
 		gdk_unique.c \
-		gdk_firstn.c
-		interprocess.c interprocess.h
+		gdk_interprocess.c gdk_interprocess.h \
+		gdk_firstn.c \
 	LIBS = ../common/options/libmoptions \
 		../common/stream/libstream \
 		../common/utils/libmutils \
