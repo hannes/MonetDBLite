@@ -27,7 +27,7 @@ setMethod("dbGetInfo", "MonetDBDriver", def=function(dbObj, ...)
 
 # shorthand for connecting to the DB, very handy, e.g. dbListTables(mc("acs"))
 mc <- function(dbname="demo", user="monetdb", password="monetdb", host="localhost", port=50000L, 
-               timeout=86400L, wait=FALSE, language="sql", ...) {
+               timeout=60L, wait=FALSE, language="sql", ...) {
   
   dbConnect(MonetDB.R(), dbname, user, password, host, port, timeout, wait, language, ...)
 }
@@ -38,7 +38,7 @@ ml <- function(...) {
 }
 
 setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="monetdb", 
-                                                     password="monetdb", host="localhost", port=50000L, timeout=86400L, wait=FALSE, language="sql", embedded=FALSE,
+                                                     password="monetdb", host="localhost", port=50000L, timeout=60L, wait=FALSE, language="sql", embedded=FALSE,
                                                      ..., url="") {
   
   if (substring(url, 1, 10) == "monetdb://" || substring(url, 1, 12) == "monetdblite:") {
@@ -553,7 +553,7 @@ setMethod("dbDataType", signature(dbObj="MonetDBConnection", obj = "ANY"), def =
   if (is.logical(obj)) "BOOLEAN"
   else if (is.integer(obj)) "INTEGER"
   else if (is.numeric(obj)) "DOUBLE PRECISION"
-  else if (is.raw(obj)) "BLOB"
+  else if (is.list(obj) && all(vapply(obj, typeof, FUN.VALUE = "character") == "raw")) "BLOB"
   else "STRING"
 }, valueClass = "character")
 

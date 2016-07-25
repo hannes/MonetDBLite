@@ -456,7 +456,6 @@ mandir = @mandir@
 mkdir_p = @mkdir_p@
 netcdf_CFLAGS = @netcdf_CFLAGS@
 netcdf_LIBS = @netcdf_LIBS@
-oids = @oids@
 oldincludedir = @oldincludedir@
 openssl_CFLAGS = @openssl_CFLAGS@
 openssl_LIBS = @openssl_LIBS@

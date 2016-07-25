@@ -611,3 +611,4 @@ BLOBsqlblob_fromstr(sqlblob **b, str *s)
 	sqlblob_fromstr(*s, &len, b);
 	return MAL_SUCCEED;
 }
+

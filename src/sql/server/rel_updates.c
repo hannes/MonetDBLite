@@ -1157,7 +1157,7 @@ rel_import(mvc *sql, sql_table *t, char *tsep, char *rsep, char *ssep, char *ns,
 	sql_schema *sys = mvc_bind_schema(sql, "sys");
 	sql_subfunc *f = sql_find_func(sql->sa, sys, "copyfrom", 10, F_UNION, NULL);
 	char* fwf_string = NULL;
-	
+
 	if (!f) /* we do expect copyfrom to be there */
 		return NULL;
 	f->res = table_column_types(sql->sa, t);
@@ -1174,7 +1174,7 @@ rel_import(mvc *sql, sql_table *t, char *tsep, char *rsep, char *ssep, char *ns,
 		int ncol = 0;
 		char* fwf_string_cur = fwf_string = GDKmalloc(20 * dlist_length(fwf_widths) + 1); // a 64 bit int needs 19 characters in decimal representation plus the separator
 
-		if (!fwf_string) 
+		if (!fwf_string)
 			return NULL;
 		for (dn = fwf_widths->h; dn; dn = dn->next) {
 			fwf_string_cur += sprintf(fwf_string_cur, LLFMT"%c", dn->data.l_val, STREAM_FWF_FIELD_SEP);
@@ -1189,17 +1189,17 @@ rel_import(mvc *sql, sql_table *t, char *tsep, char *rsep, char *ssep, char *ns,
 
 	append( args, exp_atom_str(sql->sa, filename, &tpe)); 
 	import = exp_op(sql->sa,  
-	append(
 		append(
-			append( 
+			append(
 				append(
-					append( args,
-						exp_atom_lng(sql->sa, nr)),
-						exp_atom_lng(sql->sa, offset)),
-						exp_atom_int(sql->sa, locked)),
-						exp_atom_int(sql->sa, best_effort)),
-						exp_atom_str(sql->sa, fwf_string, &tpe)), f);
-	
+					append(
+						append( args,
+							exp_atom_lng(sql->sa, nr)),
+							exp_atom_lng(sql->sa, offset)),
+							exp_atom_int(sql->sa, locked)),
+							exp_atom_int(sql->sa, best_effort)),
+							exp_atom_str(sql->sa, fwf_string, &tpe)), f);
+
 	exps = new_exp_list(sql->sa);
 	for (n = t->columns.set->h; n; n = n->next) {
 		sql_column *c = n->data;

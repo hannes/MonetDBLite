@@ -1417,6 +1417,7 @@ void garbageCollector(Client cntxt, MalBlkPtr mb, MalStkPtr stk, int flag)
 	ValPtr v;
 	(void)cntxt;
 
+
 	for (k = 0; k < mb->vtop; k++) {
 		if (isVarCleanup(mb, k) ){
 			garbageElement(cntxt, v = &stk->stk[k]);
@@ -1424,4 +1425,5 @@ void garbageCollector(Client cntxt, MalBlkPtr mb, MalStkPtr stk, int flag)
 			v->val.ival = int_nil;
 		}
 	}
+
 }

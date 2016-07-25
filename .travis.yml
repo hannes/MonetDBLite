@@ -1,5 +1,10 @@
 language: r
+sudo: false
+cache: packages
 r:
   - oldrel
   - release
   - devel
+
+after_success:
+  - test $TRAVIS_R_VERSION_STRING = "release" && Rscript -e 'covr::codecov()'

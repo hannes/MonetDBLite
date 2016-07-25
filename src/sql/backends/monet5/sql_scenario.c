@@ -181,9 +181,19 @@ str
 SQLepilogue(void *ret)
 {
 	(void) ret;
+	Client c = mal_clients;
+
 	if (SQLinitialized) {
+		MT_lock_set(&sql_contextLock);
+		// exit all clients
+		for (c = mal_clients + 1; c < mal_clients + MAL_MAXCLIENTS; c++) {
+			if (c->mode == RUNCLIENT){
+				SQLexitClient(c);
+			}
+		}
 		mvc_exit();
 		SQLinitialized = FALSE;
+		MT_lock_unset(&sql_contextLock);
 	}
 	return MAL_SUCCEED;
 }
@@ -217,8 +227,10 @@ SQLinit(void)
 	monet5_user_init(&be_funcs);
 
 	msg = MTIMEtimezone(&tz, &gmt);
-	if (msg)
+	if (msg) {
+		MT_lock_unset(&sql_contextLock);
 		return msg;
+	}
 	(void) tz;
 	if (debug_str)
 		SQLdebug = strtol(debug_str, NULL, 10);
@@ -226,8 +238,10 @@ SQLinit(void)
 		SQLdebug |= 64;
 	if (readonly)
 		SQLdebug |= 32;
-	if ((SQLnewcatalog = mvc_init(SQLdebug, store_bat, readonly, single_user, 0)) < 0)
+	if ((SQLnewcatalog = mvc_init(SQLdebug, store_bat, readonly, single_user, 0)) < 0) {
+		MT_lock_unset(&sql_contextLock);
 		throw(SQL, "SQLinit", "Catalogue initialization failed");
+	}
 	SQLinitialized = TRUE;
 	MT_lock_unset(&sql_contextLock);
 	if (MT_create_thread(&sqllogthread, (void (*)(void *)) mvc_logmanager, NULL, MT_THR_JOINABLE) != 0) {

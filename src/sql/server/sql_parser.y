@@ -2551,7 +2551,18 @@ opt_fwf_widths:
 			{ $$ = append_lng($1, $3); }
  ;
 
+opt_fwf_widths:
+       /* empty */		{ $$ = NULL; }
+| FWF '(' fwf_widthlist ')' { $$ = $3; }
  
+ ;
+ 
+ fwf_widthlist:
+    poslng		{ $$ = append_lng(L(), $1); }
+ |  fwf_widthlist ',' poslng
+			{ $$ = append_lng($1, $3); }
+ ;
+
 opt_header_list:
        /* empty */		{ $$ = NULL; }
  | '(' header_list ')'		{ $$ = $2; }

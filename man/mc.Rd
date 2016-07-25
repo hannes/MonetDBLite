@@ -9,7 +9,7 @@
 }
 \usage{
 mc(dbname="demo", user="monetdb", password="monetdb", host="localhost", port=50000, 
-  timeout=86400, wait=FALSE,language="sql",...) 
+  timeout=60, wait=FALSE,language="sql",...) 
 }
 \arguments{
   \item{dbname}{Database name}

@@ -32,7 +32,7 @@ lib_gdk = {
 		gdk_join.c gdk_project.c \
 		gdk_unique.c \
 		gdk_interprocess.c gdk_interprocess.h \
-		gdk_firstn.c \
+		gdk_firstn.c
 	LIBS = ../common/options/libmoptions \
 		../common/stream/libstream \
 		../common/utils/libmutils \

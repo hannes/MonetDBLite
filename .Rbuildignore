@@ -17,3 +17,6 @@
 .*\.mal
 .*\.ag
 .*\.msc
+^speed_comparisons\.png
+^windows-buildfiles
+^codecov\.yml

@@ -11,6 +11,7 @@ install:
   ps: Bootstrap
 
 # Adapt as necessary starting from here
+shallow_clone: true
 
 environment:
 #  global:

@@ -129,7 +129,6 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	}
 
 	if (silent) THRdata[0] = stream_blackhole_create();
-//	msab_dbpathinit(dbdir);
 
 	if (mal_init() != 0) { // mal_init() does not return meaningful codes on failure
 		retval = GDKstrdup("mal_init() failed");
@@ -259,7 +258,7 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 
 void  monetdb_cleanup_result(void* conn, void* output) {
 	(void) conn; // not needing conn here (but perhaps someday)
-	res_table_destroy((res_table*) output);
+	res_tables_destroy((res_table*) output);
 }
 
 str monetdb_get_columns(void* conn, const char* schema_name, const char *table_name, int *column_count, char ***column_names, int **column_types) {
@@ -304,6 +303,7 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
 		SQLepilogue(NULL);
+		MTIMEepilogue(NULL);
 		mal_exit();
 		monetdb_embedded_initialized = 0;
 	}

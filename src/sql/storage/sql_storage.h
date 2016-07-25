@@ -283,6 +283,8 @@ typedef int (*log_isnew_fptr)(void);
 typedef int (*log_tstart_fptr) (void);
 typedef int (*log_tend_fptr) (void);
 typedef int (*log_sequence_fptr) (int seq, lng id);
+typedef int (*log_isdestroyed_fptr)(void);
+
 
 typedef struct logger_functions {
 	logger_create_fptr create;
@@ -302,6 +304,8 @@ typedef struct logger_functions {
 	log_tstart_fptr log_tstart;
 	log_tend_fptr log_tend;
 	log_sequence_fptr log_sequence;
+	log_isdestroyed_fptr log_isdestroyed;
+
 } logger_functions;
 
 sqlstore_export logger_functions logger_funcs;

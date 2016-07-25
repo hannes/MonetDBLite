@@ -170,6 +170,7 @@ delta_bind_bat( sql_delta *bat, int access, int temp)
 		b = e_BAT(tt);
 	} else {
 		b = temp_descriptor(bat->bid);
+		assert(b);
 		bat_set_access(b, BAT_READ);
 	}
 	assert(b);

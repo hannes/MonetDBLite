@@ -1,6 +1,7 @@
 library(testthat)
 library(dplyr)
 library(nycflights13)
+library(MonetDBLite)
 
 dbdir <- file.path(tempdir(), "dplyrdir")
 my_db_sqlite <- FALSE
@@ -22,7 +23,6 @@ test_that("dplyr copy_to()", {
 
 	flights_sqlite <<- copy_to(my_db_sqlite, flights, temporary = FALSE, indexes = list(
 	  c("year", "month", "day"), "carrier", "tailnum"))
-	flights_sqlite <<- tbl(nycflights13_sqlite(), "flights")
 
 	flights_monetdb <<- copy_to(my_db_monetdb, flights, temporary = FALSE, indexes = list(
 	  c("year", "month", "day"), "carrier", "tailnum"))
@@ -57,8 +57,8 @@ test_that("dplyr filter()", {
 
 test_that("dplyr arrange()", {
 	expect_equal(
-		collect(arrange(flights_sqlite, year, month, day)) ,
-		collect(arrange(flights_monetdb, year, month, day))
+		collect(arrange(flights_sqlite, year, month, day, dep_time)) ,
+		collect(arrange(flights_monetdb, year, month, day, dep_time))
 	)
 })
 
