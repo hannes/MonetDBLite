@@ -11,7 +11,7 @@
 \usage{
    monetdb.read.csv (conn, files, tablename, header=TRUE, 
   locked=FALSE, best.effort=FALSE, na.strings="", nrow.check=500, delim=",",
-  newline = "\\\\n", quote = "\"", create=TRUE, col.names=NULL, lower.case.names=FALSE, 
+  newline = "\\\\n", quote = "\"", col.names=NULL, lower.case.names=FALSE, 
   sep=delim, ...)
 }
 \arguments{
@@ -29,7 +29,6 @@
   \item{delim}{Field separator in CSV file.}
   \item{newline}{Newline in CSV file, usually \\n for UNIX-like systems and \\r\\r on Windows.}
   \item{quote}{Quote character(s) in CSV file.}
-  \item{create}{Create table before importing?}
   \item{lower.case.names}{Convert all column names to lowercase in the database?}
   \item{col.names}{Optional column names in case the ones from CSV file should not be used}
   \item{sep}{alias for \code{delim}}

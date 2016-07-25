@@ -457,7 +457,7 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
   append=FALSE, csvdump=FALSE, transaction=TRUE, temporary=FALSE, ...) {
   if (is.character(value)) {
     message("Treating character vector parameter as file name(s) for monetdb.read.csv()")
-    monetdb.read.csv(conn=conn, files=value, tablename=name, create=!append, ...)
+    monetdb.read.csv(conn=conn, files=value, tablename=name, ...)
     return(invisible(TRUE))
   }
   if (is.vector(value) && !is.list(value)) value <- data.frame(x=value, stringsAsFactors=F)
@@ -888,7 +888,7 @@ valueClass = "numeric")
 # adapted from RMonetDB, no java-specific things in here...
 monet.read.csv <- monetdb.read.csv <- function(conn, files, tablename, header=TRUE, 
                                                locked=FALSE, best.effort=FALSE, na.strings="", nrow.check=500, 
-                                               delim=",", newline="\\n", quote="\"", create=TRUE, 
+                                               delim=",", newline="\\n", quote="\"", 
                                                col.names=NULL, lower.case.names=FALSE, sep=delim, ...){
   
   if (length(na.strings)>1) stop("na.strings must be of length 1")
@@ -905,7 +905,7 @@ monet.read.csv <- monetdb.read.csv <- function(conn, files, tablename, header=TR
   } 
   dbBegin(conn)
   on.exit(tryCatch(dbRollback(conn), error=function(e){}))
-  if (create) {
+  if (!dbExistsTable(conn, tablename)) {
   tablename <- quoteIfNeeded(conn, tablename)
     if(lower.case.names) names(headers[[1]]) <- tolower(names(headers[[1]]))
     if(!is.null(col.names)) {
