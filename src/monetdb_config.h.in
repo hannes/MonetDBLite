@@ -627,9 +627,6 @@
 /* Release name or "unreleased" */
 #undef MONETDB_RELEASE
 
-/* Define if the oid type should use 32 bits on a 64-bit architecture */
-#undef MONET_OID32
-
 /* Define if you do not want assertions */
 #undef NDEBUG
 

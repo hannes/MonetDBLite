@@ -895,9 +895,6 @@ THREAD_SAVE_FLAGS
 thread_safe_flag_spec
 X_CFLAGS
 LINUX_DIST
-oids
-BITS64OID32_FALSE
-BITS64OID32_TRUE
 BITS64_FALSE
 BITS64_TRUE
 BITS32_FALSE
@@ -1048,6 +1045,7 @@ enable_pyintegration
 enable_odbc
 enable_testing
 enable_developer
+enable_sanitizer
 enable_console
 enable_jdbc
 enable_merocontrol
@@ -1059,7 +1057,6 @@ with_logdir
 with_rundir
 enable_dependency_tracking
 enable_largefile
-enable_oid32
 enable_strict
 with_pic
 enable_fast_install
@@ -1789,6 +1786,8 @@ Optional Features:
   --enable-testing        enable support for testing (default=auto)
   --enable-developer      enable support for MonetDB development (default=yes
                           for development sources)
+  --enable-sanitizer      enable support for the GCC address sanitizer
+                          (default=no)
   --enable-console        enables direct console on the server (involves
                           security risks) (default=yes)
   --enable-jdbc           build the MonetDB JDBC driver
@@ -1803,7 +1802,6 @@ Optional Features:
   --disable-dependency-tracking
                           speeds up one-time build
   --disable-largefile     omit support for large files
-  --enable-oid32          use 32 bits for OIDs on a 64-bit architecture
   --enable-strict         enable strict compiler flags (default=yes for
                           development sources)
   --enable-fast-install[=PKGS]
@@ -4273,6 +4271,15 @@ if test "${enable_developer+set}" = set; then :
   enableval=$enable_developer; enable_developer=$enableval
 else
   enable_developer=$dft_developer
+fi
+
+
+dft_sanitizer=no
+# Check whether --enable-sanitizer was given.
+if test "${enable_sanitizer+set}" = set; then :
+  enableval=$enable_sanitizer; enable_sanitizer=$enableval
+else
+  enable_sanitizer=$dft_sanitizer
 fi
 
 
@@ -7157,35 +7164,6 @@ else
 fi
 
 
-oids=$bits
-# Check whether --enable-oid32 was given.
-if test "${enable_oid32+set}" = set; then :
-  enableval=$enable_oid32; enable_oid32=$enableval
-else
-  enable_oid32=no
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of OIDs" >&5
-$as_echo_n "checking size of OIDs... " >&6; }
-case $bits-$enable_oid32 in
-64-yes)
-$as_echo "#define MONET_OID32 1" >>confdefs.h
-
-	oids=32
-	;;
-esac
- if test x"$bits-$enable_oid32" = x64-yes; then
-  BITS64OID32_TRUE=
-  BITS64OID32_FALSE='#'
-else
-  BITS64OID32_TRUE='#'
-  BITS64OID32_FALSE=
-fi
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $oids bits" >&5
-$as_echo "$oids bits" >&6; }
-
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether byte ordering is bigendian" >&5
 $as_echo_n "checking whether byte ordering is bigendian... " >&6; }
 if ${ac_cv_c_bigendian+:} false; then :
@@ -8891,6 +8869,170 @@ $as_echo "$ac_res" >&6; }
 									;;
 esac
 fi
+if test "x$enable_sanitizer" != xno; then
+case "$GCC" in
+yes)
+	# if no specific sanitizer was specified, use address sanitizer
+	if test "x$enable_sanitizer" = xyes; then
+
+	cache_var=m_cv_cc_has__fsanitize_address
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${CC} supports -fsanitize=address" >&5
+$as_echo_n "checking whether ${CC} supports -fsanitize=address... " >&6; }
+if eval \${${cache_var}+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+	SAVE_FLAGS="${CFLAGS}"
+	# compile a small program that has enough challenges to trigger
+	# the compiler to actually do something, such that it needs to
+	# actually look at the flags given
+	CFLAGS="${SAVE_FLAGS} ${X_CFLAGS} -fsanitize=address"
+				cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
+#if -_LARGEFILE64_SOURCE - -1 == 1
+#include <stdio.h>
+#endif
+int main(int argc, char **av) {
+	char buf[24];
+	double d = atof("4.2");
+	if (argc == 0 || strchr(av[0], av[0][0]) != NULL)
+		snprintf(buf, sizeof(buf), "%f", d);
+	return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval ${cache_var}=yes
+else
+  eval ${cache_var}=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	CFLAGS="${SAVE_FLAGS}"
+
+fi
+eval ac_res=\$${cache_var}
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+	eval "test \"x\$${cache_var}\" = xyes && X_CFLAGS=\"${X_CFLAGS} -fsanitize=address\""
+
+	else
+
+	cache_var=`$as_echo "m_cv_cc_has_-fsanitize=$enable_sanitizer" | $as_tr_sh`
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${CC} supports -fsanitize=$enable_sanitizer" >&5
+$as_echo_n "checking whether ${CC} supports -fsanitize=$enable_sanitizer... " >&6; }
+if eval \${${cache_var}+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+	SAVE_FLAGS="${CFLAGS}"
+	# compile a small program that has enough challenges to trigger
+	# the compiler to actually do something, such that it needs to
+	# actually look at the flags given
+	CFLAGS="${SAVE_FLAGS} ${X_CFLAGS} -fsanitize=$enable_sanitizer"
+				cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
+#if -_LARGEFILE64_SOURCE - -1 == 1
+#include <stdio.h>
+#endif
+int main(int argc, char **av) {
+	char buf[24];
+	double d = atof("4.2");
+	if (argc == 0 || strchr(av[0], av[0][0]) != NULL)
+		snprintf(buf, sizeof(buf), "%f", d);
+	return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval ${cache_var}=yes
+else
+  eval ${cache_var}=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	CFLAGS="${SAVE_FLAGS}"
+
+fi
+eval ac_res=\$${cache_var}
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+	eval "test \"x\$${cache_var}\" = xyes && X_CFLAGS=\"${X_CFLAGS} -fsanitize=$enable_sanitizer\""
+
+		if test "x$enable_sanitizer" = xthread; then
+			X_CFLAGS="$X_CFLAGS -DNO_ATOMIC_INSTRUCTIONS"
+		fi
+	fi
+
+	cache_var=m_cv_cc_has__fno_omit_frame_pointer
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${CC} supports -fno-omit-frame-pointer" >&5
+$as_echo_n "checking whether ${CC} supports -fno-omit-frame-pointer... " >&6; }
+if eval \${${cache_var}+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+	SAVE_FLAGS="${CFLAGS}"
+	# compile a small program that has enough challenges to trigger
+	# the compiler to actually do something, such that it needs to
+	# actually look at the flags given
+	CFLAGS="${SAVE_FLAGS} ${X_CFLAGS} -fno-omit-frame-pointer"
+				cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
+#if -_LARGEFILE64_SOURCE - -1 == 1
+#include <stdio.h>
+#endif
+int main(int argc, char **av) {
+	char buf[24];
+	double d = atof("4.2");
+	if (argc == 0 || strchr(av[0], av[0][0]) != NULL)
+		snprintf(buf, sizeof(buf), "%f", d);
+	return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval ${cache_var}=yes
+else
+  eval ${cache_var}=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	CFLAGS="${SAVE_FLAGS}"
+
+fi
+eval ac_res=\$${cache_var}
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+	eval "test \"x\$${cache_var}\" = xyes && X_CFLAGS=\"${X_CFLAGS} -fno-omit-frame-pointer\""
+
+	;;
+*)
+	as_fn_error $? "--enable-sanitizer only supported with GCC" "$LINENO" 5
+	;;
+esac
+fi
+
 
 
 
@@ -21824,7 +21966,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $XPATH
+for as_dir in $PATH
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -21838,6 +21980,7 @@ done
   done
 IFS=$as_save_IFS
 
+  test -z "$ac_cv_path_PYCMD" && ac_cv_path_PYCMD="no"
   ;;
 esac
 fi
@@ -22584,8 +22727,8 @@ esac
 
 
 # fits, only used by sql
-org_have_cfitsio=no
-have_cfitsio=$org_have_cfitsio
+org_have_fits=no
+have_fits=$org_have_fits
 if test "x$enable_fits" != xno; then
 
 pkg_failed=no
@@ -22646,13 +22789,13 @@ fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$cfitsio_PKG_ERRORS" >&5
 
-	have_cfitsio=no; why_have_cfitsio="(cfitsio library not found)"
+	have_fits="no"; why_have_fits="(cfitsio library not found)"
 		 if test "x$enable_fits" = xyes; then as_fn_error $? "cfitsio library required for FITS support" "$LINENO" 5; fi;
 		 enable_fits=no; disable_fits="(cfitsio library not found)"
 elif test $pkg_failed = untried; then
      	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-	have_cfitsio=no; why_have_cfitsio="(cfitsio library not found)"
+	have_fits="no"; why_have_fits="(cfitsio library not found)"
 		 if test "x$enable_fits" = xyes; then as_fn_error $? "cfitsio library required for FITS support" "$LINENO" 5; fi;
 		 enable_fits=no; disable_fits="(cfitsio library not found)"
 else
@@ -22660,12 +22803,12 @@ else
 	cfitsio_LIBS=$pkg_cv_cfitsio_LIBS
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-	have_cfitsio=yes;
+	have_fits="yes";
 $as_echo "#define HAVE_FITS 1" >>confdefs.h
 
 fi
 fi
- if test x"$have_cfitsio" != xno; then
+ if test x"$have_fits" != xno; then
   HAVE_FITS_TRUE=
   HAVE_FITS_FALSE='#'
 else
@@ -25982,10 +26125,6 @@ if test -z "${BITS64_TRUE}" && test -z "${BITS64_FALSE}"; then
   as_fn_error $? "conditional \"BITS64\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${BITS64OID32_TRUE}" && test -z "${BITS64OID32_FALSE}"; then
-  as_fn_error $? "conditional \"BITS64OID32\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
 
 if test -z "${PROFILING_TRUE}" && test -z "${PROFILING_FALSE}"; then
   as_fn_error $? "conditional \"PROFILING\" was never defined.
@@ -28336,6 +28475,7 @@ for comp in \
 	'debug     ' \
 	'optimize  ' \
 	'developer ' \
+	'sanitizer ' \
 	'instrument' \
 	'profile   ' \
 ; do
@@ -28429,7 +28569,7 @@ else
 fi
 echo
 echo "* Important options:"
-echo "    OID size:              ${oids} bits"
+echo "    OID size:              ${bits} bits"
 echo "    largest integer type: ${hge_bits} bits"
 echo "    largest decimal type: ${hge_digits} digits"
 echo
