@@ -627,6 +627,7 @@ SQLexitClient(Client c)
 		c->sqlcontext = NULL;
 	}
 	c->state[MAL_SCENARIO_READER] = NULL;
+	MALexitClient(c);
 	return MAL_SUCCEED;
 }
 

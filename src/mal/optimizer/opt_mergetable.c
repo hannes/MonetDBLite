@@ -335,6 +335,8 @@ mat_apply1(MalBlkPtr mb, InstrPtr p, matlist_t *ml, int m, int var)
 	InstrPtr r = NULL, q;
 	mat_t *mat = ml->v;
 
+	assert (p->retc == 1);
+
 	/* Find the mat we overwrite */
 	if (is_assign) {
 		n = is_a_mat(getArg(p, 0), ml);
@@ -389,34 +391,45 @@ mat_apply1(MalBlkPtr mb, InstrPtr p, matlist_t *ml, int m, int var)
 	return r;
 }
 
-static InstrPtr
+static void
 mat_apply2(matlist_t *ml, MalBlkPtr mb, InstrPtr p, mat_t *mat, int m, int n, int mvar, int nvar)
 {
-	int tpe, k, is_select = isSubSelect(p);
-	InstrPtr r = NULL;
+	int k, is_select = isSubSelect(p);
+	InstrPtr *r = NULL;
 
-	//printf("# %s.%s(%d,%d)", getModuleId(p), getFunctionId(p), m, n);
-
-	r = newInstruction(mb, ASSIGNsymbol);
-	setModuleId(r,matRef);
-	setFunctionId(r,packRef);
-	getArg(r, 0) = getArg(p,0);
-	tpe = getArgType(mb,p,0);
+	r = (InstrPtr*) GDKmalloc(sizeof(InstrPtr)* p->retc);
+	for(k=0; k < p->retc; k++) {
+		r[k] = newInstruction(mb, ASSIGNsymbol);
+		setModuleId(r[k],matRef);
+		setFunctionId(r[k],packRef);
+		getArg(r[k],0) = getArg(p,k);
+	}
 
 	for(k=1; k < mat[m].mi->argc; k++) {
+		int l, tpe;
 		InstrPtr q = copyInstruction(p);
 
-		getArg(q, 0) = newTmpVariable(mb, tpe);
+		for(l=0; l < p->retc; l++) {
+			tpe = getArgType(mb,p,l);
+			getArg(q, l) = newTmpVariable(mb, tpe);
+		}
 		getArg(q, mvar) = getArg(mat[m].mi, k);
 		getArg(q, nvar) = getArg(mat[n].mi, k);
 		pushInstruction(mb, q);
-		if (is_select)
-			setPartnr(ml, getArg(q,2), getArg(q,0), k);
-		else
-			setPartnr(ml, -1, getArg(q,0), k);
-		r = pushArgument(mb, r, getArg(q, 0));
+		for(l=0; l < p->retc; l++) {
+			if (is_select)
+				setPartnr(ml, getArg(q,p->retc+1), getArg(q,l), k);
+			else
+				setPartnr(ml, -1, getArg(q,l), k);
+			r[l] = pushArgument(mb, r[l], getArg(q, l));
+		}
 	}
-	return r;
+
+	for(k=0; k < p->retc; k++) {
+		mat_add_var(ml, r[k], NULL, getArg(r[k], 0), mat_type(ml->v, m),  -1, -1, 1);
+		pushInstruction(mb, r[k]);
+	}
+	GDKfree(r);
 }
 
 static void
@@ -432,8 +445,6 @@ mat_apply3(MalBlkPtr mb, InstrPtr p, matlist_t *ml, int m, int n, int o, int mva
 		setFunctionId(r[k],packRef);
 		getArg(r[k],0) = getArg(p,k);
 	}
-
-	//printf("# %s.%s(%d,%d,%d)", getModuleId(p), getFunctionId(p), m, n, o);
 
 	for(k = 1; k < ml->v[m].mi->argc; k++) {
 		int l, tpe;
@@ -632,17 +643,20 @@ mat_join2(MalBlkPtr mb, InstrPtr p, matlist_t *ml, int m, int n)
 static int
 subjoin_split(Client cntxt, InstrPtr p, int args)
 {
-	char *name;
-	int len, i, res = 0;
+	char *name = NULL;
+	size_t len;
+	int i, res = 0;
 	Symbol sym;
 	MalBlkPtr mb;
 	InstrPtr q;
 
-	if (args <= 2) /* we asume there are no 2x1 joins! */
+	if (args <= 3) /* we asume there are no 2x1 joins! */
 		return 1;
 
 	len = strlen( getFunctionId(p) );
 	name = GDKmalloc(len+3);
+	if (!name)
+		return -1;
 	strncpy(name, getFunctionId(p), len-7);
 	strcpy(name+len-7, "subselect");
 
@@ -657,6 +671,7 @@ subjoin_split(Client cntxt, InstrPtr p, int args)
 		else 
 			break;
 	}
+	GDKfree(name);
 	return res-1;
 }
 
@@ -698,8 +713,13 @@ mat_joinNxM(Client cntxt, MalBlkPtr mb, InstrPtr p, matlist_t *ml, int args)
 		int mv1 = mats[0], i;
 		int mv2 = mats[args-1];
 		int split = subjoin_split(cntxt, p, args);
-		int nr_mv1 = split, nr_mv2 = nr_mats-split;
+		int nr_mv1 = split;
 
+		if (split < 0) {
+			GDKfree(mats);
+			mb->errors++;
+			return ;
+		}
 		/* now detect split point */
 		for(k=1; k<mat[mv1].mi->argc; k++) {
 			for (j=1; j<mat[mv2].mi->argc; j++) {
@@ -709,8 +729,8 @@ mat_joinNxM(Client cntxt, MalBlkPtr mb, InstrPtr p, matlist_t *ml, int args)
 				getArg(q,1) = newTmpVariable(mb, tpe);
 				for (i = 0; i < nr_mv1; i++ )
 					getArg(q,q->retc+i) = getArg(mat[mats[i]].mi,k);
-				for (i = 0; i < nr_mv2; i++ )
-					getArg(q,q->retc+split+i) = getArg(mat[mats[i]].mi,k);
+				for (; i < nr_mats; i++ )
+					getArg(q,q->retc+i) = getArg(mat[mats[i]].mi,j);
 				pushInstruction(mb,q);
 	
 				propagatePartnr(ml, getArg(mat[mv1].mi, k), getArg(q,0), nr);
@@ -748,6 +768,7 @@ mat_joinNxM(Client cntxt, MalBlkPtr mb, InstrPtr p, matlist_t *ml, int args)
 	}
 	mat_add(ml, l, mat_none, getFunctionId(p));
 	mat_add(ml, r, mat_none, getFunctionId(p));
+	GDKfree(mats);
 }
 
 
@@ -1852,8 +1873,7 @@ OPTmergetableImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 		   (m=is_a_mat(getArg(p,fm), &ml)) >= 0 &&
 		   (n=is_a_mat(getArg(p,fn), &ml)) >= 0){
 			assert(ml.v[m].mi->argc == ml.v[n].mi->argc); 
-			if ((r = mat_apply2(&ml, mb, p, ml.v, m, n, fm, fn)) != NULL)
-				mat_add(&ml, r, mat_type(ml.v, m), getFunctionId(p));
+			mat_apply2(&ml, mb, p, ml.v, m, n, fm, fn);
 			actions++;
 			continue;
 		}
