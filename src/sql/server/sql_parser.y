@@ -1805,8 +1805,11 @@ func_def:
 				lang = FUNC_LANG_C;
 			else if (l == 'J' || l == 'j')
 				lang = FUNC_LANG_J;
-			else
-				yyerror(m, sql_message("Language name R, C, or J(avascript):expected, received '%c'", l));
+			else {
+				char *msg = sql_message("Language name R, C, or J(avascript):expected, received '%c'", l);
+				yyerror(m, msg);
+				_DELETE(msg);
+			}
 
 			append_list(f, $3);
 			append_list(f, $5);
@@ -1856,8 +1859,11 @@ func_def:
 				lang = FUNC_LANG_C;
 			else if (l == 'J' || l == 'j')
 				lang = FUNC_LANG_J;
-			else
-				yyerror(m, sql_message("Language name R, C, or J(avascript):expected, received '%c'", l));
+			else {
+				char *msg = sql_message("Language name R, C, or J(avascript):expected, received '%c'", l);
+				yyerror(m, msg);
+				_DELETE(msg);
+			}
 
 			append_list(f, $3);
 			append_list(f, $5);
@@ -3347,9 +3353,7 @@ like_exp:
  |  scalar_exp ESCAPE string
  	{ const char *s = sql2str($3);
 	  if (_strlen(s) != 1) {
-		char *msg = sql_message("\b22025!ESCAPE must be one character");
-		yyerror(m, msg);
-		_DELETE(msg);
+		yyerror(m, "\b22025!ESCAPE must be one character");
 		$$ = NULL;
 		YYABORT;
 	  } else {
@@ -3625,10 +3629,7 @@ simple_scalar_exp:
 				if (!atom_neg(a)) {
 					$$ = $2;
 				} else {
-					char *msg = sql_message("\b22003!value too large or not a number");
-
-					yyerror(m, msg);
-					_DELETE(msg);
+					yyerror(m, "\b22003!value too large or not a number");
 					$$ = NULL;
 					YYABORT;
 				}
@@ -4932,7 +4933,11 @@ data_type:
 			  }
 			}
 | GEOMETRY {
-		sql_find_subtype(&$$, "geometry", 0, 0 );
+		if (!sql_find_subtype(&$$, "geometry", 0, 0 )) {
+			yyerror(m, "\b22000!type (geometry) unknown");
+			$$.type = NULL;
+			YYABORT;
+		}
 	}
 | GEOMETRY '(' subgeometry_type ')' {
 		int geoSubType = $3; 
@@ -4965,7 +4970,11 @@ data_type:
 		}
 	}
 | GEOMETRYA {
-		sql_find_subtype(&$$, "geometrya", 0, 0 );
+		if (!sql_find_subtype(&$$, "geometrya", 0, 0 )) {
+			yyerror(m, "\b22000!type (geometrya) unknown");
+			$$.type = NULL;
+			YYABORT;
+		}
 	}
 | GEOMETRYSUBTYPE {
 	int geoSubType = find_subgeometry_type($1);
@@ -4977,7 +4986,7 @@ data_type:
 		_DELETE(msg);
 		YYABORT;
 	}  else if (!sql_find_subtype(&$$, "geometry", geoSubType, 0 )) {
-	char *msg = sql_message("\b22000!type (%s) unknown", $1);
+		char *msg = sql_message("\b22000!type (%s) unknown", $1);
 		yyerror(m, msg);
 		_DELETE(msg);
 		$$.type = NULL;
@@ -4995,7 +5004,7 @@ subgeometry_type:
 		char *msg = sql_message("\b22000!type (%s) unknown", geoSubType);
 		yyerror(m, msg);
 		_DELETE(msg);
-		
+		YYABORT;
 	} 
 	$$ = subtype;	
 }
@@ -5007,7 +5016,7 @@ subgeometry_type:
 		char *msg = sql_message("\b22000!type (%s) unknown", geoSubType);
 		yyerror(m, msg);
 		_DELETE(msg);
-		
+		YYABORT;
 	} 
 	$$ = subtype;	
 }
