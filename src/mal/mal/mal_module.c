@@ -32,7 +32,7 @@ mal_module_reset(void)
 {
 	freeModuleList(mal_scope);
 	mal_scope = NULL;
-	memset((char*) scopeJump, 0, 256 * 256);
+	memset(scopeJump, 0, 256 * 256);
 }
 /*
  * Definition of a new module scope may interfere with concurrent
@@ -66,17 +66,18 @@ Module newModule(Module scope, str nme){
 	assert(nme != NULL);
 	cur = (Module) GDKzalloc(sizeof(ModuleRecord));
 	if( cur == NULL){
-		GDKerror("newModule:"MAL_MALLOC_FAIL);
-	} else {
-		cur->name = nme;
-		cur->outer = NULL;
-		cur->sibling = NULL;
-		cur->subscope = NULL;
-		cur->isAtomModule = FALSE;
-	}
-	if ( cur == NULL)
 		return scope;
+	}
+	cur->name = nme;
+	cur->outer = NULL;
+	cur->sibling = NULL;
+	cur->subscope = NULL;
+	cur->isAtomModule = FALSE;
 	newSubScope(cur);
+	if (cur->subscope == NULL) {
+		GDKfree(cur);
+		return NULL;
+	}
 	if( scope != NULL){
 		cur->outer = scope->outer;
 		scope->outer= cur;
@@ -202,8 +203,11 @@ void insertSymbol(Module scope, Symbol prg){
 			scope = c;
 	}
 	t = getSubScope(getFunctionId(sig));
-	if( scope->subscope == NULL)
+	if( scope->subscope == NULL) {
 		newSubScope(scope);
+		if (scope->subscope == NULL)
+			return;
+	}
 	if(scope->subscope[t] == prg){
 		/* already known, last inserted */
 	 } else  {
