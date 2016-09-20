@@ -10,7 +10,7 @@ dnl Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT([MonetDB], [11.23.8], [info@monetdb.org], [MonetDB], [http://www.monetdb.org/])
+AC_INIT([MonetDB], [11.23.10], [info@monetdb.org], [MonetDB], [http://www.monetdb.org/])
 AC_CONFIG_AUX_DIR([buildtools/conf])
 AC_CONFIG_MACRO_DIR([buildtools/conf])
 AC_CANONICAL_HOST
@@ -1206,7 +1206,7 @@ AC_PROG_LN_S
 AC_CHECK_PROGS(DIFF,gdiff diff)
 AC_DEFINE_UNQUOTED([DIFF], "$DIFF", [Program to perform diffs])
 
-AC_CHECK_PROGS(RPMBUILD,rpmbuild rpm)
+AC_CHECK_PROGS(RPMBUILD,rpmbuild)
 
 org_have_perl=auto
 have_perl=$org_have_perl
