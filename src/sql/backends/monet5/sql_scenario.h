@@ -22,6 +22,7 @@ sql5_export str SQLepilogue(void *ret);
 
 sql5_export int SQLautocommit(Client c, mvc *m);
 sql5_export void SQLtrans(mvc *m);
+sql5_export str SQLinit(void);
 
 sql5_export str SQLexit(Client c);
 sql5_export str SQLexitClient(Client c);

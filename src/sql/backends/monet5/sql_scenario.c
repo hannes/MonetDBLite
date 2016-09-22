@@ -136,7 +136,6 @@ SQLsession2(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	return msg;
 }
 
-static str SQLinit(void);
 
 str
 SQLprelude(void *ret)
@@ -209,7 +208,7 @@ SQLepilogue(void *ret)
 
 MT_Id sqllogthread, minmaxthread;
 
-static str
+str
 SQLinit(void)
 {
 	char *debug_str = GDKgetenv("sql_debug"), *msg = MAL_SUCCEED;
@@ -235,12 +234,12 @@ SQLinit(void)
 	be_funcs.fresolve_function = &monet5_resolve_function;
 	monet5_user_init(&be_funcs);
 
-	msg = MTIMEtimezone(&tz, &gmt);
+	/*msg = MTIMEtimezone(&tz, &gmt);
 	if (msg) {
 		MT_lock_unset(&sql_contextLock);
 		return msg;
 	}
-	(void) tz;
+	(void) tz;*/
 	if (debug_str)
 		SQLdebug = strtol(debug_str, NULL, 10);
 	if (single_user)

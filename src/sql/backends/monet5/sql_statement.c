@@ -1702,7 +1702,7 @@ stmt_array(sql_allocator *sa, stmt *s)
 	return res;
 }
 
-#ifndef HAVE_EMBEDDED
+#ifndef HAVE_EMBEDDED_R
 static void
 print_stmt(sql_allocator *sa, stmt *s)
 {

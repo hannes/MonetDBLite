@@ -12,10 +12,12 @@ extern FILE* embedded_stderr;
 
 #define srand(seed) ((void) (seed))
 extern int embedded_r_rand(void);
+#ifdef HAVE_EMBEDDED_R
 #define rand embedded_r_rand
-
+#endif
 #undef PTRFMT
 #undef PTRFMTCAST
 
 #define PTRFMT "%p"
 #define PTRFMTCAST (void *)
+

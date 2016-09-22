@@ -381,7 +381,7 @@ SQLtransaction2(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	return msg;
 }
 
-static str
+str
 create_table_or_view(mvc *sql, char *sname, sql_table *t, int temp)
 {
 	sql_allocator *osa;

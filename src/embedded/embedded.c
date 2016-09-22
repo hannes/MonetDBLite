@@ -308,3 +308,9 @@ void monetdb_shutdown(void) {
 		monetdb_embedded_initialized = 0;
 	}
 }
+
+
+void pcre_free_study(void *extra) {
+	(void) extra;
+}
+

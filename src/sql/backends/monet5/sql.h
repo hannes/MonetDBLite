@@ -332,4 +332,7 @@ sql5_export str BATSTRstrings(bat *res, const bat *src);
 
 sql5_export str SQLflush_log(void *ret);
 
+str
+create_table_or_view(mvc *sql, char *sname, sql_table *t, int temp);
+
 #endif /* _SQL_H */
