@@ -13,7 +13,7 @@
 /*
  * grouped aggregates
  */
-static str
+str
 AGGRgrouped(bat *retval1, bat *retval2, BAT *b, BAT *g, BAT *e, int tp,
 			BAT *(*grpfunc1)(BAT *, BAT *, BAT *, BAT *, int, int, int),
 			gdk_return (*grpfunc2)(BAT **, BAT **, BAT *, BAT *, BAT *, BAT *, int, int, int),

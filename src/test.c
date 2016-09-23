@@ -918,9 +918,8 @@ ValPtr execute_stmt(mvc *sql, stmt *s)
 			break;
 		case st_join:{
 			printf("execute st_join\n");
-/*
-			int l;
-			int r;
+
+			ValPtr l, r;
 			int cmp = s->flag;
 			int left = (cmp == cmp_left);
 			char *sjt = "subjoin";
@@ -929,20 +928,20 @@ ValPtr execute_stmt(mvc *sql, stmt *s)
 				cmp = cmp_equal;
 				sjt = "subleftjoin";
 			}
-			if ((l = _dumpstmt(sql, mb, s->op1)) < 0)
-				return -1;
-			if ((r = _dumpstmt(sql, mb, s->op2)) < 0)
-				return -1;
-			assert(l >= 0 && r >= 0);
+			l = execute_stmt(sql, s->op1);
+			r = execute_stmt(sql, s->op2);
+			assert(l != NULL 0 && r != NULL);
 
 			if (cmp == cmp_joined) {
-				s->nr = l;
-				return s->nr;
+				return l;
 			}
 			if (cmp == cmp_left_project) {
-				int op3;
-				if ((op3 = _dumpstmt(sql, mb, s->op3)) < 0)
-					return -1;
+				ValPtr op3 = execute_stmt(sql, s->op3);
+
+				assert(op3 != NULL);
+
+				BATleftproject();
+
 				q = newStmt(mb, sqlRef, projectRef);
 				q = pushArgument(mb, q, l);
 				q = pushArgument(mb, q, r);
@@ -1070,8 +1069,8 @@ ValPtr execute_stmt(mvc *sql, stmt *s)
 			s->nr = getDestVar(q);
 
 			//  rename second result
-			renameVariable(mb, getArg(q, 1), "r1_%d", s->nr);
-			break;*/
+			renameVariable(mb, getArg(q, 1), "r1_%d", s->nr);*/
+			break;
 		}
 		case st_group:{
 			printf("execute st_group\n");
@@ -1341,20 +1340,27 @@ ValPtr execute_stmt(mvc *sql, stmt *s)
 			//  keep reference to instruction
 			s->rewritten = (void *) q;*/
 		} break;
-		case st_aggr:{/*
+		case st_aggr:{
+			printf("execute st_aggr\n");
+			ValPtr ret = (ValPtr) sa_alloc(sql->sa, sizeof(ValRecord));
+
 			int no_nil = s->flag;
-			int g = 0, e = 0, l = _dumpstmt(sql, mb, s->op1);	//  maybe a list
+			ValPtr e = NULL, g = NULL, l = execute_stmt(sql, s->op1);
 			char *mod, *aggrfunc;
 			char aggrF[64];
 			sql_subtype *res = s->op4.aggrval->res->h->data;
 			int restype = res->type->localtype;
 			int complex_aggr = 0;
 			int abort_on_error, i, *stmt_nr = NULL;
+			list *l_ptr = (list*) l->val.pval;
+			bat retval_id;
+			str msg;
 
-			if (l < 0)
-				return -1;
-			if (backend_create_subaggr(sql, s->op4.aggrval) < 0)
-				return -1;
+			// TODO: check l
+//			if (l < 0)
+//				return -1;
+//			if (backend_create_subaggr(sql, s->op4.aggrval) < 0)
+//				return -1;
 			mod = s->op4.aggrval->aggr->mod;
 			aggrfunc = s->op4.aggrval->aggr->imp;
 
@@ -1365,64 +1371,43 @@ ValPtr execute_stmt(mvc *sql, stmt *s)
 			abort_on_error = complex_aggr || strncmp(aggrfunc, "stdev", 5) == 0 || strncmp(aggrfunc, "variance", 8) == 0;
 
 			if (s->op3) {
-				snprintf(aggrF, 64, "sub%s", aggrfunc);
-				aggrfunc = aggrF;
-				if ((g = _dumpstmt(sql, mb, s->op2)) < 0)
-					return -1;
-				if ((e = _dumpstmt(sql, mb, s->op3)) < 0)
-					return -1;
-
-				q = newStmt(mb, mod, aggrfunc);
-				if (q == NULL)
-					return -1;
-				setVarType(mb, getArg(q, 0), newBatType(TYPE_any, restype));
-				setVarUDFtype(mb, getArg(q, 0));
+//				snprintf(aggrF, 64, "sub%s", aggrfunc);
+//				aggrfunc = aggrF;
+//				if ((g = _dumpstmt(sql, mb, s->op2)) < 0)
+//					return -1;
+//				if ((e = _dumpstmt(sql, mb, s->op3)) < 0)
+//					return -1;
+//
+//				q = newStmt(mb, mod, aggrfunc);
+//				if (q == NULL)
+//					return -1;
+//				setVarType(mb, getArg(q, 0), newBatType(TYPE_any, restype));
+//				setVarUDFtype(mb, getArg(q, 0));
+				assert(0);
 			} else {
-				q = newStmt(mb, mod, aggrfunc);
-				if (q == NULL)
-					return -1;
-				if (complex_aggr) {
-					setVarType(mb, getArg(q, 0), restype);
-					setVarUDFtype(mb, getArg(q, 0));
-				}
-			}
+				// FIXME: what is this?!
+				assert(!complex_aggr);
+//				if (complex_aggr) {
+//					setVarType(mb, getArg(q, 0), restype);
+//					setVarUDFtype(mb, getArg(q, 0));
+//				}
+				assert(strcmp(mod, "aggr") == 0);
+				if (strcmp(aggrfunc, "min") == 0) {
+					msg = AGGRgrouped(&retval_id, NULL, (BAT*) ((ValPtr) l_ptr->h->data)->val.pval , g, e, TYPE_oid, BATgroupmin, NULL, NULL, 0, no_nil, NULL);
 
-			if (LANG_EXT(s->op4.aggrval->aggr->lang))
-				q = pushPtr(mb, q, s->op4.aggrval->aggr);
-			if (s->op4.aggrval->aggr->lang == FUNC_LANG_R){
-				if (!g) {
-					setVarType(mb, getArg(q, 0), restype);
-					setVarUDFtype(mb, getArg(q, 0));
+					// TODO: check msg
+					ret->val.pval = (void*) BATdescriptor(retval_id);
+					ret->vtype = TYPE_ptr;
+					return ret;
 				}
-				q = pushStr(mb, q, s->op4.aggrval->aggr->query);
-			}
+				// TODO: do other aggr funcs (of which there are like five)
 
-			if (s->op1->type != st_list) {
-				q = pushArgument(mb, q, l);
-			} else {
-				for (i=0, n = s->op1->op4.lval->h; n; n = n->next, i++) {
-					stmt *op = n->data;
+				// TODO: do we have e?
+				// TODO: get g if set
 
-					if (stmt_nr)
-						q = pushArgument(mb, q, stmt_nr[i]);
-					else
-						q = pushArgument(mb, q, op->nr);
-				}
+
 			}
-			if (g) {
-				q = pushArgument(mb, q, g);
-				q = pushArgument(mb, q, e);
-				if (q == NULL)
-					return -1;
-				g = getDestVar(q);
-				q = pushBit(mb, q, no_nil);
-				if (abort_on_error)
-					q = pushBit(mb, q, TRUE);
-			} else if (no_nil && strncmp(aggrfunc, "count", 5) == 0)
-				q = pushBit(mb, q, no_nil);
-			if (q == NULL)
-				return -1;
-			s->nr = getDestVar(q);*/
+			assert(0);
 		}
 			break;
 		case st_atom:{
@@ -1632,10 +1617,8 @@ ValPtr execute_stmt(mvc *sql, stmt *s)
 		}
 		case st_alias:
 			printf("execute st_alias\n");
-/*
-			if ((s->nr = _dumpstmt(sql, mb, s->op1)) < 0)
-				return -1;*/
-			break;
+			return execute_stmt(sql, s->op1);
+
 		case st_list: {
 			printf("execute st_list\n");
 
@@ -1680,12 +1663,12 @@ ValPtr execute_stmt(mvc *sql, stmt *s)
 		} break;
 		case st_output:{
 			printf("execute st_output\n");
-/*
+
 			stmt *lst = s->op1;
+			ValPtr lst_res = execute_stmt(sql, lst);
+			ValPtr ret = (ValPtr) sa_alloc(sql->sa, sizeof(ValRecord));
 
-			if (_dumpstmt(sql, mb, lst) < 0)
-				return -1;
-
+			res_table *tbl;
 			if (lst->type == st_list) {
 				list *l = lst->op4.lval;
 				int cnt = list_length(l);
@@ -1698,12 +1681,12 @@ ValPtr execute_stmt(mvc *sql, stmt *s)
 				if (cnt == 1 && first->nrcols <= 0 ){
 					stmt *c = n->data;
 					sql_subtype *t = tail_type(c);
-					const char *tname = table_name(sql->mvc->sa, c);
-					const char *sname = schema_name(sql->mvc->sa, c);
+					const char *tname = table_name(sql->sa, c);
+					const char *sname = schema_name(sql->sa, c);
 					const char *_empty = "";
 					const char *tn = (tname) ? tname : _empty;
 					const char *sn = (sname) ? sname : _empty;
-					const char *cn = column_name(sql->mvc->sa, c);
+					const char *cn = column_name(sql->sa, c);
 					const char *ntn = sql_escape_ident(tn);
 					const char *nsn = sql_escape_ident(sn);
 					size_t fqtnl = strlen(ntn) + 1 + strlen(nsn) + 1;
@@ -1711,35 +1694,26 @@ ValPtr execute_stmt(mvc *sql, stmt *s)
 
 					snprintf(fqtn, fqtnl, "%s.%s", nsn, ntn);
 
-					q = newStmt(mb, sqlRef, resultSetRef);
-					if (q) {
-						s->nr = getDestVar(q);
-						q = pushStr(mb, q, fqtn);
-						q = pushStr(mb, q, cn);
-						q = pushStr(mb, q, t->type->localtype == TYPE_void ? "char" : t->type->sqlname);
-						q = pushInt(mb, q, t->digits);
-						q = pushInt(mb, q, t->scale);
-						q = pushInt(mb, q, t->type->eclass);
-						q = pushArgument(mb, q, c->nr);
-					}
+					tbl = res_table_create(sql->session->tr, sql->result_id++, 1, Q_TABLE, NULL, NULL);
+					res_col_create(sql->session->tr, tbl, tn, cn, t->type->localtype == TYPE_void ? "char" : t->type->sqlname, t->digits, t->scale, t->type->eclass, lst_res->val.pval);
+
+					sql->results = tbl;
+					ret->vtype = TYPE_ptr;
+					ret->val.pval = (ptr) tbl;
 
 					c_delete(ntn);
 					c_delete(nsn);
 					_DELETE(fqtn);
-					if (q == NULL)
-						return -1;
+					// TODO : check if res is a valid result set
+
+					return ret;
 					break;
 				}
-				if ( (s->nr =dump_header(sql->mvc, mb, s, l)) < 0)
-					return -1;
+				// TODO: what does this do?!
+				//if ( (s->nr =dump_header(mvc, mb, s, l)) < 0)
+				//	return -1;
 
-			} else {
-				q = newStmt(mb, sqlRef, "raise");
-				q = pushStr(mb, q, "not a valid output list\n");
-				if (q == NULL)
-					return -1;
-				s->nr = 1;
-			}*/
+			}
 		}
 		break;
 		case st_export:{
@@ -1958,7 +1932,7 @@ ValPtr execute_stmt(mvc *sql, stmt *s)
 		}
 
 
-		return s->nr;
+		return NULL;
 	}
 
 	return (0);
@@ -1972,7 +1946,7 @@ int main() {
 	str retval = MAL_SUCCEED;
 	buffer *b;
 	//char* expr = "create table sys.a2(i integer);\n";
-	char* expr = "select * from sys.a;\n";
+	char* expr = "select min(i) from sys.a2;\n";
 	size_t len = strlen(expr);
 	stream *buf;
 	mvc *m = NULL;
@@ -2032,10 +2006,13 @@ int main() {
 
 	mvc_trans(m);
 
+	printf("\n");
 
 	s = sql_relation2stmt(m, r);
 
 	print_tree(m->sa, s);
+	printf("\n");
+
 
 	execute_stmt(m, s);
 
