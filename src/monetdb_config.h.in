@@ -56,6 +56,9 @@
 /* Define to 1 if you have the <bam/sam.h> header file. */
 #undef HAVE_BAM_SAM_H
 
+/* Define if you have the CommonCrypto library */
+#undef HAVE_COMMONCRYPTO
+
 /* If the console should be used */
 #undef HAVE_CONSOLE
 
@@ -256,8 +259,8 @@
 /* Enable MAPI */
 #undef HAVE_MAPI
 
-/* Define to 1 if you have the `MD5' function. */
-#undef HAVE_MD5
+/* Define to 1 if you have the `MD5_Update' function. */
+#undef HAVE_MD5_UPDATE
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
@@ -340,8 +343,8 @@
 /* Define to 1 if you have the <regex.h> header file. */
 #undef HAVE_REGEX_H
 
-/* Define to 1 if you have the `RIPEMD160' function. */
-#undef HAVE_RIPEMD160
+/* Define to 1 if you have the `RIPEMD160_Update' function. */
+#undef HAVE_RIPEMD160_UPDATE
 
 /* Define to 1 if you have the <rlimit.h> header file. */
 #undef HAVE_RLIMIT_H
@@ -383,20 +386,20 @@
 /* Define to 1 if you have the `setsid' function. */
 #undef HAVE_SETSID
 
-/* Define to 1 if you have the `SHA1' function. */
-#undef HAVE_SHA1
+/* Define to 1 if you have the `SHA1_Update' function. */
+#undef HAVE_SHA1_UPDATE
 
-/* Define to 1 if you have the `SHA224' function. */
-#undef HAVE_SHA224
+/* Define to 1 if you have the `SHA224_Update' function. */
+#undef HAVE_SHA224_UPDATE
 
-/* Define to 1 if you have the `SHA256' function. */
-#undef HAVE_SHA256
+/* Define to 1 if you have the `SHA256_Update' function. */
+#undef HAVE_SHA256_UPDATE
 
-/* Define to 1 if you have the `SHA384' function. */
-#undef HAVE_SHA384
+/* Define to 1 if you have the `SHA384_Update' function. */
+#undef HAVE_SHA384_UPDATE
 
-/* Define to 1 if you have the `SHA512' function. */
-#undef HAVE_SHA512
+/* Define to 1 if you have the `SHA512_Update' function. */
+#undef HAVE_SHA512_UPDATE
 
 /* Define to 1 if you have the `shutdown' function. */
 #undef HAVE_SHUTDOWN

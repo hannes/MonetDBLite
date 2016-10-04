@@ -10,7 +10,7 @@ dnl Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT([MonetDB], [11.23.10], [info@monetdb.org], [MonetDB], [http://www.monetdb.org/])
+AC_INIT([MonetDB], [11.23.12], [info@monetdb.org], [MonetDB], [http://www.monetdb.org/])
 AC_CONFIG_AUX_DIR([buildtools/conf])
 AC_CONFIG_MACRO_DIR([buildtools/conf])
 AC_CANONICAL_HOST
@@ -1886,7 +1886,7 @@ if test "x$have_pthread" != xno; then
 	save_LIBS="$LIBS"
 	save_CPPFLAGS="$CPPFLAGS"
 	case $GCC-$have_pthread-$CC_ver in
-		yes-auto-clang-5.*|yes-yes-clang-5.*|yes-auto-clang-6.*|yes-yes-clang-6.*|yes-auto-clang-7.*|yes-yes-clang-7.*)
+		yes-auto-clang-5.*|yes-yes-clang-5.*|yes-auto-clang-6.*|yes-yes-clang-6.*|yes-auto-clang-7.*|yes-yes-clang-7.*|yes-auto-clang-8.*|yes-yes-clang-8.*)
 			# clang 5.*/6.*/7.* (Xcode 6.0) does not
 			# seem to have / require -pthread as compiler
 			# option; on Mac OS X Yosamite, "Apple LLVM
@@ -2090,59 +2090,70 @@ if test "x$have_uuid" != xno; then
 fi
 AM_CONDITIONAL(HAVE_UUID, test x"$have_uuid" != xno)
 
-
-dnl OpenSSL library
-org_have_openssl=yes
-have_openssl=$org_have_openssl
-AC_ARG_WITH(openssl,
-	AS_HELP_STRING([--with-openssl],
-		[include OpenSSL support (default=yes)]),
-	have_openssl=$withval)
-if test "x$have_openssl" != xno; then
-	PKG_CHECK_MODULES([openssl], [openssl],
-			[have_openssl=yes],
-			[have_openssl=no; why_have_openssl="(OpenSSL library not found)"])
-	case "$enable_monetdb5-$have_openssl" in
-	yes-no)
-		AC_MSG_ERROR([OpenSSL library not found but required for MonetDB5])
-		;;
-	auto-no)
-		enable_monetdb5=no
-		if test "x$disable_monetdb5" = x; then
-			disable_monetdb5="(OpenSSL library not found but required for MonetDB5)"
+dnl OpenSSL or CommonCrypto library
+case $host in
+*-darwin*)
+	AC_DEFINE(HAVE_COMMONCRYPTO, 1, [Define if you have the CommonCrypto library])
+	AC_CHECK_FUNC([CC_MD5_Update], [AC_DEFINE([HAVE_MD5_UPDATE], 1, [Define to 1 if you have the `MD5_Update' function.])])
+	AC_CHECK_FUNC([CC_RIPEMD160_Update], [AC_DEFINE([HAVE_RIPEMD160_UPDATE], 1, [Define to 1 if you have the `RIPEMD160_Update' function.])])
+	AC_CHECK_FUNC([CC_SHA1_Update], [AC_DEFINE([HAVE_SHA1_UPDATE], 1, [Define to 1 if you have the `SHA1_Update' function.])])
+	AC_CHECK_FUNC([CC_SHA224_Update], [AC_DEFINE([HAVE_SHA224_UPDATE], 1, [Define to 1 if you have the `SHA224_Update' function.])])
+	AC_CHECK_FUNC([CC_SHA256_Update], [AC_DEFINE([HAVE_SHA256_UPDATE], 1, [Define to 1 if you have the `SHA256_Update' function.])])
+	AC_CHECK_FUNC([CC_SHA384_Update], [AC_DEFINE([HAVE_SHA384_UPDATE], 1, [Define to 1 if you have the `SHA384_Update' function.])])
+	AC_CHECK_FUNC([CC_SHA512_Update], [AC_DEFINE([HAVE_SHA512_UPDATE], 1, [Define to 1 if you have the `SHA512_Update' function.])])
+	;;
+*)
+	org_have_openssl=yes
+	have_openssl=$org_have_openssl
+	AC_ARG_WITH(openssl,
+		AS_HELP_STRING([--with-openssl],
+			[include OpenSSL support (default=yes)]),
+		have_openssl=$withval)
+	if test "x$have_openssl" != xno; then
+		PKG_CHECK_MODULES([openssl], [openssl],
+				[have_openssl=yes],
+				[have_openssl=no; why_have_openssl="(OpenSSL library not found)"])
+		case "$enable_monetdb5-$have_openssl" in
+		yes-no)
+			AC_MSG_ERROR([OpenSSL library not found but required for MonetDB5])
+			;;
+		auto-no)
+			enable_monetdb5=no
+			if test "x$disable_monetdb5" = x; then
+				disable_monetdb5="(OpenSSL library not found but required for MonetDB5)"
+			fi
+			;;
+		*-yes)
+			save_LIBS="$LIBS"
+			LIBS="$LIBS $openssl_LIBS"
+			AC_CHECK_FUNCS([MD5_Update RIPEMD160_Update SHA1_Update SHA224_Update SHA256_Update SHA384_Update SHA512_Update])
+			LIBS="$save_LIBS"
+			if eval test \"x\$ac_cv_func_${MONETDB5_PASSWDHASH}_Update\" != x"yes"; then
+				case "$enable_monetdb5" in
+				yes)
+					AC_MSG_ERROR([OpenSSL library found but checksum algorithm required for MonetDB5 not found])
+					;;
+				auto)
+					enable_monetdb5=no
+					if test "x$disable_monetdb5" = x; then
+						disable_monetdb5="(OpenSSL library found but checksum algorithm required for MonetDB5 not found)"
+					fi
+					;;
+				*)
+					AC_MSG_WARN([OpenSSL library found but required checksum algorithm not found, so disabling])
+					;;
+				esac
+				have_openssl=no
+				why_have_openssl="(OpenSSL library found but required checksum algorithm not found)"
+			fi
+			;;
+		esac
+		if test x"$have_openssl" = x"yes"; then
+			AC_DEFINE(HAVE_OPENSSL, 1, [Define if you have the OpenSSL library])
 		fi
-		;;
-	*-yes)
-		save_LIBS="$LIBS"
-		LIBS="$LIBS $openssl_LIBS"
-		AC_CHECK_FUNCS([MD5 RIPEMD160 SHA1 SHA224 SHA256 SHA384 SHA512])
-		LIBS="$save_LIBS"
-		if eval test \"x\$ac_cv_func_$MONETDB5_PASSWDHASH\" != x"yes"; then
-			case "$enable_monetdb5" in
-			yes)
-				AC_MSG_ERROR([OpenSSL library found but checksum algorithm required for MonetDB5 not found])
-				;;
-			auto)
-				enable_monetdb5=no
-				if test "x$disable_monetdb5" = x; then
-					disable_monetdb5="(OpenSSL library found but checksum algorithm required for MonetDB5 not found)"
-				fi
-				;;
-			*)
-				AC_MSG_WARN([OpenSSL library found but required checksum algorithm not found, so disabling])
-				;;
-			esac
-			have_openssl=no
-			why_have_openssl="(OpenSSL library found but required checksum algorithm not found)"
-		fi
-		;;
-	esac
-	if test x"$have_openssl" = x"yes"; then
-		AC_DEFINE(HAVE_OPENSSL, 1, [Define if you have the OpenSSL library])
 	fi
-fi
-AM_CONDITIONAL(HAVE_OPENSSL, test x"$have_openssl" != xno)
-
+	;;
+esac
 
 dnl PCRE library
 dnl required for MonetDB5 (and SQL), optional otherwise
@@ -3116,7 +3127,7 @@ AC_DEFINE([__hidden], [/* empty */],
 
 dnl     checks for library functions
 case $host in
-	*-darwin1[[012345]]*)
+	*-darwin1[[0123456]]*)
 		# OSX 10.6 (Snow Leopard) and up somehow makes configure believe
 		# that fdatasync exists, in reality however, it does not on this
 		# platform.

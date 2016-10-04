@@ -17,18 +17,8 @@
 #include "mal.h"
 #include "mal_exception.h"
 #include "mal_atom.h"			/* for malAtomSize */
-#ifdef HAVE_UUID_UUID_H
-#include <uuid/uuid.h>
-#endif
-#if !defined(HAVE_UUID) && defined(HAVE_OPENSSL)
-#include <openssl/rand.h>		/* for RAND_bytes */
-#endif
 
-#ifdef HAVE_UUID
-#define UUID_SIZE	((int) sizeof(uuid_t)) /* size of a UUID */
-#else
 #define UUID_SIZE	16			/* size of a UUID */
-#endif
 #define UUID_STRLEN	36			/* length of string representation */
 
 typedef struct {
@@ -163,24 +153,13 @@ UUIDgenerateUuid(uuid **retval)
 	if (*retval == NULL)
 		*retval = GDKmalloc(UUID_SIZE);
 	u = *retval;
-#ifdef HAVE_UUID
-	uuid_generate(u->u);
-	(void) i;
-	(void) r;
-#else
-#ifdef HAVE_OPENSSL
-	if (RAND_bytes(u->u, 16) < 0) {
-#endif
+
 		/* if it failed, use rand */
 		for (i = 0; i < UUID_SIZE;) {
 			r = rand() % 65536;
 			u->u[i++] = (unsigned char) (r >> 8);
 			u->u[i++] = (unsigned char) r;
 		}
-#ifdef HAVE_OPENSSL
-	}
-#endif
-#endif
 	return MAL_SUCCEED;
 }
 
