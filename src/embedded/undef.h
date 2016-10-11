@@ -10,9 +10,11 @@ extern FILE* embedded_stderr;
 #undef stderr
 #define stderr embedded_stderr
 
+#ifdef HAVE_EMBEDDED_R
 #define srand(seed) ((void) (seed))
 extern int embedded_r_rand(void);
 #define rand embedded_r_rand
+#endif
 
 #undef PTRFMT
 #undef PTRFMTCAST
