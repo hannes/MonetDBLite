@@ -1675,12 +1675,4 @@ SQLupgrades(Client c, mvc *m)
 		fprintf(stderr, "!%s\n", err);
 		GDKfree(err);
 	}
-
-	if ((f = sql_bind_func(m->sa, s, "uuid", NULL, NULL, F_FUNC)) != NULL &&
-	    sql_privilege(m, ROLE_PUBLIC, f->func->base.id, PRIV_EXECUTE, 0) != PRIV_EXECUTE) {
-		if ((err = sql_update_jun2016_sp2(c, m)) != NULL) {
-			fprintf(stderr, "!%s\n", err);
-			GDKfree(err);
-		}
-	}
 }
