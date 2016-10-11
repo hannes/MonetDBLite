@@ -1529,14 +1529,14 @@ sql_update_median(Client c, mvc *sql)
 					" external name \"aggr\".\"median\";\n"
 					"create aggregate median(val TIMESTAMP) returns TIMESTAMP"
 					" external name \"aggr\".\"median\";\n"
-#if 0
+/*#if 0
 					"create aggregate quantile(val DATE, q DOUBLE) returns DATE"
 					" external name \"aggr\".\"quantile\";\n"
 					"create aggregate quantile(val TIME, q DOUBLE) returns TIME"
 					" external name \"aggr\".\"quantile\";\n"
 					"create aggregate quantile(val TIMESTAMP, q DOUBLE) returns TIMESTAMP"
 					" external name \"aggr\".\"quantile\";\n"
-#endif
+#endif*/
 		);
 			needed = 1;
 		}
