@@ -24,7 +24,7 @@ test_that("one can connect", {
 
 test_that("db runs queries and returns results", {
 	con <- monetdb_embedded_connect()
-	res <- monetdb_embedded_query(con, "SELECT 42")
+	res <- monetdb_embedded_query(con, "SELECT 42 as single_value")
 	expect_equal(res$type, 1)
 	expect_equal(res$tuples$single_value, 42)
 	res <- monetdb_embedded_query(con, "SELECT * FROM tables")
