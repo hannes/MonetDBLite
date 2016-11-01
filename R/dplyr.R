@@ -87,7 +87,7 @@ sample_n.tbl_monetdb <- function(x, size, replace = FALSE, weight = NULL) {
     stop("Sorry, replace and weight are not supported for MonetDB tables. \
       Consider collect()'ing first.")
   }
-  DBI::dbGetQuery(x$src$con, dplyr::build_sql(x$query$sql, " SAMPLE ", as.integer(size)))
+  DBI::dbGetQuery(x$src$con, dplyr::build_sql(x$ops$x, " SAMPLE ", as.integer(size)))
 }
 
 sample_frac.tbl_monetdb <- function(tbl, frac=1, replace = FALSE, weight = NULL) {
