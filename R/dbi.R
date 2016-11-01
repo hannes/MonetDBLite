@@ -497,6 +497,13 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
     classes <- unlist(lapply(value, function(v){
       class(v)[[1]]
     }))
+    for (c in names(classes[classes=="numeric"])) {
+      idx <- is.nan(value[[c]]) | is.infinite(value[[c]])
+      if (any(idx)) {
+        warning("Found NaN or Inf in column ", c, ", replacing with NA/NULL.")
+        value[[c]][idx] <- NA
+      } 
+    }
     for (c in names(classes[classes=="character"])) {
       value[[c]] <- enc2utf8(value[[c]])
     }
