@@ -195,7 +195,10 @@ SQLepilogue(void *ret)
 	if (SQLinitialized) {
 		MT_lock_set(&sql_contextLock);
 		// exit all clients
-		for (c = mal_clients + 1; c < mal_clients + MAL_MAXCLIENTS; c++) {
+#ifndef HAVE_EMBEDDED
+		c++; // hahahahahaha
+#endif
+		for (; c < mal_clients + MAL_MAXCLIENTS; c++) {
 			if (c->mode == RUNCLIENT){
 				SQLexitClient(c);
 			}
@@ -617,10 +620,8 @@ SQLexitClient(Client c)
 		if (m->session->active) {
 			mvc_rollback(m, 0, NULL);
 		}
-
 		res_tables_destroy(m->results);
 		m->results = NULL;
-
 		mvc_destroy(m);
 		backend_destroy(be);
 		c->state[MAL_SCENARIO_OPTIMIZE] = NULL;

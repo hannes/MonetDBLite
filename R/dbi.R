@@ -500,7 +500,7 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
     for (c in names(classes[classes=="numeric"])) {
       idx <- is.nan(value[[c]]) | is.infinite(value[[c]])
       if (any(idx)) {
-        warning("Found NaN or Inf in column ", c, ", replacing with NA/NULL.")
+        warning("Found NaN or Inf in table ", name, ", column ", c, ", replacing with NA/NULL.")
         value[[c]][idx] <- NA
       } 
     }
