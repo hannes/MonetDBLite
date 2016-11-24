@@ -1138,7 +1138,7 @@ typedef __uint128_t uhge;
 #define PTRFMT		"%p"
 #define PTRFMTCAST
 
-#ifdef HAVE_EMBEDDED_R
+#ifdef HAVE_EMBEDDED
 #define _MSC_EXTENSIONS 1
 #undef HAVE_CTIME_R
 #include "embedded/undef.h"

@@ -43,7 +43,7 @@ s|@CC@|%CC%|
 s|@CCDEPMODE@||
 s|@cfitsio_CFLAGS@||
 s|@cfitsio_LIBS@||
-s|@CFLAGS@|-I"%RINCLUDE%" -DHAVE_EMBEDDED=1 -DHAVE_EMBEDDED_R=1 %ADD_CFLAGS%|
+s|@CFLAGS@| -DHAVE_EMBEDDED=1 %ADD_CFLAGS%|
 s|@CLASSPATH@||
 s|@compilercall@||
 s|@configure_input@||

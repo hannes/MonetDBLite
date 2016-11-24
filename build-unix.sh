@@ -1,11 +1,6 @@
 #!/bin/sh
 cd src
 
-CC=`"${R_HOME}/bin/R" CMD config CC`
-CFLAGS=`"${R_HOME}/bin/R" CMD config CFLAGS`
-CPPFLAGS=`"${R_HOME}/bin/R" CMD config CPPFLAGS`
-CPICFLAGS=`"${R_HOME}/bin/R" CMD config CPICFLAGS`
-
 OPTFLAG="--enable-optimize"
 LINKFLAG="-g"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
@@ -14,8 +9,8 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	LINKFLAG="-g"
 fi
 
-CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS -I$R_INCLUDE_DIR $CPICFLAGS -D_XPG6" \
-./configure --enable-embedded --enable-embedded-r \
+CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6" \
+./configure --enable-embedded \
 --disable-fits --disable-geom --disable-rintegration --disable-gsl --disable-netcdf \
 --disable-jdbc --disable-merocontrol --disable-odbc --disable-console --disable-microhttpd \
 --without-openssl --without-uuid --without-curl --without-bz2 --without-lzma --without-libxml2 \
@@ -23,17 +18,34 @@ CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS -I$R_INCLUDE_DIR $CPICFLAGS -D_XPG6" \
 --without-samtools --without-sphinxclient --without-geos --without-samtools --without-readline \
 $OPTFLAG --enable-silent-rules --disable-int128
 
+
+# TODO: support .so
+
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
-rm libmonetdb5.so
+rm libmonetdb5.dylib
 
 echo '
 
-libmonetdb5.so:
-	$(R_HOME)/bin/R CMD SHLIB $(LINKFLAG) -lz -lpcre -o $@ `find $(SUBDIRS) -name "*.o" | xargs echo` 
+libmonetdb5$(SOEXT):
+	$(CC) -shared -o libmonetdb5$(SOEXT) $(pthread_LIBS) $(pcre_LIBS) $(zlib_LIBS) $(LIBICONV) `find $(SUBDIRS) -name "*.o" | xargs echo` 
 
 all: $(BUILT_SOURCES) monetdb_config.h
-	$(MAKE) $(AM_MAKEFLAGS) all-recursive && $(MAKE) $(AM_MAKEFLAGS) libmonetdb5.so
+	$(MAKE) $(AM_MAKEFLAGS) all-recursive && $(MAKE) $(AM_MAKEFLAGS) libmonetdb5$(SOEXT)
 
 ' >> Makefile
 
+make -j
+mv libmonetdb5.dylib ..
 cd ..
+
+
+if [ ! -s libmonetdb5.dylib ]
+then
+	echo "library file was not created, something went wrong"
+	exit 1
+fi
+
+gcc test.c -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -L. -o test
+./test
+
+
