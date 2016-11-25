@@ -22,7 +22,6 @@ $OPTFLAG --enable-silent-rules --disable-int128
 # TODO: support .so
 
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
-rm libmonetdb5.dylib
 
 echo '
 
@@ -34,16 +33,21 @@ all: $(BUILT_SOURCES) monetdb_config.h
 
 ' >> Makefile
 
+SOEXT=`grep "SOEXT =" Makefile | head -n 1 | sed "s/SOEXT *= //"`
+
+rm libmonetdb5$SOEXT
+
 make -j
-mv libmonetdb5.dylib ..
-cd ..
 
-
-if [ ! -s libmonetdb5.dylib ]
+if [ ! -s libmonetdb5$SOEXT ]
 then
 	echo "library file was not created, something went wrong"
 	exit 1
 fi
+
+cd ..
+
+mv src/libmonetdb5$SOEXT .
 
 gcc test.c -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -L. -o test
 ./test
