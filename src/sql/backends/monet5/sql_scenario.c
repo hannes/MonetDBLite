@@ -426,8 +426,9 @@ SQLinitClient(Client c)
 #ifdef _SQL_SCENARIO_DEBUG
 	mnstr_printf(GDKout, "#SQLinitClient\n");
 #endif
-	if (SQLinitialized == 0 && (msg = SQLprelude(NULL)) != MAL_SUCCEED)
-		return msg;
+	assert(SQLinitialized);
+//	if (SQLinitialized == 0 && (msg = SQLprelude(NULL)) != MAL_SUCCEED)
+//		return msg;
 	MT_lock_set(&sql_contextLock);
 	/*
 	 * Based on the initialization return value we can prepare a SQLinit
@@ -1175,6 +1176,11 @@ SQLengine(Client c)
 {
 	backend *be = (backend *) c->sqlcontext;
 	return SQLengineIntern(c, be);
+}
+
+
+int SQLisInitialized() {
+	return SQLinitialized > 0;
 }
 
 str

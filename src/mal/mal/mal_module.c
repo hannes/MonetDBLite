@@ -43,6 +43,8 @@ void
 mal_module_reset(void)
 {
 	Module m,n;
+// FIXME
+	moduleChain = NULL;
 
 	for( m = moduleChain, moduleChain = 0; m; ){
 		n = m->next;

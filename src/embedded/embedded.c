@@ -130,7 +130,7 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 
 	if (silent) THRdata[0] = stream_blackhole_create();
 
-	if (mal_init() != 0) { // mal_init() does not return meaningful codes on failure
+	if (mal_init() != 0 || !SQLisInitialized()) { // mal_init() does not return meaningful codes on failure
 		retval = GDKstrdup("mal_init() failed");
 		goto cleanup;
 	}
