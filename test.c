@@ -1,21 +1,22 @@
-#include "monetdb_config.h"
-#include "sql_scenario.h"
-#include "mal.h"
+//#include "monetdb_config.h"
+//#include "sql_scenario.h"
+//#include "mal.h"
+#include "stdio.h"
 #include "embedded.h"
 
 int main() {
-    char* err = NULL;
-    void* conn = NULL;
-    res_table* result = NULL;
+    char* err = 0;
+    void* conn = 0;
+    res_table* result = 0;
 
     err = monetdb_startup("/tmp/embedded-dbfarm", 1, 0);
-    if (err != NULL) {
+    if (err != 0) {
         fprintf(stderr, "Init fail: %s\n", err);
         return -1;
     }
     conn = monetdb_connect();
     err = monetdb_query(conn, "SELECT * FROM tables;", 1, (void**) &result);
-    if (err != NULL) {
+    if (err != 0) {
         fprintf(stderr, "Query fail: %s\n", err);
         return -2;
     }
