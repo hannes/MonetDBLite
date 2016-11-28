@@ -14,7 +14,6 @@
 #include "mal_interpreter.h" /* for showErrors(), runMAL(), garbageElement() */
 #include "mal_parser.h"	     /* for parseMAL() */
 #include "mal_namespace.h"
-#include "mal_readline.h"
 #include "mal_authorize.h"
 #include "mal_private.h"
 #include <gdk.h>	/* for opendir and friends */
@@ -483,16 +482,6 @@ MALexitClient(Client c)
 str
 MALreader(Client c)
 {
-#ifndef HAVE_EMBEDDED
-	int r = 1;
-	if (c == mal_clients) {
-		r = readConsole(c);
-		if (r < 0 && c->fdin->eof == 0)
-			r = MCreadClient(c);
-		if (r > 0)
-			return MAL_SUCCEED;
-	} else
-#endif
 	if (MCreadClient(c) > 0)
 		return MAL_SUCCEED;
 	MT_lock_set(&mal_contextLock);

@@ -6,11 +6,13 @@
  * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
  */
 
-#ifndef READLINETOOLS_H_INCLUDED
-#define READLINETOOLS_H_INCLUDED
+#ifndef _MAL_JIT_
+#define _MAL_JIT_
+#include "opt_prelude.h"
+#include "opt_support.h"
 
-#include "mal_client.h"
-mal_export int readConsole(Client cntxt);
-mal_export char * getConsoleInput(Client c, const char *prompt, int linemode, int exit_on_error);
+mal_export int OPTjitImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p);
 
-#endif /* READLINETOOLS_H_INCLUDED */
+#define OPTDEBUGjit  if (0)
+
+#endif

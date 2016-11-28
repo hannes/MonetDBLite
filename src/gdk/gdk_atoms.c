@@ -656,9 +656,7 @@ numFromStr(const char *src, int *len, void **dst, int tp)
 		}
 		base = 10 * base + base10(*p);
 		p++;
-<<<<<<< HEAD:src/gdk/gdk_atoms.c
-		if (*p == 'E' || *p == 'e') {
-=======
+
 		/* Special case: xEy = x*10^y handling part 1 */
 		if (*p == 'E' || *p == 'e') {
 			// if there is a second E in the string we give up
@@ -666,21 +664,12 @@ numFromStr(const char *src, int *len, void **dst, int tp)
 				memcpy(*dst, ATOMnilptr(tp), sz);
 				return 0;
 			}
->>>>>>> a99547621b3efffafcc141b27d3c667c501ce8ba:gdk/gdk_atoms.c
 			expbase = base;
 			base = 0;
 			p++;
 		}
 	} while (num10(*p));
-<<<<<<< HEAD:src/gdk/gdk_atoms.c
-	if (expbase > -1) {
-		dbl checkval = fabs(expbase * pow(10, base));
-		if (checkval >= maxdiv10 * 10) {
-			memcpy(*dst, ATOMnilptr(tp), sz);
-			return 0;
-		}
-		base = expbase * h_pow(10, base);
-=======
+
 	/* Special case: xEy = x*10^y handling part 2 */
 	if (expbase > -1) {
 #ifdef HAVE_HGE
@@ -697,7 +686,6 @@ numFromStr(const char *src, int *len, void **dst, int tp)
 			base--;
 		}
 		base = res;
->>>>>>> a99547621b3efffafcc141b27d3c667c501ce8ba:gdk/gdk_atoms.c
 	}
 	base *= sign;
 

@@ -188,7 +188,6 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
-ANT = @ANT@
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -202,7 +201,6 @@ BZ_LIBS = @BZ_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CLASSPATH = @CLASSPATH@
 CONFIG_H = @CONFIG_H@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -239,13 +237,6 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-JAR = @JAR@
-JAVA = @JAVA@
-JAVAC = @JAVAC@
-JAVACFLAGS = @JAVACFLAGS@
-JAVADOC = @JAVADOC@
-JAVA_HOME = @JAVA_HOME@
-JAVA_VERSION = @JAVA_VERSION@
 KVM_LIBS = @KVM_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
@@ -291,8 +282,6 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATHSEP = @PATHSEP@
 PATH_SEPARATOR = @PATH_SEPARATOR@
-PERL = @PERL@
-PERL_LIBDIR = @PERL_LIBDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
@@ -303,6 +292,8 @@ PROJ_INCS = @PROJ_INCS@
 PROJ_LIBS = @PROJ_LIBS@
 PTHREAD_INCS = @PTHREAD_INCS@
 PTHREAD_LIBS = @PTHREAD_LIBS@
+PYCMD = @PYCMD@
+PYCMD2 = @PYCMD2@
 PYTHON = @PYTHON@
 PYTHON2 = @PYTHON2@
 PYTHON2_LIBDIR = @PYTHON2_LIBDIR@
@@ -312,7 +303,6 @@ QBUILD = @QBUILD@
 QDIRSEP = @QDIRSEP@
 QSOURCE = @QSOURCE@
 QXBUILD = @QXBUILD@
-QXPERL_LIBDIR = @QXPERL_LIBDIR@
 QXPYTHON2 = @QXPYTHON2@
 QXPYTHON2_LIBDIR = @QXPYTHON2_LIBDIR@
 QXPYTHON3 = @QXPYTHON3@
@@ -436,8 +426,8 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 liblzma_CFLAGS = @liblzma_CFLAGS@
 liblzma_LIBS = @liblzma_LIBS@
-libmicrohttpd_CFLAGS = @libmicrohttpd_CFLAGS@
-libmicrohttpd_LIBS = @libmicrohttpd_LIBS@
+libpy_CFLAGS = @libpy_CFLAGS@
+libpy_LIBS = @libpy_LIBS@
 libr_CFLAGS = @libr_CFLAGS@
 libr_LIBS = @libr_LIBS@
 libxml2_CFLAGS = @libxml2_CFLAGS@
@@ -451,7 +441,6 @@ mandir = @mandir@
 mkdir_p = @mkdir_p@
 netcdf_CFLAGS = @netcdf_CFLAGS@
 netcdf_LIBS = @netcdf_LIBS@
-oids = @oids@
 oldincludedir = @oldincludedir@
 openssl_CFLAGS = @openssl_CFLAGS@
 openssl_LIBS = @openssl_LIBS@
@@ -783,14 +772,14 @@ libsqlcommon_la-sql_keyword.lo: sql_keyword.c ../include/sql_mem.h sql_string.h 
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsqlcommon_la_CFLAGS) $(CFLAGS) $(sql_keyword_CFLAGS) -c -o libsqlcommon_la-sql_keyword.lo `test -f 'sql_keyword.c' || echo '$(srcdir)/'`sql_keyword.c
 libsqlcommon_la-sql_changeset.lo: sql_changeset.c ../include/sql_catalog.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsqlcommon_la_CFLAGS) $(CFLAGS) $(sql_changeset_CFLAGS) -c -o libsqlcommon_la-sql_changeset.lo `test -f 'sql_changeset.c' || echo '$(srcdir)/'`sql_changeset.c
-libsqlcommon_la-sql_types.lo: sql_types.c sql_types.h ../include/sql_mem.h ../include/sql_list.h sql_string.h ../include/sql_catalog.h ../storage/sql_storage.h ../../common/stream/stream.h ../include/sql_keyword.h ../../mal/mal/../../gdk/gdk.h ../../mal/mal/mal.h
+libsqlcommon_la-sql_types.lo: sql_types.c sql_types.h ../include/sql_mem.h ../include/sql_list.h sql_string.h ../include/sql_catalog.h ../storage/sql_storage.h ../../common/stream/stream.h ../include/sql_keyword.h ../../mal/mal/../../gdk/gdk.h ../../mal/mal/../../gdk/gdk_system.h ../../mal/mal/../../gdk/gdk_atomic.h ../../mal/mal/../../gdk/gdk_posix.h ../../mal/mal/../../common/stream/stream.h ../../mal/mal/../../gdk/gdk_delta.h ../../mal/mal/../../gdk/gdk_hash.h ../../mal/mal/../../gdk/gdk_atoms.h ../../mal/mal/../../gdk/gdk_bbp.h ../../mal/mal/../../gdk/gdk_utils.h ../../mal/mal/../../common/options/monet_options.h ../../mal/mal/../../gdk/gdk_calc.h ../../mal/mal/mal.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsqlcommon_la_CFLAGS) $(CFLAGS) $(sql_types_CFLAGS) -c -o libsqlcommon_la-sql_types.lo `test -f 'sql_types.c' || echo '$(srcdir)/'`sql_types.c
 libsqlcommon_la-sql_string.lo: sql_string.c ../include/sql_mem.h ../../gdk/gdk_system.h ../../gdk/gdk_atomic.h ../../gdk/gdk_posix.h ../../gdk/../common/stream/stream.h ../../gdk/gdk_delta.h ../../gdk/gdk_hash.h ../../gdk/gdk_atoms.h ../../gdk/gdk_bbp.h ../../gdk/gdk_utils.h ../../gdk/../common/options/monet_options.h ../../gdk/gdk_calc.h ../../gdk/gdk.h sql_string.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsqlcommon_la_CFLAGS) $(CFLAGS) $(sql_string_CFLAGS) -c -o libsqlcommon_la-sql_string.lo `test -f 'sql_string.c' || echo '$(srcdir)/'`sql_string.c
 sql_mem.o sql_mem.lo: sql_mem.c ../include/sql_mem.h
 sql_stack.o sql_stack.lo: sql_stack.c ../include/sql_stack.h
 sql_hash.o sql_hash.lo: sql_hash.c ../include/sql_mem.h ../include/sql_hash.h
-sql_types.o sql_types.lo: sql_types.c sql_types.h ../include/sql_mem.h ../include/sql_list.h sql_string.h ../include/sql_catalog.h ../storage/sql_storage.h ../../common/stream/stream.h ../include/sql_keyword.h ../../mal/mal/../../gdk/gdk.h ../../mal/mal/mal.h
+sql_types.o sql_types.lo: sql_types.c sql_types.h ../include/sql_mem.h ../include/sql_list.h sql_string.h ../include/sql_catalog.h ../storage/sql_storage.h ../../common/stream/stream.h ../include/sql_keyword.h ../../mal/mal/../../gdk/gdk.h ../../mal/mal/../../gdk/gdk_system.h ../../mal/mal/../../gdk/gdk_atomic.h ../../mal/mal/../../gdk/gdk_posix.h ../../mal/mal/../../common/stream/stream.h ../../mal/mal/../../gdk/gdk_delta.h ../../mal/mal/../../gdk/gdk_hash.h ../../mal/mal/../../gdk/gdk_atoms.h ../../mal/mal/../../gdk/gdk_bbp.h ../../mal/mal/../../gdk/gdk_utils.h ../../mal/mal/../../common/options/monet_options.h ../../mal/mal/../../gdk/gdk_calc.h ../../mal/mal/mal.h
 sql_changeset.o sql_changeset.lo: sql_changeset.c ../include/sql_catalog.h
 sql_backend.o sql_backend.lo: sql_backend.c sql_backend.h ../include/sql_mem.h ../include/sql_catalog.h ../include/sql_relation.h sql_types.h ../include/sql_list.h sql_string.h ../storage/sql_storage.h ../../common/stream/stream.h
 sql_keyword.o sql_keyword.lo: sql_keyword.c ../include/sql_mem.h sql_string.h ../include/sql_keyword.h

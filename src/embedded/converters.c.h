@@ -106,9 +106,9 @@ static SEXP bat_to_sexp(BAT* b) {
 				return NULL;
 			}
 			/* special case where we exploit the duplicate-eliminated string heap */
-			if (GDK_ELIMDOUBLES(b->T->vheap)) {
+			if (GDK_ELIMDOUBLES(b->tvheap)) {
 				size_t n_protects = 0;
-				SEXP* sexp_ptrs = GDKzalloc(b->T->vheap->free * sizeof(SEXP));
+				SEXP* sexp_ptrs = GDKzalloc(b->tvheap->free * sizeof(SEXP));
 				if (!sexp_ptrs) {
 					return NULL;
 				}
@@ -237,7 +237,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		size_t i = 0;
 		var_t bun_offset = 0;
 		blob *ele_blob;
-		b = BATnew(TYPE_void, TYPE_sqlblob, cnt, TRANSIENT);
+		b = COLnew(0, TYPE_sqlblob, cnt, TRANSIENT);
 		if (!IS_LIST(s) || !b) return NULL;
 		for (i = 0; i < cnt; i++) {
 			SEXP list_ele = VECTOR_ELT(s, i);
@@ -253,7 +253,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 			} else {
 				ele_blob = BLOBnull();
 			}
-			BLOBput(b->T->vheap, &bun_offset, ele_blob);
+			BLOBput(b->tvheap, &bun_offset, ele_blob);
 			BUNappend(b, &bun_offset, FALSE);
 			GDKfree(ele_blob);
 		}

@@ -252,8 +252,8 @@ SQLexecutePrepared(Client c, backend *be, MalBlkPtr mb)
 		v->val.ival = int_nil;
 	}
 	q->stk = (backend_stack) glb; /* save garbageCollected stack */
-	if (glb && SQLdebug & 1)
-		printStack(GDKstdout, mb, glb);
+	//if (glb && SQLdebug & 1)
+		//printStack(GDKstdout, mb, glb);
 	if (pci->argc >= MAXARG)
 		GDKfree(argv);
 	if (pci->retc >= MAXARG)
@@ -321,17 +321,12 @@ SQLrun(Client c, backend *be, mvc *m){
 	if (m->emod & mod_explain) {
 		if (c->curprg->def)
 			printFunction(c->fdout, mb, 0, LIST_MAL_NAME | LIST_MAL_VALUE  |  LIST_MAL_MAPI);
+	} else if( m->emod & mod_trace){
+		SQLsetTrace(c,mb);
+		msg = runMAL(c, mb, 0, 0);
+		stopTrace(0);
 	} else
-	if( m->emod & mod_debug)
-		msg = runMALDebugger(c, mb);
-	 else{
-		if( m->emod & mod_trace){
-			SQLsetTrace(c,mb);
-			msg = runMAL(c, mb, 0, 0);
-			stopTrace(0);
-		} else
-			msg = runMAL(c, mb, 0, 0);
-	}
+		msg = runMAL(c, mb, 0, 0);
 
 	// release the resources
 	freeMalBlk(mb);

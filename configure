@@ -16,10 +16,10 @@ fi
 
 CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS -I$R_INCLUDE_DIR $CPICFLAGS -D_XPG6" \
 ./configure --enable-embedded --enable-embedded-r \
---disable-fits --disable-geom --disable-rintegration --disable-gsl --disable-netcdf \
---disable-jdbc --disable-merocontrol --disable-odbc --disable-console --disable-microhttpd \
+--disable-fits --disable-geom --disable-rintegration --disable-pyintegration --disable-gsl --disable-netcdf \
+--disable-odbc --disable-console  \
 --without-openssl --without-uuid --without-curl --without-bz2 --without-lzma --without-libxml2 \
---without-perl --without-python2 --without-python3 --without-unixodbc --disable-mapi \
+--without-python2 --without-python3 --without-unixodbc --disable-mapi \
 --without-samtools --without-sphinxclient --without-geos --without-samtools --without-readline \
 $OPTFLAG --enable-silent-rules --disable-int128
 

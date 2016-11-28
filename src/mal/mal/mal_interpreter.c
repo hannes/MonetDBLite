@@ -567,32 +567,7 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 			lastcheck = runtimeProfile.ticks;
 		}
 
-<<<<<<< HEAD:src/mal/mal/mal_interpreter.c
-        //if (!RECYCLEentry(cntxt, mb, stk, pci,&runtimeProfile)){
-			/* The interpreter loop
-			 * The interpreter is geared towards execution a MAL
-			 * procedure together with all its decendant
-			 * invocations. As such, it provides the MAL abtract
-			 * machine processor.
-			 *
-			 * The value-stack frame of the surrounding scope is
-			 * needed to resolve binding values.  Getting (putting) a
-			 * value from (into) a surrounding scope should be guarded
-			 * with the exclusive access lock.  This situation is
-			 * encapsulated by a bind() function call, whose
-			 * parameters contain the access mode required.
-			 *
-			 * The formal procedure arguments are assumed to always
-			 * occupy the first elements in the value stack.
-			 *
-			 * Before we execute an instruction the variables to be
-			 * garbage collected are identified. In the post-execution
-			 * phase they are removed.
-			 */
-			if (garbageControl(pci)) {
-				for (i = 0; i < pci->argc; i++) {
-					int a = getArg(pci, i);
-=======
+
 		/* The interpreter loop
 		 * The interpreter is geared towards execution a MAL
 		 * procedure together with all its decendant
@@ -616,8 +591,6 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 		if (garbageControl(pci)) {
 			for (i = 0; i < pci->argc; i++) {
 				int a = getArg(pci, i);
->>>>>>> a99547621b3efffafcc141b27d3c667c501ce8ba:MonetDB5/mal/mal_interpreter.c
-
 				backup[i].vtype = 0;
 				backup[i].len = 0;
 				backup[i].val.pval = 0;
@@ -693,66 +666,6 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 					}
 				}
 #endif
-<<<<<<< HEAD:src/mal/mal/mal_interpreter.c
-				break;
-			case FACcall:
-				/*
-				 * Factory calls are more involved. At this stage it
-				 * is a synchrononous call to the factory manager.
-				 * Factory calls should deal with the reference
-				 * counting.
-				 */
-				if (pci->blk == NULL)
-					ret = createScriptException(mb, stkpc, MAL, NULL,
-						"reference to MAL function missing");
-				else {
-					/* show call before entering the factory */
-					if (cntxt->itrace || mb->trap) {
-						if (stk->cmd == 0)
-							stk->cmd = cntxt->itrace;
-						//mdbStep(cntxt, pci->blk, stk, 0);
-						if (stk->cmd == 'x') {
-							stk->cmd = 0;
-							stkpc = mb->stop;
-						}
-					}
-					ret = runFactory(cntxt, pci->blk, mb, stk, pci);
-				}
-				break;
-			case FCNcall:
-				/*
-				 * MAL function calls are relatively expensive,
-				 * because they have to assemble a new stack frame and
-				 * do housekeeping, such as garbagecollection of all
-				 * non-returned values.
-				 */
-				{	MalStkPtr nstk;
-					InstrPtr q;
-					int ii, arg;
-
-					stk->pcup = stkpc;
-					nstk = prepareMALstack(pci->blk, pci->blk->vsize);
-					if (nstk == 0){
-						ret= createException(MAL,"mal.interpreter",MAL_STACK_FAIL);
-						break;
-					}
-
-					/*safeguardStack*/
-					nstk->stkdepth = nstk->stksize + stk->stkdepth;
-					nstk->calldepth = stk->calldepth + 1;
-					nstk->up = stk;
-					if (nstk->calldepth > 256) {
-						ret= createException(MAL, "mal.interpreter", MAL_CALLDEPTH_FAIL);
-						GDKfree(nstk);
-						break;
-					}
-					if ((unsigned)nstk->stkdepth > THREAD_STACK_SIZE / sizeof(mb->var[0]) / 4 && THRhighwater()){
-						/* we are running low on stack space */
-						ret= createException(MAL, "mal.interpreter", MAL_STACK_FAIL);
-						GDKfree(nstk);
-						break;
-					}
-=======
 			}
 			break;
 		case CMDcall:
@@ -763,7 +676,6 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 			for (i = 0; i < pci->retc; i++) {
 				int a = getArg(pci, i);
 				int t = getArgType(mb, pci, i);
->>>>>>> a99547621b3efffafcc141b27d3c667c501ce8ba:MonetDB5/mal/mal_interpreter.c
 
 				if (isaBatType(t)) {
 					bat bid = stk->stk[a].val.bval;
@@ -794,7 +706,6 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 				if (cntxt->itrace || mb->trap) {
 					if (stk->cmd == 0)
 						stk->cmd = cntxt->itrace;
-					mdbStep(cntxt, pci->blk, stk, 0);
 					if (stk->cmd == 'x') {
 						stk->cmd = 0;
 						stkpc = mb->stop;
@@ -920,21 +831,11 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 				}
 			}
 
-<<<<<<< HEAD:src/mal/mal/mal_interpreter.c
-				/* If needed recycle intermediate result */
-				//if (pci->recycle > 0)
-				//	RECYCLEexit(cntxt, mb, stk, pci, &runtimeProfile);
 
-				/* general garbage collection */
-				if (ret == MAL_SUCCEED && garbageControl(pci)) {
-					for (i = 0; i < pci->argc; i++) {
-						int a = getArg(pci, i);
-=======
 			/* general garbage collection */
 			if (ret == MAL_SUCCEED && garbageControl(pci)) {
 				for (i = 0; i < pci->argc; i++) {
 					int a = getArg(pci, i);
->>>>>>> a99547621b3efffafcc141b27d3c667c501ce8ba:MonetDB5/mal/mal_interpreter.c
 
 					if (isaBatType(getArgType(mb, pci, i))) {
 						bat bid = stk->stk[a].val.bval;
@@ -977,34 +878,11 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 		if (ret != MAL_SUCCEED) {
 			str msg = 0;
 
-<<<<<<< HEAD:src/mal/mal/mal_interpreter.c
-				if (stk->cmd || mb->trap) {
-					mnstr_printf(cntxt->fdout, "!ERROR: %s\n", ret);
-					stk->cmd = '\n'; /* in debugging go to step mode */
-					//mdbStep(cntxt, mb, stk, stkpc);
-					if (stk->cmd == 'x' || stk->cmd == 'q' ) {
-						stkpc = mb->stop;
-						continue;
-					}
-					if (stk->cmd == 'r') {
-						stk->cmd = 'n';
-						stkpc = startpc;
-						exceptionVar = -1;
-						continue;
-					}
-				}
-				/* Detect any exception received from the implementation. */
-				/* The first identifier is an optional exception name */
-				if (strstr(ret, "!skip-to-end")) {
-					GDKfree(ret);       /* no need to check for M5OutOfMemory */
-					ret = MAL_SUCCEED;
-=======
+
 			if (stk->cmd || mb->trap) {
 				mnstr_printf(cntxt->fdout, "!ERROR: %s\n", ret);
 				stk->cmd = '\n'; /* in debugging go to step mode */
-				mdbStep(cntxt, mb, stk, stkpc);
 				if (stk->cmd == 'x' || stk->cmd == 'q' ) {
->>>>>>> a99547621b3efffafcc141b27d3c667c501ce8ba:MonetDB5/mal/mal_interpreter.c
 					stkpc = mb->stop;
 					continue;
 				}
@@ -1064,51 +942,12 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 			/* skipToCatch(exceptionVar,@2,@3) */
 			if (stk->cmd == 'C' || mb->trap) {
 				stk->cmd = 'n';
-				mdbStep(cntxt, mb, stk, stkpc);
+				//mdbStep(cntxt, mb, stk, stkpc);
 				if (stk->cmd == 'x' ) {
 					stkpc = mb->stop;
 					continue;
 				}
-<<<<<<< HEAD:src/mal/mal/mal_interpreter.c
-				/* assure correct variable type */
-				if (getVarType(mb, exceptionVar) == TYPE_str) {
-					/* watch out for concurrent access */
-					MT_lock_set(&mal_contextLock);
-					v = &stk->stk[exceptionVar];
-					if (v->val.sval)
-						FREE_EXCEPTION(v->val.sval);    /* old exception*/
-					v->vtype = TYPE_str;
-					v->val.sval = ret;
-					v->len = (int)strlen(v->val.sval);
-					ret = 0;
-					MT_lock_unset(&mal_contextLock);
-				} else {
-					mnstr_printf(cntxt->fdout, "%s", ret);
-					FREE_EXCEPTION(ret);
-				}
-				/* position yourself at the catch instruction for further decisions */
-				/* skipToCatch(exceptionVar,@2,@3) */
-				if (stk->cmd == 'C' || mb->trap) {
-					stk->cmd = 'n';
-					//mdbStep(cntxt, mb, stk, stkpc);
-					if (stk->cmd == 'x' ) {
-						stkpc = mb->stop;
-						continue;
-					}
-				}
-				/* skip to catch block or end */
-				for (; stkpc < mb->stop; stkpc++) {
-					InstrPtr l = getInstrPtr(mb, stkpc);
-					if (l->barrier == CATCHsymbol) {
-						int j;
-						for (j = 0; j < l->retc; j++)
-							if (getArg(l, j) == exceptionVar)
-								break;
-							else if (getArgName(mb, l, j) ||
-									 strcmp(getArgName(mb, l, j), "ANYexception") == 0)
-								break;
-						if (j < l->retc)
-=======
+
 			}
 			/* skip to catch block or end */
 			for (; stkpc < mb->stop; stkpc++) {
@@ -1117,7 +956,6 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 					int j;
 					for (j = 0; j < l->retc; j++)
 						if (getArg(l, j) == exceptionVar)
->>>>>>> a99547621b3efffafcc141b27d3c667c501ce8ba:MonetDB5/mal/mal_interpreter.c
 							break;
 						else if (getArgName(mb, l, j) ||
 								 strcmp(getArgName(mb, l, j), "ANYexception") == 0)
@@ -1133,12 +971,9 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 				}
 				continue;
 			}
-<<<<<<< HEAD:src/mal/mal/mal_interpreter.c
-		//}
-=======
+
 			pci = getInstrPtr(mb, stkpc);
 		}
->>>>>>> a99547621b3efffafcc141b27d3c667c501ce8ba:MonetDB5/mal/mal_interpreter.c
 
 		/*
 		 * After the expression has been evaluated we should check for

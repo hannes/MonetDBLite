@@ -30,7 +30,7 @@ lib_gdk = {
 		gdk_imprints.c gdk_imprints.h \
 		gdk_join.c gdk_project.c \
 		gdk_unique.c \
-		gdk_firstn.c \
+		gdk_firstn.c 
 	LIBS = ../common/options/libmoptions \
 		../common/stream/libstream \
 		../common/utils/libmutils \
