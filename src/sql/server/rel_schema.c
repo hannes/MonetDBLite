@@ -406,7 +406,7 @@ column_option(
 			sql_exp *e = rel_logical_value_exp(sql, NULL, sym, sql_sel);
 			
 			if (e && is_atom(e->type)) {
-				atom *a = exp_value(e, sql->args, sql->argc);
+				atom *a = exp_value(sql, e, sql->args, sql->argc);
 
 				if (atom_null(a)) {
 					mvc_default(sql, cs, NULL);
@@ -661,7 +661,11 @@ table_element(mvc *sql, symbol *s, sql_schema *ss, sql_table *t, int alter)
 {
 	int res = SQL_OK;
 
-	if (alter && (isView(t) || ((isMergeTable(t) || isReplicaTable(t)) && (s->token != SQL_TABLE && s->token != SQL_DROP_TABLE && cs_size(&t->tables)>0)) || (isTable(t) && (s->token == SQL_TABLE || s->token == SQL_DROP_TABLE)) )){
+	if (alter && 
+		(isView(t) || 
+		((isMergeTable(t) || isReplicaTable(t)) && (s->token != SQL_TABLE && s->token != SQL_DROP_TABLE && cs_size(&t->tables)>0)) || 
+	  	(isTable(t) && (s->token == SQL_TABLE || s->token == SQL_DROP_TABLE)) ||
+ 		(isPartition(t) && (s->token == SQL_DROP_COLUMN || s->token == SQL_COLUMN || s->token == SQL_CONSTRAINT)))){
 		char *msg = "";
 
 		switch (s->token) {
@@ -698,6 +702,7 @@ table_element(mvc *sql, symbol *s, sql_schema *ss, sql_table *t, int alter)
 		}
 		sql_error(sql, 02, "42000!ALTER TABLE: cannot %s %s '%s'\n",
 				msg, 
+				isPartition(t)?"a PARTITION of a MERGE or REPLICA TABLE":
 				isMergeTable(t)?"MERGE TABLE":
 				isReplicaTable(t)?"REPLICA TABLE":"VIEW",
 				t->base.name);

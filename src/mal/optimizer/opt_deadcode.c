@@ -18,6 +18,8 @@ OPTdeadcodeImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 	InstrPtr p=0, *old= mb->stmt;
 	int actions = 0;
 	int *varused=0;
+	char buf[256];
+	lng usec = GDKusec();
 
 	(void) cntxt;
 	(void) pci;
@@ -32,10 +34,8 @@ OPTdeadcodeImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 
 	limit = mb->stop;
 	slimit = mb->ssize;
-	if (newMalBlkStmt(mb, mb->ssize) < 0){
-		GDKfree(varused);
-		return 0;
-	}
+	if (newMalBlkStmt(mb, mb->ssize) < 0)
+		goto wrapup;
 
 	// Calculate the instructions in which a variable is used.
 	// Variables can be used multiple times in an instruction.
@@ -92,15 +92,28 @@ OPTdeadcodeImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 	
 			if (se)
 				pushInstruction(mb,p);
-			else 
+			else {
 				freeInstruction(p);
-			actions += se > 0;
+				actions ++;
+			}
 		}
 	}
 	for(; i<slimit; i++)
 		if( old[i])
 			freeInstruction(old[i]);
-	GDKfree(old);
-	GDKfree(varused);
+    /* Defense line against incorrect plans */
+	/* we don't create or change existing structures */
+    //if( actions > 0){
+        //chkTypes(cntxt->fdout, cntxt->nspace, mb, FALSE);
+        chkFlow(cntxt->fdout, mb);
+        //chkDeclarations(cntxt->fdout, mb);
+    //}
+    /* keep all actions taken as a post block comment */
+    snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","deadcode",actions, GDKusec() - usec);
+    newComment(mb,buf);
+
+wrapup:
+	if(old) GDKfree(old);
+	if(varused) GDKfree(varused);
 	return actions;
 }

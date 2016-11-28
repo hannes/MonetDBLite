@@ -633,7 +633,7 @@ rel_basetable(mvc *sql, sql_table *t, const char *atname)
 		for (cn = t->idxs.set->h; cn; cn = cn->next) {
 			sql_exp *e;
 			sql_idx *i = cn->data;
-			sql_subtype *t = sql_bind_localtype("wrd"); /* hash "wrd" */
+			sql_subtype *t = sql_bind_localtype("lng"); /* hash "lng" */
 			char *iname = sa_strconcat( sa, "%", i->base.name);
 
 			if (i->type == join_idx)
@@ -718,6 +718,21 @@ rel_relational_func(sql_allocator *sa, sql_rel *l, list *exps)
 	return rel;
 }
 
+sql_rel *
+rel_table_func(sql_allocator *sa, sql_rel *l, sql_exp *f, list *exps, int kind)
+{
+	sql_rel *rel = rel_create(sa);
+
+	rel->flag = kind;
+	rel->l = l; /* relation before call */
+	rel->r = f; /* expression (table func call) */
+	rel->op = op_table;
+	rel->exps = exps;
+	rel->card = CARD_MULTI;
+	rel->nrcols = list_length(exps);
+	return rel;
+}
+
 static void
 exps_has_nil(list *exps)
 {
@@ -733,8 +748,7 @@ exps_has_nil(list *exps)
 list *
 rel_projections(mvc *sql, sql_rel *rel, const char *tname, int settname, int intern )
 {
-	int label = sql->label;
-	list *rexps, *exps ;
+	list *rexps, *exps;
 
 	if (!rel || (is_subquery(rel) && is_project(rel->op)))
 		return new_exp_list(sql->sa);
@@ -765,6 +779,7 @@ rel_projections(mvc *sql, sql_rel *rel, const char *tname, int settname, int int
 	case op_inter:
 		if (rel->exps) {
 			node *en;
+			int label = ++sql->label;
 
 			exps = new_exp_list(sql->sa);
 			for (en = rel->exps->h; en; en = en->next) {
@@ -781,6 +796,7 @@ rel_projections(mvc *sql, sql_rel *rel, const char *tname, int settname, int int
 		exps = rel_projections(sql, rel->l, tname, settname, intern );
 		if (exps) {
 			node *en;
+			int label = ++sql->label;
 			for (en = exps->h; en; en = en->next) {
 				sql_exp *e = en->data;
 				e->card = rel->card;
@@ -1146,3 +1162,32 @@ rel_add_identity(mvc *sql, sql_rel *rel, sql_exp **exp)
 		return rel;
 	return _rel_add_identity(sql, rel, exp);
 }
+
+sql_exp *
+rel_find_column( sql_allocator *sa, sql_rel *rel, const char *tname, const char *cname )
+{
+	if (!rel)
+		return NULL;
+
+	if (rel->exps && (is_project(rel->op) || is_base(rel->op))) {
+		sql_exp *e = exps_bind_column2(rel->exps, tname, cname);
+		if (e)
+			return exp_alias(sa, e->rname, exp_name(e), tname, cname, exp_subtype(e), e->card, has_nil(e), is_intern(e));
+	}
+	if (is_project(rel->op) && rel->l) {
+		return rel_find_column(sa, rel->l, tname, cname);
+	} else if (is_join(rel->op)) {
+		sql_exp *e = rel_find_column(sa, rel->l, tname, cname);
+		if (!e)
+			e = rel_find_column(sa, rel->r, tname, cname);
+		return e;
+	} else if (is_set(rel->op) ||
+		   is_sort(rel) ||
+		   is_semi(rel->op) ||
+		   is_select(rel->op)) {
+		if (rel->l)
+			return rel_find_column(sa, rel->l, tname, cname);
+	}
+	return NULL;
+}
+

@@ -114,7 +114,7 @@ IOprintBoth(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, int indx, s
 		} else {
 			b[0] = BATdense(b[1]->hseqbase, b[1]->hseqbase, BATcount(b[1]));
 			if( b[0]){
-				BATroles(b[0], NULL, b[1]->hident);
+				BATroles(b[0], "h");
 				BATprintcolumns(cntxt->fdout, 2, b);
 				BBPunfix(b[0]->batCacheid);
 			}
@@ -305,8 +305,6 @@ IOprintf_(str *res, str format, ...)
 					ival = (int) *(sht *) p;
 				} else if (type == TYPE_flt) {
 					ival = (int) *(flt *) p;
-				} else if (type == TYPE_wrd) {
-					goto largetypes;
 				} else if (type == TYPE_lng) {
 					goto largetypes;
 #ifdef HAVE_HGE
@@ -340,8 +338,6 @@ IOprintf_(str *res, str format, ...)
 					lval = (lng) *(sht *) p;
 				} else if (type == TYPE_int) {
 					lval = (lng) *(int *) p;
-				} else if (type == TYPE_wrd) {
-					lval = (lng) *(wrd *) p;
 				} else if (type == TYPE_flt) {
 					lval = (lng) *(flt *) p;
 				} else if (type == TYPE_dbl) {
@@ -780,3 +776,11 @@ IOimport(void *ret, bat *bid, str *fnme)
 	return MAL_SUCCEED;
 }
 
+
+
+str
+IOsetmemorylimit(void *res, lng *nbytes) {
+	(void) res;
+	GDKsetmemorylimit(*nbytes);
+	return MAL_SUCCEED;
+}

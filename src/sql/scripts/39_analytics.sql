@@ -13,9 +13,6 @@ GRANT EXECUTE ON AGGREGATE stddev_samp(SMALLINT) TO PUBLIC;
 create aggregate stddev_samp(val INTEGER) returns DOUBLE
 	external name "aggr"."stdev";
 GRANT EXECUTE ON AGGREGATE stddev_samp(INTEGER) TO PUBLIC;
-create aggregate stddev_samp(val WRD) returns DOUBLE
-	external name "aggr"."stdev";
-GRANT EXECUTE ON AGGREGATE stddev_samp(WRD) TO PUBLIC;
 create aggregate stddev_samp(val BIGINT) returns DOUBLE
 	external name "aggr"."stdev";
 GRANT EXECUTE ON AGGREGATE stddev_samp(BIGINT) TO PUBLIC;
@@ -45,9 +42,6 @@ GRANT EXECUTE ON AGGREGATE stddev_pop(SMALLINT) TO PUBLIC;
 create aggregate stddev_pop(val INTEGER) returns DOUBLE
 	external name "aggr"."stdevp";
 GRANT EXECUTE ON AGGREGATE stddev_pop(INTEGER) TO PUBLIC;
-create aggregate stddev_pop(val WRD) returns DOUBLE
-	external name "aggr"."stdevp";
-GRANT EXECUTE ON AGGREGATE stddev_pop(WRD) TO PUBLIC;
 create aggregate stddev_pop(val BIGINT) returns DOUBLE
 	external name "aggr"."stdevp";
 GRANT EXECUTE ON AGGREGATE stddev_pop(BIGINT) TO PUBLIC;
@@ -77,9 +71,6 @@ GRANT EXECUTE ON AGGREGATE var_samp(SMALLINT) TO PUBLIC;
 create aggregate var_samp(val INTEGER) returns DOUBLE
 	external name "aggr"."variance";
 GRANT EXECUTE ON AGGREGATE var_samp(INTEGER) TO PUBLIC;
-create aggregate var_samp(val WRD) returns DOUBLE
-	external name "aggr"."variance";
-GRANT EXECUTE ON AGGREGATE var_samp(WRD) TO PUBLIC;
 create aggregate var_samp(val BIGINT) returns DOUBLE
 	external name "aggr"."variance";
 GRANT EXECUTE ON AGGREGATE var_samp(BIGINT) TO PUBLIC;
@@ -109,9 +100,6 @@ GRANT EXECUTE ON AGGREGATE var_pop(SMALLINT) TO PUBLIC;
 create aggregate var_pop(val INTEGER) returns DOUBLE
 	external name "aggr"."variancep";
 GRANT EXECUTE ON AGGREGATE var_pop(INTEGER) TO PUBLIC;
-create aggregate var_pop(val WRD) returns DOUBLE
-	external name "aggr"."variancep";
-GRANT EXECUTE ON AGGREGATE var_pop(WRD) TO PUBLIC;
 create aggregate var_pop(val BIGINT) returns DOUBLE
 	external name "aggr"."variancep";
 GRANT EXECUTE ON AGGREGATE var_pop(BIGINT) TO PUBLIC;
@@ -141,9 +129,6 @@ GRANT EXECUTE ON AGGREGATE median(SMALLINT) TO PUBLIC;
 create aggregate median(val INTEGER) returns INTEGER
 	external name "aggr"."median";
 GRANT EXECUTE ON AGGREGATE median(INTEGER) TO PUBLIC;
-create aggregate median(val WRD) returns WRD
-	external name "aggr"."median";
-GRANT EXECUTE ON AGGREGATE median(WRD) TO PUBLIC;
 create aggregate median(val BIGINT) returns BIGINT
 	external name "aggr"."median";
 GRANT EXECUTE ON AGGREGATE median(BIGINT) TO PUBLIC;
@@ -176,9 +161,6 @@ GRANT EXECUTE ON AGGREGATE quantile(SMALLINT, DOUBLE) TO PUBLIC;
 create aggregate quantile(val INTEGER, q DOUBLE) returns INTEGER
 	external name "aggr"."quantile";
 GRANT EXECUTE ON AGGREGATE quantile(INTEGER, DOUBLE) TO PUBLIC;
-create aggregate quantile(val WRD, q DOUBLE) returns WRD
-	external name "aggr"."quantile";
-GRANT EXECUTE ON AGGREGATE quantile(WRD, DOUBLE) TO PUBLIC;
 create aggregate quantile(val BIGINT, q DOUBLE) returns BIGINT
 	external name "aggr"."quantile";
 GRANT EXECUTE ON AGGREGATE quantile(BIGINT, DOUBLE) TO PUBLIC;
@@ -212,9 +194,6 @@ GRANT EXECUTE ON AGGREGATE corr(SMALLINT, SMALLINT) TO PUBLIC;
 create aggregate corr(e1 INTEGER, e2 INTEGER) returns INTEGER
 	external name "aggr"."corr";
 GRANT EXECUTE ON AGGREGATE corr(INTEGER, INTEGER) TO PUBLIC;
-create aggregate corr(e1 WRD, e2 WRD) returns WRD
-	external name "aggr"."corr";
-GRANT EXECUTE ON AGGREGATE corr(WRD, WRD) TO PUBLIC;
 create aggregate corr(e1 BIGINT, e2 BIGINT) returns BIGINT
 	external name "aggr"."corr";
 GRANT EXECUTE ON AGGREGATE corr(BIGINT, BIGINT) TO PUBLIC;

@@ -128,7 +128,7 @@ newCatchStmt(MalBlkPtr mb, str nme)
 		return NULL;
 	q->barrier = CATCHsymbol;
 	if ( i< 0) {
-		if ((getArg(q,0)= newVariable(mb, GDKstrdup(nme),TYPE_str)) < 0) {
+		if ((getArg(q,0)= newVariable(mb, nme, strlen(nme),TYPE_str)) < 0) {
 			freeInstruction(q);
 			return NULL;
 		}
@@ -146,7 +146,7 @@ newRaiseStmt(MalBlkPtr mb, str nme)
 		return NULL;
 	q->barrier = RAISEsymbol;
 	if ( i< 0) {
-		if ((getArg(q,0)= newVariable(mb, GDKstrdup(nme),TYPE_str)) < 0) {
+		if ((getArg(q,0)= newVariable(mb, nme, strlen(nme),TYPE_str)) < 0) {
 			freeInstruction(q);
 			return NULL;
 		}
@@ -165,7 +165,7 @@ newExitStmt(MalBlkPtr mb, str nme)
 		return NULL;
 	q->barrier = EXITsymbol;
 	if ( i< 0) {
-		if ((getArg(q,0)= newVariable(mb, GDKstrdup(nme),TYPE_str)) < 0) {
+		if ((getArg(q,0)= newVariable(mb, nme,strlen(nme),TYPE_str)) < 0) {
 			freeInstruction(q);
 			return NULL;
 		}
@@ -201,36 +201,6 @@ pushInt(MalBlkPtr mb, InstrPtr q, int val)
 	cst.val.ival= val;
 	cst.len = 0;
 	_t = defConstant(mb, TYPE_int,&cst);
-	return pushArgument(mb, q, _t);
-}
-
-int
-getWrdConstant(MalBlkPtr mb, wrd val)
-{
-	int _t;
-	ValRecord cst;
-
-	cst.vtype= TYPE_wrd;
-	cst.val.wval= val;
-	cst.len = 0;
-	_t= fndConstant(mb, &cst, mb->vtop);
-	if( _t < 0)
-		_t = defConstant(mb, TYPE_wrd, &cst);
-	return _t;
-}
-
-InstrPtr
-pushWrd(MalBlkPtr mb, InstrPtr q, wrd val)
-{
-	int _t;
-	ValRecord cst;
-
-	if (q == NULL)
-		return NULL;
-	cst.vtype= TYPE_wrd;
-	cst.val.wval= val;
-	cst.len = 0;
-	_t = defConstant(mb, TYPE_wrd,&cst);
 	return pushArgument(mb, q, _t);
 }
 
@@ -542,8 +512,10 @@ pushNil(MalBlkPtr mb, InstrPtr q, int tpe)
 			ptr p = ATOMnil(tpe);
 			VALset(&cst, tpe, p);
 		} else {
-			ptr p = ATOMnilptr(tpe);
-			VALset(&cst, tpe, p);
+			if (VALinit(&cst, tpe, ATOMnilptr(tpe)) == NULL) {
+				freeInstruction(q);
+				return NULL;
+			}
 		}
 		_t = defConstant(mb,tpe,&cst);
 	} else {
@@ -566,7 +538,7 @@ pushNilType(MalBlkPtr mb, InstrPtr q, char *tpe)
 
 	if (q == NULL)
 		return NULL;
-	idx= getTypeIndex(tpe, -1, TYPE_any);
+	idx= getAtomIndex(tpe, -1, TYPE_any);
 	if( idx < 0 || idx >= GDKatomcnt || idx >= MAXATOMS)
 		return NULL;
 	cst.vtype=TYPE_void;
@@ -636,7 +608,7 @@ pushEmptyBAT(MalBlkPtr mb, InstrPtr q, int tpe)
 	getFunctionId(q) = getName("new");
 
 	q = pushArgument(mb, q, newTypeVariable(mb,TYPE_void));
-	q = pushArgument(mb, q, newTypeVariable(mb,getColumnType(tpe)));
+	q = pushArgument(mb, q, newTypeVariable(mb,getBatType(tpe)));
 	q = pushZero(mb,q,TYPE_lng);
 	return q;
 }
@@ -649,7 +621,10 @@ pushValue(MalBlkPtr mb, InstrPtr q, ValPtr vr)
 
 	if (q == NULL)
 		return NULL;
-	VALcopy(&cst, vr);
+	if (VALcopy(&cst, vr) == NULL) {
+		freeInstruction(q);
+		return NULL;
+	}
 	_t = defConstant(mb,cst.vtype,&cst);
 	return pushArgument(mb, q, _t);
 }

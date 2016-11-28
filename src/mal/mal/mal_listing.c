@@ -81,10 +81,10 @@ renderTerm(MalBlkPtr mb, MalStkPtr stk, InstrPtr p, int idx, int flg)
 			strcat(buf+len,cv);
 			len += strlen(buf+len);
 			GDKfree(cv);
-			showtype =getColumnType(getVarType(mb,varid)) > TYPE_str || 
+			showtype =getBatType(getVarType(mb,varid)) > TYPE_str || 
 				((isVarUDFtype(mb,varid) || isVarTypedef(mb,varid)) && isVarConstant(mb,varid)) || isaBatType(getVarType(mb,varid)); 
 		} else{
-			if ( !isaBatType(getVarType(mb,varid)) && getColumnType(getVarType(mb,varid)) > TYPE_str ){
+			if ( !isaBatType(getVarType(mb,varid)) && getBatType(getVarType(mb,varid)) > TYPE_str ){
 				closequote = 1;
 				strcat(buf+len,"\"");
 				len++;
@@ -100,8 +100,8 @@ renderTerm(MalBlkPtr mb, MalStkPtr stk, InstrPtr p, int idx, int flg)
 			showtype =closequote > TYPE_str || ((isVarUDFtype(mb,varid) || isVarTypedef(mb,varid) || (flg & LIST_MAL_REMOTE)) && isVarConstant(mb,varid)) ||
 				(isaBatType(getVarType(mb,varid)) && idx < p->retc);
 
-			if (stk && isaBatType(getVarType(mb,varid)) && abs(stk->stk[varid].val.ival) ){
-				BAT *d= BBPquickdesc(abs(stk->stk[varid].val.ival),TRUE);
+			if (stk && isaBatType(getVarType(mb,varid)) && stk->stk[varid].val.bval ){
+				BAT *d= BBPquickdesc(stk->stk[varid].val.bval,TRUE);
 				if( d)
 					len += snprintf(buf+len,maxlen-len,"[" BUNFMT "]", BATcount(d));
 			}
@@ -168,21 +168,21 @@ fcnDefinition(MalBlkPtr mb, InstrPtr p, str s, int flg, str base, size_t len)
 	}
 
 	advance(t,base,len);
-	if (p->varargs & VARARGS)
+	if (p->varargs & VARARGS && t < base + len -3)
 		sprintf(t, "...");
 	advance(t,base,len);
 
-	if (p->retc == 1) {
+	if (p->retc == 1 && t < base +len) {
 		*t++ = ')';
 		tpe = getTypeName(getVarType(mb, getArg(p,0)));
 		snprintf(t,(len-(t-base)),":%s", tpe);
 		advance(t,base,len);
 		GDKfree(tpe);
-		if (p->varargs & VARRETS)
+		if (p->varargs & VARRETS && t < base + len -3)
 			sprintf(t, "...");
 		advance(t,base,len);
 	} else {
-		sprintf(t, ") (");
+		if( t < base +len -3) sprintf(t, ") (");
 		t += 3;
 		for (i = 0; i < p->retc; i++) {
 			arg = renderTerm(mb, 0, p, i, (LIST_MAL_NAME | LIST_MAL_TYPE | LIST_MAL_PROPS));
@@ -191,21 +191,21 @@ fcnDefinition(MalBlkPtr mb, InstrPtr p, str s, int flg, str base, size_t len)
 				GDKfree(arg);
 			}
 			advance(t,base,len);
-			if( i<p->retc-1) {
+			if( i<p->retc-1 && t < base + len) {
 				sprintf(t,",");
 				advance(t,base,len);
 			}
 		}
-		if (p->varargs & VARRETS)
+		if (p->varargs & VARRETS && t < base +len -3)
 			sprintf(t, "...");
 		advance(t,base,len);
-		*t++ = ')';
+		if(t < base + len) *t++ = ')';
 	}
 
-	if (mb->binding)
+	if (mb->binding[0])
 		snprintf(t,(len-(t-base))," address %s;", mb->binding);
 	else
-		sprintf(t, ";");
+		if( t <base + len) sprintf(t, ";");
 	return s;
 }
 
@@ -290,7 +290,7 @@ instruction2str(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p, int flg)
 	case ASSIGNsymbol :
 		// is any variable explicit or used
 		for (i = 0; i < p->retc; i++)
-			if (!getVarTmp(mb, getArg(p, i)) || isVarUsed(mb, getArg(p, i)) || isVarUDFtype(mb,getArg(p,i)))
+			if ( !isTmpVar(mb,getArg(p,i)) || isVarUsed(mb, getArg(p, i)) || isVarUDFtype(mb,getArg(p,i)))
 				break;
 
 		if (i == p->retc)
@@ -298,7 +298,7 @@ instruction2str(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p, int flg)
 
 		/* display multi-assignment list */
 		if (p->retc > 1)
-			*t++ = '(';
+			if( t< base+len) *t++ = '(';
 
 		for (i = 0; i < p->retc; i++) {
 			arg= renderTerm(mb, stk, p, i, flg);
@@ -307,15 +307,17 @@ instruction2str(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p, int flg)
 				GDKfree(arg);
 			}
 			advance(t,base,len);
-			if (i < p->retc - 1)
+			if ( t < base+len && i < p->retc - 1)
 				*t++ = ',';
 		}
 		if (p->retc > 1)
-			*t++ = ')';
+			if( t< base+len) *t++ = ')';
 
 		if (p->argc > p->retc || getFunctionId(p)) {
-			sprintf(t, " := ");
-			t += 4;
+			if( t< base+len-4) {
+				sprintf(t, " := ");
+				t += 4;
+			}
 		}
 		*t = 0;
 		break;
@@ -362,7 +364,7 @@ instruction2str(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p, int flg)
 		}
 		advance(t,base,len);
 
-		if (i < p->argc -1){
+		if (i < p->argc -1 && t < base + len){
 			snprintf(t, (len-(t-base)), ",");
 			advance(t,base,len);
 		}
@@ -407,10 +409,10 @@ shortRenderingTerm(MalBlkPtr mb, MalStkPtr stk, InstrPtr p, int idx)
 		val = &stk->stk[varid];
 		VALformat(&cv, val);
 		nme = getSTC(mb, varid);
-		if( nme == NULL) 
+		if( nme[0]== 0) 
 			nme = getVarName(mb, varid);
 		if ( isaBatType(getArgType(mb,p,idx))){
-			b = BBPquickdesc(abs(stk->stk[varid].val.ival),TRUE);
+			b = BBPquickdesc(stk->stk[varid].val.bval,TRUE);
 			snprintf(s,BUFSIZ,"%s["BUNFMT"]" ,nme, b?BATcount(b):0);
 		} else
 		if( cv)
@@ -455,7 +457,7 @@ shortStmtRendering(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p)
 	}
 	// handle the result variables
 	for (i = 0; i < p->retc; i++)
-		if (!getVarTmp(mb, getArg(p, i)) || isVarUsed(mb, getArg(p, i)) || isVarUDFtype(mb,getArg(p,i)))
+		if ( !isTmpVar(mb,getArg(p,i)) || isVarUsed(mb, getArg(p, i)) || isVarUDFtype(mb,getArg(p,i)))
 			break;
 
 	if (i == p->retc) // no result arguments
@@ -463,7 +465,7 @@ shortStmtRendering(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p)
 
 	/* display optional multi-assignment list */
 	if( getArgType(mb,p,0) != TYPE_void){
-		if (p->retc > 1){
+		if (p->retc > 1 && t < base + len-1){
 			*t++ = '(';
 			*t=0;
 		}
@@ -474,11 +476,11 @@ shortStmtRendering(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p)
 			GDKfree(nme);
 			advance(t,base,len);
 		}
-		if (p->retc > 1)
+		if (p->retc > 1 && t< base+len)
 			*t++ = ')';
-		*t++ = ':';
-		*t++ = '=';
-		*t++ = ' ';
+		if( t < base +len) *t++ = ':';
+		if( t < base +len) *t++ = '=';
+		if( t < base +len) *t++ = ' ';
 	}
 	*t =0;
 
@@ -491,17 +493,17 @@ shortStmtRendering(MalBlkPtr mb, MalStkPtr stk,  InstrPtr p)
 
 	// handle the arguments, constants should  be shown including their non-default type
 	/* display optional multi-assignment list */
-	*t++ = '(';
+	if( t< base + len) *t++ = '(';
 	for (i = p->retc; i < p->argc; i++) {
 		nme = shortRenderingTerm(mb, stk, p,i);
 		snprintf(t,(len-(t-base)), "%c%s", (i!= p->retc? ',':' '), nme);
 		GDKfree(nme);
 		advance(t,base,len);
-		if (i < p->retc - 1)
+		if (i < p->retc - 1 && t < base+len)
 			*t++ = ',';
 	}
-	*t++ = ' ';
-	*t++ = ')';
+	if( t < base + len) *t++ = ' ';
+	if( t < base + len) *t++ = ')';
 	*t=0;
 
 	if (t >= s + len)
@@ -595,10 +597,6 @@ printSignature(stream *fd, Symbol s, int flg)
 	} else GDKerror("printSignature"MAL_MALLOC_FAIL);
 }
 
-/*
- * For clarity we show the last optimizer applied
- * also as the last of the list, although it is linked with mb.
-*/
 void showMalBlkHistory(stream *out, MalBlkPtr mb)
 {
 	MalBlkPtr m=mb;
@@ -619,14 +617,5 @@ void showMalBlkHistory(stream *out, MalBlkPtr mb)
 			}
 		} 
 		m= m->history;
-	}
-	p=getInstrPtr(mb,mb->stop-1);
-	if( p->token == REMsymbol){
-		msg= instruction2str(mb, 0, p, FALSE);
-		if (msg) {
-			mnstr_printf(out,"%s.%s[%2d] %s\n", 
-				getModuleId(sig), getFunctionId(sig),j++,msg+3);
-				GDKfree(msg);
-		}
 	}
 }

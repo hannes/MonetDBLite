@@ -105,7 +105,7 @@ runFactory(Client cntxt, MalBlkPtr mb, MalBlkPtr mbcaller, MalStkPtr stk, InstrP
 	/* inherit debugging */
 	cmd = stk->cmd;
 	if ( pl->stk == NULL)
-			throw(MAL, "factory.new", "internal error, stack frame missing");
+		throw(MAL, "factory.new", "internal error, stack frame missing");
 
 	/* copy the calling arguments onto the stack
 	   of the factory */
@@ -117,7 +117,8 @@ runFactory(Client cntxt, MalBlkPtr mb, MalBlkPtr mbcaller, MalStkPtr stk, InstrP
 			k--;
 
 		rhs = &pl->env->stk[getArg(pci, i)];
-		VALcopy(lhs, rhs);
+		if (VALcopy(lhs, rhs) == NULL)
+			throw(MAL, "factory.call", MAL_MALLOC_FAIL);
 		if( lhs->vtype == TYPE_bat )
 			BBPincref(lhs->val.bval, TRUE);
 	}
@@ -130,7 +131,8 @@ runFactory(Client cntxt, MalBlkPtr mb, MalBlkPtr mbcaller, MalStkPtr stk, InstrP
 			if( isVarConstant(mb,i) > 0 ){
 				if( !isVarDisabled(mb,i)){
 					rhs = &getVarConstant(mb,i);
-					VALcopy(lhs,rhs);
+					if (VALcopy(lhs,rhs) == NULL)
+						throw(MAL, "factory.call", MAL_MALLOC_FAIL);
 				}
 			} else{
 				lhs->vtype = getVarGDKType(mb,i);
@@ -186,7 +188,8 @@ callFactory(Client cntxt, MalBlkPtr mb, ValPtr argv[], char flag){
 		if( isVarConstant(mb,i) > 0 ){
 			lhs = &stk->stk[i];
 			rhs = &getVarConstant(mb,i);
-			VALcopy(lhs,rhs);
+			if (VALcopy(lhs,rhs) == NULL)
+				throw(MAL, "factory.call", MAL_MALLOC_FAIL);
 		} else {
 			lhs = &stk->stk[i];
 			lhs->vtype = getVarGDKType(mb,i);
@@ -208,7 +211,8 @@ callFactory(Client cntxt, MalBlkPtr mb, ValPtr argv[], char flag){
 	i = psig->retc;
 	for (i = psig->retc; i < psig->argc; i++) {
 		lhs = &pl->stk->stk[psig->argv[i]];
-		VALcopy(lhs, argv[i]);
+		if (VALcopy(lhs, argv[i]) == NULL)
+			throw(MAL, "factory.call", MAL_MALLOC_FAIL);
 		if( lhs->vtype == TYPE_bat )
 			BBPincref(lhs->val.bval, TRUE);
 	}
@@ -276,7 +280,8 @@ yieldResult(MalBlkPtr mb, InstrPtr p, int pc)
 #endif
 				rhs = &pl->stk->stk[getArg(p, i)];
 				lhs = &pl->env->stk[getArg(pl->pci, i)];
-				VALcopy(lhs, rhs);
+				if (VALcopy(lhs, rhs) == NULL)
+					return -1;
 			}
 			return (int) (pl-plants);
 		}

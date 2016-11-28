@@ -54,10 +54,10 @@ static struct{
 #define LOGLEN 8192
 #define lognew()  loglen = 0; logbase = logbuffer; *logbase = 0;
 
-#define logadd(...) {														\
+#define logadd(...) {													\
 	do {																\
-		loglen += snprintf(logbase+loglen, LOGLEN -1 - loglen, __VA_ARGS__); \
-		assert(loglen < LOGLEN); \
+		if (loglen < LOGLEN)											\
+			loglen += snprintf(logbase+loglen, LOGLEN - loglen, __VA_ARGS__); \
 	} while (0);}
 
 
@@ -272,16 +272,16 @@ This information can be used to determine memory footprint and variable life tim
 				logadd("\"index\":\"%d\",%s", j,pret);
 				logadd("\"name\":\"%s\",%s", getVarName(mb, getArg(pci,j)), pret);
 				if( isaBatType(tpe) ){
-					BAT *d= BATdescriptor( bid = abs(stk->stk[getArg(pci,j)].val.ival));
-					tname = getTypeName(getColumnType(tpe));
+					BAT *d= BATdescriptor( bid = stk->stk[getArg(pci,j)].val.bval);
+					tname = getTypeName(getBatType(tpe));
 					logadd("\"type\":\"bat[:%s]\",%s", tname,pret);
 					if( d) {
 						//if( isVIEW(d))
-							//bid = abs(VIEWtparent(d));
+							//bid = VIEWtparent(d);
 						cnt = BATcount(d);
-						total += cnt * d->T->width;
-						total += heapinfo(d->T->vheap, abs(d->batCacheid)); 
-						total += hashinfo(d->T->hash, abs(d->batCacheid)); 
+						total += cnt * d->twidth;
+						total += heapinfo(d->tvheap, d->batCacheid); 
+						total += hashinfo(d->thash, d->batCacheid); 
 						total += IMPSimprintsize(d);
 						BBPunfix(d->batCacheid);
 					} 
@@ -298,7 +298,7 @@ This information can be used to determine memory footprint and variable life tim
 					GDKfree(cv);
 					GDKfree(stmtq);
 				}
-				logadd("\"eol\":%d%s", p == getEndOfLife(mb,getArg(pci,j)) , pret);
+				logadd("\"eol\":%d%s", p == getEndScope(mb,getArg(pci,j)) , pret);
 				GDKfree(tname);
 				logadd("}%s%s", (j< pci->argc-1 && j != pci->retc -1?",":""), pret);
 			}
@@ -529,9 +529,28 @@ startProfiler(void)
 }
 
 /* SQL queries can be traced without obstructing the stream */
+/* A hard limit is currently imposed */
+#define MAXTRACEFILES 50
+static int offlinestore = 0;
+static int tracecounter = 0;
 str
-startTrace(void)
+startTrace(str path)
 {
+	char buf[PATHLENGTH];
+
+	if( path && eventstream == NULL){
+		// create a file to keep the events, unless we
+		// already have a profiler stream
+		MT_lock_set(&mal_profileLock );
+		if(eventstream == NULL && offlinestore ==0){
+			snprintf(buf,PATHLENGTH,"%s%c%s",GDKgetenv("gdk_dbname"), DIR_SEP, path);
+			(void) mkdir(buf,0755);
+			snprintf(buf,PATHLENGTH,"%s%c%s%ctrace_%d",GDKgetenv("gdk_dbname"), DIR_SEP, path,DIR_SEP,tracecounter++ % MAXTRACEFILES);
+			eventstream = open_wastream(buf);
+			offlinestore++;
+		}
+		MT_lock_unset(&mal_profileLock );
+	}
 	malProfileMode = 1;
 	sqlProfiling = TRUE;
 	clearTrace();
@@ -539,8 +558,16 @@ startTrace(void)
 }
 
 str
-stopTrace(void)
+stopTrace(str path)
 {
+	MT_lock_set(&mal_profileLock );
+	if( path &&  offlinestore){
+		(void) close_stream(eventstream);
+		eventstream = 0;
+		offlinestore =0;
+	}
+	MT_lock_unset(&mal_profileLock );
+	
 	malProfileMode = eventstream != NULL;
 	sqlProfiling = FALSE;
 	return MAL_SUCCEED;
@@ -669,7 +696,7 @@ TRACEcreate(const char *hnme, const char *tnme, int tt)
 
 	snprintf(buf, BUFSIZ, "trace_%s_%s", hnme, tnme);
 
-	b = BATnew(TYPE_void, tt, 1 << 16, TRANSIENT);
+	b = COLnew(0, tt, 1 << 16, TRANSIENT);
 	if (b == NULL)
 		return NULL;
 	BBPrename(b->batCacheid, buf);
@@ -750,6 +777,7 @@ clearTrace(void)
 	MT_lock_set(&mal_profileLock);
 	if (TRACE_init == 0) {
 		MT_lock_unset(&mal_profileLock);
+		initTrace();
 		return;     /* not initialized */
 	}
 	/* drop all trace tables */
@@ -927,9 +955,9 @@ getDiskSpace(void)
 
 					size += tailsize(b, cnt);
 					/* the upperbound is used for the heaps */
-					if (b->T->vheap)
-						size += b->T->vheap->size;
-					if (b->T->hash)
+					if (b->tvheap)
+						size += b->tvheap->size;
+					if (b->thash)
 						size += sizeof(BUN) * cnt;
 				}
 				BBPunfix(i);

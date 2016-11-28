@@ -20,7 +20,7 @@ mal_export str QLOGdisable(void *ret);
 mal_export int QLOGisset(void);
 mal_export str QLOGissetFcn(int *ret);
 mal_export str QLOGempty(void *ret);
-mal_export str QLOGinsert(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
+mal_export str QLOGappend(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 mal_export str QLOGdefineNaive(void *ret, str *qry, str *opt, int *nr);
 mal_export str QLOGcall(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 

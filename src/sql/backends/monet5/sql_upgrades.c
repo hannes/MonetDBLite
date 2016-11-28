@@ -219,13 +219,9 @@ sql_update_oct2014(Client c, mvc *sql)
 {
 	size_t bufsize = 8192*2, pos = 0;
 	char *buf = GDKmalloc(bufsize), *err = NULL;
-	ValRecord *schvar = stack_get_var(sql, "current_schema");
-	char *schema = NULL;
+	char *schema = stack_get_string(sql, "current_schema");
 	sql_table *t;
 	sql_schema *s;
-
-	if (schvar)
-		schema = strdup(schvar->val.sval);
 
 	pos += snprintf(buf + pos, bufsize - pos, "set schema \"sys\";\n");
 
@@ -488,10 +484,8 @@ sql_update_oct2014(Client c, mvc *sql)
 			"insert into sys.systemfunctions (select f.id from sys.functions f, sys.schemas s where f.name in ('bbp', 'db_users', 'env', 'generate_series', 'storage', 'storagemodel', 'var') and f.type = %d and f.schema_id = s.id and s.name = 'sys');\n",
 			F_UNION);
 
-	if (schema) {
+	if (schema) 
 		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
-		free(schema);
-	}
 
 	assert(pos < bufsize);
 
@@ -508,11 +502,7 @@ sql_update_oct2014_sp1(Client c, mvc *sql)
 {
 	size_t bufsize = 8192*2, pos = 0;
 	char *buf = GDKmalloc(bufsize), *err = NULL;
-	ValRecord *schvar = stack_get_var(sql, "current_schema");
-	char *schema = NULL;
-
-	if (schvar)
-		schema = strdup(schvar->val.sval);
+	char *schema = stack_get_string(sql, "current_schema");
 
 	pos += snprintf(buf + pos, bufsize - pos,
 			"set schema \"sys\";\n"
@@ -539,10 +529,8 @@ sql_update_oct2014_sp1(Client c, mvc *sql)
 			"drop table upgradeOct2014_changes;\n"
 			"drop table upgradeOct2014;\n");
 
-	if (schema) {
+	if (schema) 
 		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
-		free(schema);
-	}
 	assert(pos < bufsize);
 
 	printf("Running database upgrade commands:\n%s\n", buf);
@@ -556,11 +544,7 @@ sql_update_oct2014_sp2(Client c, mvc *sql)
 {
 	size_t bufsize = 8192, pos = 0;
 	char *buf = GDKmalloc(bufsize), *err = NULL;
-	ValRecord *schvar = stack_get_var(sql, "current_schema");
-	char *schema = NULL;
-
-	if (schvar)
-		schema = strdup(schvar->val.sval);
+	char *schema = stack_get_string(sql, "current_schema");
 
 	pos += snprintf(buf + pos, bufsize - pos,
 			"set schema \"sys\";\n"
@@ -575,10 +559,8 @@ sql_update_oct2014_sp2(Client c, mvc *sql)
 			"from sys.storagemodel() group by \"schema\",\"table\";\n"
 			"update _tables set system = true where name = 'tablestoragemodel' and schema_id = (select id from schemas where name = 'sys');\n");
 
-	if (schema) {
+	if (schema) 
 		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
-		free(schema);
-	}
 	assert(pos < bufsize);
 
 	{
@@ -603,11 +585,7 @@ sql_update_oct2014_sp3(Client c, mvc *sql)
 {
 	size_t bufsize = 8192, pos = 0;
 	char *buf = GDKmalloc(bufsize), *err = NULL;
-	ValRecord *schvar = stack_get_var(sql, "current_schema");
-	char *schema = NULL;
-
-	if (schvar)
-		schema = strdup(schvar->val.sval);
+	char *schema = stack_get_string(sql, "current_schema");
 
 	pos += snprintf(buf + pos, bufsize - pos,
 			"set schema \"sys\";\n"
@@ -617,10 +595,8 @@ sql_update_oct2014_sp3(Client c, mvc *sql)
 			"CREATE FUNCTION \"right_shift_assign\"(i1 inet, i2 inet) RETURNS boolean EXTERNAL NAME inet.\">>=\";\n"
 			"insert into sys.systemfunctions (select id from sys.functions where name in ('left_shift', 'right_shift', 'left_shift_assign', 'right_shift_assign') and schema_id = (select id from sys.schemas where name = 'sys') and id not in (select function_id from sys.systemfunctions));\n");
 
-	if (schema) {
+	if (schema) 
 		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
-		free(schema);
-	}
 	assert(pos < bufsize);
 
 	printf("Running database upgrade commands:\n%s\n", buf);
@@ -635,11 +611,7 @@ sql_update_hugeint(Client c, mvc *sql)
 {
 	size_t bufsize = 8192, pos = 0;
 	char *buf = GDKmalloc(bufsize), *err = NULL;
-	ValRecord *schvar = stack_get_var(sql, "current_schema");
-	char *schema = NULL;
-
-	if (schvar)
-		schema = strdup(schvar->val.sval);
+	char *schema = stack_get_string(sql, "current_schema");
 
 	pos += snprintf(buf + pos, bufsize - pos, "set schema \"sys\";\n");
 
@@ -720,10 +692,8 @@ sql_update_hugeint(Client c, mvc *sql)
 		}
 	}
 
-	if (schema) {
+	if (schema) 
 		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
-		free(schema);
-	}
 	assert(pos < bufsize);
 
 	printf("Running database upgrade commands:\n%s\n", buf);
@@ -738,11 +708,8 @@ sql_update_jul2015(Client c, mvc *sql)
 {
 	size_t bufsize = 15360, pos = 0;
 	char *buf = GDKmalloc(bufsize), *err = NULL;
-	ValRecord *schvar = stack_get_var(sql, "current_schema");
-	char *schema = NULL;
+	char *schema = stack_get_string(sql, "current_schema");
 
-	if (schvar)
-		schema = strdup(schvar->val.sval);
 	pos += snprintf(buf + pos, bufsize - pos, "set schema \"sys\";\n");
 
 	/* change to 09_like */
@@ -881,8 +848,11 @@ sql_update_jul2015(Client c, mvc *sql)
 			"    table_type_name VARCHAR(25) NOT NULL UNIQUE);\n"
 
 			"INSERT INTO sys.table_types (table_type_id, table_type_name) VALUES\n"
+			"-- values from sys._tables.type:  0=Table, 1=View, 2=Generated, 3=Merge, etc.\n"
 			"  (0, 'TABLE'), (1, 'VIEW'), /* (2, 'GENERATED'), */ (3, 'MERGE TABLE'), (4, 'STREAM TABLE'), (5, 'REMOTE TABLE'), (6, 'REPLICA TABLE'),\n"
+			"-- synthetically constructed system obj variants (added 10 to sys._tables.type value when sys._tables.system is true).\n"
 			"  (10, 'SYSTEM TABLE'), (11, 'SYSTEM VIEW'),\n"
+			"-- synthetically constructed temporary variants (added 20 or 30 to sys._tables.type value depending on values of temporary and commit_action).\n"
 			"  (20, 'GLOBAL TEMPORARY TABLE'),\n"
 			"  (30, 'LOCAL TEMPORARY TABLE');\n"
 
@@ -891,6 +861,7 @@ sql_update_jul2015(Client c, mvc *sql)
 			"    dependency_type_name VARCHAR(15) NOT NULL UNIQUE);\n"
 
 			"INSERT INTO sys.dependency_types (dependency_type_id, dependency_type_name) VALUES\n"
+			"-- values taken from sql_catalog.h\n"
 			"  (1, 'SCHEMA'), (2, 'TABLE'), (3, 'COLUMN'), (4, 'KEY'), (5, 'VIEW'), (6, 'USER'), (7, 'FUNCTION'), (8, 'TRIGGER'),\n"
 			"  (9, 'OWNER'), (10, 'INDEX'), (11, 'FKEY'), (12, 'SEQUENCE'), (13, 'PROCEDURE'), (14, 'BE_DROPPED');\n");
 
@@ -925,7 +896,8 @@ sql_update_jul2015(Client c, mvc *sql)
 			"  hashes bigint,\n"
 			"  phash boolean,\n"
 			"  imprints bigint,\n"
-			"  sorted boolean\n"
+			"  sorted boolean,\n"
+			"  orderidx bigint\n"
 			")\n"
 			"external name sql.\"storage\";\n"
 
@@ -1006,14 +978,15 @@ sql_update_jul2015(Client c, mvc *sql)
 			"  heapsize bigint,\n"
 			"  hashes bigint,\n"
 			"  imprints bigint,\n"
-			"  sorted boolean)\n"
+			"  sorted boolean,"
+			"  orderidx bigint)\n"
 			"begin\n"
 			"  return select I.\"schema\", I.\"table\", I.\"column\", I.\"type\", I.\"count\",\n"
 			"  columnsize(I.\"type\", I.count, I.\"distinct\"),\n"
 			"  heapsize(I.\"type\", I.\"distinct\", I.\"atomwidth\"),\n"
 			"  hashsize(I.\"reference\", I.\"count\"),\n"
 			"  imprintsize(I.\"count\",I.\"type\"),\n"
-			"  I.sorted\n"
+			"  I.sorted, I.orderidx\n"
 			"  from sys.storagemodelinput I;\n"
 			"end;\n"
 
@@ -1053,6 +1026,53 @@ sql_update_jul2015(Client c, mvc *sql)
 			"create procedure sys.analyze(minmax int, \"sample\" bigint, sch string, tbl string, col string)\n"
 			"external name sql.analyze;\n");
 
+	/* 15_querylog update the querylog table definition */
+	pos += snprintf(buf + pos, bufsize - pos,
+			"drop view sys.querylog_history;\n"
+			"drop view sys.querylog_calls;\n"
+			"drop function sys.querylog_calls;\n"
+			"create function sys.querylog_calls()\n"
+			"returns table(\n"
+			"    id oid,\n"
+			"    \"start\" timestamp,\n"
+			"    \"stop\" timestamp,\n"
+			"    arguments string,\n"
+			"    tuples wrd,\n"
+			"    run bigint,\n"
+			"    ship bigint,\n"
+			"    cpu int,\n"
+			"    io int\n"
+			") external name sql.querylog_calls;\n"
+			"create view sys.querylog_calls as select * from sys.querylog_calls();\n"
+			"create view sys.querylog_history as\n"
+			"select qd.*, ql.\"start\",ql.\"stop\", ql.arguments, ql.tuples, ql.run, ql.ship, ql.cpu, ql.io\n"
+			"from sys.querylog_catalog() qd, sys.querylog_calls() ql\n"
+			"where qd.id = ql.id and qd.owner = user;\n");
+
+
+	/* 16_tracelog update the tracelog table definition */
+	pos += snprintf(buf + pos, bufsize - pos,
+			"drop view sys.tracelog;\n"
+			"drop function sys.tracelog;\n"
+			"create function sys.tracelog()\n"
+			"returns table (\n"
+			"  event integer,\n"
+			"  clk varchar(20),\n"
+			"  pc varchar(50),\n"
+			"  thread int,\n"
+			"  ticks bigint,\n"
+			"  rrsMB bigint,\n"
+			"  vmMB bigint,\n"
+			"  reads bigint,\n"
+			"  writes bigint,\n"
+			"  minflt bigint,\n"
+			"  majflt bigint,\n"
+			"  nvcsw bigint,\n"
+			"  stmt string\n"
+			"  ) external name sql.dump_trace;\n"
+			"create view sys.tracelog as select * from sys.tracelog();\n");
+
+
 	pos += snprintf(buf + pos, bufsize - pos,
 			"insert into sys.systemfunctions (select id from sys.functions where name in ('analyze', 'clearrejects', 'columnsize', 'epoch', 'ilike', 'imprintsize', 'like', 'profiler_openstream', 'profiler_stethoscope', 'querylog_calls', 'querylog_catalog', 'rejects', 'storage', 'storagemodel', 'storagemodelinit', 'str_to_time', 'str_to_timestamp', 'timestamp_to_str', 'time_to_str', 'tracelog') and schema_id = (select id from sys.schemas where name = 'sys') and id not in (select function_id from sys.systemfunctions));\n"
 			"delete from systemfunctions where function_id not in (select id from functions);\n"
@@ -1085,10 +1105,13 @@ sql_update_jul2015(Client c, mvc *sql)
 		}
 	}
 
-	if (schema) {
+	/* remove code from 19_cluster.sql script */
+	pos += snprintf(buf + pos, bufsize - pos,
+			"drop procedure sys.cluster1;\n"
+			"drop procedure sys.cluster2;\n");
+
+	if (schema) 
 		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
-		free(schema);
-	}
 	assert(pos < bufsize);
 
 	printf("Running database upgrade commands:\n%s\n", buf);
@@ -1102,14 +1125,11 @@ sql_update_epoch(Client c, mvc *m)
 {
 	size_t bufsize = 1000, pos = 0;
 	char *buf = GDKmalloc(bufsize), *err = NULL;
-	ValRecord *schvar = stack_get_var(m, "current_schema");
-	char *schema = NULL;
+	char *schema = stack_get_string(m, "current_schema");
 	sql_subtype tp;
 	int n = 0;
 	sql_schema *s = mvc_bind_schema(m, "sys");
 
-	if (schvar)
-		schema = strdup(schvar->val.sval);
 	pos += snprintf(buf + pos, bufsize - pos, "set schema \"sys\";\n");
 
 	sql_find_subtype(&tp, "bigint", 0, 0);
@@ -1139,10 +1159,8 @@ create function sys.\"epoch\"(ts TIMESTAMP WITH TIME ZONE) returns INT external 
 	pos += snprintf(buf + pos, bufsize - pos,
 			"insert into sys.systemfunctions (select id from sys.functions where name = 'epoch' and schema_id = (select id from sys.schemas where name = 'sys') and id not in (select function_id from sys.systemfunctions));\n");
 
-	if (schema) {
+	if (schema) 
 		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
-		free(schema);
-	}
 
 	assert(pos < bufsize);
 	if (n) {
@@ -1158,14 +1176,11 @@ sql_update_jun2016(Client c, mvc *sql)
 {
 	size_t bufsize = 1000000, pos = 0;
 	char *buf = GDKmalloc(bufsize), *err = NULL;
-	ValRecord *schvar = stack_get_var(sql, "current_schema");
-	char *schema = NULL;
+	char *schema = stack_get_string(sql, "current_schema");
 	node *n;
 	sql_schema *s;
 
 	s = mvc_bind_schema(sql, "sys");
-	if (schvar)
-		schema = strdup(schvar->val.sval);
 	pos += snprintf(buf + pos, bufsize - pos, "set schema \"sys\";\n");
 
 	pos += snprintf(buf + pos, bufsize - pos, "delete from sys.dependencies where id < 2000;\n");
@@ -1415,10 +1430,8 @@ sql_update_jun2016(Client c, mvc *sql)
 	pos += snprintf(buf + pos, bufsize - pos,
 			"delete from sys.systemfunctions where function_id not in (select id from sys.functions);\n");
 
-	if (schema) {
+	if (schema) 
 		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
-		free(schema);
-	}
 
 	assert(pos < bufsize);
 	printf("Running database upgrade commands:\n%s\n", buf);
@@ -1433,17 +1446,13 @@ sql_update_geom(Client c, mvc *sql, int olddb)
 	size_t bufsize, pos = 0;
 	char *buf, *err = NULL;
 	char *geomupgrade;
-	ValRecord *schvar = stack_get_var(sql, "current_schema");
-	char *schema = NULL;
+	char *schema = stack_get_string(sql, "current_schema");
 	geomsqlfix_fptr fixfunc;
 	node *n;
 	sql_schema *s = mvc_bind_schema(sql, "sys");
 
 	if ((fixfunc = geomsqlfix_get()) == NULL)
 		return NULL;
-
-	if (schvar)
-		schema = strdup(schvar->val.sval);
 
 	geomupgrade = (*fixfunc)(olddb);
 	bufsize = strlen(geomupgrade) + 512;
@@ -1463,10 +1472,294 @@ sql_update_geom(Client c, mvc *sql, int olddb)
 			pos += snprintf(buf + pos, bufsize - pos, "insert into sys.types values (%d, '%s', '%s', %u, %u, %d, %d, %d);\n", t->base.id, t->base.name, t->sqlname, t->digits, t->scale, t->radix, t->eclass, t->s ? t->s->base.id : s->base.id);
 	}
 
-	if (schema) {
+	if (schema) 
 		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
-		free(schema);
+
+	assert(pos < bufsize);
+	printf("Running database upgrade commands:\n%s\n", buf);
+	err = SQLstatementIntern(c, &buf, "update", 1, 0, NULL);
+	GDKfree(buf);
+	return err;		/* usually MAL_SUCCEED */
+}
+
+static str
+sql_update_default(Client c, mvc *sql)
+{
+	size_t bufsize = 10240, pos = 0;
+	char *buf = GDKmalloc(bufsize), *err = NULL;
+	char *schema = stack_get_string(sql, "current_schema");
+	sql_schema *s;
+
+	s = mvc_bind_schema(sql, "sys");
+	pos += snprintf(buf + pos, bufsize - pos, "set schema \"sys\";\n");
+
+	{
+		sql_table *t;
+
+		if ((t = mvc_bind_table(sql, s, "storagemodel")) != NULL)
+			t->system = 0;
+		if ((t = mvc_bind_table(sql, s, "storagemodelinput")) != NULL)
+			t->system = 0;
+		if ((t = mvc_bind_table(sql, s, "storage")) != NULL)
+			t->system = 0;
+		if ((t = mvc_bind_table(sql, s, "tablestoragemodel")) != NULL)
+			t->system = 0;
 	}
+
+	/* 18_index.sql */
+	pos += snprintf(buf + pos, bufsize - pos,
+			"create procedure sys.createorderindex(sys string, tab string, col string)\n"
+			"external name sql.createorderindex;\n"
+			"create procedure sys.droporderindex(sys string, tab string, col string)\n"
+			"external name sql.droporderindex;\n");
+
+	/* 24_zorder.sql */
+	pos += snprintf(buf + pos, bufsize - pos,
+			"drop function sys.zorder_decode_y;\n"
+			"drop function sys.zorder_decode_x;\n"
+			"drop function sys.zorder_encode;\n");
+
+	/* 75_storagemodel.sql */
+	pos += snprintf(buf + pos, bufsize - pos,
+			"drop view sys.tablestoragemodel;\n"
+			"drop view sys.storagemodel;\n"
+			"drop function sys.storagemodel();\n"
+			"drop procedure sys.storagemodelinit();\n"
+			"drop function sys.\"storage\"(string, string, string);\n"
+			"drop function sys.\"storage\"(string, string);\n"
+			"drop function sys.\"storage\"(string);\n"
+			"drop view sys.\"storage\";\n"
+			"drop function sys.\"storage\"();\n"
+			"alter table sys.storagemodelinput add column \"revsorted\" boolean;\n"
+			"alter table sys.storagemodelinput add column \"unique\" boolean;\n"
+			"alter table sys.storagemodelinput add column \"orderidx\" bigint;\n"
+			"create function sys.\"storage\"()\n"
+			"returns table (\n"
+			" \"schema\" string,\n"
+			" \"table\" string,\n"
+			" \"column\" string,\n"
+			" \"type\" string,\n"
+			" \"mode\" string,\n"
+			" location string,\n"
+			" \"count\" bigint,\n"
+			" typewidth int,\n"
+			" columnsize bigint,\n"
+			" heapsize bigint,\n"
+			" hashes bigint,\n"
+			" phash boolean,\n"
+			" \"imprints\" bigint,\n"
+			" sorted boolean,\n"
+			" revsorted boolean,\n"
+			" \"unique\" boolean,\n"
+			" orderidx bigint\n"
+			")\n"
+			"external name sql.\"storage\";\n"
+			"create view sys.\"storage\" as select * from sys.\"storage\"();\n"
+			"create function sys.\"storage\"( sname string)\n"
+			"returns table (\n"
+			" \"schema\" string,\n"
+			" \"table\" string,\n"
+			" \"column\" string,\n"
+			" \"type\" string,\n"
+			" \"mode\" string,\n"
+			" location string,\n"
+			" \"count\" bigint,\n"
+			" typewidth int,\n"
+			" columnsize bigint,\n"
+			" heapsize bigint,\n"
+			" hashes bigint,\n"
+			" phash boolean,\n"
+			" \"imprints\" bigint,\n"
+			" sorted boolean,\n"
+			" revsorted boolean,\n"
+			" \"unique\" boolean,\n"
+			" orderidx bigint\n"
+			")\n"
+			"external name sql.\"storage\";\n"
+			"create function sys.\"storage\"( sname string, tname string)\n"
+			"returns table (\n"
+			" \"schema\" string,\n"
+			" \"table\" string,\n"
+			" \"column\" string,\n"
+			" \"type\" string,\n"
+			" \"mode\" string,\n"
+			" location string,\n"
+			" \"count\" bigint,\n"
+			" typewidth int,\n"
+			" columnsize bigint,\n"
+			" heapsize bigint,\n"
+			" hashes bigint,\n"
+			" phash boolean,\n"
+			" \"imprints\" bigint,\n"
+			" sorted boolean,\n"
+			" revsorted boolean,\n"
+			" \"unique\" boolean,\n"
+			" orderidx bigint\n"
+			")\n"
+			"external name sql.\"storage\";\n"
+			"create function sys.\"storage\"( sname string, tname string, cname string)\n"
+			"returns table (\n"
+			" \"schema\" string,\n"
+			" \"table\" string,\n"
+			" \"column\" string,\n"
+			" \"type\" string,\n"
+			" \"mode\" string,\n"
+			" location string,\n"
+			" \"count\" bigint,\n"
+			" typewidth int,\n"
+			" columnsize bigint,\n"
+			" heapsize bigint,\n"
+			" hashes bigint,\n"
+			" phash boolean,\n"
+			" \"imprints\" bigint,\n"
+			" sorted boolean,\n"
+			" revsorted boolean,\n"
+			" \"unique\" boolean,\n"
+			" orderidx bigint\n"
+			")\n"
+			"external name sql.\"storage\";\n"
+			"create procedure sys.storagemodelinit()\n"
+			"begin\n"
+			" delete from sys.storagemodelinput;\n"
+			" insert into sys.storagemodelinput\n"
+			" select X.\"schema\", X.\"table\", X.\"column\", X.\"type\", X.typewidth, X.count, 0, X.typewidth, false, X.sorted, X.revsorted, X.\"unique\", X.orderidx from sys.\"storage\"() X;\n"
+			" update sys.storagemodelinput\n"
+			" set reference = true\n"
+			" where concat(concat(\"schema\",\"table\"), \"column\") in (\n"
+			"  SELECT concat( concat(\"fkschema\".\"name\", \"fktable\".\"name\"), \"fkkeycol\".\"name\" )\n"
+			"  FROM \"sys\".\"keys\" AS    \"fkkey\",\n"
+			"    \"sys\".\"objects\" AS \"fkkeycol\",\n"
+			"    \"sys\".\"tables\" AS  \"fktable\",\n"
+			"    \"sys\".\"schemas\" AS \"fkschema\"\n"
+			"  WHERE   \"fktable\".\"id\" = \"fkkey\".\"table_id\"\n"
+			"   AND \"fkkey\".\"id\" = \"fkkeycol\".\"id\"\n"
+			"   AND \"fkschema\".\"id\" = \"fktable\".\"schema_id\"\n"
+			"   AND \"fkkey\".\"rkey\" > -1);\n"
+			" update sys.storagemodelinput\n"
+			" set \"distinct\" = \"count\"\n"
+			" where \"type\" = 'varchar' or \"type\"='clob';\n"
+			"end;\n"
+			"create function sys.storagemodel()\n"
+			"returns table (\n"
+			" \"schema\" string,\n"
+			" \"table\" string,\n"
+			" \"column\" string,\n"
+			" \"type\" string,\n"
+			" \"count\" bigint,\n"
+			" columnsize bigint,\n"
+			" heapsize bigint,\n"
+			" hashes bigint,\n"
+			" \"imprints\" bigint,\n"
+			" sorted boolean,\n"
+			" revsorted boolean,\n"
+			" \"unique\" boolean,\n"
+			" orderidx bigint)\n"
+			"begin\n"
+			" return select I.\"schema\", I.\"table\", I.\"column\", I.\"type\", I.\"count\",\n"
+			" columnsize(I.\"type\", I.count, I.\"distinct\"),\n"
+			" heapsize(I.\"type\", I.\"distinct\", I.\"atomwidth\"),\n"
+			" hashsize(I.\"reference\", I.\"count\"),\n"
+			" imprintsize(I.\"count\",I.\"type\"),\n"
+			" I.sorted, I.revsorted, I.\"unique\", I.orderidx\n"
+			" from sys.storagemodelinput I;\n"
+			"end;\n"
+			"create view sys.storagemodel as select * from sys.storagemodel();\n"
+			"create view sys.tablestoragemodel\n"
+			"as select \"schema\",\"table\",max(count) as \"count\",\n"
+			" sum(columnsize) as columnsize,\n"
+			" sum(heapsize) as heapsize,\n"
+			" sum(hashes) as hashes,\n"
+			" sum(\"imprints\") as \"imprints\",\n"
+			" sum(case when sorted = false then 8 * count else 0 end) as auxiliary\n"
+			"from sys.storagemodel() group by \"schema\",\"table\";\n"
+			"update sys._tables set system = true where name in ('storage', 'storagemodel', 'tablestoragemodel') and schema_id = (select id from sys.schemas where name = 'sys');\n");
+
+	/* 80_statistics.sql */
+	pos += snprintf(buf + pos, bufsize - pos,
+			"alter table sys.statistics add column \"revsorted\" boolean;\n");
+
+	pos += snprintf(buf + pos, bufsize - pos,
+			"insert into sys.systemfunctions (select f.id from sys.functions f, sys.schemas s where f.name in ('storage', 'storagemodel') and f.type = %d and f.schema_id = s.id and s.name = 'sys');\n",
+			F_UNION);
+	pos += snprintf(buf + pos, bufsize - pos,
+			"insert into sys.systemfunctions (select f.id from sys.functions f, sys.schemas s where f.name in ('createorderindex', 'droporderindex', 'storagemodelinit') and f.type = %d and f.schema_id = s.id and s.name = 'sys');\n",
+			F_PROC);
+	pos += snprintf(buf + pos, bufsize - pos,
+			"delete from systemfunctions where function_id not in (select id from functions);\n");
+
+	if (schema) 
+		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
+
+	assert(pos < bufsize);
+	printf("Running database upgrade commands:\n%s\n", buf);
+	err = SQLstatementIntern(c, &buf, "update", 1, 0, NULL);
+	GDKfree(buf);
+	return err;		/* usually MAL_SUCCEED */
+}
+
+static str
+sql_update_nowrd(Client c, mvc *sql)
+{
+	size_t bufsize = 10240, pos = 0;
+	char *buf = GDKmalloc(bufsize), *err = NULL;
+	char *schema = stack_get_string(sql, "current_schema");
+	sql_schema *s;
+
+	s = mvc_bind_schema(sql, "sys");
+	pos += snprintf(buf + pos, bufsize - pos, "set schema \"sys\";\n");
+
+	{
+		sql_table *t;
+
+		if ((t = mvc_bind_table(sql, s, "querylog_calls")) != NULL)
+			t->system = 0;
+		if ((t = mvc_bind_table(sql, s, "querylog_history")) != NULL)
+			t->system = 0;
+	}
+
+	/* 15_querylog.sql */
+	pos += snprintf(buf + pos, bufsize - pos,
+			"drop view sys.querylog_history;\n"
+			"drop view sys.querylog_calls;\n"
+			"drop function sys.querylog_calls();\n"
+			"create function sys.querylog_calls()\n"
+			"returns table(\n"
+			" id oid,\n"
+			" \"start\" timestamp,\n"
+			" \"stop\" timestamp,\n"
+			" arguments string,\n"
+			" tuples bigint,\n"
+			" run bigint,\n"
+			" ship bigint,\n"
+			" cpu int,\n"
+			" io int\n"
+			")\n"
+			"external name sql.querylog_calls;\n"
+			"create view sys.querylog_calls as select * from sys.querylog_calls();\n"
+			"create view sys.querylog_history as\n"
+			"select qd.*, ql.\"start\",ql.\"stop\", ql.arguments, ql.tuples, ql.run, ql.ship, ql.cpu, ql.io\n"
+			"from sys.querylog_catalog() qd, sys.querylog_calls() ql\n"
+			"where qd.id = ql.id and qd.owner = user;\n"
+			"update _tables set system = true where name in ('querylog_calls', 'querylog_history') and schema_id = (select id from schemas where name = 'sys');\n");
+
+	/* 39_analytics.sql */
+	pos += snprintf(buf + pos, bufsize - pos,
+			"drop aggregate sys.stddev_pop(wrd);\n"
+			"drop aggregate sys.stddev_samp(wrd);\n"
+			"drop aggregate sys.var_pop(wrd);\n"
+			"drop aggregate sys.var_samp(wrd);\n"
+			"drop aggregate sys.median(wrd);\n"
+			"drop aggregate sys.quantile(wrd, double);\n"
+			"drop aggregate sys.corr(wrd, wrd);\n");
+
+	pos += snprintf(buf + pos, bufsize - pos,
+			"insert into sys.systemfunctions (select f.id from sys.functions f, sys.schemas s where f.name in ('querylog_calls') and f.type = %d and f.schema_id = s.id and s.name = 'sys');\n",
+			F_UNION);
+	pos += snprintf(buf + pos, bufsize - pos,
+			"delete from systemfunctions where function_id not in (select id from functions);\n");
+
+	if (schema) 
+		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
 
 	assert(pos < bufsize);
 	printf("Running database upgrade commands:\n%s\n", buf);
@@ -1484,14 +1777,11 @@ sql_update_median(Client c, mvc *sql)
 	char *q2 = "select id from sys.args where func_id in (select id from sys.functions where name = 'median' and schema_id = (select id from sys.schemas where name = 'sys')) and type = 'date' and number = 1;\n";
 	size_t bufsize = 5000, pos = 0;
 	char *buf = GDKmalloc(bufsize), *err = NULL;
-	ValRecord *schvar = stack_get_var(sql, "current_schema");
-	char *schema = NULL;
+	char *schema = stack_get_string(sql, "current_schema");
 	res_table *output;
 	BAT *b;
 	int needed = 0;
 
-	if (schvar)
-		schema = strdup(schvar->val.sval);
 	pos += snprintf(buf + pos, bufsize - pos,
 			"set schema \"sys\";\n");
 	err = SQLstatementIntern(c, &q1, "update", 1, 0, &output);
@@ -1545,10 +1835,8 @@ sql_update_median(Client c, mvc *sql)
 	res_tables_destroy(output);
 	pos += snprintf(buf + pos, bufsize - pos,
 			"insert into sys.systemfunctions (select id from sys.functions where name in ('median', 'quantile') and schema_id = (select id from sys.schemas where name = 'sys') and id not in (select function_id from sys.systemfunctions));\n");
-	if (schema) {
+	if (schema)
 		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
-		free(schema);
-	}
 	assert(pos < bufsize);
 	if (needed) {
 		printf("Running database upgrade commands:\n%s\n", buf);
@@ -1557,6 +1845,155 @@ sql_update_median(Client c, mvc *sql)
 
 	GDKfree(buf);
 
+	return err;		/* usually MAL_SUCCEED */
+}
+
+static str
+sql_update_jun2016_sp2(Client c, mvc *sql)
+{
+	size_t bufsize = 1000000, pos = 0;
+	char *buf = GDKmalloc(bufsize), *err = NULL;
+	char *schema = stack_get_string(sql, "current_schema");
+
+	pos += snprintf(buf + pos, bufsize - pos, "set schema \"sys\";\n");
+
+	pos += snprintf(buf + pos, bufsize - pos,
+			"GRANT EXECUTE ON FUNCTION sys.getAnchor(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getBasename(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getContent(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getContext(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getDomain(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getExtension(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getFile(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getHost(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getPort(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getProtocol(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getQuery(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getUser(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.getRobotURL(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.isaURL(url) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.newurl(STRING, STRING, INT, STRING) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.newurl(STRING, STRING, STRING) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"broadcast\"(inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"host\"(inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"masklen\"(inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"setmasklen\"(inet, int) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"netmask\"(inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"hostmask\"(inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"network\"(inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"text\"(inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"abbrev\"(inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"left_shift\"(inet, inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"right_shift\"(inet, inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"left_shift_assign\"(inet, inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.\"right_shift_assign\"(inet, inet) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_samp(TINYINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_samp(SMALLINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_samp(INTEGER) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_samp(BIGINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_samp(REAL) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_samp(DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_samp(DATE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_samp(TIME) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_samp(TIMESTAMP) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_pop(TINYINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_pop(SMALLINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_pop(INTEGER) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_pop(BIGINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_pop(REAL) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_pop(DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_pop(DATE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_pop(TIME) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.stddev_pop(TIMESTAMP) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_samp(TINYINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_samp(SMALLINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_samp(INTEGER) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_samp(BIGINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_samp(REAL) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_samp(DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_samp(DATE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_samp(TIME) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_samp(TIMESTAMP) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_pop(TINYINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_pop(SMALLINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_pop(INTEGER) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_pop(BIGINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_pop(REAL) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_pop(DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_pop(DATE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_pop(TIME) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_pop(TIMESTAMP) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.median(TINYINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.median(SMALLINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.median(INTEGER) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.median(BIGINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.median(DECIMAL) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.median(REAL) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.median(DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.median(DATE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.median(TIME) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.median(TIMESTAMP) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.quantile(TINYINT, DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.quantile(SMALLINT, DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.quantile(INTEGER, DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.quantile(BIGINT, DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.quantile(DECIMAL, DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.quantile(REAL, DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.quantile(DOUBLE, DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.quantile(DATE, DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.quantile(TIME, DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.quantile(TIMESTAMP, DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.corr(TINYINT, TINYINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.corr(SMALLINT, SMALLINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.corr(INTEGER, INTEGER) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.corr(BIGINT, BIGINT) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.corr(REAL, REAL) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.corr(DOUBLE, DOUBLE) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.filter(json, string) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.filter(json, tinyint) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.filter(json, integer) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.filter(json, bigint) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.text(json, string) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.number(json) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.\"integer\"(json) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.isvalid(string) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.isobject(string) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.isarray(string) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.isvalid(json) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.isobject(json) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.isarray(json) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.length(json) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.keyarray(json) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.valuearray(json) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.text(json) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.text(string) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION json.text(int) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE json.output(json) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE json.tojsonarray(string) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE json.tojsonarray(double) TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.uuid() TO PUBLIC;\n"
+			"GRANT EXECUTE ON FUNCTION sys.isaUUID(string) TO PUBLIC;\n");
+#ifdef HAVE_HGE
+	if (have_hge) {
+		pos += snprintf(buf + pos, bufsize - pos,
+				"GRANT EXECUTE ON AGGREGATE sys.stddev_samp(HUGEINT) TO PUBLIC;\n"
+				"GRANT EXECUTE ON AGGREGATE sys.stddev_pop(HUGEINT) TO PUBLIC;\n"
+				"GRANT EXECUTE ON AGGREGATE sys.var_samp(HUGEINT) TO PUBLIC;\n"
+				"GRANT EXECUTE ON AGGREGATE sys.var_pop(HUGEINT) TO PUBLIC;\n"
+				"GRANT EXECUTE ON AGGREGATE sys.median(HUGEINT) TO PUBLIC;\n"
+				"GRANT EXECUTE ON AGGREGATE sys.quantile(HUGEINT, DOUBLE) TO PUBLIC;\n"
+				"GRANT EXECUTE ON AGGREGATE sys.corr(HUGEINT, HUGEINT) TO PUBLIC;\n"
+				"GRANT EXECUTE ON FUNCTION json.filter(json, hugeint) TO PUBLIC;\n");
+	}
+#endif
+
+	if (schema)
+		pos += snprintf(buf + pos, bufsize - pos, "set schema \"%s\";\n", schema);
+
+	assert(pos < bufsize);
+	printf("Running database upgrade commands:\n%s\n", buf);
+	err = SQLstatementIntern(c, &buf, "update", 1, 0, NULL);
+	GDKfree(buf);
 	return err;		/* usually MAL_SUCCEED */
 }
 
@@ -1674,5 +2111,29 @@ SQLupgrades(Client c, mvc *m)
 	if ((err = sql_update_median(c, m)) != NULL) {
 		fprintf(stderr, "!%s\n", err);
 		GDKfree(err);
+	}
+
+	if ((f = sql_bind_func(m->sa, s, "uuid", NULL, NULL, F_FUNC)) != NULL &&
+	    sql_privilege(m, ROLE_PUBLIC, f->func->base.id, PRIV_EXECUTE, 0) != PRIV_EXECUTE) {
+		if ((err = sql_update_jun2016_sp2(c, m)) != NULL) {
+			fprintf(stderr, "!%s\n", err);
+			GDKfree(err);
+		}
+	}
+
+	sql_find_subtype(&tp, "clob", 0, 0);
+	if (!sql_bind_func3(m->sa, s, "createorderindex", &tp, &tp, &tp, F_PROC)) {
+		if ((err = sql_update_default(c, m)) != NULL) {
+			fprintf(stderr, "!%s\n", err);
+			GDKfree(err);
+		}
+	}
+
+	sql_find_subtype(&tp, "wrd", 0, 0);
+	if (sql_bind_func(m->sa, s, "median", &tp, NULL, F_AGGR)) {
+		if ((err = sql_update_nowrd(c, m)) != NULL) {
+			fprintf(stderr, "!%s\n", err);
+			GDKfree(err);
+		}
 	}
 }

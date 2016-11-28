@@ -4846,5 +4846,3 @@ stream_fwf_create (stream *s, size_t num_fields, size_t *widths, char filler)
 	ns->stream_data.p = fsd;
 	return ns;
 }
-
-

@@ -641,7 +641,8 @@ _ASCIIadt_frStr(Column *c, int type, const char *s)
 		sql_column *col = (sql_column *) c->extra;
 		int len, slen;
 
-		for (e = s; *e; e++) ;
+		for (e = s; *e; e++)
+			;
 		len = (int) (e - s + 1);	/* 64bit: should check for overflow */
 
 		/* or shouldn't len rather be ssize_t, here? */
@@ -866,8 +867,8 @@ mvc_import_table(Client cntxt, BAT ***bats, mvc *m, bstream *bs, sql_table *t, c
 			}
 		}
 		if ( (locked || (msg = TABLETcreate_bats(&as, (BUN) (sz < 0 ? 1000 : sz))) == MAL_SUCCEED)  ){
-			if (SQLload_file(cntxt, &as, bs, out, sep, rsep, ssep ? ssep[0] : 0, offset, sz, best) != BUN_NONE && 
-				(best || !as.error)) {
+			if (!sz || (SQLload_file(cntxt, &as, bs, out, sep, rsep, ssep ? ssep[0] : 0, offset, sz, best) != BUN_NONE && 
+				(best || !as.error))) {
 				*bats = (BAT**) GDKzalloc(sizeof(BAT *) * as.nr_attrs);
 				if ( *bats == NULL){
 					TABLETdestroy_format(&as);
@@ -907,8 +908,7 @@ mvc_import_table(Client cntxt, BAT ***bats, mvc *m, bstream *bs, sql_table *t, c
 		}
 		if (as.error) {
 			if( !best) sql_error(m, 500, "%s", as.error);
-			if (as.error != M5OutOfMemory)
-				GDKfree(as.error);
+			freeException(as.error);
 			as.error = NULL;
 		}
 		for (n = t->columns.set->h, i = 0; n; n = n->next, i++) {
@@ -1720,7 +1720,7 @@ mvc_export_head(backend *b, stream *s, int res_id, int only_header)
 	/* tuple count */
 	if (only_header) {
 		if (t->order) {
-			order = BBPquickdesc(abs(t->order), FALSE);
+			order = BBPquickdesc(t->order, FALSE);
 			if (!order)
 				return -1;
 
