@@ -10,7 +10,7 @@ OPTFLAG="--enable-optimize"
 LINKFLAG="-g"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
-	OPTFLAG="--enable-debug"
+	OPTFLAG="--enable-debug --enable-assert"
 	LINKFLAG="-g"
 fi
 

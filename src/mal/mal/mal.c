@@ -132,15 +132,14 @@ void mserver_reset(void)
 	GDKfree(mal_clients->username);
 	freeStack(mal_clients->glb);
 	mal_client_reset();
-	mal_module_reset();
-  	mal_linker_reset();
+	mal_linker_reset();
 	mal_resource_reset();
 	mal_runtime_reset();
 	mal_module_reset();
 
-	memset((char*)monet_cwd,0, sizeof(monet_cwd));
+	memset((char*) monet_cwd, 0, sizeof(monet_cwd));
 	monet_memory = 0;
-	memset((char*)monet_characteristics,0, sizeof(monet_characteristics));
+	memset((char*) monet_characteristics, 0, sizeof(monet_characteristics));
 	mal_trace = 0;
 	/* No need to clean up the namespace, it will simply be extended
 	 * upon restart mal_namespace_reset(); */

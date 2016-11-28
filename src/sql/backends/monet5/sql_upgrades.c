@@ -1616,7 +1616,8 @@ sql_update_default(Client c, mvc *sql)
 			" revsorted boolean,\n"
 			" \"unique\" boolean,\n"
 			" orderidx bigint\n"
-			")\n"
+			")\n");
+	pos += snprintf(buf + pos, bufsize - pos,
 			"external name sql.\"storage\";\n"
 			"create procedure sys.storagemodelinit()\n"
 			"begin\n"
@@ -1922,7 +1923,8 @@ sql_update_jun2016_sp2(Client c, mvc *sql)
 			"GRANT EXECUTE ON AGGREGATE sys.var_pop(DOUBLE) TO PUBLIC;\n"
 			"GRANT EXECUTE ON AGGREGATE sys.var_pop(DATE) TO PUBLIC;\n"
 			"GRANT EXECUTE ON AGGREGATE sys.var_pop(TIME) TO PUBLIC;\n"
-			"GRANT EXECUTE ON AGGREGATE sys.var_pop(TIMESTAMP) TO PUBLIC;\n"
+			"GRANT EXECUTE ON AGGREGATE sys.var_pop(TIMESTAMP) TO PUBLIC;\n");
+	pos += snprintf(buf + pos, bufsize - pos,
 			"GRANT EXECUTE ON AGGREGATE sys.median(TINYINT) TO PUBLIC;\n"
 			"GRANT EXECUTE ON AGGREGATE sys.median(SMALLINT) TO PUBLIC;\n"
 			"GRANT EXECUTE ON AGGREGATE sys.median(INTEGER) TO PUBLIC;\n"
