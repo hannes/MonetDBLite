@@ -21,7 +21,10 @@ int embedded_r_rand(void) {
 }
 
 static SEXP monetdb_error_R(char* err) {
-	SEXP retChr = NULL, retVec = R_NilValue;
+	SEXP retChr = NULL, retVec = NA_STRING;
+	if (!err) {
+		return retVec;
+	}
 	PROTECT(retChr = RSTR(err));
 	if (retChr) {
 		retVec = ScalarString(retChr);

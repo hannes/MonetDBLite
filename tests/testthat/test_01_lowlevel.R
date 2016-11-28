@@ -187,7 +187,7 @@ test_that("connections from shut down db's dont work", {
 	monetdb_embedded_startup(dbdir)
 	con <- monetdb_embedded_connect()
 	monetdb_embedded_shutdown()
-	expect_equal(monetdb_embedded_query(con, "SELECT * FROM tables")$type, "!")
+	expect_error(monetdb_embedded_query(con, "SELECT * FROM tables"))
 	monetdb_embedded_disconnect(con)
 })
 
