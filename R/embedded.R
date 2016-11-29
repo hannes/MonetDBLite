@@ -41,9 +41,18 @@ monetdb_embedded_startup <- function(dir=tempdir(), quiet=TRUE, sequential=TRUE)
 }
 
 monetdb_embedded_query <- function(conn, query, execute=TRUE, resultconvert=TRUE) {
+	if (!inherits(conn, classname)) {
+		stop("Invalid connection")
+	}
 	query <- as.character(query)
 	if (length(query) != 1) {
 		stop("Need a single query as parameter.")
+	}
+	if (!monetdb_embedded_env$is_started) {
+		stop("Call monetdb_embedded_startup() first")
+	}
+	if (!dir.exists(file.path(monetdb_embedded_env$started_dir, "bat"))) {
+		stop("Someone killed all the BATs! Call Brigitte Bardot!")
 	}
 	execute <- as.logical(execute)
 	if (length(execute) != 1) {
@@ -52,9 +61,6 @@ monetdb_embedded_query <- function(conn, query, execute=TRUE, resultconvert=TRUE
 	resultconvert <- as.logical(resultconvert)
 	if (length(resultconvert) != 1) {
 		stop("Need a single resultconvert flag as parameter.")
-	}
-	if (!inherits(conn, classname)) {
-		stop("Invalid connection")
 	}
 	# make sure the query is terminated
 	query <- paste(query, "\n;", sep="")
@@ -81,7 +87,15 @@ monetdb_embedded_query <- function(conn, query, execute=TRUE, resultconvert=TRUE
 monetdb_embedded_append <- function(conn, table, tdata, schema="sys") {
 	table <- as.character(table)
 	table <- gsub("(^\"|\"$)", "", table)
-	
+	if (!inherits(conn, classname)) {
+		stop("Invalid connection")
+	}
+	if (!monetdb_embedded_env$is_started) {
+		stop("Call monetdb_embedded_startup() first")
+	}
+	if (!dir.exists(file.path(monetdb_embedded_env$started_dir, "bat"))) {
+		stop("Someone killed all the BATs! Call Brigitte Bardot!")
+	}
 	if (length(table) != 1) {
 		stop("Need a single table name as parameter.")
 	}
@@ -92,9 +106,7 @@ monetdb_embedded_append <- function(conn, table, tdata, schema="sys") {
 	if (!is.data.frame(tdata)) {
 		stop("Need a data frame as tdata parameter.")
 	}
-	if (!inherits(conn, classname)) {
-		stop("Invalid connection")
-	}
+	
 	.Call("monetdb_append_R", conn, schema, table, tdata, PACKAGE=libfilename)
 }
 
@@ -125,4 +137,3 @@ monetdb_embedded_shutdown <- function() {
 	monetdb_embedded_env$started_dir <- ""
 	invisible(TRUE)
 }
-

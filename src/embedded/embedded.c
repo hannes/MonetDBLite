@@ -306,7 +306,6 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 
 void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
-		// FIXME
 		SQLepilogue(NULL);
 		MTIMEepilogue(NULL);
 		mserver_reset();

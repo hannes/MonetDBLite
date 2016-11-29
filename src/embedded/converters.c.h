@@ -1,5 +1,4 @@
- #define RSTR(somestr) mkCharCE(somestr, CE_UTF8)
-
+#define RSTR(somestr) mkCharCE(somestr, CE_UTF8)
 
 #define BAT_TO_SXP(bat,tpe,retsxp,newfun,ptrfun,ctype,naval,memcopy)\
 	do {													\

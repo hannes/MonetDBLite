@@ -11,15 +11,27 @@
 #include "sql_scenario.h"
 #include "gdk_utils.h"
 
+/* we need the BAT-SEXP-BAT conversion in two places, here and in RAPI */
+#include "converters.c.h"
+
 int embedded_r_rand(void) {
 	int ret;
 	ret = (int) (unif_rand() * RAND_MAX);
 	return ret;
 }
 
-
-/* we need the BAT-SEXP-BAT conversion in two places, here and in RAPI */
-#include "converters.c.h"
+static SEXP monetdb_error_R(char* err) {
+	SEXP retChr = NULL, retVec = NA_STRING;
+	if (!err) {
+		return retVec;
+	}
+	PROTECT(retChr = RSTR(err));
+	if (retChr) {
+		retVec = ScalarString(retChr);
+	}
+	UNPROTECT(1);
+	return retVec;
+}
 
 SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resultconvertsexp) {
 	res_table* output = NULL;
@@ -29,31 +41,44 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 			(char*)CHAR(STRING_ELT(querysexp, 0)), LOGICAL(executesexp)[0], (void**)&output);
 	if (err) { // there was an error
 		PutRNGstate();
-		return ScalarString(mkCharCE(err, CE_UTF8));
+		return monetdb_error_R(err);
 	}
 	if (output && output->nr_cols > 0) {
 		int i, ncols = output->nr_cols;
 		SEXP retlist, names, varvalue = R_NilValue;
-		retlist = PROTECT(allocVector(VECSXP, ncols));
-		names = PROTECT(NEW_STRING(ncols));
+		PROTECT(retlist = allocVector(VECSXP, ncols));
+		if (!retlist) {
+			UNPROTECT(1);
+			return monetdb_error_R("Memory allocation failed");
+		}
+		PROTECT(names = NEW_STRING(ncols));
+		if (!names) {
+			UNPROTECT(2);
+			return monetdb_error_R("Memory allocation failed");
+		}
 		SET_ATTR(retlist, install("__rows"),
 			Rf_ScalarReal(BATcount(BATdescriptor(output->cols[0].b))));
 		for (i = 0; i < ncols; i++) {
 			BAT* b = BATdescriptor(output->cols[i].b);
+			SEXP varname = PROTECT(RSTR(output->cols[i].name));
+			if (!varname) {
+				UNPROTECT(i * 2 + 3);
+				return monetdb_error_R("Memory allocation failed");
+			}
 			if (!LOGICAL(resultconvertsexp)[0]) {
 				BATsetcount(b, 0); // hehe
 			}
 			if (!(varvalue = bat_to_sexp(b))) {
-				UNPROTECT(i + 3);
+				UNPROTECT(i * 2 + 4);
 				PutRNGstate();
-				return ScalarString(mkCharCE("Conversion error", CE_UTF8));
+				return monetdb_error_R("Conversion error");
 			}
-			SET_STRING_ELT(names, i, mkCharCE(output->cols[i].name, CE_UTF8));
+			SET_STRING_ELT(names, i, varname);
 			SET_VECTOR_ELT(retlist, i, varvalue);
 		}
 		monetdb_cleanup_result(R_ExternalPtrAddr(connsexp), output);
 		SET_NAMES(retlist, names);
-		UNPROTECT(ncols + 2);
+		UNPROTECT(ncols * 2 + 2);
 		PutRNGstate();
 		return retlist;
 	}
@@ -78,7 +103,7 @@ SEXP monetdb_startup_R(SEXP dbdirsexp, SEXP silentsexp, SEXP sequentialsexp) {
 	if (!res) {
 		return ScalarLogical(1);
 	}  else {
-		return ScalarString(mkCharCE(res, CE_UTF8));
+		return monetdb_error_R(res);
 	}
 }
 
@@ -138,7 +163,7 @@ SEXP monetdb_append_R(SEXP connsexp, SEXP schemasexp, SEXP namesexp, SEXP tabled
 		if (!msg) {
 			return ScalarLogical(1);
 		}
-		return ScalarString(mkCharCE(msg, CE_UTF8));
+		return monetdb_error_R(msg);
 }
 
 
