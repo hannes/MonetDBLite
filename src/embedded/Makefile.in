@@ -131,9 +131,8 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(embeddeddir)" \
-	"$(DESTDIR)$(embeddedrdir)"
-LTLIBRARIES = $(embedded_LTLIBRARIES) $(embeddedr_LTLIBRARIES)
+am__installdirs = "$(DESTDIR)$(embeddeddir)"
+LTLIBRARIES = $(embedded_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libembedded_la_DEPENDENCIES = ../mal/tools/libmonetdb5.la \
 	../gdk/libbat.la $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -150,18 +149,6 @@ am__v_lt_1 =
 libembedded_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(libembedded_la_CFLAGS) $(CFLAGS) $(libembedded_la_LDFLAGS) \
-	$(LDFLAGS) -o $@
-libembeddedr_la_DEPENDENCIES = libembedded.la ../gdk/libbat.la \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
-dist_libembeddedr_la_OBJECTS = libembeddedr_la-embeddedr.lo
-nodist_libembeddedr_la_OBJECTS =
-libembeddedr_la_OBJECTS = $(dist_libembeddedr_la_OBJECTS) \
-	$(nodist_libembeddedr_la_OBJECTS)
-libembeddedr_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(libembeddedr_la_CFLAGS) $(CFLAGS) $(libembeddedr_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -197,11 +184,8 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(dist_libembedded_la_SOURCES) \
-	$(nodist_libembedded_la_SOURCES) \
-	$(dist_libembeddedr_la_SOURCES) \
-	$(nodist_libembeddedr_la_SOURCES)
-DIST_SOURCES = $(dist_libembedded_la_SOURCES) \
-	$(dist_libembeddedr_la_SOURCES)
+	$(nodist_libembedded_la_SOURCES)
+DIST_SOURCES = $(dist_libembedded_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -521,18 +505,11 @@ libembedded_la_LIBADD = ../mal/tools/libmonetdb5.la ../gdk/libbat.la $(pcre_LIBS
 nodist_libembedded_la_SOURCES = 
 dist_libembedded_la_SOURCES = embedded.c embedded.h
 libembedded_la_LDFLAGS = -version-info 1
-libembeddedr_la_CFLAGS = -DLIBEMBEDDEDR $(AM_CFLAGS)
-embeddedrdir = $(libdir)
-libembeddedr_la_LIBADD = libembedded.la ../gdk/libbat.la $(pcre_LIBS) $(PSAPILIB) $(SOCKET_LIBS) $(MALLOC_LIBS) $(DL_LIBS) $(PTHREAD_LIBS)
-nodist_libembeddedr_la_SOURCES = 
-dist_libembeddedr_la_SOURCES = embeddedr.c embeddedr.h
-libembeddedr_la_LDFLAGS = -version-info 1
 AM_CPPFLAGS = -I$(srcdir) -I../mal/mal -I$(srcdir)/../mal/mal -I../mal/modules/atoms -I$(srcdir)/../mal/modules/atoms -I../mal/modules/mal -I$(srcdir)/../mal/modules/mal -I../mal/modules/kernel -I$(srcdir)/../mal/modules/kernel -I../mal/extras/rapi -I$(srcdir)/../mal/extras/rapi -I../gdk -I$(srcdir)/../gdk -I../common/stream -I$(srcdir)/../common/stream -I../common/utils -I$(srcdir)/../common/utils -I../common/options -I$(srcdir)/../common/options -I../sql/include -I$(srcdir)/../sql/include -I../sql/server -I$(srcdir)/../sql/server -I../sql/common -I$(srcdir)/../sql/common -I../sql/storage -I$(srcdir)/../sql/storage -I../sql/storage/bat -I$(srcdir)/../sql/storage/bat -I../sql/backends/monet5 -I$(srcdir)/../sql/backends/monet5 $(pcre_CFLAGS)
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
-EXTRA_DIST = Makefile.ag Makefile.msc embedded.c embedded.h embeddedr.c embeddedr.h
+EXTRA_DIST = Makefile.ag Makefile.msc embedded.c embedded.h
 embedded_LTLIBRARIES = libembedded.la
-embeddedr_LTLIBRARIES = libembeddedr.la
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -603,46 +580,8 @@ clean-embeddedLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-install-embeddedrLTLIBRARIES: $(embeddedr_LTLIBRARIES)
-	@$(NORMAL_INSTALL)
-	@list='$(embeddedr_LTLIBRARIES)'; test -n "$(embeddedrdir)" || list=; \
-	list2=; for p in $$list; do \
-	  if test -f $$p; then \
-	    list2="$$list2 $$p"; \
-	  else :; fi; \
-	done; \
-	test -z "$$list2" || { \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(embeddedrdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(embeddedrdir)" || exit 1; \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(embeddedrdir)'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(embeddedrdir)"; \
-	}
-
-uninstall-embeddedrLTLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	@list='$(embeddedr_LTLIBRARIES)'; test -n "$(embeddedrdir)" || list=; \
-	for p in $$list; do \
-	  $(am__strip_dir) \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(embeddedrdir)/$$f'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(embeddedrdir)/$$f"; \
-	done
-
-clean-embeddedrLTLIBRARIES:
-	-test -z "$(embeddedr_LTLIBRARIES)" || rm -f $(embeddedr_LTLIBRARIES)
-	@list='$(embeddedr_LTLIBRARIES)'; \
-	locs=`for p in $$list; do echo $$p; done | \
-	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
-	      sort -u`; \
-	test -z "$$locs" || { \
-	  echo rm -f $${locs}; \
-	  rm -f $${locs}; \
-	}
-
 libembedded.la: $(libembedded_la_OBJECTS) $(libembedded_la_DEPENDENCIES) $(EXTRA_libembedded_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libembedded_la_LINK) -rpath $(embeddeddir) $(libembedded_la_OBJECTS) $(libembedded_la_LIBADD) $(LIBS)
-
-libembeddedr.la: $(libembeddedr_la_OBJECTS) $(libembeddedr_la_DEPENDENCIES) $(EXTRA_libembeddedr_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libembeddedr_la_LINK) -rpath $(embeddedrdir) $(libembeddedr_la_OBJECTS) $(libembeddedr_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -752,7 +691,7 @@ check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES)
 installdirs:
-	for dir in "$(DESTDIR)$(embeddeddir)" "$(DESTDIR)$(embeddedrdir)"; do \
+	for dir in "$(DESTDIR)$(embeddeddir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -790,8 +729,8 @@ maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
-clean-am: clean-embeddedLTLIBRARIES clean-embeddedrLTLIBRARIES \
-	clean-generic clean-libtool mostlyclean-am
+clean-am: clean-embeddedLTLIBRARIES clean-generic clean-libtool \
+	mostlyclean-am
 
 distclean: distclean-am
 	-rm -f Makefile
@@ -810,8 +749,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-embeddedLTLIBRARIES \
-	install-embeddedrLTLIBRARIES
+install-data-am: install-embeddedLTLIBRARIES
 
 install-dvi: install-dvi-am
 
@@ -856,38 +794,31 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-embeddedLTLIBRARIES \
-	uninstall-embeddedrLTLIBRARIES
+uninstall-am: uninstall-embeddedLTLIBRARIES
 
 .MAKE: all check install install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean \
-	clean-embeddedLTLIBRARIES clean-embeddedrLTLIBRARIES \
-	clean-generic clean-libtool cscopelist-am ctags ctags-am \
-	distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am \
-	install-embeddedLTLIBRARIES install-embeddedrLTLIBRARIES \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am \
-	uninstall-embeddedLTLIBRARIES uninstall-embeddedrLTLIBRARIES
+	clean-embeddedLTLIBRARIES clean-generic clean-libtool \
+	cscopelist-am ctags ctags-am distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-embeddedLTLIBRARIES install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-embeddedLTLIBRARIES
 
 .PRECIOUS: Makefile
 
 $(do)install-embeddedLTLIBRARIES : 
-libembedded_la-embedded.lo: embedded.c embedded.h ../common/options/monet_options.h ../mal/mal/../../gdk/gdk.h ../mal/mal/../../gdk/gdk_system.h ../mal/mal/../../gdk/gdk_atomic.h ../mal/mal/../../gdk/gdk_posix.h ../mal/mal/../../common/stream/stream.h ../mal/mal/../../gdk/gdk_delta.h ../mal/mal/../../gdk/gdk_hash.h ../mal/mal/../../gdk/gdk_atoms.h ../mal/mal/../../gdk/gdk_bbp.h ../mal/mal/../../gdk/gdk_utils.h ../mal/mal/../../common/options/monet_options.h ../mal/mal/../../gdk/gdk_calc.h ../mal/mal/mal.h ../mal/mal/mal_resolve.h ../mal/mal/mal_profiler.h ../mal/mal/mal_client.h ../mal/mal/mal_linker.h ../sql/backends/monet5/sql_scenario.h ../gdk/../common/options/monet_options.h ../gdk/gdk_utils.h ../sql/backends/monet5/sql_execute.h ../sql/backends/monet5/sql.h ../sql/server/../include/sql_mem.h ../sql/server/../../gdk/gdk.h ../sql/server/sql_scan.h ../sql/server/../include/sql_list.h ../sql/server/../../common/stream/stream.h ../sql/server/../common/sql_types.h ../sql/server/../common/sql_backend.h ../sql/server/../include/sql_catalog.h ../sql/server/../include/sql_relation.h ../sql/server/../storage/sql_storage.h ../sql/server/../include/sql_keyword.h ../sql/server/sql_atom.h ../sql/server/../include/sql_query.h ../sql/server/sql_mvc.h ../sql/storage/bat/../../include/sql_catalog.h ../sql/storage/bat/res_table.h decompress.c inlined_scripts.c ../gdk/gdk_atomic.h ../gdk/gdk_system.h ../gdk/gdk_posix.h ../common/stream/stream.h ../gdk/gdk_delta.h ../gdk/gdk_hash.h ../gdk/gdk_atoms.h ../gdk/gdk_bbp.h ../gdk/gdk_calc.h ../gdk/../common/stream/stream.h ../gdk/gdk.h ../mal/mal/mal_instruction.h ../mal/mal/mal_type.h ../mal/mal/mal_stack.h ../mal/mal/mal_namespace.h ../mal/mal/mal_errors.h ../mal/mal/mal_exception.h ../mal/mal/mal_module.h ../mal/mal/mal_function.h ../mal/mal/mal_listing.h ../sql/include/sql_mem.h ../sql/backends/monet5/../../../mal/modules/atoms/streams.h ../sql/backends/monet5/../../../mal/mal/mal.h ../sql/backends/monet5/../../../gdk/gdk.h ../sql/backends/monet5/../../../gdk/gdk_system.h ../sql/backends/monet5/../../../gdk/gdk_atomic.h ../sql/backends/monet5/../../../gdk/gdk_posix.h ../sql/backends/monet5/../../../common/stream/stream.h ../sql/backends/monet5/../../../gdk/gdk_delta.h ../sql/backends/monet5/../../../gdk/gdk_hash.h ../sql/backends/monet5/../../../gdk/gdk_atoms.h ../sql/backends/monet5/../../../gdk/gdk_bbp.h ../sql/backends/monet5/../../../gdk/gdk_utils.h ../sql/backends/monet5/../../../common/options/monet_options.h ../sql/backends/monet5/../../../gdk/gdk_calc.h ../sql/backends/monet5/../../../common/stream/stream_socket.h ../sql/backends/monet5/../../../mal/mal/mal_client.h ../sql/backends/monet5/../../../mal/mal/mal_resolve.h ../sql/backends/monet5/../../../mal/mal/mal_exception.h ../sql/backends/monet5/../../../mal/mal/mal_instruction.h ../sql/backends/monet5/../../../mal/mal/mal_type.h ../sql/backends/monet5/../../../mal/mal/mal_stack.h ../sql/backends/monet5/../../../mal/mal/mal_namespace.h ../sql/backends/monet5/../../../mal/mal/mal_errors.h ../sql/backends/monet5/../../../mal/mal/mal_function.h ../sql/backends/monet5/../../../mal/mal/mal_module.h ../sql/backends/monet5/../../../mal/mal/mal_listing.h ../sql/backends/monet5/../../../mal/mal/mal_profiler.h ../sql/backends/monet5/../../server/sql_mvc.h ../sql/backends/monet5/../../include/sql_mem.h ../sql/backends/monet5/../../server/sql_scan.h ../sql/backends/monet5/../../include/sql_list.h ../sql/backends/monet5/../../include/sql_hash.h ../sql/backends/monet5/../../common/sql_types.h ../sql/backends/monet5/../../common/sql_string.h ../sql/backends/monet5/../../include/sql_catalog.h ../sql/backends/monet5/../../storage/sql_storage.h ../sql/backends/monet5/../../../gdk/gdk_logger.h ../sql/backends/monet5/../../common/sql_backend.h ../sql/backends/monet5/../../include/sql_relation.h ../sql/backends/monet5/../../include/sql_keyword.h ../sql/backends/monet5/../../server/sql_atom.h ../sql/backends/monet5/../../include/sql_query.h ../sql/backends/monet5/../../server/sql_qc.h ../sql/backends/monet5/../../server/sql_symbol.h ../sql/backends/monet5/mal_backend.h ../sql/common/../include/sql_mem.h ../sql/common/../include/sql_catalog.h ../sql/common/../include/sql_relation.h ../sql/common/sql_types.h ../sql/common/../include/sql_list.h ../sql/common/sql_string.h ../sql/common/../storage/sql_storage.h ../sql/common/../../common/stream/stream.h ../sql/common/sql_backend.h ../mal/mal/mal_scenario.h ../mal/mal/mal_session.h ../mal/mal/mal_interpreter.h ../mal/modules/mal/tablet.h ../mal/modules/atoms/../../mal/mal.h ../mal/modules/atoms/../../../common/stream/stream_socket.h ../mal/modules/atoms/streams.h ../mal/modules/atoms/../../../gdk/gdk.h ../mal/modules/atoms/../../mal/mal_exception.h ../mal/modules/atoms/mtime.h ../mal/modules/atoms/blob.h ../mal/modules/mal/mkey.h ../mal/modules/atoms/str.h ../sql/server/sql_privileges.h ../sql/server/sql_decimal.h ../sql/server/sql_symbol.h ../sql/server/sql_qc.h ../sql/server/sql_parser.h ../sql/server/sql_env.h ../sql/backends/monet5/sql_statement.h ../mal/modules/mal/querylog.h ../sql/storage/bat/../sql_storage.h ../sql/storage/bat/bat_logger.h ../sql/storage/bat/../../../gdk/gdk_logger.h ../sql/storage/bat/bat_storage.h ../sql/storage/bat/bat_utils.h ../sql/backends/monet5/sql_cast.h ../sql/include/sql_list.h ../sql/include/sql_hash.h ../sql/include/sql_catalog.h ../sql/storage/../include/sql_catalog.h ../sql/storage/../../gdk/gdk_logger.h ../sql/storage/sql_storage.h ../sql/include/sql_relation.h ../gdk/gdk_logger.h ../sql/include/sql_keyword.h ../sql/include/sql_query.h
+libembedded_la-embedded.lo: embedded.c embedded.h ../common/options/monet_options.h ../mal/mal/../../gdk/gdk.h ../mal/mal/../../gdk/gdk_system.h ../mal/mal/../../gdk/gdk_atomic.h ../mal/mal/../../gdk/gdk_posix.h ../mal/mal/../../common/stream/stream.h ../mal/mal/../../gdk/gdk_delta.h ../mal/mal/../../gdk/gdk_hash.h ../mal/mal/../../gdk/gdk_atoms.h ../mal/mal/../../gdk/gdk_bbp.h ../mal/mal/../../gdk/gdk_utils.h ../mal/mal/../../common/options/monet_options.h ../mal/mal/../../gdk/gdk_calc.h ../mal/mal/mal.h ../mal/mal/mal_resolve.h ../mal/mal/mal_profiler.h ../mal/mal/mal_client.h ../mal/mal/mal_linker.h ../sql/backends/monet5/sql_scenario.h ../gdk/../common/options/monet_options.h ../gdk/gdk_utils.h ../sql/backends/monet5/sql_execute.h ../sql/backends/monet5/sql.h ../sql/server/../include/sql_mem.h ../sql/server/../../gdk/gdk.h ../sql/server/sql_scan.h ../sql/server/../include/sql_list.h ../sql/server/../../common/stream/stream.h ../sql/server/../common/sql_types.h ../sql/server/../common/sql_backend.h ../sql/server/../include/sql_catalog.h ../sql/server/../include/sql_relation.h ../sql/server/../storage/sql_storage.h ../sql/server/../include/sql_keyword.h ../sql/server/sql_atom.h ../sql/server/../include/sql_query.h ../sql/server/sql_mvc.h ../sql/storage/bat/../../include/sql_catalog.h ../sql/storage/bat/res_table.h decompress.c inlined_scripts.c
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libembedded_la_CFLAGS) $(CFLAGS) $(embedded_CFLAGS) -c -o libembedded_la-embedded.lo `test -f 'embedded.c' || echo '$(srcdir)/'`embedded.c
-embedded.o embedded.lo: embedded.c embedded.h ../common/options/monet_options.h ../mal/mal/../../gdk/gdk.h ../mal/mal/../../gdk/gdk_system.h ../mal/mal/../../gdk/gdk_atomic.h ../mal/mal/../../gdk/gdk_posix.h ../mal/mal/../../common/stream/stream.h ../mal/mal/../../gdk/gdk_delta.h ../mal/mal/../../gdk/gdk_hash.h ../mal/mal/../../gdk/gdk_atoms.h ../mal/mal/../../gdk/gdk_bbp.h ../mal/mal/../../gdk/gdk_utils.h ../mal/mal/../../common/options/monet_options.h ../mal/mal/../../gdk/gdk_calc.h ../mal/mal/mal.h ../mal/mal/mal_resolve.h ../mal/mal/mal_profiler.h ../mal/mal/mal_client.h ../mal/mal/mal_linker.h ../sql/backends/monet5/sql_scenario.h ../gdk/../common/options/monet_options.h ../gdk/gdk_utils.h ../sql/backends/monet5/sql_execute.h ../sql/backends/monet5/sql.h ../sql/server/../include/sql_mem.h ../sql/server/../../gdk/gdk.h ../sql/server/sql_scan.h ../sql/server/../include/sql_list.h ../sql/server/../../common/stream/stream.h ../sql/server/../common/sql_types.h ../sql/server/../common/sql_backend.h ../sql/server/../include/sql_catalog.h ../sql/server/../include/sql_relation.h ../sql/server/../storage/sql_storage.h ../sql/server/../include/sql_keyword.h ../sql/server/sql_atom.h ../sql/server/../include/sql_query.h ../sql/server/sql_mvc.h ../sql/storage/bat/../../include/sql_catalog.h ../sql/storage/bat/res_table.h decompress.c inlined_scripts.c ../gdk/gdk_atomic.h ../gdk/gdk_system.h ../gdk/gdk_posix.h ../common/stream/stream.h ../gdk/gdk_delta.h ../gdk/gdk_hash.h ../gdk/gdk_atoms.h ../gdk/gdk_bbp.h ../gdk/gdk_calc.h ../gdk/../common/stream/stream.h ../gdk/gdk.h ../mal/mal/mal_instruction.h ../mal/mal/mal_type.h ../mal/mal/mal_stack.h ../mal/mal/mal_namespace.h ../mal/mal/mal_errors.h ../mal/mal/mal_exception.h ../mal/mal/mal_module.h ../mal/mal/mal_function.h ../mal/mal/mal_listing.h ../sql/include/sql_mem.h ../sql/backends/monet5/../../../mal/modules/atoms/streams.h ../sql/backends/monet5/../../../mal/mal/mal.h ../sql/backends/monet5/../../../gdk/gdk.h ../sql/backends/monet5/../../../gdk/gdk_system.h ../sql/backends/monet5/../../../gdk/gdk_atomic.h ../sql/backends/monet5/../../../gdk/gdk_posix.h ../sql/backends/monet5/../../../common/stream/stream.h ../sql/backends/monet5/../../../gdk/gdk_delta.h ../sql/backends/monet5/../../../gdk/gdk_hash.h ../sql/backends/monet5/../../../gdk/gdk_atoms.h ../sql/backends/monet5/../../../gdk/gdk_bbp.h ../sql/backends/monet5/../../../gdk/gdk_utils.h ../sql/backends/monet5/../../../common/options/monet_options.h ../sql/backends/monet5/../../../gdk/gdk_calc.h ../sql/backends/monet5/../../../common/stream/stream_socket.h ../sql/backends/monet5/../../../mal/mal/mal_client.h ../sql/backends/monet5/../../../mal/mal/mal_resolve.h ../sql/backends/monet5/../../../mal/mal/mal_exception.h ../sql/backends/monet5/../../../mal/mal/mal_instruction.h ../sql/backends/monet5/../../../mal/mal/mal_type.h ../sql/backends/monet5/../../../mal/mal/mal_stack.h ../sql/backends/monet5/../../../mal/mal/mal_namespace.h ../sql/backends/monet5/../../../mal/mal/mal_errors.h ../sql/backends/monet5/../../../mal/mal/mal_function.h ../sql/backends/monet5/../../../mal/mal/mal_module.h ../sql/backends/monet5/../../../mal/mal/mal_listing.h ../sql/backends/monet5/../../../mal/mal/mal_profiler.h ../sql/backends/monet5/../../server/sql_mvc.h ../sql/backends/monet5/../../include/sql_mem.h ../sql/backends/monet5/../../server/sql_scan.h ../sql/backends/monet5/../../include/sql_list.h ../sql/backends/monet5/../../include/sql_hash.h ../sql/backends/monet5/../../common/sql_types.h ../sql/backends/monet5/../../common/sql_string.h ../sql/backends/monet5/../../include/sql_catalog.h ../sql/backends/monet5/../../storage/sql_storage.h ../sql/backends/monet5/../../../gdk/gdk_logger.h ../sql/backends/monet5/../../common/sql_backend.h ../sql/backends/monet5/../../include/sql_relation.h ../sql/backends/monet5/../../include/sql_keyword.h ../sql/backends/monet5/../../server/sql_atom.h ../sql/backends/monet5/../../include/sql_query.h ../sql/backends/monet5/../../server/sql_qc.h ../sql/backends/monet5/../../server/sql_symbol.h ../sql/backends/monet5/mal_backend.h ../sql/common/../include/sql_mem.h ../sql/common/../include/sql_catalog.h ../sql/common/../include/sql_relation.h ../sql/common/sql_types.h ../sql/common/../include/sql_list.h ../sql/common/sql_string.h ../sql/common/../storage/sql_storage.h ../sql/common/../../common/stream/stream.h ../sql/common/sql_backend.h ../mal/mal/mal_scenario.h ../mal/mal/mal_session.h ../mal/mal/mal_interpreter.h ../mal/modules/mal/tablet.h ../mal/modules/atoms/../../mal/mal.h ../mal/modules/atoms/../../../common/stream/stream_socket.h ../mal/modules/atoms/streams.h ../mal/modules/atoms/../../../gdk/gdk.h ../mal/modules/atoms/../../mal/mal_exception.h ../mal/modules/atoms/mtime.h ../mal/modules/atoms/blob.h ../mal/modules/mal/mkey.h ../mal/modules/atoms/str.h ../sql/server/sql_privileges.h ../sql/server/sql_decimal.h ../sql/server/sql_symbol.h ../sql/server/sql_qc.h ../sql/server/sql_parser.h ../sql/server/sql_env.h ../sql/backends/monet5/sql_statement.h ../mal/modules/mal/querylog.h ../sql/storage/bat/../sql_storage.h ../sql/storage/bat/bat_logger.h ../sql/storage/bat/../../../gdk/gdk_logger.h ../sql/storage/bat/bat_storage.h ../sql/storage/bat/bat_utils.h ../sql/backends/monet5/sql_cast.h ../sql/include/sql_list.h ../sql/include/sql_hash.h ../sql/include/sql_catalog.h ../sql/storage/../include/sql_catalog.h ../sql/storage/../../gdk/gdk_logger.h ../sql/storage/sql_storage.h ../sql/include/sql_relation.h ../gdk/gdk_logger.h ../sql/include/sql_keyword.h ../sql/include/sql_query.h
-embeddedr.o embeddedr.lo: embeddedr.c embeddedr.h embedded.h ../common/options/monet_options.h ../mal/mal/../../gdk/gdk.h ../mal/mal/../../gdk/gdk_system.h ../mal/mal/../../gdk/gdk_atomic.h ../mal/mal/../../gdk/gdk_posix.h ../mal/mal/../../common/stream/stream.h ../mal/mal/../../gdk/gdk_delta.h ../mal/mal/../../gdk/gdk_hash.h ../mal/mal/../../gdk/gdk_atoms.h ../mal/mal/../../gdk/gdk_bbp.h ../mal/mal/../../gdk/gdk_utils.h ../mal/mal/../../common/options/monet_options.h ../mal/mal/../../gdk/gdk_calc.h ../mal/mal/mal.h ../mal/modules/kernel/../../mal/mal.h ../mal/modules/kernel/../../mal/mal_exception.h ../mal/modules/kernel/mmath.h ../mal/mal/mal_resolve.h ../mal/mal/mal_profiler.h ../mal/mal/mal_client.h ../mal/mal/mal_linker.h ../sql/backends/monet5/sql_scenario.h ../gdk/../common/options/monet_options.h ../gdk/gdk_utils.h converters.c.h ../gdk/gdk_atomic.h ../gdk/gdk_system.h ../gdk/gdk_posix.h ../common/stream/stream.h ../gdk/gdk_delta.h ../gdk/gdk_hash.h ../gdk/gdk_atoms.h ../gdk/gdk_bbp.h ../gdk/gdk_calc.h ../gdk/../common/stream/stream.h ../gdk/gdk.h ../mal/mal/mal_instruction.h ../mal/mal/mal_type.h ../mal/mal/mal_stack.h ../mal/mal/mal_namespace.h ../mal/mal/mal_errors.h ../mal/mal/mal_exception.h ../mal/mal/mal_module.h ../mal/mal/mal_function.h ../mal/mal/mal_listing.h ../sql/backends/monet5/sql.h ../sql/include/sql_mem.h ../sql/backends/monet5/../../../mal/modules/atoms/streams.h ../sql/backends/monet5/../../../mal/mal/mal.h ../sql/backends/monet5/../../../gdk/gdk.h ../sql/backends/monet5/../../../gdk/gdk_system.h ../sql/backends/monet5/../../../gdk/gdk_atomic.h ../sql/backends/monet5/../../../gdk/gdk_posix.h ../sql/backends/monet5/../../../common/stream/stream.h ../sql/backends/monet5/../../../gdk/gdk_delta.h ../sql/backends/monet5/../../../gdk/gdk_hash.h ../sql/backends/monet5/../../../gdk/gdk_atoms.h ../sql/backends/monet5/../../../gdk/gdk_bbp.h ../sql/backends/monet5/../../../gdk/gdk_utils.h ../sql/backends/monet5/../../../common/options/monet_options.h ../sql/backends/monet5/../../../gdk/gdk_calc.h ../sql/backends/monet5/../../../common/stream/stream_socket.h ../sql/backends/monet5/../../../mal/mal/mal_client.h ../sql/backends/monet5/../../../mal/mal/mal_resolve.h ../sql/backends/monet5/../../../mal/mal/mal_exception.h ../sql/backends/monet5/../../../mal/mal/mal_instruction.h ../sql/backends/monet5/../../../mal/mal/mal_type.h ../sql/backends/monet5/../../../mal/mal/mal_stack.h ../sql/backends/monet5/../../../mal/mal/mal_namespace.h ../sql/backends/monet5/../../../mal/mal/mal_errors.h ../sql/backends/monet5/../../../mal/mal/mal_function.h ../sql/backends/monet5/../../../mal/mal/mal_module.h ../sql/backends/monet5/../../../mal/mal/mal_listing.h ../sql/backends/monet5/../../../mal/mal/mal_profiler.h ../sql/backends/monet5/../../server/sql_mvc.h ../sql/backends/monet5/../../include/sql_mem.h ../sql/backends/monet5/../../server/sql_scan.h ../sql/backends/monet5/../../include/sql_list.h ../sql/backends/monet5/../../include/sql_hash.h ../sql/backends/monet5/../../common/sql_types.h ../sql/backends/monet5/../../common/sql_string.h ../sql/backends/monet5/../../include/sql_catalog.h ../sql/backends/monet5/../../storage/sql_storage.h ../sql/backends/monet5/../../../gdk/gdk_logger.h ../sql/backends/monet5/../../common/sql_backend.h ../sql/backends/monet5/../../include/sql_relation.h ../sql/backends/monet5/../../include/sql_keyword.h ../sql/backends/monet5/../../server/sql_atom.h ../sql/backends/monet5/../../include/sql_query.h ../sql/backends/monet5/../../server/sql_qc.h ../sql/backends/monet5/../../server/sql_symbol.h ../sql/backends/monet5/mal_backend.h ../sql/server/../include/sql_mem.h ../sql/server/../../gdk/gdk.h ../sql/server/sql_scan.h ../sql/server/../include/sql_list.h ../sql/server/../../common/stream/stream.h ../sql/server/../common/sql_types.h ../sql/server/../common/sql_backend.h ../sql/server/../include/sql_catalog.h ../sql/server/../include/sql_relation.h ../sql/server/../storage/sql_storage.h ../sql/server/../include/sql_keyword.h ../sql/server/sql_atom.h ../sql/server/../include/sql_query.h ../sql/server/sql_mvc.h ../sql/common/../include/sql_mem.h ../sql/common/../include/sql_catalog.h ../sql/common/../include/sql_relation.h ../sql/common/sql_types.h ../sql/common/../include/sql_list.h ../sql/common/sql_string.h ../sql/common/../storage/sql_storage.h ../sql/common/../../common/stream/stream.h ../sql/common/sql_backend.h ../mal/mal/mal_scenario.h ../mal/mal/mal_session.h ../mal/mal/mal_interpreter.h ../mal/modules/mal/tablet.h ../mal/modules/atoms/../../mal/mal.h ../mal/modules/atoms/../../../common/stream/stream_socket.h ../mal/modules/atoms/streams.h ../mal/modules/atoms/../../../gdk/gdk.h ../mal/modules/atoms/../../mal/mal_exception.h ../mal/modules/atoms/mtime.h ../mal/modules/atoms/blob.h ../mal/modules/mal/mkey.h ../mal/modules/atoms/str.h ../sql/server/sql_privileges.h ../sql/server/sql_decimal.h ../sql/server/sql_symbol.h ../sql/server/sql_qc.h ../sql/server/sql_parser.h ../sql/server/sql_env.h ../sql/backends/monet5/sql_statement.h ../mal/modules/mal/querylog.h ../sql/storage/bat/../sql_storage.h ../sql/storage/bat/bat_logger.h ../sql/storage/bat/../../../gdk/gdk_logger.h ../sql/storage/bat/bat_storage.h ../sql/storage/bat/bat_utils.h ../sql/backends/monet5/sql_cast.h ../sql/include/sql_list.h ../sql/include/sql_hash.h ../sql/include/sql_catalog.h ../sql/storage/../include/sql_catalog.h ../sql/storage/../../gdk/gdk_logger.h ../sql/storage/sql_storage.h ../sql/include/sql_relation.h ../gdk/gdk_logger.h ../sql/include/sql_keyword.h ../sql/include/sql_query.h
-$(do)install-embeddedrLTLIBRARIES :  install-embeddedLTLIBRARIES
-libembeddedr_la-embeddedr.lo: embeddedr.c embeddedr.h embedded.h ../common/options/monet_options.h ../mal/mal/../../gdk/gdk.h ../mal/mal/../../gdk/gdk_system.h ../mal/mal/../../gdk/gdk_atomic.h ../mal/mal/../../gdk/gdk_posix.h ../mal/mal/../../common/stream/stream.h ../mal/mal/../../gdk/gdk_delta.h ../mal/mal/../../gdk/gdk_hash.h ../mal/mal/../../gdk/gdk_atoms.h ../mal/mal/../../gdk/gdk_bbp.h ../mal/mal/../../gdk/gdk_utils.h ../mal/mal/../../common/options/monet_options.h ../mal/mal/../../gdk/gdk_calc.h ../mal/mal/mal.h ../mal/modules/kernel/../../mal/mal.h ../mal/modules/kernel/../../mal/mal_exception.h ../mal/modules/kernel/mmath.h ../mal/mal/mal_resolve.h ../mal/mal/mal_profiler.h ../mal/mal/mal_client.h ../mal/mal/mal_linker.h ../sql/backends/monet5/sql_scenario.h ../gdk/../common/options/monet_options.h ../gdk/gdk_utils.h converters.c.h ../gdk/gdk_atomic.h ../gdk/gdk_system.h ../gdk/gdk_posix.h ../common/stream/stream.h ../gdk/gdk_delta.h ../gdk/gdk_hash.h ../gdk/gdk_atoms.h ../gdk/gdk_bbp.h ../gdk/gdk_calc.h ../gdk/../common/stream/stream.h ../gdk/gdk.h ../mal/mal/mal_instruction.h ../mal/mal/mal_type.h ../mal/mal/mal_stack.h ../mal/mal/mal_namespace.h ../mal/mal/mal_errors.h ../mal/mal/mal_exception.h ../mal/mal/mal_module.h ../mal/mal/mal_function.h ../mal/mal/mal_listing.h ../sql/backends/monet5/sql.h ../sql/include/sql_mem.h ../sql/backends/monet5/../../../mal/modules/atoms/streams.h ../sql/backends/monet5/../../../mal/mal/mal.h ../sql/backends/monet5/../../../gdk/gdk.h ../sql/backends/monet5/../../../gdk/gdk_system.h ../sql/backends/monet5/../../../gdk/gdk_atomic.h ../sql/backends/monet5/../../../gdk/gdk_posix.h ../sql/backends/monet5/../../../common/stream/stream.h ../sql/backends/monet5/../../../gdk/gdk_delta.h ../sql/backends/monet5/../../../gdk/gdk_hash.h ../sql/backends/monet5/../../../gdk/gdk_atoms.h ../sql/backends/monet5/../../../gdk/gdk_bbp.h ../sql/backends/monet5/../../../gdk/gdk_utils.h ../sql/backends/monet5/../../../common/options/monet_options.h ../sql/backends/monet5/../../../gdk/gdk_calc.h ../sql/backends/monet5/../../../common/stream/stream_socket.h ../sql/backends/monet5/../../../mal/mal/mal_client.h ../sql/backends/monet5/../../../mal/mal/mal_resolve.h ../sql/backends/monet5/../../../mal/mal/mal_exception.h ../sql/backends/monet5/../../../mal/mal/mal_instruction.h ../sql/backends/monet5/../../../mal/mal/mal_type.h ../sql/backends/monet5/../../../mal/mal/mal_stack.h ../sql/backends/monet5/../../../mal/mal/mal_namespace.h ../sql/backends/monet5/../../../mal/mal/mal_errors.h ../sql/backends/monet5/../../../mal/mal/mal_function.h ../sql/backends/monet5/../../../mal/mal/mal_module.h ../sql/backends/monet5/../../../mal/mal/mal_listing.h ../sql/backends/monet5/../../../mal/mal/mal_profiler.h ../sql/backends/monet5/../../server/sql_mvc.h ../sql/backends/monet5/../../include/sql_mem.h ../sql/backends/monet5/../../server/sql_scan.h ../sql/backends/monet5/../../include/sql_list.h ../sql/backends/monet5/../../include/sql_hash.h ../sql/backends/monet5/../../common/sql_types.h ../sql/backends/monet5/../../common/sql_string.h ../sql/backends/monet5/../../include/sql_catalog.h ../sql/backends/monet5/../../storage/sql_storage.h ../sql/backends/monet5/../../../gdk/gdk_logger.h ../sql/backends/monet5/../../common/sql_backend.h ../sql/backends/monet5/../../include/sql_relation.h ../sql/backends/monet5/../../include/sql_keyword.h ../sql/backends/monet5/../../server/sql_atom.h ../sql/backends/monet5/../../include/sql_query.h ../sql/backends/monet5/../../server/sql_qc.h ../sql/backends/monet5/../../server/sql_symbol.h ../sql/backends/monet5/mal_backend.h ../sql/server/../include/sql_mem.h ../sql/server/../../gdk/gdk.h ../sql/server/sql_scan.h ../sql/server/../include/sql_list.h ../sql/server/../../common/stream/stream.h ../sql/server/../common/sql_types.h ../sql/server/../common/sql_backend.h ../sql/server/../include/sql_catalog.h ../sql/server/../include/sql_relation.h ../sql/server/../storage/sql_storage.h ../sql/server/../include/sql_keyword.h ../sql/server/sql_atom.h ../sql/server/../include/sql_query.h ../sql/server/sql_mvc.h ../sql/common/../include/sql_mem.h ../sql/common/../include/sql_catalog.h ../sql/common/../include/sql_relation.h ../sql/common/sql_types.h ../sql/common/../include/sql_list.h ../sql/common/sql_string.h ../sql/common/../storage/sql_storage.h ../sql/common/../../common/stream/stream.h ../sql/common/sql_backend.h ../mal/mal/mal_scenario.h ../mal/mal/mal_session.h ../mal/mal/mal_interpreter.h ../mal/modules/mal/tablet.h ../mal/modules/atoms/../../mal/mal.h ../mal/modules/atoms/../../../common/stream/stream_socket.h ../mal/modules/atoms/streams.h ../mal/modules/atoms/../../../gdk/gdk.h ../mal/modules/atoms/../../mal/mal_exception.h ../mal/modules/atoms/mtime.h ../mal/modules/atoms/blob.h ../mal/modules/mal/mkey.h ../mal/modules/atoms/str.h ../sql/server/sql_privileges.h ../sql/server/sql_decimal.h ../sql/server/sql_symbol.h ../sql/server/sql_qc.h ../sql/server/sql_parser.h ../sql/server/sql_env.h ../sql/backends/monet5/sql_statement.h ../mal/modules/mal/querylog.h ../sql/storage/bat/../sql_storage.h ../sql/storage/bat/bat_logger.h ../sql/storage/bat/../../../gdk/gdk_logger.h ../sql/storage/bat/bat_storage.h ../sql/storage/bat/bat_utils.h ../sql/backends/monet5/sql_cast.h ../sql/include/sql_list.h ../sql/include/sql_hash.h ../sql/include/sql_catalog.h ../sql/storage/../include/sql_catalog.h ../sql/storage/../../gdk/gdk_logger.h ../sql/storage/sql_storage.h ../sql/include/sql_relation.h ../gdk/gdk_logger.h ../sql/include/sql_keyword.h ../sql/include/sql_query.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libembeddedr_la_CFLAGS) $(CFLAGS) $(embeddedr_CFLAGS) -c -o libembeddedr_la-embeddedr.lo `test -f 'embeddedr.c' || echo '$(srcdir)/'`embeddedr.c
+embedded.o embedded.lo: embedded.c embedded.h ../common/options/monet_options.h ../mal/mal/../../gdk/gdk.h ../mal/mal/../../gdk/gdk_system.h ../mal/mal/../../gdk/gdk_atomic.h ../mal/mal/../../gdk/gdk_posix.h ../mal/mal/../../common/stream/stream.h ../mal/mal/../../gdk/gdk_delta.h ../mal/mal/../../gdk/gdk_hash.h ../mal/mal/../../gdk/gdk_atoms.h ../mal/mal/../../gdk/gdk_bbp.h ../mal/mal/../../gdk/gdk_utils.h ../mal/mal/../../common/options/monet_options.h ../mal/mal/../../gdk/gdk_calc.h ../mal/mal/mal.h ../mal/mal/mal_resolve.h ../mal/mal/mal_profiler.h ../mal/mal/mal_client.h ../mal/mal/mal_linker.h ../sql/backends/monet5/sql_scenario.h ../gdk/../common/options/monet_options.h ../gdk/gdk_utils.h ../sql/backends/monet5/sql_execute.h ../sql/backends/monet5/sql.h ../sql/server/../include/sql_mem.h ../sql/server/../../gdk/gdk.h ../sql/server/sql_scan.h ../sql/server/../include/sql_list.h ../sql/server/../../common/stream/stream.h ../sql/server/../common/sql_types.h ../sql/server/../common/sql_backend.h ../sql/server/../include/sql_catalog.h ../sql/server/../include/sql_relation.h ../sql/server/../storage/sql_storage.h ../sql/server/../include/sql_keyword.h ../sql/server/sql_atom.h ../sql/server/../include/sql_query.h ../sql/server/sql_mvc.h ../sql/storage/bat/../../include/sql_catalog.h ../sql/storage/bat/res_table.h decompress.c inlined_scripts.c
 
   include $(top_srcdir)/buildtools/conf/rules.mk
 

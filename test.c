@@ -1,7 +1,6 @@
-//#include "monetdb_config.h"
-//#include "sql_scenario.h"
-//#include "mal.h"
-#include "stdio.h"
+#include "monetdb_config.h"
+#include "sql_scenario.h"
+#include "mal.h"
 #include "embedded.h"
 
 int main() {

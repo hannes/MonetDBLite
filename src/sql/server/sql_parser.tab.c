@@ -734,7 +734,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 9 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 9 "sql_parser.y"
 
 #include "monetdb_config.h"
 #include <sql_mem.h>
@@ -845,7 +845,7 @@ UTF8_strlen(const char *val)
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 111 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 111 "sql_parser.y"
 {
 	int		i_val,bval;
 	lng		l_val,operation;
@@ -866,7 +866,7 @@ typedef union YYSTYPE
 
 
 /* Copy the second part of user declarations.  */
-#line 120 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 120 "sql_parser.y"
 
 extern int sqllex( YYSTYPE *yylval, void *m );
 /* enable to activate debugging support
@@ -7125,7 +7125,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 616 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 616 "sql_parser.y"
     {
 		if (m->sym) {
 			append_symbol(m->sym->data.lval, (yyval.sym));
@@ -7138,7 +7138,7 @@ yyreduce:
     break;
 
   case 3:
-#line 626 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 626 "sql_parser.y"
     {
 		  	  m->emode = m_prepare; 
 			  m->scanner.as = m->scanner.yycur; 
@@ -7147,7 +7147,7 @@ yyreduce:
     break;
 
   case 4:
-#line 631 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 631 "sql_parser.y"
     {
 			  if (m->sym) {
 				append_symbol(m->sym->data.lval, (yyvsp[(3) - (4)].sym));
@@ -7160,7 +7160,7 @@ yyreduce:
     break;
 
   case 5:
-#line 640 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 640 "sql_parser.y"
     {
 		  	  m->emode = m_plan;
 			  m->scanner.as = m->scanner.yycur; 
@@ -7169,7 +7169,7 @@ yyreduce:
     break;
 
   case 6:
-#line 645 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 645 "sql_parser.y"
     {
 			  if (m->sym) {
 				append_symbol(m->sym->data.lval, (yyvsp[(3) - (4)].sym));
@@ -7182,7 +7182,7 @@ yyreduce:
     break;
 
   case 7:
-#line 655 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 655 "sql_parser.y"
     {
 		  	  m->emod |= mod_explain;
 			  m->scanner.as = m->scanner.yycur; 
@@ -7191,7 +7191,7 @@ yyreduce:
     break;
 
   case 8:
-#line 660 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 660 "sql_parser.y"
     {
 			  if (m->sym) {
 				append_symbol(m->sym->data.lval, (yyvsp[(3) - (4)].sym));
@@ -7204,7 +7204,7 @@ yyreduce:
     break;
 
   case 9:
-#line 670 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 670 "sql_parser.y"
     {
 			  if (m->scanner.mode == LINE_1) {
 				yyerror(m, "SQL debugging only supported in interactive mode");
@@ -7217,12 +7217,12 @@ yyreduce:
     break;
 
   case 10:
-#line 679 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 679 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(3) - (3)].sym); YYACCEPT; }
     break;
 
   case 11:
-#line 680 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 680 "sql_parser.y"
     {
 		  	  m->emod |= mod_trace;
 			  m->scanner.as = m->scanner.yycur; 
@@ -7231,37 +7231,37 @@ yyreduce:
     break;
 
   case 12:
-#line 685 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 685 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(3) - (3)].sym); YYACCEPT; }
     break;
 
   case 13:
-#line 686 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 686 "sql_parser.y"
     { m->sym = (yyval.sym) = (yyvsp[(1) - (2)].sym); YYACCEPT; }
     break;
 
   case 14:
-#line 687 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 687 "sql_parser.y"
     { m->sym = (yyval.sym) = NULL; YYACCEPT; }
     break;
 
   case 15:
-#line 688 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 688 "sql_parser.y"
     { m->sym = (yyval.sym) = NULL; YYACCEPT; }
     break;
 
   case 16:
-#line 689 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 689 "sql_parser.y"
     { m->sym = (yyval.sym) = NULL; YYACCEPT; }
     break;
 
   case 17:
-#line 690 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 690 "sql_parser.y"
     { m->sym = (yyval.sym) = NULL; YYABORT; }
     break;
 
   case 30:
-#line 717 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 717 "sql_parser.y"
     { dlist *l = L();
 		append_list(l, (yyvsp[(2) - (5)].l));
 		append_list(l, (yyvsp[(3) - (5)].l));
@@ -7271,27 +7271,27 @@ yyreduce:
     break;
 
   case 32:
-#line 727 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 727 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 33:
-#line 728 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 728 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 34:
-#line 733 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 733 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_DECLARE, (yyvsp[(2) - (2)].l)); }
     break;
 
   case 35:
-#line 734 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 734 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 36:
-#line 739 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 739 "sql_parser.y"
     { dlist *l = L();
 		append_list(l, (yyvsp[(1) - (2)].l) );
 		append_type(l, &(yyvsp[(2) - (2)].type) );
@@ -7299,7 +7299,7 @@ yyreduce:
     break;
 
   case 37:
-#line 744 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 744 "sql_parser.y"
     { dlist *l = L();
 		append_list(l, (yyvsp[(3) - (4)].l) );
 		append_type(l, &(yyvsp[(4) - (4)].type) );
@@ -7307,7 +7307,7 @@ yyreduce:
     break;
 
   case 38:
-#line 752 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 752 "sql_parser.y"
     { dlist *l = L();
 		append_string(l, (yyvsp[(2) - (4)].sval) );
 		append_symbol(l, (yyvsp[(4) - (4)].sym) );
@@ -7315,7 +7315,7 @@ yyreduce:
     break;
 
   case 39:
-#line 757 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 757 "sql_parser.y"
     { dlist *l = L();
 		  sql_subtype t;
 	        sql_find_subtype(&t, "char", UTF8_strlen((yyvsp[(4) - (4)].sval)), 0 );
@@ -7326,7 +7326,7 @@ yyreduce:
     break;
 
   case 40:
-#line 765 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 765 "sql_parser.y"
     { dlist *l = L();
 		  sql_subtype t;
 		sql_find_subtype(&t, "char", UTF8_strlen((yyvsp[(3) - (3)].sval)), 0 );
@@ -7337,7 +7337,7 @@ yyreduce:
     break;
 
   case 41:
-#line 773 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 773 "sql_parser.y"
     { dlist *l = L();
 		  sql_subtype t;
 		sql_find_subtype(&t, "char", UTF8_strlen((yyvsp[(4) - (4)].sval)), 0 );
@@ -7348,7 +7348,7 @@ yyreduce:
     break;
 
   case 42:
-#line 781 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 781 "sql_parser.y"
     { dlist *l = L();
 		  sql_subtype t;
 		sql_find_subtype(&t, "char", UTF8_strlen((yyvsp[(3) - (3)].sval)), 0);
@@ -7359,7 +7359,7 @@ yyreduce:
     break;
 
   case 43:
-#line 789 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 789 "sql_parser.y"
     { dlist *l = L();
 		append_string(l, sa_strdup(SA, "current_timezone"));
 		append_symbol(l, _symbol_create_list( SQL_OP, append_list(L(),
@@ -7368,7 +7368,7 @@ yyreduce:
     break;
 
   case 44:
-#line 795 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 795 "sql_parser.y"
     { dlist *l = L();
 		append_string(l, sa_strdup(SA, "current_timezone"));
 		append_symbol(l, (yyvsp[(4) - (4)].sym) );
@@ -7376,7 +7376,7 @@ yyreduce:
     break;
 
   case 45:
-#line 804 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 804 "sql_parser.y"
     { dlist *l = L();
 		append_list(l, (yyvsp[(3) - (6)].l));
 		append_symbol(l, (yyvsp[(4) - (6)].sym));
@@ -7386,7 +7386,7 @@ yyreduce:
     break;
 
   case 46:
-#line 811 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 811 "sql_parser.y"
     { dlist *l = L();
 		append_list(l, (yyvsp[(3) - (4)].l));
 		append_int(l, (yyvsp[(4) - (4)].i_val));
@@ -7394,73 +7394,73 @@ yyreduce:
     break;
 
   case 47:
-#line 819 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 819 "sql_parser.y"
     { (yyval.l) = L();
 	  append_string((yyval.l), (yyvsp[(1) - (1)].sval) );
 	  append_string((yyval.l), NULL ); }
     break;
 
   case 48:
-#line 823 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 823 "sql_parser.y"
     { (yyval.l) = L();
 	  append_string((yyval.l), NULL );
 	  append_string((yyval.l), (yyvsp[(2) - (2)].sval) ); }
     break;
 
   case 49:
-#line 827 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 827 "sql_parser.y"
     { (yyval.l) = L();
 	  append_string((yyval.l), (yyvsp[(1) - (3)].sval) );
 	  append_string((yyval.l), (yyvsp[(3) - (3)].sval) ); }
     break;
 
   case 51:
-#line 836 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 836 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 52:
-#line 837 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 837 "sql_parser.y"
     { (yyval.sym) = _symbol_create( SQL_CHARSET, (yyvsp[(4) - (4)].sval) ); }
     break;
 
   case 53:
-#line 841 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 841 "sql_parser.y"
     { (yyval.l) = L(); }
     break;
 
   case 55:
-#line 846 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 846 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 56:
-#line 848 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 848 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (2)].l), (yyvsp[(2) - (2)].sym) ); }
     break;
 
   case 62:
-#line 854 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 854 "sql_parser.y"
     { (yyval.i_val) = cur_user; }
     break;
 
   case 63:
-#line 855 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 855 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(3) - (3)].i_val); }
     break;
 
   case 64:
-#line 859 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 859 "sql_parser.y"
     { (yyval.i_val) = cur_user; }
     break;
 
   case 65:
-#line 860 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 860 "sql_parser.y"
     { (yyval.i_val) = cur_role; }
     break;
 
   case 66:
-#line 865 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 865 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(2) - (6)].l));
 	  append_list(l, (yyvsp[(4) - (6)].l));
@@ -7471,7 +7471,7 @@ yyreduce:
     break;
 
   case 67:
-#line 875 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 875 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(2) - (6)].l));
 	  append_list(l, (yyvsp[(4) - (6)].l));
@@ -7481,47 +7481,47 @@ yyreduce:
     break;
 
   case 68:
-#line 884 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 884 "sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 69:
-#line 886 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 886 "sql_parser.y"
     { (yyval.l) = append_string((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sval)); }
     break;
 
   case 70:
-#line 890 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 890 "sql_parser.y"
     { (yyval.bval) = 0; }
     break;
 
   case 71:
-#line 891 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 891 "sql_parser.y"
     { (yyval.bval) = 1; }
     break;
 
   case 72:
-#line 895 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 895 "sql_parser.y"
     { (yyval.bval) = 0; }
     break;
 
   case 73:
-#line 896 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 896 "sql_parser.y"
     { (yyval.bval) = 1; }
     break;
 
   case 74:
-#line 901 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 901 "sql_parser.y"
     { (yyval.i_val) = cur_user; }
     break;
 
   case 75:
-#line 902 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 902 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(2) - (2)].i_val); }
     break;
 
   case 76:
-#line 907 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 907 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (6)].l));
 	  append_list(l, (yyvsp[(5) - (6)].l));
@@ -7532,7 +7532,7 @@ yyreduce:
     break;
 
   case 77:
-#line 915 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 915 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (6)].l));
 	  append_list(l, (yyvsp[(5) - (6)].l));
@@ -7542,146 +7542,146 @@ yyreduce:
     break;
 
   case 78:
-#line 924 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 924 "sql_parser.y"
     { (yyval.bval) = 0; }
     break;
 
   case 79:
-#line 925 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 925 "sql_parser.y"
     { (yyval.bval) = 1; }
     break;
 
   case 80:
-#line 929 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 929 "sql_parser.y"
     { (yyval.bval) = 0; }
     break;
 
   case 81:
-#line 930 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 930 "sql_parser.y"
     { (yyval.bval) = 1; }
     break;
 
   case 82:
-#line 935 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 935 "sql_parser.y"
     { (yyval.l) = L();
 	  append_list((yyval.l), (yyvsp[(1) - (1)].l));
 	  append_symbol((yyval.l), _symbol_create(SQL_GRANT, NULL)); }
     break;
 
   case 83:
-#line 939 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 939 "sql_parser.y"
     { (yyval.l) = L();
 	  append_list((yyval.l), (yyvsp[(1) - (3)].l));
 	  append_symbol((yyval.l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 84:
-#line 945 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 945 "sql_parser.y"
     { (yyval.l) = append_int(L(), (yyvsp[(1) - (1)].i_val)); }
     break;
 
   case 85:
-#line 947 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 947 "sql_parser.y"
     { (yyval.l) = append_int(append_int(L(), (yyvsp[(1) - (3)].i_val)), (yyvsp[(3) - (3)].i_val)); }
     break;
 
   case 86:
-#line 951 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 951 "sql_parser.y"
     { (yyval.i_val) = PRIV_COPYFROMFILE; }
     break;
 
   case 87:
-#line 952 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 952 "sql_parser.y"
     { (yyval.i_val) = PRIV_COPYINTOFILE; }
     break;
 
   case 88:
-#line 956 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 956 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_TABLE, (yyvsp[(2) - (2)].l)); }
     break;
 
   case 89:
-#line 957 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 957 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_NAME, (yyvsp[(1) - (1)].l)); }
     break;
 
   case 90:
-#line 958 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 958 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_FUNC, (yyvsp[(1) - (1)].l)); }
     break;
 
   case 91:
-#line 969 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 969 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 92:
-#line 970 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 970 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 94:
-#line 975 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 975 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 95:
-#line 977 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 977 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 96:
-#line 981 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 981 "sql_parser.y"
     { (yyval.sym) = _symbol_create(SQL_INSERT,NULL); }
     break;
 
   case 97:
-#line 982 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 982 "sql_parser.y"
     { (yyval.sym) = _symbol_create(SQL_DELETE,NULL); }
     break;
 
   case 98:
-#line 983 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 983 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_UPDATE,(yyvsp[(2) - (2)].l)); }
     break;
 
   case 99:
-#line 984 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 984 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_SELECT,(yyvsp[(2) - (2)].l)); }
     break;
 
   case 100:
-#line 985 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 985 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_SELECT,(yyvsp[(2) - (2)].l)); }
     break;
 
   case 101:
-#line 986 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 986 "sql_parser.y"
     { (yyval.sym) = _symbol_create(SQL_EXECUTE,NULL); }
     break;
 
   case 102:
-#line 990 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 990 "sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 103:
-#line 992 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 992 "sql_parser.y"
     { (yyval.l) = append_string((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sval)); }
     break;
 
   case 104:
-#line 996 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 996 "sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 105:
-#line 997 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 997 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 106:
-#line 1005 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1005 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (6)].l));
 	  append_symbol(l, (yyvsp[(6) - (6)].sym));
@@ -7689,7 +7689,7 @@ yyreduce:
     break;
 
   case 107:
-#line 1010 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1010 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (6)].l));
 	  append_symbol(l, _symbol_create_list( SQL_TABLE, (yyvsp[(6) - (6)].l)));
@@ -7697,7 +7697,7 @@ yyreduce:
     break;
 
   case 108:
-#line 1015 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1015 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (5)].l));
 	  append_symbol(l, (yyvsp[(5) - (5)].sym));
@@ -7705,7 +7705,7 @@ yyreduce:
     break;
 
   case 109:
-#line 1020 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1020 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (5)].l));
 	  append_symbol(l, (yyvsp[(5) - (5)].sym));
@@ -7713,7 +7713,7 @@ yyreduce:
     break;
 
   case 110:
-#line 1025 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1025 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (6)].l));
 	  append_symbol(l, _symbol_create_int(SQL_ALTER_TABLE, tr_readonly));
@@ -7721,7 +7721,7 @@ yyreduce:
     break;
 
   case 111:
-#line 1030 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1030 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (6)].l));
 	  append_symbol(l, _symbol_create_int(SQL_ALTER_TABLE, tr_append));
@@ -7729,7 +7729,7 @@ yyreduce:
     break;
 
   case 112:
-#line 1035 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1035 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (6)].l));
 	  append_symbol(l, _symbol_create_int(SQL_ALTER_TABLE, tr_writable));
@@ -7737,7 +7737,7 @@ yyreduce:
     break;
 
   case 113:
-#line 1040 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1040 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(3) - (4)].sval));
 	  append_list(l, (yyvsp[(4) - (4)].l));
@@ -7745,7 +7745,7 @@ yyreduce:
     break;
 
   case 114:
-#line 1045 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1045 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(3) - (6)].sval));
 	  append_string(l, (yyvsp[(6) - (6)].sval));
@@ -7753,7 +7753,7 @@ yyreduce:
     break;
 
   case 115:
-#line 1050 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1050 "sql_parser.y"
     { dlist *l = L();
 	  dlist *p = L();
 	  append_string(l, NULL);
@@ -7766,7 +7766,7 @@ yyreduce:
     break;
 
   case 116:
-#line 1062 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1062 "sql_parser.y"
     { dlist * l = L();
 				  append_string(l, (yyvsp[(4) - (4)].sval));
 				  append_string(l, NULL);
@@ -7776,7 +7776,7 @@ yyreduce:
     break;
 
   case 117:
-#line 1068 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1068 "sql_parser.y"
     { dlist * l = L();
 				  append_string(l, NULL);
 				  append_string(l, (yyvsp[(3) - (3)].sval));
@@ -7786,7 +7786,7 @@ yyreduce:
     break;
 
   case 118:
-#line 1075 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1075 "sql_parser.y"
     { dlist * l = L();
 				  append_string(l, (yyvsp[(4) - (7)].sval));
 				  append_string(l, (yyvsp[(7) - (7)].sval));
@@ -7796,7 +7796,7 @@ yyreduce:
     break;
 
   case 119:
-#line 1085 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1085 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (5)].sval));
 	  append_symbol(l, (yyvsp[(5) - (5)].sym));
@@ -7804,26 +7804,26 @@ yyreduce:
     break;
 
   case 120:
-#line 1090 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1090 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (4)].sval));
 	  (yyval.sym) = _symbol_create_list( SQL_NULL, l); }
     break;
 
   case 121:
-#line 1094 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1094 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (5)].sval));
 	  (yyval.sym) = _symbol_create_list( SQL_NOT_NULL, l); }
     break;
 
   case 122:
-#line 1098 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1098 "sql_parser.y"
     { (yyval.sym) = _symbol_create( SQL_DROP_DEFAULT, (yyvsp[(2) - (4)].sval)); }
     break;
 
   case 123:
-#line 1100 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1100 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (5)].sval));
 	  if (!strlen((yyvsp[(5) - (5)].sval)))
@@ -7834,7 +7834,7 @@ yyreduce:
     break;
 
   case 124:
-#line 1108 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1108 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (5)].sval));
 	  append_string(l, NULL);
@@ -7842,7 +7842,7 @@ yyreduce:
     break;
 
   case 125:
-#line 1116 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1116 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (3)].sval) );
 	  append_int(l, (yyvsp[(3) - (3)].i_val) );
@@ -7850,7 +7850,7 @@ yyreduce:
     break;
 
   case 126:
-#line 1121 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1121 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (3)].sval) );
 	  append_int(l, (yyvsp[(3) - (3)].i_val) );
@@ -7858,7 +7858,7 @@ yyreduce:
     break;
 
   case 127:
-#line 1126 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1126 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (3)].sval) );
 	  append_int(l, (yyvsp[(3) - (3)].i_val) );
@@ -7866,32 +7866,32 @@ yyreduce:
     break;
 
   case 128:
-#line 1133 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1133 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 129:
-#line 1134 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1134 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 130:
-#line 1138 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1138 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 131:
-#line 1139 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1139 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 132:
-#line 1140 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1140 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 138:
-#line 1162 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1162 "sql_parser.y"
     {
 		dlist *l = L();
 		append_list(l, (yyvsp[(3) - (4)].l));
@@ -7902,7 +7902,7 @@ yyreduce:
     break;
 
   case 139:
-#line 1173 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1173 "sql_parser.y"
     {
 		dlist *l = L();
 		append_list(l, (yyvsp[(3) - (3)].l));
@@ -7911,7 +7911,7 @@ yyreduce:
     break;
 
   case 140:
-#line 1190 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1190 "sql_parser.y"
     {
 		dlist *l = L();
 		append_list(l, (yyvsp[(3) - (4)].l));
@@ -7921,107 +7921,107 @@ yyreduce:
     break;
 
   case 141:
-#line 1199 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1199 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 142:
-#line 1200 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1200 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (2)].l), (yyvsp[(2) - (2)].sym)); }
     break;
 
   case 143:
-#line 1204 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1204 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 144:
-#line 1205 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1205 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (2)].l), (yyvsp[(2) - (2)].sym)); }
     break;
 
   case 145:
-#line 1209 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1209 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_TYPE, append_type(L(),&(yyvsp[(2) - (2)].type))); }
     break;
 
   case 146:
-#line 1210 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1210 "sql_parser.y"
     { (yyval.sym) = _symbol_create_lng(SQL_START, (yyvsp[(3) - (3)].l_val)); }
     break;
 
   case 147:
-#line 1211 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1211 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 148:
-#line 1215 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1215 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_TYPE, append_type(L(),&(yyvsp[(2) - (2)].type))); }
     break;
 
   case 149:
-#line 1216 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1216 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_START, append_int(L(),0)); /* plain restart now */ }
     break;
 
   case 150:
-#line 1217 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1217 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_START, append_lng(append_int(L(),2), (yyvsp[(3) - (3)].l_val)));  }
     break;
 
   case 151:
-#line 1218 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1218 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_START, append_symbol(append_int(L(),1), (yyvsp[(3) - (3)].sym)));  }
     break;
 
   case 152:
-#line 1219 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1219 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 153:
-#line 1223 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1223 "sql_parser.y"
     { (yyval.sym) = _symbol_create_lng(SQL_INC, (yyvsp[(3) - (3)].l_val)); }
     break;
 
   case 154:
-#line 1224 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1224 "sql_parser.y"
     { (yyval.sym) = _symbol_create_lng(SQL_MINVALUE, (yyvsp[(2) - (2)].l_val)); }
     break;
 
   case 155:
-#line 1225 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1225 "sql_parser.y"
     { (yyval.sym) = _symbol_create_lng(SQL_MINVALUE, 0); }
     break;
 
   case 156:
-#line 1226 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1226 "sql_parser.y"
     { (yyval.sym) = _symbol_create_lng(SQL_MAXVALUE, (yyvsp[(2) - (2)].l_val)); }
     break;
 
   case 157:
-#line 1227 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1227 "sql_parser.y"
     { (yyval.sym) = _symbol_create_lng(SQL_MAXVALUE, 0); }
     break;
 
   case 158:
-#line 1228 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1228 "sql_parser.y"
     { (yyval.sym) = _symbol_create_lng(SQL_CACHE, (yyvsp[(2) - (2)].l_val)); }
     break;
 
   case 159:
-#line 1229 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1229 "sql_parser.y"
     { (yyval.sym) = _symbol_create_int(SQL_CYCLE, 1); }
     break;
 
   case 160:
-#line 1230 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1230 "sql_parser.y"
     { (yyval.sym) = _symbol_create_int(SQL_CYCLE, 0); }
     break;
 
   case 161:
-#line 1238 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1238 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(4) - (9)].sval));
 	  append_int(l, (yyvsp[(2) - (9)].i_val));
@@ -8031,27 +8031,27 @@ yyreduce:
     break;
 
   case 162:
-#line 1247 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1247 "sql_parser.y"
     { (yyval.i_val) = hash_idx; }
     break;
 
   case 163:
-#line 1248 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1248 "sql_parser.y"
     { (yyval.i_val) = ordered_idx; }
     break;
 
   case 164:
-#line 1249 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1249 "sql_parser.y"
     { (yyval.i_val) = imprints_idx; }
     break;
 
   case 165:
-#line 1250 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1250 "sql_parser.y"
     { (yyval.i_val) = hash_idx; }
     break;
 
   case 166:
-#line 1271 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1271 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (3)].sval));
 	  append_int(l, (yyvsp[(3) - (3)].i_val));
@@ -8059,7 +8059,7 @@ yyreduce:
     break;
 
   case 167:
-#line 1276 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1276 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (10)].sval));
 	  append_string(l, (yyvsp[(6) - (10)].sval));
@@ -8070,32 +8070,32 @@ yyreduce:
     break;
 
   case 168:
-#line 1286 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1286 "sql_parser.y"
     { (yyval.i_val) = SQL_PW_UNENCRYPTED; }
     break;
 
   case 169:
-#line 1287 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1287 "sql_parser.y"
     { (yyval.i_val) = SQL_PW_UNENCRYPTED; }
     break;
 
   case 170:
-#line 1288 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1288 "sql_parser.y"
     { (yyval.i_val) = SQL_PW_ENCRYPTED; }
     break;
 
   case 171:
-#line 1292 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1292 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 172:
-#line 1293 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1293 "sql_parser.y"
     { (yyval.l) = append_string(append_string(L(), (yyvsp[(2) - (3)].sval)), (yyvsp[(3) - (3)].sval)); }
     break;
 
   case 173:
-#line 1298 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1298 "sql_parser.y"
     { int commit_action = CA_COMMIT;
 	  dlist *l = L();
 
@@ -8109,7 +8109,7 @@ yyreduce:
     break;
 
   case 174:
-#line 1309 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1309 "sql_parser.y"
     {
       dlist *l = L();
       append_list(l, (yyvsp[(2) - (5)].l));
@@ -8119,7 +8119,7 @@ yyreduce:
     break;
 
   case 175:
-#line 1316 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1316 "sql_parser.y"
     { int commit_action = CA_COMMIT, tpe = SQL_STREAM;
 	  dlist *l = L();
 
@@ -8132,7 +8132,7 @@ yyreduce:
     break;
 
   case 176:
-#line 1326 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1326 "sql_parser.y"
     { int commit_action = CA_COMMIT, tpe = SQL_MERGE_TABLE;
 	  dlist *l = L();
 
@@ -8145,7 +8145,7 @@ yyreduce:
     break;
 
   case 177:
-#line 1336 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1336 "sql_parser.y"
     { int commit_action = CA_COMMIT, tpe = SQL_REPLICA_TABLE;
 	  dlist *l = L();
 
@@ -8158,7 +8158,7 @@ yyreduce:
     break;
 
   case 178:
-#line 1349 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1349 "sql_parser.y"
     { int commit_action = CA_COMMIT, tpe = SQL_REMOTE;
 	  dlist *l = L();
 
@@ -8171,7 +8171,7 @@ yyreduce:
     break;
 
   case 179:
-#line 1359 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1359 "sql_parser.y"
     { int commit_action = CA_COMMIT;
 	  dlist *l = L();
 
@@ -8186,109 +8186,109 @@ yyreduce:
     break;
 
   case 180:
-#line 1373 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1373 "sql_parser.y"
     { (yyval.i_val) = SQL_LOCAL_TEMP; }
     break;
 
   case 181:
-#line 1374 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1374 "sql_parser.y"
     { (yyval.i_val) = SQL_LOCAL_TEMP; }
     break;
 
   case 182:
-#line 1375 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1375 "sql_parser.y"
     { (yyval.i_val) = SQL_LOCAL_TEMP; }
     break;
 
   case 183:
-#line 1376 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1376 "sql_parser.y"
     { (yyval.i_val) = SQL_LOCAL_TEMP; }
     break;
 
   case 184:
-#line 1377 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1377 "sql_parser.y"
     { (yyval.i_val) = SQL_GLOBAL_TEMP; }
     break;
 
   case 185:
-#line 1378 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1378 "sql_parser.y"
     { (yyval.i_val) = SQL_GLOBAL_TEMP; }
     break;
 
   case 186:
-#line 1382 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1382 "sql_parser.y"
     { (yyval.i_val) = CA_COMMIT; }
     break;
 
   case 187:
-#line 1383 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1383 "sql_parser.y"
     { (yyval.i_val) = CA_DELETE; }
     break;
 
   case 188:
-#line 1384 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1384 "sql_parser.y"
     { (yyval.i_val) = CA_PRESERVE; }
     break;
 
   case 189:
-#line 1385 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1385 "sql_parser.y"
     { (yyval.i_val) = CA_DROP; }
     break;
 
   case 190:
-#line 1389 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1389 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_CREATE_TABLE, (yyvsp[(2) - (3)].l)); }
     break;
 
   case 191:
-#line 1390 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1390 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_SELECT, (yyvsp[(1) - (1)].l)); }
     break;
 
   case 192:
-#line 1398 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1398 "sql_parser.y"
     { (yyval.l) = append_list(L(), (yyvsp[(1) - (4)].l));
 			  append_symbol((yyval.l), (yyvsp[(3) - (4)].sym)); 
 			  append_int((yyval.l), (yyvsp[(4) - (4)].i_val)); }
     break;
 
   case 193:
-#line 1404 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1404 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 194:
-#line 1405 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1405 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 195:
-#line 1406 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1406 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 196:
-#line 1411 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1411 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 197:
-#line 1413 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1413 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym) ); }
     break;
 
   case 203:
-#line 1420 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1420 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 204:
-#line 1421 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1421 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 205:
-#line 1426 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1426 "sql_parser.y"
     {
 			dlist *l = L();
 			append_string(l, (yyvsp[(1) - (3)].sval));
@@ -8299,7 +8299,7 @@ yyreduce:
     break;
 
   case 206:
-#line 1434 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1434 "sql_parser.y"
     { /* SERIAL = INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY */
 			/* handle multi-statements by wrapping them in a list */
 			sql_subtype it;
@@ -8352,22 +8352,22 @@ yyreduce:
     break;
 
   case 207:
-#line 1486 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1486 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 209:
-#line 1492 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1492 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym) ); }
     break;
 
   case 210:
-#line 1494 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1494 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (2)].l), (yyvsp[(2) - (2)].sym) ); }
     break;
 
   case 211:
-#line 1500 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1500 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(1) - (6)].sval) );
 	  append_list(l, (yyvsp[(5) - (6)].l) );
@@ -8375,27 +8375,27 @@ yyreduce:
     break;
 
   case 212:
-#line 1508 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1508 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym) ); }
     break;
 
   case 213:
-#line 1510 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1510 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym) ); }
     break;
 
   case 217:
-#line 1516 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1516 "sql_parser.y"
     { (yyval.sym) = _symbol_create_symbol(SQL_DEFAULT, (yyvsp[(2) - (2)].sym)); }
     break;
 
   case 218:
-#line 1520 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1520 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 219:
-#line 1526 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1526 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(1) - (2)].sval) );
 	  append_symbol(l, (yyvsp[(2) - (2)].sym) );
@@ -8403,7 +8403,7 @@ yyreduce:
     break;
 
   case 220:
-#line 1534 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1534 "sql_parser.y"
     {
 		/* handle multi-statements by wrapping them in a list */
 		sql_subtype it;
@@ -8435,7 +8435,7 @@ yyreduce:
     break;
 
   case 221:
-#line 1563 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1563 "sql_parser.y"
     {
 		/* handle multi-statements by wrapping them in a list */
 		sql_subtype it;
@@ -8473,17 +8473,17 @@ yyreduce:
     break;
 
   case 222:
-#line 1600 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1600 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 223:
-#line 1601 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1601 "sql_parser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); }
     break;
 
   case 224:
-#line 1608 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1608 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(1) - (2)].sval) );
 	  append_symbol(l, (yyvsp[(2) - (2)].sym) );
@@ -8491,127 +8491,127 @@ yyreduce:
     break;
 
   case 225:
-#line 1617 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1617 "sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 226:
-#line 1618 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1618 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(2) - (2)].sval); }
     break;
 
   case 227:
-#line 1622 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1622 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 228:
-#line 1623 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1623 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 229:
-#line 1624 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1624 "sql_parser.y"
     { (yyval.i_val) = 2; }
     break;
 
   case 230:
-#line 1625 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1625 "sql_parser.y"
     { (yyval.i_val) = 3; }
     break;
 
   case 231:
-#line 1626 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1626 "sql_parser.y"
     { (yyval.i_val) = 4; }
     break;
 
   case 232:
-#line 1630 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1630 "sql_parser.y"
     { (yyval.i_val) = ((yyvsp[(3) - (3)].i_val) << 8); }
     break;
 
   case 233:
-#line 1634 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1634 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(3) - (3)].i_val); }
     break;
 
   case 234:
-#line 1638 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1638 "sql_parser.y"
     { (yyval.i_val) = (2 << 8) + 2; /* defaults are RESTRICT */ }
     break;
 
   case 235:
-#line 1639 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1639 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(1) - (1)].i_val); }
     break;
 
   case 236:
-#line 1640 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1640 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(1) - (1)].i_val); }
     break;
 
   case 237:
-#line 1641 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1641 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(1) - (2)].i_val) + (yyvsp[(2) - (2)].i_val); }
     break;
 
   case 238:
-#line 1642 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1642 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(1) - (2)].i_val) + (yyvsp[(2) - (2)].i_val); }
     break;
 
   case 239:
-#line 1646 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1646 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 240:
-#line 1647 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1647 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 241:
-#line 1648 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1648 "sql_parser.y"
     { (yyval.i_val) = 2; }
     break;
 
   case 242:
-#line 1649 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1649 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 243:
-#line 1653 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1653 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 244:
-#line 1654 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1654 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(2) - (2)].i_val); }
     break;
 
   case 245:
-#line 1658 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1658 "sql_parser.y"
     { (yyval.sym) = _symbol_create( SQL_NOT_NULL, NULL); }
     break;
 
   case 246:
-#line 1659 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1659 "sql_parser.y"
     { (yyval.sym) = _symbol_create( SQL_NULL, NULL); }
     break;
 
   case 247:
-#line 1660 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1660 "sql_parser.y"
     { (yyval.sym) = _symbol_create( SQL_UNIQUE, NULL ); }
     break;
 
   case 248:
-#line 1661 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1661 "sql_parser.y"
     { (yyval.sym) = _symbol_create( SQL_PRIMARY_KEY, NULL ); }
     break;
 
   case 249:
-#line 1664 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1664 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, (yyvsp[(2) - (5)].l) );
 			  append_list(l, (yyvsp[(3) - (5)].l) );
@@ -8621,17 +8621,17 @@ yyreduce:
     break;
 
   case 251:
-#line 1677 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1677 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_UNIQUE, (yyvsp[(2) - (2)].l)); }
     break;
 
   case 252:
-#line 1679 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1679 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_PRIMARY_KEY, (yyvsp[(3) - (3)].l)); }
     break;
 
   case 253:
-#line 1683 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1683 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, (yyvsp[(5) - (8)].l) );
 			  append_list(l, (yyvsp[(3) - (8)].l) );
@@ -8642,27 +8642,27 @@ yyreduce:
     break;
 
   case 254:
-#line 1695 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1695 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 255:
-#line 1700 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1700 "sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 256:
-#line 1702 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1702 "sql_parser.y"
     { (yyval.l) = append_string( (yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sval) ); }
     break;
 
   case 257:
-#line 1706 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1706 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_LIKE, (yyvsp[(2) - (2)].l) ); }
     break;
 
   case 258:
-#line 1711 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1711 "sql_parser.y"
     {  dlist *l = L();
 	  append_list(l, (yyvsp[(2) - (6)].l));
 	  append_list(l, (yyvsp[(3) - (6)].l));
@@ -8674,32 +8674,32 @@ yyreduce:
     break;
 
   case 260:
-#line 1723 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1723 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (3)].sym); }
     break;
 
   case 263:
-#line 1732 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1732 "sql_parser.y"
     { (yyval.bval) = FALSE; }
     break;
 
   case 264:
-#line 1733 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1733 "sql_parser.y"
     { (yyval.bval) = TRUE; }
     break;
 
   case 265:
-#line 1737 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1737 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 267:
-#line 1742 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1742 "sql_parser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); }
     break;
 
   case 268:
-#line 1747 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1747 "sql_parser.y"
     { dlist *l = L();
 				append_list(l, (yyvsp[(3) - (6)].l));
 				append_string(l, (yyvsp[(6) - (6)].sval));
@@ -8707,12 +8707,12 @@ yyreduce:
     break;
 
   case 269:
-#line 1754 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1754 "sql_parser.y"
     { (yyval.l) = append_string(append_string(L(), (yyvsp[(1) - (3)].sval)), (yyvsp[(3) - (3)].sval)); }
     break;
 
   case 272:
-#line 1769 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1769 "sql_parser.y"
     { dlist *f = L();
 				append_list(f, (yyvsp[(3) - (11)].l));
 				append_list(f, (yyvsp[(5) - (11)].l));
@@ -8725,7 +8725,7 @@ yyreduce:
     break;
 
   case 273:
-#line 1782 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1782 "sql_parser.y"
     { dlist *f = L();
 				append_list(f, (yyvsp[(3) - (9)].l));
 				append_list(f, (yyvsp[(5) - (9)].l));
@@ -8738,7 +8738,7 @@ yyreduce:
     break;
 
   case 274:
-#line 1794 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1794 "sql_parser.y"
     { 
 			int lang = 0;
 			dlist *f = L();
@@ -8773,7 +8773,7 @@ yyreduce:
     break;
 
   case 275:
-#line 1828 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1828 "sql_parser.y"
     { dlist *f = L();
 				append_list(f, (yyvsp[(4) - (10)].l));
 				append_list(f, (yyvsp[(6) - (10)].l)); 
@@ -8787,7 +8787,7 @@ yyreduce:
     break;
 
   case 276:
-#line 1842 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1842 "sql_parser.y"
     { dlist *f = L();
 				append_list(f, (yyvsp[(3) - (11)].l));
 				append_list(f, (yyvsp[(5) - (11)].l));
@@ -8800,7 +8800,7 @@ yyreduce:
     break;
 
   case 277:
-#line 1854 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1854 "sql_parser.y"
     { 
 			int lang = 0;
 			dlist *f = L();
@@ -8835,7 +8835,7 @@ yyreduce:
     break;
 
   case 278:
-#line 1889 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1889 "sql_parser.y"
     { dlist *f = L();
 				append_list(f, (yyvsp[(3) - (9)].l));
 				append_list(f, (yyvsp[(5) - (9)].l));
@@ -8848,7 +8848,7 @@ yyreduce:
     break;
 
   case 279:
-#line 1901 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1901 "sql_parser.y"
     { dlist *f = L();
 				append_list(f, (yyvsp[(3) - (7)].l));
 				append_list(f, (yyvsp[(5) - (7)].l));
@@ -8861,7 +8861,7 @@ yyreduce:
     break;
 
   case 280:
-#line 1912 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1912 "sql_parser.y"
     { 
 			int lang = 0;
 			dlist *f = L();
@@ -8885,52 +8885,52 @@ yyreduce:
     break;
 
   case 281:
-#line 1936 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1936 "sql_parser.y"
     { (yyval.l) = L(); append_symbol( (yyval.l), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 282:
-#line 1940 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1940 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(2) - (5)].l),(yyvsp[(3) - (5)].sym)); }
     break;
 
   case 283:
-#line 1944 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1944 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(3) - (6)].l),(yyvsp[(4) - (6)].sym)); }
     break;
 
   case 284:
-#line 1959 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1959 "sql_parser.y"
     { (yyval.l) = L(); }
     break;
 
   case 285:
-#line 1961 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1961 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l),(yyvsp[(2) - (3)].sym));}
     break;
 
   case 286:
-#line 1965 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1965 "sql_parser.y"
     { (yyval.l) = L(); }
     break;
 
   case 287:
-#line 1967 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 1967 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l),(yyvsp[(2) - (3)].sym));}
     break;
 
   case 314:
-#line 2015 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2015 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 315:
-#line 2019 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2019 "sql_parser.y"
     {(yyval.sym) = _symbol_create_symbol(SQL_CALL, (yyvsp[(2) - (2)].sym));}
     break;
 
   case 316:
-#line 2024 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2024 "sql_parser.y"
     { dlist *l = L(); 
 		  append_list( l, (yyvsp[(1) - (4)].l));
 		  append_list( l, (yyvsp[(3) - (4)].l));
@@ -8940,32 +8940,32 @@ yyreduce:
     break;
 
   case 318:
-#line 2035 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2035 "sql_parser.y"
     {(yyval.l) = L();}
     break;
 
   case 319:
-#line 2036 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2036 "sql_parser.y"
     { (yyval.l) = append_symbol( L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 320:
-#line 2038 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2038 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 321:
-#line 2043 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2043 "sql_parser.y"
     { (yyval.sym) = _symbol_create_symbol(SQL_RETURN, (yyvsp[(2) - (2)].sym)); }
     break;
 
   case 324:
-#line 2050 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2050 "sql_parser.y"
     { (yyval.sym) = _symbol_create_symbol(SQL_TABLE, (yyvsp[(3) - (4)].sym)); }
     break;
 
   case 325:
-#line 2055 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2055 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_CASE,
 		   append_list(
 		    append_list(
@@ -8974,7 +8974,7 @@ yyreduce:
     break;
 
   case 326:
-#line 2061 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2061 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_CASE,
 		   append_list(
 		    append_list(
@@ -8982,7 +8982,7 @@ yyreduce:
     break;
 
   case 327:
-#line 2069 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2069 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_WHEN,
 			   append_list(
 			    append_symbol(
@@ -8990,17 +8990,17 @@ yyreduce:
     break;
 
   case 328:
-#line 2077 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2077 "sql_parser.y"
     { (yyval.l) = append_symbol( L(), (yyvsp[(1) - (1)].sym));}
     break;
 
   case 329:
-#line 2079 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2079 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (2)].l), (yyvsp[(2) - (2)].sym)); }
     break;
 
   case 330:
-#line 2084 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2084 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_WHEN,
 			   append_list(
 			    append_symbol(
@@ -9008,27 +9008,27 @@ yyreduce:
     break;
 
   case 331:
-#line 2092 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2092 "sql_parser.y"
     { (yyval.l) = append_symbol( L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 332:
-#line 2094 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2094 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (2)].l), (yyvsp[(2) - (2)].sym)); }
     break;
 
   case 333:
-#line 2098 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2098 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 334:
-#line 2099 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2099 "sql_parser.y"
     { (yyval.l) = (yyvsp[(2) - (2)].l); }
     break;
 
   case 335:
-#line 2109 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2109 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(2) - (7)].sym));
 		  append_list(l, (yyvsp[(4) - (7)].l));
@@ -9038,17 +9038,17 @@ yyreduce:
     break;
 
   case 336:
-#line 2120 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2120 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 337:
-#line 2122 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2122 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_ELSE, (yyvsp[(2) - (2)].l)); }
     break;
 
   case 338:
-#line 2125 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2125 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(2) - (5)].sym));
 		  append_list(l, (yyvsp[(4) - (5)].l));
@@ -9058,7 +9058,7 @@ yyreduce:
     break;
 
   case 339:
-#line 2139 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2139 "sql_parser.y"
     { dlist *l;
 		  char *label = (yyvsp[(1) - (8)].sval)?(yyvsp[(1) - (8)].sval):(yyvsp[(8) - (8)].sval);
 		  if ((yyvsp[(1) - (8)].sval) && (yyvsp[(8) - (8)].sval) && strcmp((yyvsp[(1) - (8)].sval), (yyvsp[(8) - (8)].sval)) != 0) {
@@ -9075,17 +9075,17 @@ yyreduce:
     break;
 
   case 340:
-#line 2155 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2155 "sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 342:
-#line 2160 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2160 "sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 344:
-#line 2166 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2166 "sql_parser.y"
     { (yyval.l) = L();
 				  append_string((yyval.l), (yyvsp[(1) - (2)].sval));
 			  	  append_type((yyval.l), &(yyvsp[(2) - (2)].type));
@@ -9093,7 +9093,7 @@ yyreduce:
     break;
 
   case 345:
-#line 2171 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2171 "sql_parser.y"
     { 
 				  append_string((yyval.l), (yyvsp[(3) - (4)].sval));
 			  	  append_type((yyval.l), &(yyvsp[(4) - (4)].type));
@@ -9101,17 +9101,17 @@ yyreduce:
     break;
 
   case 346:
-#line 2179 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2179 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_TABLE, (yyvsp[(3) - (4)].l)); }
     break;
 
   case 347:
-#line 2181 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2181 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_TYPE, append_type(L(),&(yyvsp[(1) - (1)].type))); }
     break;
 
   case 349:
-#line 2186 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2186 "sql_parser.y"
     { dlist *vararg = L();
 			  append_string(vararg, "*");
 			  append_type(vararg, NULL);
@@ -9119,12 +9119,12 @@ yyreduce:
     break;
 
   case 350:
-#line 2190 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2190 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 351:
-#line 2195 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2195 "sql_parser.y"
     { dlist *p = L();
 			  append_string(p, (yyvsp[(3) - (4)].sval));
 			  append_type(p, &(yyvsp[(4) - (4)].type));
@@ -9132,7 +9132,7 @@ yyreduce:
     break;
 
   case 352:
-#line 2200 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2200 "sql_parser.y"
     { dlist *l = L();
 			  dlist *p = L();
 			  append_string(p, (yyvsp[(1) - (2)].sval));
@@ -9141,7 +9141,7 @@ yyreduce:
     break;
 
   case 353:
-#line 2250 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2250 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (9)].l));
 	  append_int(l, (yyvsp[(4) - (9)].i_val));
@@ -9154,77 +9154,77 @@ yyreduce:
     break;
 
   case 354:
-#line 2262 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2262 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 355:
-#line 2263 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2263 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 356:
-#line 2267 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2267 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_INSERT, NULL); }
     break;
 
   case 357:
-#line 2268 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2268 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_DELETE, NULL); }
     break;
 
   case 358:
-#line 2269 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2269 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_UPDATE, NULL); }
     break;
 
   case 359:
-#line 2270 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2270 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_UPDATE, (yyvsp[(3) - (3)].l)); }
     break;
 
   case 360:
-#line 2274 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2274 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 361:
-#line 2275 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2275 "sql_parser.y"
     { (yyval.l) = (yyvsp[(2) - (2)].l); }
     break;
 
   case 362:
-#line 2279 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2279 "sql_parser.y"
     { (yyval.l) = append_list(L(), (yyvsp[(1) - (1)].l)); }
     break;
 
   case 363:
-#line 2281 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2281 "sql_parser.y"
     { (yyval.l) = append_list((yyvsp[(1) - (2)].l), (yyvsp[(2) - (2)].l)); }
     break;
 
   case 364:
-#line 2286 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2286 "sql_parser.y"
     { (yyval.l) = append_string(append_int(L(), 0), (yyvsp[(4) - (4)].sval)); }
     break;
 
   case 365:
-#line 2287 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2287 "sql_parser.y"
     { (yyval.l) = append_string(append_int(L(), 1), (yyvsp[(4) - (4)].sval)); }
     break;
 
   case 366:
-#line 2288 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2288 "sql_parser.y"
     { (yyval.l) = append_string(append_int(L(), 0), (yyvsp[(4) - (4)].sval)); }
     break;
 
   case 367:
-#line 2289 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2289 "sql_parser.y"
     { (yyval.l) = append_string(append_int(L(), 1), (yyvsp[(4) - (4)].sval)); }
     break;
 
   case 372:
-#line 2304 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2304 "sql_parser.y"
     { (yyval.l) = L();
 	  append_int((yyval.l), (yyvsp[(1) - (3)].i_val));
 	  append_symbol((yyval.l), (yyvsp[(2) - (3)].sym));
@@ -9233,47 +9233,47 @@ yyreduce:
     break;
 
   case 373:
-#line 2311 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2311 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 374:
-#line 2312 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2312 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(3) - (3)].i_val); }
     break;
 
   case 375:
-#line 2316 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2316 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 376:
-#line 2317 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2317 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 377:
-#line 2321 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2321 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 378:
-#line 2322 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2322 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 379:
-#line 2327 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2327 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 380:
-#line 2330 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2330 "sql_parser.y"
     { (yyval.l) = (yyvsp[(3) - (4)].l); }
     break;
 
   case 381:
-#line 2335 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2335 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(2) - (3)].l) );	
 	  append_list(l, (yyvsp[(3) - (3)].l) );
@@ -9282,7 +9282,7 @@ yyreduce:
     break;
 
   case 382:
-#line 2341 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2341 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (4)].l) );	
 	  append_list(l, (yyvsp[(4) - (4)].l) );
@@ -9291,7 +9291,7 @@ yyreduce:
     break;
 
   case 383:
-#line 2347 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2347 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(2) - (3)].l) );	
 	  append_list(l, (yyvsp[(3) - (3)].l) );
@@ -9300,7 +9300,7 @@ yyreduce:
     break;
 
   case 384:
-#line 2353 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2353 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(2) - (3)].l) );	
 	  append_list(l, (yyvsp[(3) - (3)].l) );
@@ -9309,7 +9309,7 @@ yyreduce:
     break;
 
   case 385:
-#line 2359 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2359 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(2) - (3)].l) );	
 	  append_list(l, (yyvsp[(3) - (3)].l) );
@@ -9318,7 +9318,7 @@ yyreduce:
     break;
 
   case 386:
-#line 2368 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2368 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (4)].l) );
 	  append_int(l, (yyvsp[(4) - (4)].i_val) );
@@ -9326,7 +9326,7 @@ yyreduce:
     break;
 
   case 387:
-#line 2373 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2373 "sql_parser.y"
     { dlist *l = (yyvsp[(2) - (3)].l);
 	  append_int(l, 0 ); /* not all */
 	  append_int(l, (yyvsp[(3) - (3)].i_val) );
@@ -9334,7 +9334,7 @@ yyreduce:
     break;
 
   case 388:
-#line 2378 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2378 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(4) - (5)].l) );
 	  append_list(l, NULL );
@@ -9345,7 +9345,7 @@ yyreduce:
     break;
 
   case 389:
-#line 2386 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2386 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(5) - (6)].l) );
 	  append_list(l, NULL );
@@ -9356,7 +9356,7 @@ yyreduce:
     break;
 
   case 390:
-#line 2394 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2394 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(4) - (5)].l) );
 	  append_list(l, NULL );
@@ -9367,7 +9367,7 @@ yyreduce:
     break;
 
   case 391:
-#line 2402 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2402 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(4) - (5)].l) );
 	  append_list(l, NULL );
@@ -9378,7 +9378,7 @@ yyreduce:
     break;
 
   case 392:
-#line 2410 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2410 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(4) - (5)].l) );
 	  append_list(l, NULL );
@@ -9389,7 +9389,7 @@ yyreduce:
     break;
 
   case 393:
-#line 2418 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2418 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (4)].l) );
 	  append_int(l, (yyvsp[(4) - (4)].i_val) );
@@ -9397,7 +9397,7 @@ yyreduce:
     break;
 
   case 394:
-#line 2423 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2423 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (4)].l) );
 	  append_int(l, (yyvsp[(4) - (4)].i_val) );
@@ -9405,184 +9405,184 @@ yyreduce:
     break;
 
   case 395:
-#line 2427 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2427 "sql_parser.y"
     { (yyval.sym) = _symbol_create( SQL_DROP_ROLE, (yyvsp[(3) - (3)].sval) ); }
     break;
 
   case 396:
-#line 2428 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2428 "sql_parser.y"
     { (yyval.sym) = _symbol_create( SQL_DROP_USER, (yyvsp[(3) - (3)].sval) ); }
     break;
 
   case 397:
-#line 2429 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2429 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_DROP_INDEX, (yyvsp[(3) - (3)].l) ); }
     break;
 
   case 398:
-#line 2430 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2430 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_DROP_TRIGGER, (yyvsp[(3) - (3)].l) ); }
     break;
 
   case 399:
-#line 2434 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2434 "sql_parser.y"
     {(yyval.l) = NULL;}
     break;
 
   case 400:
-#line 2435 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2435 "sql_parser.y"
     {(yyval.l) = (yyvsp[(2) - (3)].l);}
     break;
 
   case 401:
-#line 2436 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2436 "sql_parser.y"
     {(yyval.l) = L(); }
     break;
 
   case 402:
-#line 2440 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2440 "sql_parser.y"
     { dlist *l = L();
 				  append_type(l, &(yyvsp[(1) - (1)].type) );
 				  (yyval.l)= l; }
     break;
 
   case 403:
-#line 2443 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2443 "sql_parser.y"
     { append_type((yyvsp[(3) - (3)].l), &(yyvsp[(1) - (3)].type));
 				  (yyval.l) = (yyvsp[(3) - (3)].l); }
     break;
 
   case 404:
-#line 2448 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2448 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 405:
-#line 2449 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2449 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 406:
-#line 2450 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2450 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 413:
-#line 2469 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2469 "sql_parser.y"
     {
 	  (yyval.sym) = (yyvsp[(1) - (1)].sym);
 	  m->type = Q_TRANS;					}
     break;
 
   case 414:
-#line 2476 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2476 "sql_parser.y"
     { (yyval.sym) = _symbol_create_int( TR_COMMIT, (yyvsp[(3) - (3)].bval));  }
     break;
 
   case 415:
-#line 2478 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2478 "sql_parser.y"
     { (yyval.sym) = _symbol_create( TR_SAVEPOINT, (yyvsp[(2) - (2)].sval)); }
     break;
 
   case 416:
-#line 2480 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2480 "sql_parser.y"
     { (yyval.sym) = _symbol_create( TR_RELEASE, (yyvsp[(3) - (3)].sval)); }
     break;
 
   case 417:
-#line 2482 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2482 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( TR_ROLLBACK,
 		   append_string(
 			append_int(L(), (yyvsp[(3) - (4)].bval)), (yyvsp[(4) - (4)].sval) )); }
     break;
 
   case 418:
-#line 2486 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2486 "sql_parser.y"
     { (yyval.sym) = _symbol_create_int( TR_START, (yyvsp[(3) - (3)].i_val)); }
     break;
 
   case 419:
-#line 2488 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2488 "sql_parser.y"
     { (yyval.sym) = _symbol_create_int( TR_MODE, (yyvsp[(4) - (4)].i_val)); }
     break;
 
   case 420:
-#line 2490 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2490 "sql_parser.y"
     { (yyval.sym) = _symbol_create_int( TR_MODE, (yyvsp[(3) - (3)].i_val)); }
     break;
 
   case 421:
-#line 2494 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2494 "sql_parser.y"
     { (yyval.i_val) = tr_none; }
     break;
 
   case 423:
-#line 2500 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2500 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(1) - (1)].i_val); }
     break;
 
   case 424:
-#line 2502 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2502 "sql_parser.y"
     { (yyval.i_val) = ((yyvsp[(1) - (3)].i_val) | (yyvsp[(3) - (3)].i_val)); }
     break;
 
   case 425:
-#line 2507 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2507 "sql_parser.y"
     { (yyval.i_val) = tr_readonly; }
     break;
 
   case 426:
-#line 2508 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2508 "sql_parser.y"
     { (yyval.i_val) = tr_writable; }
     break;
 
   case 427:
-#line 2509 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2509 "sql_parser.y"
     { (yyval.i_val) = tr_serializable; }
     break;
 
   case 428:
-#line 2510 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2510 "sql_parser.y"
     { (yyval.i_val) = tr_none; /* not supported */ }
     break;
 
   case 433:
-#line 2521 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2521 "sql_parser.y"
     { (yyval.bval) = 0; }
     break;
 
   case 434:
-#line 2522 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2522 "sql_parser.y"
     { (yyval.bval) = 0; }
     break;
 
   case 435:
-#line 2526 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2526 "sql_parser.y"
     { (yyval.bval) = 1; }
     break;
 
   case 436:
-#line 2527 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2527 "sql_parser.y"
     { (yyval.bval) = 0; }
     break;
 
   case 437:
-#line 2528 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2528 "sql_parser.y"
     { (yyval.bval) = 0; }
     break;
 
   case 438:
-#line 2532 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2532 "sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 439:
-#line 2533 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2533 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(3) - (3)].sval); }
     break;
 
   case 440:
-#line 2538 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2538 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(4) - (14)].l));
 	  append_list(l, (yyvsp[(5) - (14)].l));
@@ -9599,7 +9599,7 @@ yyreduce:
     break;
 
   case 441:
-#line 2552 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2552 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(4) - (13)].l));
 	  append_list(l, (yyvsp[(5) - (13)].l));
@@ -9616,7 +9616,7 @@ yyreduce:
     break;
 
   case 442:
-#line 2566 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2566 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(4) - (6)].l));
 	  append_symbol(l, (yyvsp[(6) - (6)].sym));
@@ -9624,7 +9624,7 @@ yyreduce:
     break;
 
   case 443:
-#line 2571 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2571 "sql_parser.y"
     { dlist *l = L();
 	  if ((yyvsp[(2) - (9)].l) != NULL) {
 	  	yyerror(m, "COPY INTO: cannot pass number of records when using binary COPY INTO");
@@ -9638,7 +9638,7 @@ yyreduce:
     break;
 
   case 444:
-#line 2582 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2582 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(2) - (6)].sym));
 	  append_string(l, (yyvsp[(4) - (6)].sval));
@@ -9648,7 +9648,7 @@ yyreduce:
     break;
 
   case 445:
-#line 2589 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2589 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(2) - (6)].sym));
 	  append_string(l, NULL);
@@ -9658,54 +9658,54 @@ yyreduce:
     break;
 
   case 446:
-#line 2600 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2600 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 447:
-#line 2601 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2601 "sql_parser.y"
     { (yyval.l) = (yyvsp[(3) - (4)].l); }
     break;
 
   case 448:
-#line 2606 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2606 "sql_parser.y"
     { (yyval.l) = append_lng(L(), (yyvsp[(1) - (1)].l_val)); }
     break;
 
   case 449:
-#line 2608 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2608 "sql_parser.y"
     { (yyval.l) = append_lng((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].l_val)); }
     break;
 
   case 450:
-#line 2613 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2613 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 451:
-#line 2614 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2614 "sql_parser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); }
     break;
 
   case 452:
-#line 2618 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2618 "sql_parser.y"
     { (yyval.l) = append_list(L(), (yyvsp[(1) - (1)].l)); }
     break;
 
   case 453:
-#line 2619 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2619 "sql_parser.y"
     { (yyval.l) = append_list((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].l)); }
     break;
 
   case 454:
-#line 2624 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2624 "sql_parser.y"
     { dlist *l = L();
 			  append_string(l, (yyvsp[(1) - (1)].sval) );
 			  (yyval.l) = l; }
     break;
 
   case 455:
-#line 2628 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2628 "sql_parser.y"
     { dlist *l = L();
 			  append_string(l, (yyvsp[(1) - (2)].sval) );
 			  append_string(l, (yyvsp[(2) - (2)].sval) );
@@ -9713,7 +9713,7 @@ yyreduce:
     break;
 
   case 456:
-#line 2636 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2636 "sql_parser.y"
     { dlist *l = L();
 				  append_string(l, sa_strdup(SA, "|"));
 				  append_string(l, sa_strdup(SA, "\\n"));
@@ -9721,7 +9721,7 @@ yyreduce:
     break;
 
   case 457:
-#line 2641 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2641 "sql_parser.y"
     { dlist *l = L();
 				  append_string(l, (yyvsp[(3) - (3)].sval));
 				  append_string(l, sa_strdup(SA, "\\n"));
@@ -9729,7 +9729,7 @@ yyreduce:
     break;
 
   case 458:
-#line 2646 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2646 "sql_parser.y"
     { dlist *l = L();
 				  append_string(l, (yyvsp[(3) - (5)].sval));
 				  append_string(l, (yyvsp[(5) - (5)].sval));
@@ -9737,7 +9737,7 @@ yyreduce:
     break;
 
   case 459:
-#line 2651 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2651 "sql_parser.y"
     { dlist *l = L();
 				  append_string(l, (yyvsp[(3) - (7)].sval));
 				  append_string(l, (yyvsp[(5) - (7)].sval));
@@ -9746,102 +9746,102 @@ yyreduce:
     break;
 
   case 460:
-#line 2659 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2659 "sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 461:
-#line 2660 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2660 "sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 462:
-#line 2664 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2664 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 463:
-#line 2665 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2665 "sql_parser.y"
     { (yyval.l) = append_lng(append_lng(L(), (yyvsp[(1) - (2)].l_val)), 0); }
     break;
 
   case 464:
-#line 2666 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2666 "sql_parser.y"
     { (yyval.l) = append_lng(append_lng(L(), -1), (yyvsp[(2) - (2)].l_val)); }
     break;
 
   case 465:
-#line 2668 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2668 "sql_parser.y"
     { (yyval.l) = append_lng(append_lng(L(), (yyvsp[(1) - (4)].l_val)), (yyvsp[(3) - (4)].l_val)); }
     break;
 
   case 466:
-#line 2670 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2670 "sql_parser.y"
     { (yyval.l) = append_lng(append_lng(L(), (yyvsp[(1) - (4)].l_val)), (yyvsp[(4) - (4)].l_val)); }
     break;
 
   case 467:
-#line 2674 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2674 "sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 468:
-#line 2675 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2675 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(3) - (3)].sval); }
     break;
 
   case 469:
-#line 2679 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2679 "sql_parser.y"
     { (yyval.bval) = FALSE; }
     break;
 
   case 470:
-#line 2680 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2680 "sql_parser.y"
     { (yyval.bval) = TRUE; }
     break;
 
   case 471:
-#line 2684 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2684 "sql_parser.y"
     { (yyval.bval) = FALSE; }
     break;
 
   case 472:
-#line 2685 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2685 "sql_parser.y"
     { (yyval.bval) = TRUE; }
     break;
 
   case 473:
-#line 2689 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2689 "sql_parser.y"
     { (yyval.bval) = TRUE; }
     break;
 
   case 474:
-#line 2690 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2690 "sql_parser.y"
     { (yyval.bval) = FALSE; }
     break;
 
   case 475:
-#line 2694 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2694 "sql_parser.y"
     { (yyval.l) = (yyvsp[(1) - (1)].l); }
     break;
 
   case 476:
-#line 2695 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2695 "sql_parser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); }
     break;
 
   case 477:
-#line 2699 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2699 "sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 478:
-#line 2701 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2701 "sql_parser.y"
     { (yyval.l) = append_string((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sval)); }
     break;
 
   case 479:
-#line 2707 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2707 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (4)].l));
 	  append_symbol(l, (yyvsp[(4) - (4)].sym));
@@ -9849,7 +9849,7 @@ yyreduce:
     break;
 
   case 480:
-#line 2716 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2716 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(2) - (6)].l));
 	  append_list(l, (yyvsp[(4) - (6)].l));
@@ -9859,7 +9859,7 @@ yyreduce:
     break;
 
   case 481:
-#line 2758 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2758 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (4)].l));
 	  append_list(l, NULL);
@@ -9868,7 +9868,7 @@ yyreduce:
     break;
 
   case 482:
-#line 2766 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2766 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (5)].l));
 	  append_list(l, (yyvsp[(4) - (5)].l));
@@ -9877,52 +9877,52 @@ yyreduce:
     break;
 
   case 483:
-#line 2775 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2775 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_VALUES, L()); }
     break;
 
   case 484:
-#line 2777 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2777 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_VALUES, L()); }
     break;
 
   case 485:
-#line 2779 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2779 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_VALUES, (yyvsp[(2) - (2)].l)); }
     break;
 
   case 487:
-#line 2785 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2785 "sql_parser.y"
     { (yyval.l) = append_list(L(), (yyvsp[(2) - (3)].l)); }
     break;
 
   case 488:
-#line 2787 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2787 "sql_parser.y"
     { (yyval.l) = append_list((yyvsp[(1) - (5)].l), (yyvsp[(4) - (5)].l)); }
     break;
 
   case 489:
-#line 2791 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2791 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 490:
-#line 2793 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2793 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 491:
-#line 2797 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2797 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 492:
-#line 2799 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2799 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 493:
-#line 2804 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2804 "sql_parser.y"
     { 
 	  if (m->emode == m_normal && m->caching) {
 		/* replace by argument */
@@ -9938,32 +9938,32 @@ yyreduce:
     break;
 
   case 498:
-#line 2833 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2833 "sql_parser.y"
     { (yyval.bval) = FALSE; }
     break;
 
   case 499:
-#line 2834 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2834 "sql_parser.y"
     { (yyval.bval) = FALSE; }
     break;
 
   case 500:
-#line 2835 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2835 "sql_parser.y"
     { (yyval.bval) = TRUE; }
     break;
 
   case 501:
-#line 2839 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2839 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym) ); }
     break;
 
   case 502:
-#line 2841 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2841 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym) ); }
     break;
 
   case 503:
-#line 2846 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2846 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (3)].sym) );
 	  append_string(l, (yyvsp[(1) - (3)].sval));
@@ -9971,7 +9971,7 @@ yyreduce:
     break;
 
   case 504:
-#line 2851 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2851 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (3)].sym));
 	  append_list(l, (yyvsp[(1) - (3)].l));
@@ -9979,22 +9979,22 @@ yyreduce:
     break;
 
   case 505:
-#line 2858 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2858 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 506:
-#line 2859 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2859 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 507:
-#line 2866 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2866 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (3)].sym); }
     break;
 
   case 508:
-#line 2868 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2868 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(1) - (4)].sym));
 	  append_symbol(l, (yyvsp[(4) - (4)].sym));
@@ -10002,7 +10002,7 @@ yyreduce:
     break;
 
   case 509:
-#line 2873 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2873 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(1) - (4)].sym));
 	  append_int(l, 0);
@@ -10013,7 +10013,7 @@ yyreduce:
     break;
 
   case 510:
-#line 2881 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2881 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(1) - (5)].sym));
 	  append_int(l, 0);
@@ -10024,7 +10024,7 @@ yyreduce:
     break;
 
   case 511:
-#line 2889 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2889 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(1) - (5)].sym));
 	  append_int(l, 1);
@@ -10035,57 +10035,57 @@ yyreduce:
     break;
 
   case 512:
-#line 2899 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2899 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 513:
-#line 2900 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2900 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 514:
-#line 2901 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2901 "sql_parser.y"
     { (yyval.i_val) = 1 + (yyvsp[(1) - (2)].i_val); }
     break;
 
   case 515:
-#line 2905 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2905 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 516:
-#line 2906 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2906 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 517:
-#line 2910 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2910 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 518:
-#line 2911 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2911 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 519:
-#line 2912 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2912 "sql_parser.y"
     { (yyval.i_val) = 2; }
     break;
 
   case 520:
-#line 2916 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2916 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 521:
-#line 2918 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2918 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_USING, (yyvsp[(2) - (2)].l)); }
     break;
 
   case 523:
-#line 2942 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2942 "sql_parser.y"
     {
 		dlist *l = L();
 	  	append_list(l, (yyvsp[(2) - (3)].l));
@@ -10095,17 +10095,17 @@ yyreduce:
     break;
 
   case 524:
-#line 2951 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2951 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 525:
-#line 2952 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2952 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 526:
-#line 2957 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2957 "sql_parser.y"
     {  dlist *l = L();
 	  append_list(l, append_string(L(), (yyvsp[(1) - (6)].sval)));
 	  append_list(l, (yyvsp[(2) - (6)].l));
@@ -10117,7 +10117,7 @@ yyreduce:
     break;
 
   case 530:
-#line 2980 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2980 "sql_parser.y"
     { (yyval.sym) = newSelectNode( SA, (yyvsp[(2) - (4)].bval), (yyvsp[(3) - (4)].l), NULL,
 		(yyvsp[(4) - (4)].l)->h->data.sym,
 		(yyvsp[(4) - (4)].l)->h->next->data.sym,
@@ -10128,7 +10128,7 @@ yyreduce:
     break;
 
   case 531:
-#line 2991 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 2991 "sql_parser.y"
     { (yyval.sym) = newSelectNode( SA, (yyvsp[(2) - (6)].bval), (yyvsp[(3) - (6)].l), (yyvsp[(5) - (6)].l),
 		(yyvsp[(6) - (6)].l)->h->data.sym,
 		(yyvsp[(6) - (6)].l)->h->next->data.sym,
@@ -10139,7 +10139,7 @@ yyreduce:
     break;
 
   case 532:
-#line 3002 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3002 "sql_parser.y"
     { 
 	  (yyval.sym) = (yyvsp[(1) - (5)].sym);
 	  if ((yyvsp[(2) - (5)].sym) || (yyvsp[(3) - (5)].sym) || (yyvsp[(4) - (5)].sym) || (yyvsp[(5) - (5)].sym)) {
@@ -10170,17 +10170,17 @@ yyreduce:
     break;
 
   case 533:
-#line 3032 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3032 "sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 534:
-#line 3034 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3034 "sql_parser.y"
     { (yyval.l) = append_string((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sval)); }
     break;
 
   case 536:
-#line 3044 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3044 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(1) - (5)].sym));
 	  append_int(l, (yyvsp[(3) - (5)].bval));
@@ -10190,7 +10190,7 @@ yyreduce:
     break;
 
   case 537:
-#line 3053 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3053 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(1) - (5)].sym));
 	  append_int(l, (yyvsp[(3) - (5)].bval));
@@ -10200,7 +10200,7 @@ yyreduce:
     break;
 
   case 538:
-#line 3062 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3062 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(1) - (5)].sym));
 	  append_int(l, (yyvsp[(3) - (5)].bval));
@@ -10210,42 +10210,42 @@ yyreduce:
     break;
 
   case 539:
-#line 3068 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3068 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (3)].sym); }
     break;
 
   case 541:
-#line 3073 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3073 "sql_parser.y"
     { (yyval.bval) = TRUE; }
     break;
 
   case 542:
-#line 3074 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3074 "sql_parser.y"
     { (yyval.bval) = FALSE; }
     break;
 
   case 543:
-#line 3075 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3075 "sql_parser.y"
     { (yyval.bval) = TRUE; }
     break;
 
   case 544:
-#line 3080 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3080 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 545:
-#line 3082 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3082 "sql_parser.y"
     { (yyval.l) = L(); }
     break;
 
   case 546:
-#line 3084 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3084 "sql_parser.y"
     { (yyval.l) = (yyvsp[(4) - (5)].l); }
     break;
 
   case 548:
-#line 3094 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3094 "sql_parser.y"
     { (yyval.l) = L();
 	  append_symbol((yyval.l), (yyvsp[(1) - (4)].sym));
 	  append_symbol((yyval.l), (yyvsp[(2) - (4)].sym));
@@ -10254,27 +10254,27 @@ yyreduce:
     break;
 
   case 549:
-#line 3102 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3102 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 550:
-#line 3103 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3103 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_FROM, (yyvsp[(2) - (2)].l)); }
     break;
 
   case 551:
-#line 3107 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3107 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 552:
-#line 3109 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3109 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 553:
-#line 3113 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3113 "sql_parser.y"
     { dlist *l = L();
 		  		  append_list(l, (yyvsp[(1) - (2)].l));
 		  	  	  append_symbol(l, (yyvsp[(2) - (2)].sym));
@@ -10282,7 +10282,7 @@ yyreduce:
     break;
 
   case 554:
-#line 3118 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3118 "sql_parser.y"
     { dlist *l = L();
 		  		  append_symbol(l, (yyvsp[(1) - (2)].sym));
 		  	  	  append_symbol(l, (yyvsp[(2) - (2)].sym));
@@ -10291,7 +10291,7 @@ yyreduce:
     break;
 
   case 555:
-#line 3124 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3124 "sql_parser.y"
     { dlist *l = L();
 		  		  append_symbol(l, (yyvsp[(2) - (3)].sym));
 		  	  	  append_symbol(l, (yyvsp[(3) - (3)].sym));
@@ -10300,7 +10300,7 @@ yyreduce:
     break;
 
   case 556:
-#line 3130 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3130 "sql_parser.y"
     {
 				  (yyval.sym) = (yyvsp[(1) - (2)].sym);
 				  if ((yyval.sym)->token == SQL_SELECT) {
@@ -10313,7 +10313,7 @@ yyreduce:
     break;
 
   case 557:
-#line 3140 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3140 "sql_parser.y"
     {
 				  (yyval.sym) = (yyvsp[(2) - (3)].sym);
 				  if ((yyval.sym)->token == SQL_SELECT) {
@@ -10328,7 +10328,7 @@ yyreduce:
     break;
 
   case 558:
-#line 3152 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3152 "sql_parser.y"
     { (yyval.sym) = NULL;
 				  yyerror(m, "subquery table reference needs alias, use AS xxx");
 				  YYABORT;
@@ -10336,18 +10336,18 @@ yyreduce:
     break;
 
   case 559:
-#line 3156 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3156 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym);
 				  append_symbol((yyvsp[(1) - (1)].sym)->data.lval, NULL); }
     break;
 
   case 560:
-#line 3160 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3160 "sql_parser.y"
     { m->caching = 0; }
     break;
 
   case 561:
-#line 3162 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3162 "sql_parser.y"
     {
 		dlist *op = L();
 
@@ -10358,7 +10358,7 @@ yyreduce:
     break;
 
   case 562:
-#line 3173 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3173 "sql_parser.y"
     { dlist *l = L();
 		  		  append_string(l, (yyvsp[(2) - (5)].sval));
 		  	  	  append_list(l, (yyvsp[(4) - (5)].l));
@@ -10366,7 +10366,7 @@ yyreduce:
     break;
 
   case 563:
-#line 3178 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3178 "sql_parser.y"
     { dlist *l = L();
 		  		  append_string(l, (yyvsp[(2) - (2)].sval));
 		  	  	  append_list(l, NULL);
@@ -10374,7 +10374,7 @@ yyreduce:
     break;
 
   case 564:
-#line 3183 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3183 "sql_parser.y"
     { dlist *l = L();
 		  		  append_string(l, (yyvsp[(1) - (4)].sval));
 		  	  	  append_list(l, (yyvsp[(3) - (4)].l));
@@ -10382,7 +10382,7 @@ yyreduce:
     break;
 
   case 565:
-#line 3188 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3188 "sql_parser.y"
     { dlist *l = L();
 		  		  append_string(l, (yyvsp[(1) - (1)].sval));
 		  	  	  append_list(l, NULL);
@@ -10390,49 +10390,49 @@ yyreduce:
     break;
 
   case 566:
-#line 3195 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3195 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 567:
-#line 3196 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3196 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 568:
-#line 3200 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3200 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 569:
-#line 3201 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3201 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_GROUPBY, (yyvsp[(3) - (3)].l) );}
     break;
 
   case 570:
-#line 3205 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3205 "sql_parser.y"
     { (yyval.l) = append_symbol(L(),
 			       _symbol_create_list(SQL_COLUMN,(yyvsp[(1) - (1)].l))); }
     break;
 
   case 571:
-#line 3208 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3208 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (3)].l),
 			       _symbol_create_list(SQL_COLUMN,(yyvsp[(3) - (3)].l))); }
     break;
 
   case 572:
-#line 3213 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3213 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 573:
-#line 3214 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3214 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 574:
-#line 3220 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3220 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(1) - (3)].sym));
 		  append_symbol(l, (yyvsp[(3) - (3)].sym));
@@ -10440,12 +10440,12 @@ yyreduce:
     break;
 
   case 575:
-#line 3224 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3224 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 576:
-#line 3229 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3229 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(1) - (3)].sym));
 		  append_symbol(l, (yyvsp[(3) - (3)].sym));
@@ -10453,27 +10453,27 @@ yyreduce:
     break;
 
   case 577:
-#line 3233 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3233 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 578:
-#line 3237 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3237 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 579:
-#line 3239 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3239 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_ORDERBY, (yyvsp[(3) - (3)].l)); }
     break;
 
   case 580:
-#line 3243 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3243 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 581:
-#line 3244 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3244 "sql_parser.y"
     { 
 		  	  sql_subtype *t = sql_bind_localtype("lng");
 			  (yyval.sym) = _newAtomNode( atom_int(SA, t, (yyvsp[(2) - (2)].l_val))); 
@@ -10481,17 +10481,17 @@ yyreduce:
     break;
 
   case 582:
-#line 3248 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3248 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 583:
-#line 3252 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3252 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 584:
-#line 3253 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3253 "sql_parser.y"
     { 
 		  	  sql_subtype *t = sql_bind_localtype("lng");
 			  (yyval.sym) = _newAtomNode( atom_int(SA, t, (yyvsp[(2) - (2)].l_val))); 
@@ -10499,17 +10499,17 @@ yyreduce:
     break;
 
   case 585:
-#line 3257 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3257 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 586:
-#line 3261 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3261 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 587:
-#line 3262 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3262 "sql_parser.y"
     {
 		  	  sql_subtype *t = sql_bind_localtype("lng");
 			  (yyval.sym) = _newAtomNode( atom_int(SA, t, (yyvsp[(2) - (2)].l_val)));
@@ -10517,7 +10517,7 @@ yyreduce:
     break;
 
   case 588:
-#line 3266 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3266 "sql_parser.y"
     {
 		  	  sql_subtype *t = sql_bind_localtype("dbl");
 			  (yyval.sym) = _newAtomNode( atom_float(SA, t, strtod((yyvsp[(2) - (2)].sval),NULL)));
@@ -10525,22 +10525,22 @@ yyreduce:
     break;
 
   case 589:
-#line 3270 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3270 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 590:
-#line 3274 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3274 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 591:
-#line 3276 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3276 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym) ); }
     break;
 
   case 592:
-#line 3281 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3281 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(1) - (2)].sym));
 	  append_int(l, (yyvsp[(2) - (2)].bval));
@@ -10548,22 +10548,22 @@ yyreduce:
     break;
 
   case 593:
-#line 3289 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3289 "sql_parser.y"
     { (yyval.bval) = TRUE; }
     break;
 
   case 594:
-#line 3290 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3290 "sql_parser.y"
     { (yyval.bval) = TRUE; }
     break;
 
   case 595:
-#line 3291 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3291 "sql_parser.y"
     { (yyval.bval) = FALSE; }
     break;
 
   case 605:
-#line 3308 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3308 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym);
 
 		  if ((yyval.sym)->token == SQL_EXISTS)
@@ -10583,12 +10583,12 @@ yyreduce:
     break;
 
   case 606:
-#line 3324 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3324 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 607:
-#line 3329 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3329 "sql_parser.y"
     { dlist *l = L();
 
 		  append_symbol(l, (yyvsp[(1) - (3)].sym));
@@ -10598,7 +10598,7 @@ yyreduce:
     break;
 
   case 608:
-#line 3336 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3336 "sql_parser.y"
     { dlist *l = L();
 
 		  append_symbol(l, (yyvsp[(1) - (3)].sym));
@@ -10608,7 +10608,7 @@ yyreduce:
     break;
 
   case 609:
-#line 3346 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3346 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(1) - (6)].sym));
 		  append_int(l, (yyvsp[(3) - (6)].i_val));
@@ -10618,7 +10618,7 @@ yyreduce:
     break;
 
   case 610:
-#line 3353 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3353 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(1) - (6)].sym));
 		  append_int(l, (yyvsp[(3) - (6)].i_val));
@@ -10628,22 +10628,22 @@ yyreduce:
     break;
 
   case 611:
-#line 3362 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3362 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 612:
-#line 3363 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3363 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 613:
-#line 3364 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3364 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 614:
-#line 3369 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3369 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(1) - (3)].sym));
 		  append_symbol(l, (yyvsp[(3) - (3)].sym));
@@ -10653,7 +10653,7 @@ yyreduce:
     break;
 
   case 615:
-#line 3376 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3376 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(1) - (3)].sym));
 		  append_symbol(l, (yyvsp[(3) - (3)].sym));
@@ -10663,7 +10663,7 @@ yyreduce:
     break;
 
   case 616:
-#line 3383 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3383 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(1) - (3)].sym));
 		  append_symbol(l, (yyvsp[(3) - (3)].sym));
@@ -10673,7 +10673,7 @@ yyreduce:
     break;
 
   case 617:
-#line 3390 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3390 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(1) - (3)].sym));
 		  append_symbol(l, (yyvsp[(3) - (3)].sym));
@@ -10683,14 +10683,14 @@ yyreduce:
     break;
 
   case 618:
-#line 3400 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3400 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(1) - (1)].sym));
 	  (yyval.sym) = _symbol_create_list(SQL_ESCAPE, l ); }
     break;
 
   case 619:
-#line 3404 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3404 "sql_parser.y"
     { const char *s = sql2str((yyvsp[(3) - (3)].sval));
 	  if (_strlen(s) != 1) {
 		yyerror(m, "\b22025!ESCAPE must be one character");
@@ -10706,17 +10706,17 @@ yyreduce:
     break;
 
   case 620:
-#line 3419 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3419 "sql_parser.y"
     { (yyval.sym) = _symbol_create_symbol( SQL_IS_NOT_NULL, (yyvsp[(1) - (4)].sym) );}
     break;
 
   case 621:
-#line 3420 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3420 "sql_parser.y"
     { (yyval.sym) = _symbol_create_symbol( SQL_IS_NULL, (yyvsp[(1) - (3)].sym) ); }
     break;
 
   case 622:
-#line 3425 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3425 "sql_parser.y"
     { dlist *l = L();
 
 		  append_symbol(l, (yyvsp[(1) - (5)].sym));
@@ -10725,7 +10725,7 @@ yyreduce:
     break;
 
   case 623:
-#line 3431 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3431 "sql_parser.y"
     { dlist *l = L();
 
 		  append_symbol(l, (yyvsp[(1) - (5)].sym));
@@ -10734,7 +10734,7 @@ yyreduce:
     break;
 
   case 624:
-#line 3437 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3437 "sql_parser.y"
     { dlist *l = L();
 		  append_list(l, (yyvsp[(2) - (7)].l));
 		  append_list(l, (yyvsp[(6) - (7)].l));
@@ -10742,7 +10742,7 @@ yyreduce:
     break;
 
   case 625:
-#line 3442 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3442 "sql_parser.y"
     { dlist *l = L();
 		  append_list(l, (yyvsp[(2) - (7)].l));
 		  append_list(l, (yyvsp[(6) - (7)].l));
@@ -10750,17 +10750,17 @@ yyreduce:
     break;
 
   case 626:
-#line 3450 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3450 "sql_parser.y"
     { (yyval.l) = append_symbol( L(), (yyvsp[(1) - (1)].sym));}
     break;
 
   case 627:
-#line 3452 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3452 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 628:
-#line 3458 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3458 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(1) - (4)].sym));
 		  append_string(l, (yyvsp[(2) - (4)].sval));
@@ -10770,7 +10770,7 @@ yyreduce:
     break;
 
   case 629:
-#line 3465 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3465 "sql_parser.y"
     { dlist *l = L();
 		  append_symbol(l, (yyvsp[(1) - (4)].sym));
 		  append_string(l, sa_strdup(SA, "="));
@@ -10780,42 +10780,42 @@ yyreduce:
     break;
 
   case 630:
-#line 3474 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3474 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 631:
-#line 3475 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3475 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 632:
-#line 3476 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3476 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 633:
-#line 3480 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3480 "sql_parser.y"
     { (yyval.sym) = _symbol_create_symbol( SQL_EXISTS, (yyvsp[(2) - (2)].sym) ); }
     break;
 
   case 634:
-#line 3484 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3484 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 635:
-#line 3485 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3485 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym));  }
     break;
 
   case 636:
-#line 3489 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3489 "sql_parser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); }
     break;
 
   case 637:
-#line 3494 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3494 "sql_parser.y"
     { dlist *l = L();
 		  append_list(l, (yyvsp[(1) - (3)].l));
 		  append_list(l, (yyvsp[(2) - (3)].l));
@@ -10824,22 +10824,22 @@ yyreduce:
     break;
 
   case 638:
-#line 3502 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3502 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (3)].sym); }
     break;
 
   case 639:
-#line 3504 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3504 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_VALUES, (yyvsp[(3) - (4)].l)); }
     break;
 
   case 640:
-#line 3506 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3506 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (3)].sym); }
     break;
 
   case 642:
-#line 3513 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3513 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "sql_add")));
@@ -10849,7 +10849,7 @@ yyreduce:
     break;
 
   case 643:
-#line 3520 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3520 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "sql_sub")));
@@ -10859,7 +10859,7 @@ yyreduce:
     break;
 
   case 644:
-#line 3527 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3527 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "sql_mul")));
@@ -10869,7 +10869,7 @@ yyreduce:
     break;
 
   case 645:
-#line 3534 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3534 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "sql_div")));
@@ -10879,7 +10879,7 @@ yyreduce:
     break;
 
   case 646:
-#line 3541 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3541 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "mod")));
@@ -10889,7 +10889,7 @@ yyreduce:
     break;
 
   case 647:
-#line 3548 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3548 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "bit_xor")));
@@ -10899,7 +10899,7 @@ yyreduce:
     break;
 
   case 648:
-#line 3555 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3555 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "bit_and")));
@@ -10909,7 +10909,7 @@ yyreduce:
     break;
 
   case 649:
-#line 3562 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3562 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(L(), sa_strdup(SA, "mbr_overlap")));
@@ -10919,7 +10919,7 @@ yyreduce:
     break;
 
   case 650:
-#line 3569 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3569 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(L(), sa_strdup(SA, "mbr_overlap_or_left")));
@@ -10929,7 +10929,7 @@ yyreduce:
     break;
 
   case 651:
-#line 3576 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3576 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(L(), sa_strdup(SA, "mbr_overlap_or_right")));
@@ -10939,7 +10939,7 @@ yyreduce:
     break;
 
   case 652:
-#line 3583 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3583 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(L(), sa_strdup(SA, "mbr_overlap_or_below")));
@@ -10949,7 +10949,7 @@ yyreduce:
     break;
 
   case 653:
-#line 3590 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3590 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, append_string(L(), sa_strdup(SA, "mbr_below")));
 	  		  append_symbol(l, (yyvsp[(1) - (3)].sym));
@@ -10958,7 +10958,7 @@ yyreduce:
     break;
 
   case 654:
-#line 3596 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3596 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(L(), sa_strdup(SA, "mbr_overlap_or_above")));
@@ -10968,7 +10968,7 @@ yyreduce:
     break;
 
   case 655:
-#line 3603 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3603 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(L(), sa_strdup(SA, "mbr_above")));
@@ -10978,7 +10978,7 @@ yyreduce:
     break;
 
   case 656:
-#line 3610 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3610 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(L(), sa_strdup(SA, "mbr_distance")));
@@ -10988,7 +10988,7 @@ yyreduce:
     break;
 
   case 657:
-#line 3617 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3617 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(L(), sa_strdup(SA, "mbr_contained")));
@@ -10998,7 +10998,7 @@ yyreduce:
     break;
 
   case 658:
-#line 3624 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3624 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "bit_or")));
@@ -11008,7 +11008,7 @@ yyreduce:
     break;
 
   case 659:
-#line 3631 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3631 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(L(), sa_strdup(SA, "mbr_contains")));
@@ -11018,7 +11018,7 @@ yyreduce:
     break;
 
   case 660:
-#line 3638 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3638 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(L(), sa_strdup(SA, "mbr_equal")));
@@ -11028,7 +11028,7 @@ yyreduce:
     break;
 
   case 661:
-#line 3645 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3645 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "bit_not")));
@@ -11037,7 +11037,7 @@ yyreduce:
     break;
 
   case 662:
-#line 3651 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3651 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "left_shift")));
@@ -11047,7 +11047,7 @@ yyreduce:
     break;
 
   case 663:
-#line 3658 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3658 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "right_shift")));
@@ -11057,7 +11057,7 @@ yyreduce:
     break;
 
   case 664:
-#line 3665 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3665 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "left_shift_assign")));
@@ -11067,7 +11067,7 @@ yyreduce:
     break;
 
   case 665:
-#line 3672 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3672 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l, 
 			  	append_string(append_string(L(), sa_strdup(SA, "sys")), sa_strdup(SA, "right_shift_assign")));
@@ -11077,12 +11077,12 @@ yyreduce:
     break;
 
   case 666:
-#line 3679 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3679 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 667:
-#line 3681 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3681 "sql_parser.y"
     { 
  			  (yyval.sym) = NULL;
 			  assert((yyvsp[(2) - (2)].sym)->token != SQL_COLUMN || (yyvsp[(2) - (2)].sym)->data.lval->h->type != type_lng);
@@ -11107,39 +11107,39 @@ yyreduce:
     break;
 
   case 668:
-#line 3702 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3702 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (3)].sym); }
     break;
 
   case 669:
-#line 3706 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3706 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 672:
-#line 3712 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3712 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_COLUMN, 
 			  append_string(L(), sa_strdup(SA, "current_user"))); }
     break;
 
   case 673:
-#line 3714 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3714 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_COLUMN, 
 			  append_string(L(), sa_strdup(SA, "current_role"))); }
     break;
 
   case 675:
-#line 3717 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3717 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_COLUMN, (yyvsp[(1) - (1)].l)); }
     break;
 
   case 679:
-#line 3721 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3721 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_NEXT, (yyvsp[(4) - (4)].l)); }
     break;
 
   case 687:
-#line 3733 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3733 "sql_parser.y"
     { 
 	  int nr = (m->params)?list_length(m->params):0;
 
@@ -11149,155 +11149,155 @@ yyreduce:
     break;
 
   case 688:
-#line 3803 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3803 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_RANK, 
 		append_list(append_symbol(L(), (yyvsp[(1) - (5)].sym)), (yyvsp[(4) - (5)].l))); }
     break;
 
   case 689:
-#line 3808 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3808 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_RANK, (yyvsp[(1) - (3)].l) ); }
     break;
 
   case 691:
-#line 3814 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3814 "sql_parser.y"
     { (yyval.l) = append_symbol(append_symbol(append_symbol(L(), (yyvsp[(1) - (3)].sym)), (yyvsp[(2) - (3)].sym)), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 692:
-#line 3818 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3818 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 693:
-#line 3820 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3820 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_GROUPBY, (yyvsp[(3) - (3)].l) ); }
     break;
 
   case 694:
-#line 3824 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3824 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 695:
-#line 3826 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3826 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_ORDERBY, (yyvsp[(3) - (3)].l) ); }
     break;
 
   case 696:
-#line 3830 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3830 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 697:
-#line 3832 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3832 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_FRAME, append_int(append_int((yyvsp[(2) - (3)].l), (yyvsp[(1) - (3)].i_val)), (yyvsp[(3) - (3)].i_val))); }
     break;
 
   case 698:
-#line 3836 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3836 "sql_parser.y"
     { (yyval.i_val) = FRAME_ROWS; }
     break;
 
   case 699:
-#line 3837 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3837 "sql_parser.y"
     { (yyval.i_val) = FRAME_RANGE; }
     break;
 
   case 700:
-#line 3841 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3841 "sql_parser.y"
     { (yyval.l) = append_symbol(append_symbol(L(), (yyvsp[(1) - (1)].sym)), _symbol_create_int(SQL_FRAME, -1)); }
     break;
 
   case 701:
-#line 3842 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3842 "sql_parser.y"
     { (yyval.l) = (yyvsp[(1) - (1)].l); }
     break;
 
   case 702:
-#line 3846 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3846 "sql_parser.y"
     { (yyval.sym) = _symbol_create_int(SQL_FRAME, -1); }
     break;
 
   case 703:
-#line 3847 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3847 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 704:
-#line 3848 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3848 "sql_parser.y"
     { (yyval.sym) = _symbol_create_int(SQL_FRAME, 0); }
     break;
 
   case 705:
-#line 3852 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3852 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (2)].sym); }
     break;
 
   case 706:
-#line 3857 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3857 "sql_parser.y"
     { (yyval.l) = append_symbol(append_symbol(L(), (yyvsp[(2) - (4)].sym)), (yyvsp[(4) - (4)].sym)); }
     break;
 
   case 707:
-#line 3861 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3861 "sql_parser.y"
     { (yyval.sym) = _symbol_create_int(SQL_FRAME, -1); }
     break;
 
   case 708:
-#line 3862 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3862 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 709:
-#line 3863 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3863 "sql_parser.y"
     { (yyval.sym) = _symbol_create_int(SQL_FRAME, 0); }
     break;
 
   case 710:
-#line 3867 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3867 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (2)].sym); }
     break;
 
   case 711:
-#line 3871 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3871 "sql_parser.y"
     { (yyval.i_val) = EXCLUDE_NONE; }
     break;
 
   case 712:
-#line 3872 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3872 "sql_parser.y"
     { (yyval.i_val) = EXCLUDE_CURRENT_ROW; }
     break;
 
   case 713:
-#line 3873 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3873 "sql_parser.y"
     { (yyval.i_val) = EXCLUDE_GROUP; }
     break;
 
   case 714:
-#line 3874 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3874 "sql_parser.y"
     { (yyval.i_val) = EXCLUDE_TIES; }
     break;
 
   case 715:
-#line 3875 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3875 "sql_parser.y"
     { (yyval.i_val) = EXCLUDE_NO_OTHERS; }
     break;
 
   case 716:
-#line 3879 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3879 "sql_parser.y"
     { (yyval.sym) = _symbol_create( SQL_NAME, (yyvsp[(2) - (2)].sval) ); }
     break;
 
   case 717:
-#line 3884 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3884 "sql_parser.y"
     { dlist *l = L();
   	  append_list(l, (yyvsp[(1) - (3)].l));
 	  (yyval.sym) = _symbol_create_list( SQL_OP, l ); }
     break;
 
   case 718:
-#line 3888 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3888 "sql_parser.y"
     { dlist *l = L();
   	  append_list(l, (yyvsp[(1) - (4)].l));
 	  if (dlist_length((yyvsp[(3) - (4)].l)) == 1) {
@@ -11315,38 +11315,38 @@ yyreduce:
     break;
 
   case 719:
-#line 3915 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3915 "sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 720:
-#line 3916 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3916 "sql_parser.y"
     { (yyval.l) = append_string(
 					append_string(L(), (yyvsp[(1) - (3)].sval)), (yyvsp[(3) - (3)].sval));}
     break;
 
   case 721:
-#line 3921 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3921 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 722:
-#line 3922 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3922 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "left"); }
     break;
 
   case 723:
-#line 3923 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3923 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "right"); }
     break;
 
   case 724:
-#line 3924 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3924 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "insert"); }
     break;
 
   case 725:
-#line 3929 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3929 "sql_parser.y"
     { dlist *l = L();
 			  const char *ident = datetime_field((itype)(yyvsp[(3) - (6)].i_val));
 			  append_list(l,
@@ -11356,7 +11356,7 @@ yyreduce:
     break;
 
   case 726:
-#line 3936 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3936 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l,
 			  	append_string(L(), sa_strdup(SA, "current_date")));
@@ -11364,7 +11364,7 @@ yyreduce:
     break;
 
   case 727:
-#line 3941 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3941 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l,
 			  	append_string(L(), sa_strdup(SA, "current_time")));
@@ -11372,7 +11372,7 @@ yyreduce:
     break;
 
   case 728:
-#line 3946 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3946 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l,
 			  	append_string(L(), sa_strdup(SA, "current_timestamp")));
@@ -11380,7 +11380,7 @@ yyreduce:
     break;
 
   case 729:
-#line 3951 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3951 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l,
 			  	append_string(L(), sa_strdup(SA, "localtime")));
@@ -11388,7 +11388,7 @@ yyreduce:
     break;
 
   case 730:
-#line 3956 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3956 "sql_parser.y"
     { dlist *l = L();
 			  append_list(l,
 			  	append_string(L(), sa_strdup(SA, "localtimestamp")));
@@ -11396,17 +11396,17 @@ yyreduce:
     break;
 
   case 731:
-#line 3963 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3963 "sql_parser.y"
     { (yyval.bval) = 0; }
     break;
 
   case 732:
-#line 3964 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3964 "sql_parser.y"
     { (yyval.bval) = 1; }
     break;
 
   case 733:
-#line 3969 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3969 "sql_parser.y"
     { dlist *l = L();
 			  dlist *ops = L();
   		  	  append_list(l,
@@ -11419,7 +11419,7 @@ yyreduce:
     break;
 
   case 734:
-#line 3979 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3979 "sql_parser.y"
     { dlist *l = L();
 			  dlist *ops = L();
   		  	  append_list(l,
@@ -11432,7 +11432,7 @@ yyreduce:
     break;
 
   case 735:
-#line 3989 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3989 "sql_parser.y"
     { dlist *l = L();
   		  	  append_list(l,
   		  	  	append_string(L(), sa_strdup(SA, "substring")));
@@ -11442,7 +11442,7 @@ yyreduce:
     break;
 
   case 736:
-#line 3996 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 3996 "sql_parser.y"
     { dlist *l = L();
   		  	  append_list(l,
   		  	  	append_string(L(), sa_strdup(SA, "substring")));
@@ -11452,7 +11452,7 @@ yyreduce:
     break;
 
   case 737:
-#line 4003 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4003 "sql_parser.y"
     { dlist *l = L();
   		  	  append_list(l,
   		  	  	append_string(L(), sa_strdup(SA, "locate")));
@@ -11462,7 +11462,7 @@ yyreduce:
     break;
 
   case 738:
-#line 4010 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4010 "sql_parser.y"
     { dlist *l = L();
   		  	  append_list(l,
   		  	  	append_string(L(), sa_strdup(SA, "concat")));
@@ -11472,7 +11472,7 @@ yyreduce:
     break;
 
   case 739:
-#line 4017 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4017 "sql_parser.y"
     { dlist *l = L();
 			  dlist *ops = L();
   		  	  append_list(l,
@@ -11485,17 +11485,17 @@ yyreduce:
     break;
 
   case 740:
-#line 4029 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4029 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym) ); }
     break;
 
   case 741:
-#line 4031 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4031 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym) ); }
     break;
 
   case 742:
-#line 4036 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4036 "sql_parser.y"
     { dlist *l = L();
   		  append_string(l, NULL);
   		  append_string(l, NULL);
@@ -11503,7 +11503,7 @@ yyreduce:
     break;
 
   case 743:
-#line 4041 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4041 "sql_parser.y"
     { dlist *l = L();
   		  append_string(l, (yyvsp[(1) - (3)].sval));
   		  append_string(l, NULL);
@@ -11511,7 +11511,7 @@ yyreduce:
     break;
 
   case 744:
-#line 4046 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4046 "sql_parser.y"
     { dlist *l = L();
   		  append_symbol(l, (yyvsp[(1) - (3)].sym));
   		  append_string(l, NULL);
@@ -11519,7 +11519,7 @@ yyreduce:
     break;
 
   case 745:
-#line 4051 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4051 "sql_parser.y"
     { dlist *l = L();
   		  append_symbol(l, (yyvsp[(1) - (2)].sym));
   		  append_string(l, (yyvsp[(2) - (2)].sval));
@@ -11527,17 +11527,17 @@ yyreduce:
     break;
 
   case 746:
-#line 4058 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4058 "sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 747:
-#line 4059 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4059 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(2) - (2)].sval); }
     break;
 
   case 748:
-#line 4064 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4064 "sql_parser.y"
     { 
 	  if (m->emode == m_normal && m->caching) { 
 	  	/* replace by argument */
@@ -11559,40 +11559,40 @@ yyreduce:
     break;
 
   case 749:
-#line 4085 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4085 "sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 750:
-#line 4086 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4086 "sql_parser.y"
     { (yyval.l) = append_string(
 			  append_string(L(), (yyvsp[(1) - (3)].sval)), (yyvsp[(3) - (3)].sval));}
     break;
 
   case 751:
-#line 4091 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4091 "sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 752:
-#line 4092 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4092 "sql_parser.y"
     { (yyval.l) = append_string(
 			  append_string(L(), (yyvsp[(1) - (3)].sval)), (yyvsp[(3) - (3)].sval));}
     break;
 
   case 753:
-#line 4097 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4097 "sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 754:
-#line 4098 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4098 "sql_parser.y"
     { (yyval.l) = append_string(
 			  append_string(L(), (yyvsp[(1) - (3)].sval)), (yyvsp[(3) - (3)].sval));}
     break;
 
   case 755:
-#line 4105 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4105 "sql_parser.y"
     { dlist *l = L();
   		  append_list(l, (yyvsp[(1) - (4)].l));
   		  append_int(l, FALSE);
@@ -11601,7 +11601,7 @@ yyreduce:
     break;
 
   case 756:
-#line 4111 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4111 "sql_parser.y"
     { dlist *l = L();
   		  append_list(l, (yyvsp[(1) - (6)].l));
   		  append_int(l, FALSE);
@@ -11610,7 +11610,7 @@ yyreduce:
     break;
 
   case 757:
-#line 4117 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4117 "sql_parser.y"
     { dlist *l = L();
   		  append_list(l, (yyvsp[(1) - (5)].l));
   		  append_int(l, TRUE);
@@ -11619,7 +11619,7 @@ yyreduce:
     break;
 
   case 758:
-#line 4123 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4123 "sql_parser.y"
     { dlist *l = L();
   		  append_list(l, (yyvsp[(1) - (5)].l));
   		  append_int(l, FALSE);
@@ -11628,7 +11628,7 @@ yyreduce:
     break;
 
   case 759:
-#line 4129 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4129 "sql_parser.y"
     { dlist *l = L();
   		  append_list(l, (yyvsp[(1) - (4)].l));
   		  append_int(l, FALSE);
@@ -11637,7 +11637,7 @@ yyreduce:
     break;
 
   case 760:
-#line 4135 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4135 "sql_parser.y"
     { dlist *l = L();
   		  append_list(l, (yyvsp[(1) - (6)].l));
   		  append_int(l, FALSE);
@@ -11647,57 +11647,57 @@ yyreduce:
     break;
 
   case 762:
-#line 4145 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4145 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 763:
-#line 4146 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4146 "sql_parser.y"
     { (yyval.i_val) = -1; }
     break;
 
   case 764:
-#line 4147 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4147 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 765:
-#line 4151 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4151 "sql_parser.y"
     { (yyval.bval) = 1; }
     break;
 
   case 766:
-#line 4152 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4152 "sql_parser.y"
     { (yyval.bval) = 0; }
     break;
 
   case 767:
-#line 4163 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4163 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(2) - (3)].i_val)+1; }
     break;
 
   case 768:
-#line 4165 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4165 "sql_parser.y"
     { (yyval.i_val) = 0+1; }
     break;
 
   case 769:
-#line 4169 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4169 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(2) - (3)].i_val)+1; }
     break;
 
   case 770:
-#line 4171 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4171 "sql_parser.y"
     { (yyval.i_val) = 6+1; }
     break;
 
   case 771:
-#line 4175 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4175 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "date", 0, 0); }
     break;
 
   case 772:
-#line 4177 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4177 "sql_parser.y"
     { if ((yyvsp[(3) - (3)].bval))
 				sql_find_subtype(&(yyval.type), "timetz", (yyvsp[(2) - (3)].i_val), 0); 
 			  else
@@ -11706,7 +11706,7 @@ yyreduce:
     break;
 
   case 773:
-#line 4183 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4183 "sql_parser.y"
     { if ((yyvsp[(3) - (3)].bval))
 				sql_find_subtype(&(yyval.type), "timestamptz", (yyvsp[(2) - (3)].i_val), 0); 
 			  else
@@ -11715,78 +11715,78 @@ yyreduce:
     break;
 
   case 774:
-#line 4191 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4191 "sql_parser.y"
     { (yyval.i_val) = iyear; }
     break;
 
   case 775:
-#line 4192 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4192 "sql_parser.y"
     { (yyval.i_val) = imonth; }
     break;
 
   case 776:
-#line 4193 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4193 "sql_parser.y"
     { (yyval.i_val) = iday; }
     break;
 
   case 777:
-#line 4194 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4194 "sql_parser.y"
     { (yyval.i_val) = ihour; }
     break;
 
   case 778:
-#line 4195 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4195 "sql_parser.y"
     { (yyval.i_val) = imin; }
     break;
 
   case 780:
-#line 4200 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4200 "sql_parser.y"
     { (yyval.i_val) = isec; }
     break;
 
   case 781:
-#line 4205 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4205 "sql_parser.y"
     { (yyval.l) = append_int(
 			 	append_int( L(), (yyvsp[(1) - (2)].i_val)), (yyvsp[(2) - (2)].i_val)-1);  }
     break;
 
   case 782:
-#line 4211 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4211 "sql_parser.y"
     { (yyval.l) = append_int(
 			 	append_int( L(), (yyvsp[(1) - (1)].i_val)), 0);  }
     break;
 
   case 783:
-#line 4214 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4214 "sql_parser.y"
     { (yyval.l) = append_int(
 			 	append_int( L(), isec), (yyvsp[(2) - (2)].i_val)-1);  }
     break;
 
   case 784:
-#line 4220 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4220 "sql_parser.y"
     { (yyval.l) = append_int(
 			 	append_int( L(), (yyvsp[(1) - (2)].i_val)), (yyvsp[(2) - (2)].i_val)-1);  }
     break;
 
   case 785:
-#line 4223 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4223 "sql_parser.y"
     { (yyval.l) = append_int(
 			 	append_int( L(), isec), (yyvsp[(2) - (2)].i_val)-1);  }
     break;
 
   case 786:
-#line 4229 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4229 "sql_parser.y"
     { (yyval.l) =  append_list(
 			append_list( L(), (yyvsp[(1) - (3)].l)), (yyvsp[(3) - (3)].l) ); }
     break;
 
   case 787:
-#line 4232 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4232 "sql_parser.y"
     { (yyval.l) =  append_list( L(), (yyvsp[(1) - (1)].l)); }
     break;
 
   case 788:
-#line 4236 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4236 "sql_parser.y"
     {
 		int sk, ek, sp, ep;
 	  	int tpe;
@@ -11807,7 +11807,7 @@ yyreduce:
     break;
 
   case 792:
-#line 4262 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4262 "sql_parser.y"
     { const char *s = sql2str((yyvsp[(1) - (1)].sval));
 		  int len = UTF8_strlen(s);
 		  sql_subtype t;
@@ -11816,7 +11816,7 @@ yyreduce:
     break;
 
   case 793:
-#line 4268 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4268 "sql_parser.y"
     { int len = _strlen((yyvsp[(1) - (1)].sval)), i = 2, err = 0;
 		  char * hexa = (yyvsp[(1) - (1)].sval);
 	 	  sql_subtype t;
@@ -11884,7 +11884,7 @@ yyreduce:
     break;
 
   case 794:
-#line 4333 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4333 "sql_parser.y"
     { int err = 0, len = sizeof(lng);
 		  lng value, *p = &value;
 		  sql_subtype t;
@@ -11918,7 +11918,7 @@ yyreduce:
     break;
 
   case 795:
-#line 4364 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4364 "sql_parser.y"
     { int digits = _strlen((yyvsp[(1) - (1)].sval)), err = 0;
 #ifdef HAVE_HGE
 		  hge value, *p = &value;
@@ -11982,7 +11982,7 @@ yyreduce:
     break;
 
   case 796:
-#line 4425 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4425 "sql_parser.y"
     { char *s = strip_extra_zeros(sa_strdup(SA, (yyvsp[(1) - (1)].sval)));
 		  char *dot = strchr(s, '.');
 		  int digits = _strlen(s) - 1;
@@ -12024,7 +12024,7 @@ yyreduce:
     break;
 
   case 797:
-#line 4464 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4464 "sql_parser.y"
     { sql_subtype t;
   		  char *p = (yyvsp[(1) - (1)].sval);
 		  double val;
@@ -12044,7 +12044,7 @@ yyreduce:
     break;
 
   case 798:
-#line 4481 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4481 "sql_parser.y"
     { sql_subtype t;
 		  atom *a;
 		  int r;
@@ -12063,7 +12063,7 @@ yyreduce:
     break;
 
   case 799:
-#line 4497 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4497 "sql_parser.y"
     { sql_subtype t;
 		  atom *a;
 		  int r;
@@ -12082,7 +12082,7 @@ yyreduce:
     break;
 
   case 800:
-#line 4513 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4513 "sql_parser.y"
     { sql_subtype t;
 		  atom *a;
 		  int r;
@@ -12101,7 +12101,7 @@ yyreduce:
     break;
 
   case 802:
-#line 4530 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4530 "sql_parser.y"
     { sql_subtype t;
 		  atom *a= 0;
 		  int r;
@@ -12121,7 +12121,7 @@ yyreduce:
     break;
 
   case 803:
-#line 4547 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4547 "sql_parser.y"
     { sql_subtype t;
 		  atom *a= 0;
 		  int r;
@@ -12141,7 +12141,7 @@ yyreduce:
     break;
 
   case 804:
-#line 4564 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4564 "sql_parser.y"
     { sql_subtype t; 
 		  atom *a = 0;
 		  int r;
@@ -12161,7 +12161,7 @@ yyreduce:
     break;
 
   case 805:
-#line 4581 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4581 "sql_parser.y"
     {
 		  sql_type *t = mvc_bind_type(m, (yyvsp[(1) - (2)].sval));
 		  atom *a;
@@ -12185,21 +12185,21 @@ yyreduce:
     break;
 
   case 806:
-#line 4602 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4602 "sql_parser.y"
     { sql_subtype t;
 		  sql_find_subtype(&t, "boolean", 0, 0 );
 		  (yyval.sym) = _newAtomNode( atom_bool(SA, &t, FALSE)); }
     break;
 
   case 807:
-#line 4606 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4606 "sql_parser.y"
     { sql_subtype t;
 		  sql_find_subtype(&t, "boolean", 0, 0 );
 		  (yyval.sym) = _newAtomNode( atom_bool(SA, &t, TRUE)); }
     break;
 
   case 808:
-#line 4612 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4612 "sql_parser.y"
     { 
 		sql_subtype t;
 		int sk, ek, sp, ep, tpe;
@@ -12243,12 +12243,12 @@ yyreduce:
     break;
 
   case 809:
-#line 4657 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4657 "sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 810:
-#line 4658 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4658 "sql_parser.y"
     {
 				  m->scanner.schema = (yyvsp[(1) - (3)].sval);
 				  (yyval.l) = append_string(
@@ -12256,7 +12256,7 @@ yyreduce:
     break;
 
   case 811:
-#line 4662 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4662 "sql_parser.y"
     {
 				  m->scanner.schema = (yyvsp[(1) - (5)].sval);
 				  (yyval.l) = append_string(
@@ -12268,20 +12268,20 @@ yyreduce:
     break;
 
   case 812:
-#line 4673 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4673 "sql_parser.y"
     { (yyval.l) = append_string(
 				L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 813:
-#line 4676 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4676 "sql_parser.y"
     { (yyval.l) = append_string(
 				append_string(
 				 L(), (yyvsp[(1) - (3)].sval)), (yyvsp[(3) - (3)].sval));}
     break;
 
   case 814:
-#line 4681 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4681 "sql_parser.y"
     { (yyval.l) = append_string(
 				append_string(
 				 append_string(
@@ -12289,7 +12289,7 @@ yyreduce:
     break;
 
   case 815:
-#line 4689 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4689 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (6)].sym));
 	  append_type(l, &(yyvsp[(5) - (6)].type));
@@ -12297,7 +12297,7 @@ yyreduce:
     break;
 
   case 816:
-#line 4695 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4695 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (6)].sym));
 	  append_type(l, &(yyvsp[(5) - (6)].type));
@@ -12305,7 +12305,7 @@ yyreduce:
     break;
 
   case 818:
-#line 4707 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4707 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_NULLIF,
 		   append_symbol(
 		    append_symbol(
@@ -12313,12 +12313,12 @@ yyreduce:
     break;
 
   case 819:
-#line 4712 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4712 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_COALESCE, (yyvsp[(3) - (4)].l)); }
     break;
 
   case 820:
-#line 4714 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4714 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_CASE,
 		   append_symbol(
 		    append_list(
@@ -12327,7 +12327,7 @@ yyreduce:
     break;
 
   case 821:
-#line 4720 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4720 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list(SQL_CASE,
 		   append_symbol(
 		    append_list(
@@ -12335,29 +12335,29 @@ yyreduce:
     break;
 
   case 822:
-#line 4728 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4728 "sql_parser.y"
     { (yyval.l) = append_symbol( L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 823:
-#line 4730 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4730 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 824:
-#line 4735 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4735 "sql_parser.y"
     { (yyval.l) = append_symbol( L(), (yyvsp[(1) - (3)].sym));
 			  (yyval.l) = append_symbol( (yyval.l), (yyvsp[(3) - (3)].sym));
 			}
     break;
 
   case 825:
-#line 4739 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4739 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 826:
-#line 4745 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4745 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_WHEN,
 			   append_symbol(
 			    append_symbol(
@@ -12365,17 +12365,17 @@ yyreduce:
     break;
 
   case 827:
-#line 4753 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4753 "sql_parser.y"
     { (yyval.l) = append_symbol( L(), (yyvsp[(1) - (1)].sym));}
     break;
 
   case 828:
-#line 4755 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4755 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (2)].l), (yyvsp[(2) - (2)].sym)); }
     break;
 
   case 829:
-#line 4760 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4760 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_WHEN,
 			   append_symbol(
 			    append_symbol(
@@ -12383,27 +12383,27 @@ yyreduce:
     break;
 
   case 830:
-#line 4768 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4768 "sql_parser.y"
     { (yyval.l) = append_symbol( L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 831:
-#line 4770 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4770 "sql_parser.y"
     { (yyval.l) = append_symbol( (yyvsp[(1) - (2)].l), (yyvsp[(2) - (2)].sym)); }
     break;
 
   case 832:
-#line 4774 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4774 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 833:
-#line 4775 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4775 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 835:
-#line 4785 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4785 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(1) - (1)].i_val);
 		  if ((yyval.i_val) <= 0) {
 			(yyval.i_val) = -1;
@@ -12414,7 +12414,7 @@ yyreduce:
     break;
 
   case 836:
-#line 4796 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4796 "sql_parser.y"
     { (yyval.l_val) = (yyvsp[(1) - (1)].l_val);
 		  if ((yyval.l_val) <= 0) {
 			(yyval.l_val) = -1;
@@ -12425,7 +12425,7 @@ yyreduce:
     break;
 
   case 837:
-#line 4806 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4806 "sql_parser.y"
     { (yyval.l_val) = (yyvsp[(1) - (1)].l_val);
 		  if ((yyval.l_val) < 0) {
 			(yyval.l_val) = -1;
@@ -12436,7 +12436,7 @@ yyreduce:
     break;
 
   case 838:
-#line 4816 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4816 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(1) - (1)].i_val);
 		  if ((yyval.i_val) < 0) {
 			(yyval.i_val) = -1;
@@ -12447,12 +12447,12 @@ yyreduce:
     break;
 
   case 839:
-#line 4827 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4827 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "char", 1, 0); }
     break;
 
   case 840:
-#line 4829 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4829 "sql_parser.y"
     { (yyval.type).type = NULL;
 			  yyerror(m, "CHARACTER VARYING needs a mandatory length specification");
 			  YYABORT;
@@ -12460,22 +12460,22 @@ yyreduce:
     break;
 
   case 841:
-#line 4833 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4833 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "clob", 0, 0); }
     break;
 
   case 842:
-#line 4835 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4835 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "char", (yyvsp[(3) - (4)].i_val), 0); }
     break;
 
   case 843:
-#line 4837 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4837 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "varchar", (yyvsp[(3) - (4)].i_val), 0); }
     break;
 
   case 844:
-#line 4839 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4839 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "clob", (yyvsp[(3) - (4)].i_val), 0);
 			  /* NOTE: CLOB may be called as CLOB(2K) which is equivalent
 			   *       to CLOB(2048).  Due to 'nonzero' it is not possible
@@ -12487,12 +12487,12 @@ yyreduce:
     break;
 
   case 845:
-#line 4847 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4847 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "blob", 0, 0); }
     break;
 
   case 846:
-#line 4849 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4849 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "blob", (yyvsp[(3) - (4)].i_val), 0);
 			  /* NOTE: BLOB may be called as BLOB(2K) which is equivalent
 			   *       to BLOB(2048).  Due to 'nonzero' it is not possible
@@ -12504,37 +12504,37 @@ yyreduce:
     break;
 
   case 847:
-#line 4857 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4857 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "tinyint", 0, 0); }
     break;
 
   case 848:
-#line 4858 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4858 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "smallint", 0, 0); }
     break;
 
   case 849:
-#line 4859 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4859 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "int", 0, 0); }
     break;
 
   case 850:
-#line 4860 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4860 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "bigint", 0, 0); }
     break;
 
   case 851:
-#line 4861 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4861 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "hugeint", 0, 0); }
     break;
 
   case 852:
-#line 4863 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4863 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "decimal", 18, 3); }
     break;
 
   case 853:
-#line 4865 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4865 "sql_parser.y"
     { 
 			  int d = (yyvsp[(3) - (4)].i_val);
 			  if (d > MAX_DEC_DIGITS) {
@@ -12550,7 +12550,7 @@ yyreduce:
     break;
 
   case 854:
-#line 4878 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4878 "sql_parser.y"
     { 
 			  int d = (yyvsp[(3) - (6)].i_val);
 			  int s = (yyvsp[(5) - (6)].i_val);
@@ -12571,12 +12571,12 @@ yyreduce:
     break;
 
   case 855:
-#line 4895 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4895 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "double", 0, 0); }
     break;
 
   case 856:
-#line 4897 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4897 "sql_parser.y"
     { if ((yyvsp[(3) - (4)].i_val) > 0 && (yyvsp[(3) - (4)].i_val) <= 24) {
 				sql_find_subtype(&(yyval.type), "real", (yyvsp[(3) - (4)].i_val), 0);
 			  } else if ((yyvsp[(3) - (4)].i_val) > 24 && (yyvsp[(3) - (4)].i_val) <= 53) {
@@ -12593,7 +12593,7 @@ yyreduce:
     break;
 
   case 857:
-#line 4911 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4911 "sql_parser.y"
     { if ((yyvsp[(5) - (6)].i_val) >= (yyvsp[(3) - (6)].i_val)) {
 				char *msg = sql_message("\b22003!precision(%d) should be less than number of digits(%d)", (yyvsp[(5) - (6)].i_val), (yyvsp[(3) - (6)].i_val));
 
@@ -12616,42 +12616,42 @@ yyreduce:
     break;
 
   case 858:
-#line 4930 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4930 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "double", 0, 0); }
     break;
 
   case 859:
-#line 4931 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4931 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "double", 0, 0); }
     break;
 
   case 860:
-#line 4932 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4932 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), "real", 0, 0); }
     break;
 
   case 863:
-#line 4935 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4935 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), (yyvsp[(1) - (1)].sval), 0, 0); }
     break;
 
   case 864:
-#line 4937 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4937 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), (yyvsp[(1) - (4)].sval), (yyvsp[(3) - (4)].i_val), 0); }
     break;
 
   case 865:
-#line 4938 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4938 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), (yyvsp[(1) - (1)].sval), 0, 0); }
     break;
 
   case 866:
-#line 4940 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4940 "sql_parser.y"
     { sql_find_subtype(&(yyval.type), (yyvsp[(1) - (4)].sval), (yyvsp[(3) - (4)].i_val), 0); }
     break;
 
   case 867:
-#line 4942 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4942 "sql_parser.y"
     { if ((yyvsp[(5) - (6)].i_val) >= (yyvsp[(3) - (6)].i_val)) {
 				char *msg = sql_message("\b22003!precision(%d) should be less than number of digits(%d)", (yyvsp[(5) - (6)].i_val), (yyvsp[(3) - (6)].i_val));
 
@@ -12666,7 +12666,7 @@ yyreduce:
     break;
 
   case 868:
-#line 4953 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4953 "sql_parser.y"
     {
 			  sql_type *t = mvc_bind_type(m, (yyvsp[(1) - (1)].sval));
 			  if (!t) {
@@ -12683,7 +12683,7 @@ yyreduce:
     break;
 
   case 869:
-#line 4968 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4968 "sql_parser.y"
     {
 			  sql_type *t = mvc_bind_type(m, (yyvsp[(1) - (4)].sval));
 			  if (!t) {
@@ -12700,7 +12700,7 @@ yyreduce:
     break;
 
   case 870:
-#line 4981 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4981 "sql_parser.y"
     {
 		if (!sql_find_subtype(&(yyval.type), "geometry", 0, 0 )) {
 			yyerror(m, "\b22000!type (geometry) unknown");
@@ -12711,7 +12711,7 @@ yyreduce:
     break;
 
   case 871:
-#line 4988 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 4988 "sql_parser.y"
     {
 		int geoSubType = (yyvsp[(3) - (4)].i_val); 
 
@@ -12730,7 +12730,7 @@ yyreduce:
     break;
 
   case 872:
-#line 5003 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5003 "sql_parser.y"
     {
 		int geoSubType = (yyvsp[(3) - (6)].i_val); 
 		int srid = (yyvsp[(5) - (6)].i_val); 
@@ -12749,7 +12749,7 @@ yyreduce:
     break;
 
   case 873:
-#line 5018 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5018 "sql_parser.y"
     {
 		if (!sql_find_subtype(&(yyval.type), "geometrya", 0, 0 )) {
 			yyerror(m, "\b22000!type (geometrya) unknown");
@@ -12760,7 +12760,7 @@ yyreduce:
     break;
 
   case 874:
-#line 5025 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5025 "sql_parser.y"
     {
 	int geoSubType = find_subgeometry_type((yyvsp[(1) - (1)].sval));
 
@@ -12781,7 +12781,7 @@ yyreduce:
     break;
 
   case 875:
-#line 5045 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5045 "sql_parser.y"
     {
 	int subtype = find_subgeometry_type((yyvsp[(1) - (1)].sval));
 	char* geoSubType = (yyvsp[(1) - (1)].sval);
@@ -12797,7 +12797,7 @@ yyreduce:
     break;
 
   case 876:
-#line 5057 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5057 "sql_parser.y"
     {
 	int subtype = find_subgeometry_type((yyvsp[(1) - (1)].sval));
 	char* geoSubType = (yyvsp[(1) - (1)].sval);
@@ -12813,7 +12813,7 @@ yyreduce:
     break;
 
   case 877:
-#line 5073 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5073 "sql_parser.y"
     { 	char *t = sql_bind_alias((yyvsp[(1) - (1)].sval));
 	  	if (!t) {
 			char *msg = sql_message("\b22000!type (%s) unknown", (yyvsp[(1) - (1)].sval));
@@ -12828,482 +12828,482 @@ yyreduce:
     break;
 
   case 878:
-#line 5087 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5087 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 879:
-#line 5088 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5088 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (2)].sval); }
     break;
 
   case 880:
-#line 5092 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5092 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 881:
-#line 5093 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5093 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 882:
-#line 5094 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5094 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (3)].sval); }
     break;
 
   case 883:
-#line 5097 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5097 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 884:
-#line 5098 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5098 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (3)].sval); }
     break;
 
   case 887:
-#line 5106 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5106 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 888:
-#line 5107 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5107 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 889:
-#line 5108 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5108 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 890:
-#line 5109 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5109 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 891:
-#line 5110 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5110 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 892:
-#line 5111 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5111 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 893:
-#line 5115 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5115 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 894:
-#line 5116 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5116 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 895:
-#line 5117 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5117 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 896:
-#line 5118 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5118 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 897:
-#line 5119 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5119 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 898:
-#line 5120 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5120 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 899:
-#line 5121 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5121 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 901:
-#line 5126 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5126 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "large"); }
     break;
 
   case 902:
-#line 5127 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5127 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "name"); }
     break;
 
   case 903:
-#line 5128 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5128 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "object"); }
     break;
 
   case 904:
-#line 5129 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5129 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "password"); }
     break;
 
   case 905:
-#line 5130 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5130 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "path"); }
     break;
 
   case 906:
-#line 5131 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5131 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "precision"); }
     break;
 
   case 907:
-#line 5132 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5132 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "privileges"); }
     break;
 
   case 908:
-#line 5133 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5133 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "role"); }
     break;
 
   case 909:
-#line 5134 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5134 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "size"); }
     break;
 
   case 910:
-#line 5135 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5135 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "type"); }
     break;
 
   case 911:
-#line 5136 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5136 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "release"); }
     break;
 
   case 912:
-#line 5137 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5137 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "value"); }
     break;
 
   case 913:
-#line 5138 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5138 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "zone"); }
     break;
 
   case 914:
-#line 5140 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5140 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "action"); }
     break;
 
   case 915:
-#line 5141 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5141 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "as"); }
     break;
 
   case 916:
-#line 5142 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5142 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "authorization"); }
     break;
 
   case 917:
-#line 5143 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5143 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "column"); }
     break;
 
   case 918:
-#line 5144 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5144 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "cycle"); }
     break;
 
   case 919:
-#line 5145 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5145 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "distinct"); }
     break;
 
   case 920:
-#line 5146 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5146 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "increment"); }
     break;
 
   case 921:
-#line 5147 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5147 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "maxvalue"); }
     break;
 
   case 922:
-#line 5148 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5148 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "minvalue"); }
     break;
 
   case 923:
-#line 5149 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5149 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "plan"); }
     break;
 
   case 924:
-#line 5150 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5150 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "schema"); }
     break;
 
   case 925:
-#line 5151 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5151 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "start"); }
     break;
 
   case 926:
-#line 5152 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5152 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "statement"); }
     break;
 
   case 927:
-#line 5153 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5153 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "table"); }
     break;
 
   case 928:
-#line 5155 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5155 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "cache"); }
     break;
 
   case 929:
-#line 5156 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5156 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "data"); }
     break;
 
   case 930:
-#line 5157 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5157 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "diagnostics"); }
     break;
 
   case 931:
-#line 5158 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5158 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "match"); }
     break;
 
   case 932:
-#line 5159 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5159 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "options"); }
     break;
 
   case 933:
-#line 5160 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5160 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "row"); }
     break;
 
   case 934:
-#line 5161 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5161 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "key"); }
     break;
 
   case 935:
-#line 5162 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5162 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "language"); }
     break;
 
   case 936:
-#line 5163 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5163 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "level"); }
     break;
 
   case 937:
-#line 5164 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5164 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "session"); }
     break;
 
   case 938:
-#line 5165 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5165 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "date"); }
     break;
 
   case 939:
-#line 5166 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5166 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "time"); }
     break;
 
   case 940:
-#line 5167 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5167 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "timestamp"); }
     break;
 
   case 941:
-#line 5168 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5168 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "interval"); }
     break;
 
   case 942:
-#line 5169 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5169 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "imprints"); }
     break;
 
   case 943:
-#line 5171 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5171 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "prepare"); }
     break;
 
   case 944:
-#line 5172 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5172 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "execute"); }
     break;
 
   case 945:
-#line 5173 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5173 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "explain"); }
     break;
 
   case 946:
-#line 5174 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5174 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "debug"); }
     break;
 
   case 947:
-#line 5175 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5175 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "trace"); }
     break;
 
   case 948:
-#line 5176 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5176 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "text"); }
     break;
 
   case 949:
-#line 5177 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5177 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "auto_commit"); }
     break;
 
   case 950:
-#line 5178 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5178 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "no"); }
     break;
 
   case 951:
-#line 5180 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5180 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "strip"); }
     break;
 
   case 952:
-#line 5181 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5181 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "whitespace"); }
     break;
 
   case 953:
-#line 5182 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5182 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "passing"); }
     break;
 
   case 954:
-#line 5183 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5183 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "nil"); }
     break;
 
   case 955:
-#line 5184 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5184 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "ref"); }
     break;
 
   case 956:
-#line 5185 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5185 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "absent"); }
     break;
 
   case 957:
-#line 5186 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5186 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "empty"); }
     break;
 
   case 958:
-#line 5187 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5187 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "document"); }
     break;
 
   case 959:
-#line 5188 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5188 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "element"); }
     break;
 
   case 960:
-#line 5189 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5189 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "content"); }
     break;
 
   case 961:
-#line 5190 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5190 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "namespace"); }
     break;
 
   case 962:
-#line 5191 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5191 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "returning"); }
     break;
 
   case 963:
-#line 5192 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5192 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "location"); }
     break;
 
   case 964:
-#line 5193 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5193 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "id"); }
     break;
 
   case 965:
-#line 5194 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5194 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "according"); }
     break;
 
   case 966:
-#line 5195 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5195 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "uri"); }
     break;
 
   case 967:
-#line 5196 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5196 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "filter"); }
     break;
 
   case 968:
-#line 5197 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5197 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "temporary"); }
     break;
 
   case 969:
-#line 5198 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5198 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "temp"); }
     break;
 
   case 970:
-#line 5199 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5199 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "analyze"); }
     break;
 
   case 971:
-#line 5200 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5200 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "MinMax"); }
     break;
 
   case 972:
-#line 5201 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5201 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "storage"); }
     break;
 
   case 973:
-#line 5202 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5202 "sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "geometry"); }
     break;
 
   case 974:
-#line 5206 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5206 "sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 975:
-#line 5208 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5208 "sql_parser.y"
     { (yyval.l) = append_string((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sval)); }
     break;
 
   case 976:
-#line 5213 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5213 "sql_parser.y"
     {
 		  char *end = NULL, *s = (yyvsp[(1) - (1)].sval);
 		  int l = _strlen(s);
@@ -13327,7 +13327,7 @@ yyreduce:
     break;
 
   case 977:
-#line 5236 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5236 "sql_parser.y"
     {
 		  char *end = NULL, *s = (yyvsp[(1) - (1)].sval);
 		  int l = _strlen(s);
@@ -13351,7 +13351,7 @@ yyreduce:
     break;
 
   case 978:
-#line 5256 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5256 "sql_parser.y"
     {
 		  char *name = (yyvsp[(1) - (1)].sval);
 		  sql_subtype *tpe;
@@ -13384,12 +13384,12 @@ yyreduce:
     break;
 
   case 979:
-#line 5289 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5289 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 980:
-#line 5291 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5291 "sql_parser.y"
     { char *s = strconcat((yyvsp[(1) - (2)].sval),(yyvsp[(2) - (2)].sval)); 
 	 	  (yyval.sval) = sa_strdup(SA, s);	
 		  _DELETE(s);
@@ -13397,14 +13397,14 @@ yyreduce:
     break;
 
   case 981:
-#line 5299 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5299 "sql_parser.y"
     {
 		  m->emode = m_execute;
 		  (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 982:
-#line 5306 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5306 "sql_parser.y"
     { dlist *l = L();
   	  append_int(l, (yyvsp[(1) - (3)].i_val));
   	  append_list(l, NULL);
@@ -13412,7 +13412,7 @@ yyreduce:
     break;
 
   case 983:
-#line 5311 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5311 "sql_parser.y"
     { dlist *l = L();
   	  append_int(l, (yyvsp[(1) - (4)].i_val));
   	  append_list(l, (yyvsp[(3) - (4)].l));
@@ -13420,27 +13420,27 @@ yyreduce:
     break;
 
   case 984:
-#line 5325 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5325 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 986:
-#line 5330 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5330 "sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_PATH, (yyvsp[(2) - (2)].l)); }
     break;
 
   case 989:
-#line 5341 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5341 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 990:
-#line 5343 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5343 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 1002:
-#line 5365 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5365 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (5)].sym));
 	  append_int(l, (yyvsp[(4) - (5)].i_val));
@@ -13448,7 +13448,7 @@ yyreduce:
     break;
 
   case 1003:
-#line 5373 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5373 "sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (5)].l));
 	  append_int(l, (yyvsp[(4) - (5)].i_val));
@@ -13456,7 +13456,7 @@ yyreduce:
     break;
 
   case 1004:
-#line 5381 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5381 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (5)].sym));
 	  append_int(l, (yyvsp[(4) - (5)].i_val));
@@ -13464,7 +13464,7 @@ yyreduce:
     break;
 
   case 1005:
-#line 5391 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5391 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(4) - (7)].sval));
 	  append_list(l, (yyvsp[(5) - (7)].l));
@@ -13474,71 +13474,71 @@ yyreduce:
     break;
 
   case 1006:
-#line 5401 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5401 "sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 1007:
-#line 5403 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5403 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(2) - (2)].sym));
 	  (yyval.l) = append_symbol((yyval.l), NULL);
 	  (yyval.l) = append_list((yyval.l), NULL); }
     break;
 
   case 1008:
-#line 5407 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5407 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(2) - (4)].sym));
 	  (yyval.l) = append_symbol((yyval.l), (yyvsp[(4) - (4)].sym));
 	  (yyval.l) = append_list((yyval.l), NULL); }
     break;
 
   case 1009:
-#line 5411 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5411 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(2) - (6)].sym));
 	  (yyval.l) = append_symbol((yyval.l), (yyvsp[(4) - (6)].sym));
 	  (yyval.l) = append_list((yyval.l), (yyvsp[(6) - (6)].l)); }
     break;
 
   case 1010:
-#line 5415 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5415 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(2) - (4)].sym));
 	  (yyval.l) = append_symbol((yyval.l), NULL);
 	  (yyval.l) = append_list((yyval.l), (yyvsp[(4) - (4)].l)); }
     break;
 
   case 1011:
-#line 5419 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5419 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), NULL);
 	  (yyval.l) = append_symbol((yyval.l), (yyvsp[(2) - (2)].sym));
 	  (yyval.l) = append_list((yyval.l), NULL); }
     break;
 
   case 1012:
-#line 5423 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5423 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), NULL);
 	  (yyval.l) = append_symbol((yyval.l), (yyvsp[(2) - (4)].sym));
 	  (yyval.l) = append_list((yyval.l), (yyvsp[(4) - (4)].l)); }
     break;
 
   case 1013:
-#line 5427 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5427 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), NULL);
 	  (yyval.l) = append_symbol((yyval.l), NULL);
 	  (yyval.l) = append_list((yyval.l), (yyvsp[(2) - (2)].l)); }
     break;
 
   case 1015:
-#line 5437 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5437 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(3) - (4)].sym); }
     break;
 
   case 1016:
-#line 5441 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5441 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 1017:
-#line 5443 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5443 "sql_parser.y"
     { dlist *l = L();
 		  append_list(l, 
 		  	append_string(L(), sa_strdup(SA, "concat")));
@@ -13548,7 +13548,7 @@ yyreduce:
     break;
 
   case 1018:
-#line 5453 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5453 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (2)].sval));
 	  append_symbol(l, (yyvsp[(1) - (2)].sym));
@@ -13556,69 +13556,69 @@ yyreduce:
     break;
 
   case 1019:
-#line 5460 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5460 "sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 1020:
-#line 5461 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5461 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(2) - (2)].sval); }
     break;
 
   case 1023:
-#line 5474 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5474 "sql_parser.y"
     { (yyval.l) = L();
 		  (yyval.l) = append_list((yyval.l), (yyvsp[(1) - (2)].l));
 		  (yyval.l) = append_int((yyval.l), (yyvsp[(2) - (2)].i_val)); 	}
     break;
 
   case 1024:
-#line 5481 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5481 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 1025:
-#line 5483 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5483 "sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 1027:
-#line 5491 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5491 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1028:
-#line 5492 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5492 "sql_parser.y"
     { (yyval.i_val) = (yyvsp[(2) - (2)].i_val); }
     break;
 
   case 1029:
-#line 5496 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5496 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1030:
-#line 5497 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5497 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 1031:
-#line 5498 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5498 "sql_parser.y"
     { (yyval.i_val) = 2; }
     break;
 
   case 1032:
-#line 5499 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5499 "sql_parser.y"
     { (yyval.i_val) = 3; }
     break;
 
   case 1033:
-#line 5500 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5500 "sql_parser.y"
     { (yyval.i_val) = 4; }
     break;
 
   case 1034:
-#line 5507 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5507 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (7)].sym));
 	  append_list(l, (yyvsp[(4) - (7)].l));
@@ -13629,53 +13629,53 @@ yyreduce:
     break;
 
   case 1035:
-#line 5517 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5517 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 1036:
-#line 5518 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5518 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (2)].sym); }
     break;
 
   case 1037:
-#line 5523 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5523 "sql_parser.y"
     { (yyval.l) = append_list(L(), (yyvsp[(1) - (1)].l)); }
     break;
 
   case 1038:
-#line 5525 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5525 "sql_parser.y"
     { (yyval.l) = append_list((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].l)); }
     break;
 
   case 1039:
-#line 5530 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5530 "sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (2)].sym));
 		  (yyval.l) = append_string((yyval.l), (yyvsp[(2) - (2)].sval)); }
     break;
 
   case 1040:
-#line 5535 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5535 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 1041:
-#line 5539 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5539 "sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 1042:
-#line 5540 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5540 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(2) - (2)].sval); }
     break;
 
   case 1043:
-#line 5544 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5544 "sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 1044:
-#line 5551 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5551 "sql_parser.y"
     { dlist *l = L();
 	  append_int(l, (yyvsp[(3) - (6)].i_val) );
 	  append_symbol(l, (yyvsp[(4) - (6)].sym));
@@ -13684,17 +13684,17 @@ yyreduce:
     break;
 
   case 1045:
-#line 5558 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5558 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1046:
-#line 5559 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5559 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 1047:
-#line 5566 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5566 "sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(4) - (7)].sval));
 	  append_symbol(l, (yyvsp[(5) - (7)].sym));
@@ -13703,22 +13703,22 @@ yyreduce:
     break;
 
   case 1049:
-#line 5578 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5578 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 1050:
-#line 5580 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5580 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 1051:
-#line 5591 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5591 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 1066:
-#line 5637 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5637 "sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (5)].sym));
 	  append_int(l, (yyvsp[(4) - (5)].i_val));
@@ -13726,52 +13726,52 @@ yyreduce:
     break;
 
   case 1067:
-#line 5648 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5648 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 1069:
-#line 5653 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5653 "sql_parser.y"
     { (yyval.i_val) = 2; }
     break;
 
   case 1070:
-#line 5657 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5657 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1071:
-#line 5658 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5658 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 1072:
-#line 5662 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5662 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1073:
-#line 5663 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5663 "sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1074:
-#line 5664 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5664 "sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 1075:
-#line 5679 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5679 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(3) - (4)].sym); }
     break;
 
   case 1076:
-#line 5683 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5683 "sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 1077:
-#line 5685 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5685 "sql_parser.y"
     { dlist *l = L();
 		  append_list(l, 
 		  	append_string(L(), sa_strdup(SA, "concat")));
@@ -13781,7 +13781,7 @@ yyreduce:
     break;
 
   case 1082:
-#line 5708 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5708 "sql_parser.y"
     { char *s = strconcat("xmlns:", (yyvsp[(3) - (3)].sval));
 				  dlist *l = L();
 	  			  append_string(l, sa_strdup(SA, s));
@@ -13791,7 +13791,7 @@ yyreduce:
     break;
 
   case 1083:
-#line 5717 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5717 "sql_parser.y"
     { dlist *l = L();
 	  			  append_string(l, sa_strdup(SA, "xmlns" ));
 	  			  append_symbol(l, (yyvsp[(2) - (2)].sym));
@@ -13799,12 +13799,12 @@ yyreduce:
     break;
 
   case 1084:
-#line 5721 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5721 "sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 1114:
-#line 5817 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5817 "sql_parser.y"
     { 
           dlist *aggr = L();
 
@@ -14042,7 +14042,7 @@ yyreturn:
 }
 
 
-#line 5838 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
+#line 5838 "sql_parser.y"
 
 int find_subgeometry_type(char* geoSubType) {
 	int subType = 0;
