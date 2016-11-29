@@ -185,7 +185,6 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
-ANT = @ANT@
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -199,7 +198,6 @@ BZ_LIBS = @BZ_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CLASSPATH = @CLASSPATH@
 CONFIG_H = @CONFIG_H@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -236,13 +234,6 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-JAR = @JAR@
-JAVA = @JAVA@
-JAVAC = @JAVAC@
-JAVACFLAGS = @JAVACFLAGS@
-JAVADOC = @JAVADOC@
-JAVA_HOME = @JAVA_HOME@
-JAVA_VERSION = @JAVA_VERSION@
 KVM_LIBS = @KVM_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
@@ -288,8 +279,6 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATHSEP = @PATHSEP@
 PATH_SEPARATOR = @PATH_SEPARATOR@
-PERL = @PERL@
-PERL_LIBDIR = @PERL_LIBDIR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
@@ -300,6 +289,8 @@ PROJ_INCS = @PROJ_INCS@
 PROJ_LIBS = @PROJ_LIBS@
 PTHREAD_INCS = @PTHREAD_INCS@
 PTHREAD_LIBS = @PTHREAD_LIBS@
+PYCMD = @PYCMD@
+PYCMD2 = @PYCMD2@
 PYTHON = @PYTHON@
 PYTHON2 = @PYTHON2@
 PYTHON2_LIBDIR = @PYTHON2_LIBDIR@
@@ -309,7 +300,6 @@ QBUILD = @QBUILD@
 QDIRSEP = @QDIRSEP@
 QSOURCE = @QSOURCE@
 QXBUILD = @QXBUILD@
-QXPERL_LIBDIR = @QXPERL_LIBDIR@
 QXPYTHON2 = @QXPYTHON2@
 QXPYTHON2_LIBDIR = @QXPYTHON2_LIBDIR@
 QXPYTHON3 = @QXPYTHON3@
@@ -433,8 +423,8 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 liblzma_CFLAGS = @liblzma_CFLAGS@
 liblzma_LIBS = @liblzma_LIBS@
-libmicrohttpd_CFLAGS = @libmicrohttpd_CFLAGS@
-libmicrohttpd_LIBS = @libmicrohttpd_LIBS@
+libpy_CFLAGS = @libpy_CFLAGS@
+libpy_LIBS = @libpy_LIBS@
 libr_CFLAGS = @libr_CFLAGS@
 libr_LIBS = @libr_LIBS@
 libxml2_CFLAGS = @libxml2_CFLAGS@
@@ -448,7 +438,6 @@ mandir = @mandir@
 mkdir_p = @mkdir_p@
 netcdf_CFLAGS = @netcdf_CFLAGS@
 netcdf_LIBS = @netcdf_LIBS@
-oids = @oids@
 oldincludedir = @oldincludedir@
 openssl_CFLAGS = @openssl_CFLAGS@
 openssl_LIBS = @openssl_LIBS@
@@ -772,7 +761,7 @@ libbatstore_la-bat_storage.lo: bat_storage.c bat_storage.h ../../include/sql_cat
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbatstore_la_CFLAGS) $(CFLAGS) $(bat_storage_CFLAGS) -c -o libbatstore_la-bat_storage.lo `test -f 'bat_storage.c' || echo '$(srcdir)/'`bat_storage.c
 libbatstore_la-bat_logger.lo: bat_logger.c bat_logger.h ../../include/sql_catalog.h ../../../gdk/gdk_logger.h ../sql_storage.h bat_utils.h ../../common/../include/sql_mem.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../include/sql_catalog.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_types.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbatstore_la_CFLAGS) $(CFLAGS) $(bat_logger_CFLAGS) -c -o libbatstore_la-bat_logger.lo `test -f 'bat_logger.c' || echo '$(srcdir)/'`bat_logger.c
-libbatstore_la-bat_utils.lo: bat_utils.c bat_utils.h ../../include/sql_catalog.h ../../../gdk/gdk_logger.h ../sql_storage.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal.h
+libbatstore_la-bat_utils.lo: bat_utils.c bat_utils.h ../../include/sql_catalog.h ../../../gdk/gdk_logger.h ../sql_storage.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/../../gdk/gdk_system.h ../../../mal/mal/../../gdk/gdk_atomic.h ../../../mal/mal/../../gdk/gdk_posix.h ../../../mal/mal/../../common/stream/stream.h ../../../mal/mal/../../gdk/gdk_delta.h ../../../mal/mal/../../gdk/gdk_hash.h ../../../mal/mal/../../gdk/gdk_atoms.h ../../../mal/mal/../../gdk/gdk_bbp.h ../../../mal/mal/../../gdk/gdk_utils.h ../../../mal/mal/../../common/options/monet_options.h ../../../mal/mal/../../gdk/gdk_calc.h ../../../mal/mal/mal.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbatstore_la_CFLAGS) $(CFLAGS) $(bat_utils_CFLAGS) -c -o libbatstore_la-bat_utils.lo `test -f 'bat_utils.c' || echo '$(srcdir)/'`bat_utils.c
 libbatstore_la-res_table.lo: res_table.c res_table.h ../../include/sql_catalog.h ../../common/../include/sql_mem.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../include/sql_catalog.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_types.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libbatstore_la_CFLAGS) $(CFLAGS) $(res_table_CFLAGS) -c -o libbatstore_la-res_table.lo `test -f 'res_table.c' || echo '$(srcdir)/'`res_table.c
@@ -780,7 +769,7 @@ bat_logger.o bat_logger.lo: bat_logger.c bat_logger.h ../../include/sql_catalog.
 bat_storage.o bat_storage.lo: bat_storage.c bat_storage.h ../../include/sql_catalog.h ../../../gdk/gdk_logger.h ../sql_storage.h bat_logger.h bat_utils.h ../../common/sql_string.h ../../../mal/modules/kernel/../../../gdk/gdk.h ../../../mal/modules/kernel/../../mal/mal_exception.h ../../../mal/modules/kernel/../../mal/mal_interpreter.h ../../../mal/modules/kernel/algebra.h ../../../gdk/gdk_atoms.h
 res_table.o res_table.lo: res_table.c res_table.h ../../include/sql_catalog.h ../../common/../include/sql_mem.h ../../common/../include/sql_list.h ../../common/sql_string.h ../../common/../include/sql_catalog.h ../../common/../storage/sql_storage.h ../../common/../../common/stream/stream.h ../../common/sql_types.h
 bat_table.o bat_table.lo: bat_table.c bat_table.h ../../include/sql_catalog.h ../../../gdk/gdk_logger.h ../sql_storage.h bat_storage.h bat_logger.h bat_utils.h
-bat_utils.o bat_utils.lo: bat_utils.c bat_utils.h ../../include/sql_catalog.h ../../../gdk/gdk_logger.h ../sql_storage.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/mal.h
+bat_utils.o bat_utils.lo: bat_utils.c bat_utils.h ../../include/sql_catalog.h ../../../gdk/gdk_logger.h ../sql_storage.h ../../../mal/mal/../../gdk/gdk.h ../../../mal/mal/../../gdk/gdk_system.h ../../../mal/mal/../../gdk/gdk_atomic.h ../../../mal/mal/../../gdk/gdk_posix.h ../../../mal/mal/../../common/stream/stream.h ../../../mal/mal/../../gdk/gdk_delta.h ../../../mal/mal/../../gdk/gdk_hash.h ../../../mal/mal/../../gdk/gdk_atoms.h ../../../mal/mal/../../gdk/gdk_bbp.h ../../../mal/mal/../../gdk/gdk_utils.h ../../../mal/mal/../../common/options/monet_options.h ../../../mal/mal/../../gdk/gdk_calc.h ../../../mal/mal/mal.h
 install-batstoreLTLIBRARIES:
 
   include $(top_srcdir)/buildtools/conf/rules.mk

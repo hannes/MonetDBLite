@@ -239,7 +239,6 @@ const lng lng_nil = GDK_lng_min;
 const hge hge_nil = GDK_hge_min;
 #endif
 const oid oid_nil = (oid) 1 << (sizeof(oid) * 8 - 1);
-const wrd wrd_nil = GDK_wrd_min;
 const char str_nil[2] = { '\200', 0 };
 const ptr ptr_nil = NULL;
 
@@ -657,19 +656,36 @@ numFromStr(const char *src, int *len, void **dst, int tp)
 		}
 		base = 10 * base + base10(*p);
 		p++;
+
+		/* Special case: xEy = x*10^y handling part 1 */
 		if (*p == 'E' || *p == 'e') {
+			// if there is a second E in the string we give up
+			if (expbase > -1) {
+				memcpy(*dst, ATOMnilptr(tp), sz);
+				return 0;
+			}
 			expbase = base;
 			base = 0;
 			p++;
 		}
 	} while (num10(*p));
+
+	/* Special case: xEy = x*10^y handling part 2 */
 	if (expbase > -1) {
-		dbl checkval = fabs(expbase * pow(10, base));
-		if (checkval >= maxdiv10 * 10) {
-			memcpy(*dst, ATOMnilptr(tp), sz);
-			return 0;
+#ifdef HAVE_HGE
+		hge res = expbase;
+#else
+		lng res = expbase;
+#endif
+		while (base > 0) {
+			if (res > maxdiv10) {
+				memcpy(*dst, ATOMnilptr(tp), sz);
+				return 0;
+			}
+			res *= 10L;
+			base--;
 		}
-		base = expbase * h_pow(10, base);
+		base = res;
 	}
 	base *= sign;
 
@@ -1708,7 +1724,7 @@ escapedStr(char *dst, const char *src, int dstlen, const char *sep1, const char 
 	return l;
 }
 
-int
+static int
 strToStr(char **dst, int *len, const char *src)
 {
 	int l = 0;
@@ -1798,7 +1814,6 @@ OIDinit(void)
 	GDKflushed = 0;
 	GDKoid = OIDrand();
 	assert(oid_nil == * (const oid *) ATOMnilptr(TYPE_oid));
-	assert(wrd_nil == * (const wrd *) ATOMnilptr(TYPE_wrd));
 	return 0;
 }
 
@@ -2083,39 +2098,6 @@ atomDesc BATatoms[MAXATOMS] = {
 	 (int (*)(const void *, const void *)) intCmp,	     /* atomCmp */
 	 (BUN (*)(const void *)) intHash,		     /* atomHash */
 #else
-	 (void *(*)(void *, stream *, size_t)) lngRead,	     /* atomRead */
-	 (gdk_return (*)(const void *, stream *, size_t)) lngWrite, /* atomWrite */
-	 (int (*)(const void *, const void *)) lngCmp,	     /* atomCmp */
-	 (BUN (*)(const void *)) lngHash,		     /* atomHash */
-#endif
-	 0,			/* atomFix */
-	 0,			/* atomUnfix */
-	 0,			/* atomPut */
-	 0,			/* atomDel */
-	 0,			/* atomLen */
-	 0,			/* atomHeap */
-	},
-	{"wrd",			/* name */
-#if SIZEOF_WRD == SIZEOF_INT
-	 TYPE_int,		/* storage */
-#else
-	 TYPE_lng,		/* storage */
-#endif
-	 1,			/* linear */
-	 sizeof(wrd),		/* size */
-	 sizeof(wrd),		/* align */
-#if SIZEOF_WRD == SIZEOF_INT
-	 (ptr) &int_nil,	/* atomNull */
-	 (int (*)(const char *, int *, ptr *)) intFromStr,   /* atomFromStr */
-	 (int (*)(str *, int *, const void *)) intToStr,     /* atomToStr */
-	 (void *(*)(void *, stream *, size_t)) intRead,	     /* atomRead */
-	 (gdk_return (*)(const void *, stream *, size_t)) intWrite, /* atomWrite */
-	 (int (*)(const void *, const void *)) intCmp,	     /* atomCmp */
-	 (BUN (*)(const void *)) intHash,		     /* atomHash */
-#else
-	 (ptr) &lng_nil,	/* atomNull */
-	 (int (*)(const char *, int *, ptr *)) lngFromStr,   /* atomFromStr */
-	 (int (*)(str *, int *, const void *)) lngToStr,     /* atomToStr */
 	 (void *(*)(void *, stream *, size_t)) lngRead,	     /* atomRead */
 	 (gdk_return (*)(const void *, stream *, size_t)) lngWrite, /* atomWrite */
 	 (int (*)(const void *, const void *)) lngCmp,	     /* atomCmp */

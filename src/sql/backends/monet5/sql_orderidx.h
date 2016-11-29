@@ -6,8 +6,13 @@
  * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
  */
 
-#ifndef SQL_READLINETOOLS_H_INCLUDED
-#define SQL_READLINETOOLS_H_INCLUDED
+/*  (co) M.L. Kersten */
+#ifndef _SQL_ORDERIDX_DEF
+#define _SQL_ORDERIDX_DEF
+
+/* #define DEBUG_SQL_ORDERIDX */
+
+#include "sql.h"
 
 #ifdef WIN32
 #ifndef LIBSQL
@@ -19,7 +24,7 @@
 #define sql5_export extern
 #endif
 
-#include "mal_client.h"
-sql5_export int SQLreadConsole(Client cntxt);
+sql5_export str sql_createorderindex(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
+sql5_export str sql_droporderindex(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 
-#endif /* SQL_READLINETOOLS_H_INCLUDED */
+#endif /* _SQL_ORDERIDX_DEF */

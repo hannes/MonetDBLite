@@ -14,11 +14,11 @@
 #define _MBM_H_
 #include <mal.h>
 
-mal_export str MBMrandom(bat *ret, oid *base, wrd *size, int *domain);
-mal_export str MBMrandom_seed(bat *ret, oid *base, wrd *size, int *domain, const int *seed);
-mal_export str MBMuniform(bat *ret, oid *base, wrd *size, int *domain);
-mal_export str MBMnormal(bat *ret, oid *base, wrd *size, int *domain, int *stddev, int *mean);
+mal_export str MBMrandom(bat *ret, oid *base, lng *size, int *domain);
+mal_export str MBMrandom_seed(bat *ret, oid *base, lng *size, int *domain, const int *seed);
+mal_export str MBMuniform(bat *ret, oid *base, lng *size, int *domain);
+mal_export str MBMnormal(bat *ret, oid *base, lng *size, int *domain, int *stddev, int *mean);
 mal_export str MBMmix(bat *ret, bat *batid);
-mal_export str MBMskewed(bat *ret, oid *base, wrd *size, int *domain, int *skew);
+mal_export str MBMskewed(bat *ret, oid *base, lng *size, int *domain, int *skew);
 
 #endif /* _MBM_H_ */

@@ -60,7 +60,7 @@
 #define INTERNAL_OBJ_CREATE "Can not create object"
 #define INTERNAL_AUTHORIZATION "authorization BATs not empty"
 
-#define MAL_MALLOC_FAIL	"could not allocate space for"
+#define MAL_MALLOC_FAIL	"could not allocate space"
 #define MAL_STACK_FAIL	"Running out of stack space."
 #define MAL_CALLDEPTH_FAIL	"Recursive call limit reached."
 
@@ -129,4 +129,6 @@
 
 #define GDK_EXCEPTION "GDK reported error."
 #define MAL_DEPRECATED "Deprecated MAL operation."
+
+#define TYPE_NOT_SUPPORTED "Type is not supported"
 #endif /* MAL_ERRORS */

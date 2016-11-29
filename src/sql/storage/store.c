@@ -520,10 +520,18 @@ load_column(sql_trans *tr, sql_table *t, oid rid)
 	tpe = table_funcs.column_find_value(tr, find_sql_column(columns, "type"), rid);
 	v = table_funcs.column_find_value(tr, find_sql_column(columns, "type_digits"), rid);
 	sz = *(int *)v;				_DELETE(v);
+	if (strcmp(tpe, "wrd") == 0) {
+		_DELETE(tpe);
+		tpe = sz == 64 ? _STRDUP("bigint") : _STRDUP("int");
+	}
 	v = table_funcs.column_find_value(tr, find_sql_column(columns, "type_scale"), rid);
 	d = *(int *)v;				_DELETE(v);
-	if (!sql_find_subtype(&c->type, tpe, sz, d))
-		sql_init_subtype(&c->type, sql_trans_bind_type(tr, t->s, tpe), sz, d);
+	if (!sql_find_subtype(&c->type, tpe, sz, d)) {
+		sql_type *lt = sql_trans_bind_type(tr, t->s, tpe);
+		if (lt == NULL) 
+			GDKfatal("SQL type %s missing", tpe);
+		sql_init_subtype(&c->type, lt, sz, d);
+	}
 	_DELETE(tpe);
 	c->def = NULL;
 	def = table_funcs.column_find_value(tr, find_sql_column(columns, "default"), rid);
@@ -741,8 +749,12 @@ load_arg(sql_trans *tr, sql_func * f, oid rid)
 	scale = *(int *)v;	_DELETE(v);
 
 	tpe = table_funcs.column_find_value(tr, find_sql_column(args, "type"), rid);
-	if (!sql_find_subtype(&a->type, tpe, digits, scale))
-		sql_init_subtype(&a->type, sql_trans_bind_type(tr, f->s, tpe), digits, scale);
+	if (!sql_find_subtype(&a->type, tpe, digits, scale)) {
+		sql_type *lt = sql_trans_bind_type(tr, f->s, tpe);
+		if (lt == NULL) 
+			GDKfatal("SQL type %s missing", tpe);
+		sql_init_subtype(&a->type, lt, digits, scale);
+	}
 	_DELETE(tpe);
 	return a;
 }
@@ -1293,6 +1305,8 @@ dup_sql_table(sql_allocator *sa, sql_table *t)
 			*/
 	nt->tables.dset = NULL;
 	nt->tables.nelm = NULL;
+	/* record if table is a partition */
+	nt->p = t->p;
 	return nt;
 }
 
@@ -4635,7 +4649,7 @@ sql_trans_alter_default(sql_trans *tr, sql_column *col, char *val)
 		return col;	/* no change */
 
 	if (!col->def || !val || strcmp(col->def, val) != 0) {
-		void *p = val ? val : ATOMnilptr(TYPE_str);
+		void *p = val ? val : (void *) ATOMnilptr(TYPE_str);
 		sql_schema *syss = find_sql_schema(tr, isGlobal(col->t)?"sys":"tmp"); 
 		sql_table *syscolumn = find_sql_table(syss, "_columns");
 		sql_column *col_ids = find_sql_column(syscolumn, "id");
@@ -4662,7 +4676,7 @@ sql_trans_alter_storage(sql_trans *tr, sql_column *col, char *storage)
 		return col;	/* no change */
 
 	if (!col->storage_type || !storage || strcmp(col->storage_type, storage) != 0) {
-		void *p = storage ? storage : ATOMnilptr(TYPE_str);
+		void *p = storage ? storage : (void *) ATOMnilptr(TYPE_str);
 		sql_schema *syss = find_sql_schema(tr, isGlobal(col->t)?"sys":"tmp"); 
 		sql_table *syscolumn = find_sql_table(syss, "_columns");
 		sql_column *col_ids = find_sql_column(syscolumn, "id");
@@ -5150,7 +5164,7 @@ sql_trans_create_trigger(sql_trans *tr, sql_table *t, const char *name,
 	sql_trigger *ni = SA_ZNEW(tr->sa, sql_trigger);
 	sql_schema *syss = find_sql_schema(tr, isGlobal(t)?"sys":"tmp");
 	sql_table *systrigger = find_sql_table(syss, "triggers");
-	str nilptr = ATOMnilptr(TYPE_str);
+	const char *nilptr = ATOMnilptr(TYPE_str);
 
 	assert(name);
 	base_init(tr->sa, &ni->base, next_oid(), TR_NEW, name);

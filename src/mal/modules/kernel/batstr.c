@@ -94,26 +94,24 @@ mal_export str STRbatsubstring(bat *ret, const bat *l, const bat *r, const bat *
 		BBPunfix(A->batCacheid);				\
 		throw(MAL, Z, RUNTIME_OBJECT_MISSING);	\
 	}
-#define prepareResult(X,Y,T,Z)						\
-	X= BATnew(TYPE_void,T,BATcount(Y), TRANSIENT);	\
-	if( X == NULL){									\
-		BBPunfix(Y->batCacheid);					\
-		throw(MAL, Z, MAL_MALLOC_FAIL);				\
-	}												\
-	X->tsorted=0;									\
+#define prepareResult(X,Y,T,Z)							\
+	X= COLnew((Y)->hseqbase,T,BATcount(Y), TRANSIENT);	\
+	if( X == NULL){										\
+		BBPunfix(Y->batCacheid);						\
+		throw(MAL, Z, MAL_MALLOC_FAIL);					\
+	}													\
+	X->tsorted=0;										\
 	X->trevsorted=0;
-#define prepareResult2(X,Y,A,T,Z)					\
-	X= BATnew(TYPE_void,T,BATcount(Y), TRANSIENT);	\
-	if( X == NULL){									\
-		BBPunfix(Y->batCacheid);					\
-		BBPunfix(A->batCacheid);					\
-		throw(MAL, Z, MAL_MALLOC_FAIL);				\
-	}												\
-	X->tsorted=0;									\
+#define prepareResult2(X,Y,A,T,Z)						\
+	X= COLnew((Y)->hseqbase,T,BATcount(Y), TRANSIENT);	\
+	if( X == NULL){										\
+		BBPunfix(Y->batCacheid);						\
+		BBPunfix(A->batCacheid);						\
+		throw(MAL, Z, MAL_MALLOC_FAIL);					\
+	}													\
+	X->tsorted=0;										\
 	X->trevsorted=0;
 #define finalizeResult(X,Y,Z)								\
-	BATseqbase((Y), (Z)->hseqbase);						\
-	if (!((Y)->batDirty&2)) BATsetaccess((Y), BAT_READ);	\
 	*X = (Y)->batCacheid;									\
 	BBPkeepref(*(X));										\
 	BBPunfix(Z->batCacheid);
@@ -137,8 +135,8 @@ do_batstr_int(bat *ret, const bat *l, const char *name, str (*func)(int *, const
 		x = (str) BUNtail(bi, p);
 		if (x == 0 || strcmp(x, str_nil) == 0) {
 			y = int_nil;
-			bn->T->nonil = 0;
-			bn->T->nil = 1;
+			bn->tnonil = 0;
+			bn->tnil = 1;
 		} else if ((msg = (*func)(&y, &x)) != MAL_SUCCEED) {
 			goto bunins_failed;
 		}
@@ -190,8 +188,8 @@ do_batstr_str(bat *ret, const bat *l, const char *name, str (*func)(str *, const
 			y = (str) str_nil;
 		bunfastapp(bn, y);
 		if (y == str_nil) {
-			bn->T->nonil = 0;
-			bn->T->nil = 1;
+			bn->tnonil = 0;
+			bn->tnil = 1;
 		} else
 			GDKfree(y);
 	}
@@ -235,8 +233,8 @@ do_batstr_conststr_str(bat *ret, const bat *l, const str *s2, const char *name, 
 			y = (str) str_nil;
 		bunfastapp(bn, y);
 		if (y == str_nil) {
-			bn->T->nonil = 0;
-			bn->T->nil = 1;
+			bn->tnonil = 0;
+			bn->tnil = 1;
 		} else
 			GDKfree(y);
 	}
@@ -285,8 +283,8 @@ do_batstr_batstr_str(bat *ret, const bat *l, const bat *l2, const char *name, st
 			y = (str) str_nil;
 		bunfastapp(bn, y);
 		if (y == str_nil) {
-			bn->T->nonil = 0;
-			bn->T->nil = 1;
+			bn->tnonil = 0;
+			bn->tnil = 1;
 		} else
 			GDKfree(y);
 	}
@@ -331,8 +329,8 @@ do_batstr_constint_str(bat *ret, const bat *l, const int *n, const char *name, s
 			y = (str) str_nil;
 		bunfastapp(bn, y);
 		if (y == str_nil) {
-			bn->T->nonil = 0;
-			bn->T->nil = 1;
+			bn->tnonil = 0;
+			bn->tnil = 1;
 		} else
 			GDKfree(y);
 	}
@@ -381,8 +379,8 @@ do_batstr_batint_str(bat *ret, const bat *l, const bat *n, const char *name, str
 			y = (str) str_nil;
 		bunfastapp(bn, y);
 		if (y == str_nil) {
-			bn->T->nonil = 0;
-			bn->T->nil = 1;
+			bn->tnonil = 0;
+			bn->tnil = 1;
 		} else
 			GDKfree(y);
 	}
@@ -427,8 +425,8 @@ do_batstr_constint_conststr_str(bat *ret, const bat *l, const int *n, const str 
 			y = (str) str_nil;
 		bunfastapp(bn, y);
 		if (y == str_nil) {
-			bn->T->nonil = 0;
-			bn->T->nil = 1;
+			bn->tnonil = 0;
+			bn->tnil = 1;
 		} else
 			GDKfree(y);
 	}
@@ -477,8 +475,8 @@ do_batstr_batint_conststr_str(bat *ret, const bat *l, const bat *n, const str *s
 			y = (str) str_nil;
 		bunfastapp(bn, y);
 		if (y == str_nil) {
-			bn->T->nonil = 0;
-			bn->T->nil = 1;
+			bn->tnonil = 0;
+			bn->tnil = 1;
 		} else
 			GDKfree(y);
 	}
@@ -528,8 +526,8 @@ do_batstr_constint_batstr_str(bat *ret, const bat *l, const int *n, const bat *l
 			y = (str) str_nil;
 		bunfastapp(bn, y);
 		if (y == str_nil) {
-			bn->T->nonil = 0;
-			bn->T->nil = 1;
+			bn->tnonil = 0;
+			bn->tnil = 1;
 		} else
 			GDKfree(y);
 	}
@@ -585,8 +583,8 @@ do_batstr_batint_batstr_str(bat *ret, const bat *l, const bat *n, const bat *l2,
 			y = (str) str_nil;
 		bunfastapp(bn, y);
 		if (y == str_nil) {
-			bn->T->nonil = 0;
-			bn->T->nil = 1;
+			bn->tnonil = 0;
+			bn->tnil = 1;
 		} else
 			GDKfree(y);
 	}
@@ -770,7 +768,7 @@ str STRbatPrefix(bat *ret, const bat *l, const bat *r)
 		STRPrefix(vp, &tl, &tr);
 		bunfastapp(bn, vp);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	BBPunfix(right->batCacheid);
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
@@ -799,7 +797,7 @@ str STRbatPrefixcst(bat *ret, const bat *l, const str *cst)
 		STRPrefix(vp, &tl, cst);
 		bunfastapp(bn, vp);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
 
@@ -830,7 +828,7 @@ str STRbatSuffix(bat *ret, const bat *l, const bat *r)
 		STRSuffix(vp, &tl, &tr);
 		bunfastapp(bn, vp);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	BBPunfix(right->batCacheid);
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
@@ -859,7 +857,7 @@ str STRbatSuffixcst(bat *ret, const bat *l, const str *cst)
 		STRSuffix(vp, &tl, cst);
 		bunfastapp(bn, vp);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
 
@@ -890,7 +888,7 @@ str STRbatstrSearch(bat *ret, const bat *l, const bat *r)
 		STRstrSearch(vp, &tl, &tr);
 		bunfastapp(bn, vp);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	BBPunfix(right->batCacheid);
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
@@ -919,7 +917,7 @@ str STRbatstrSearchcst(bat *ret, const bat *l, const str *cst)
 		STRstrSearch(vp, &tl, cst);
 		bunfastapp(bn, vp);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
 
@@ -950,7 +948,7 @@ str STRbatRstrSearch(bat *ret, const bat *l, const bat *r)
 		STRReverseStrSearch(vp, &tl, &tr);
 		bunfastapp(bn, vp);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	BBPunfix(right->batCacheid);
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
@@ -979,7 +977,7 @@ str STRbatRstrSearchcst(bat *ret, const bat *l, const str *cst)
 		STRReverseStrSearch(vp, &tl, cst);
 		bunfastapp(bn, vp);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
 
@@ -1013,7 +1011,7 @@ str STRbatTail(bat *ret, const bat *l, const bat *r)
 		bunfastapp(bn, v);
 		GDKfree(v);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	BBPunfix(right->batCacheid);
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
@@ -1048,7 +1046,7 @@ str STRbatTailcst(bat *ret, const bat *l, const int *cst)
 		bunfastapp(bn, v);
 		GDKfree(v);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
 
@@ -1082,7 +1080,7 @@ str STRbatWChrAt(bat *ret, const bat *l, const bat *r)
 		STRWChrAt(vp, &tl, tr);
 		bunfastapp(bn, vp);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	BBPunfix(right->batCacheid);
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
@@ -1111,7 +1109,7 @@ str STRbatWChrAtcst(bat *ret, const bat *l, const int *cst)
 		STRWChrAt(vp, &tl, cst);
 		bunfastapp(bn, vp);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	finalizeResult(ret,bn,left);
 	return MAL_SUCCEED;
 
@@ -1146,7 +1144,7 @@ STRbatSubstitutecst(bat *ret, const bat *l, const str *arg2, const str *arg3, co
 		if (y != str_nil)
 			GDKfree(y);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	finalizeResult(ret, bn, b);
 	return MAL_SUCCEED;
 bunins_failed:
@@ -1173,14 +1171,11 @@ STRbatsubstringcst(bat *ret, const bat *bid, const int *start, const int *length
 
 	if( (b= BATdescriptor(*bid)) == NULL)
 		throw(MAL, "batstr.substring",RUNTIME_OBJECT_MISSING);
-	bn= BATnew(TYPE_void, TYPE_str, BATcount(b)/10+5, TRANSIENT);
+	bn= COLnew(b->hseqbase, TYPE_str, BATcount(b)/10+5, TRANSIENT);
 	if (bn == NULL) {
 		BBPunfix(b->batCacheid);
 		throw(MAL, "batstr.substring", MAL_MALLOC_FAIL);
 	}
-	BATseqbase(bn, b->hseqbase);
-	bn->hsorted = b->hsorted;
-	bn->hrevsorted = b->hrevsorted;
 	bn->tsorted = b->tsorted;
 	bn->trevsorted = b->trevsorted;
 
@@ -1194,9 +1189,8 @@ STRbatsubstringcst(bat *ret, const bat *bid, const int *start, const int *length
 		GDKfree(res);
 	}
 
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
   bunins_failed:
-	if (!(bn->batDirty&2)) BATsetaccess(bn, BAT_READ);
 	*ret = bn->batCacheid;
 	BBPkeepref(bn->batCacheid);
 	BBPunfix(b->batCacheid);
@@ -1226,17 +1220,14 @@ str STRbatsubstring(bat *ret, const bat *l, const bat *r, const bat *t)
 	if( BATcount(left) != BATcount(length) )
 		throw(MAL, "batstr.substring", ILLEGAL_ARGUMENT " Requires bats of identical size");
 
-	bn= BATnew(TYPE_void, TYPE_str,BATcount(left), TRANSIENT);
+	bn= COLnew(left->hseqbase, TYPE_str,BATcount(left), TRANSIENT);
 	if( bn == NULL){
 		BBPunfix(left->batCacheid);
 		BBPunfix(start->batCacheid);
 		BBPunfix(length->batCacheid);
 		throw(MAL, "batstr.substring", MAL_MALLOC_FAIL);
 	}
-	BATseqbase(bn, left->hseqbase);
 
-	bn->hsorted= left->hsorted;
-	bn->hrevsorted= left->hrevsorted;
 	bn->tsorted=0;
 	bn->trevsorted=0;
 
@@ -1260,7 +1251,7 @@ str STRbatsubstring(bat *ret, const bat *l, const bat *r, const bat *t)
 		}
 		GDKfree(v);
 	}
-	bn->T->nonil = 0;
+	bn->tnonil = 0;
 	BBPunfix(start->batCacheid);
 	BBPunfix(length->batCacheid);
 	finalizeResult(ret,bn,left);

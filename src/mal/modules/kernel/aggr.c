@@ -51,7 +51,7 @@ AGGRgrouped(bat *retval1, bat *retval2, BAT *b, BAT *g, BAT *e, int tp,
 	if (quantilefunc) {
 		assert(BATcount(quantile)>0);
 		assert(quantile->ttype == TYPE_dbl);
-		qvalue = ((const double *)Tloc(quantile, BUNfirst(quantile)))[0];
+		qvalue = ((const double *)Tloc(quantile, 0))[0];
 		if (qvalue <  0|| qvalue > 1) {
 			char *s;
 			s = createException(MAL, malfunc, "quantile value of %f is not in range [0,1]", qvalue);
@@ -137,14 +137,6 @@ AGGRsum3_int(bat *retval, const bat *bid, const bat *gid, const bat *eid)
 						BATgroupsum, NULL, 1, "aggr.sum");
 }
 
-mal_export str AGGRsum3_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid);
-str
-AGGRsum3_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid)
-{
-	return AGGRgrouped3(retval, NULL, bid, gid, eid, TYPE_wrd,
-						BATgroupsum, NULL, 1, "aggr.sum");
-}
-
 mal_export str AGGRsum3_lng(bat *retval, const bat *bid, const bat *gid, const bat *eid);
 str
 AGGRsum3_lng(bat *retval, const bat *bid, const bat *gid, const bat *eid)
@@ -200,14 +192,6 @@ str
 AGGRprod3_int(bat *retval, const bat *bid, const bat *gid, const bat *eid)
 {
 	return AGGRgrouped3(retval, NULL, bid, gid, eid, TYPE_int,
-						BATgroupprod, NULL, 1, "aggr.prod");
-}
-
-mal_export str AGGRprod3_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid);
-str
-AGGRprod3_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid)
-{
-	return AGGRgrouped3(retval, NULL, bid, gid, eid, TYPE_wrd,
 						BATgroupprod, NULL, 1, "aggr.prod");
 }
 
@@ -297,7 +281,7 @@ mal_export str AGGRcount3(bat *retval, const bat *bid, const bat *gid, const bat
 str
 AGGRcount3(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *ignorenils)
 {
-	return AGGRgrouped3(retval, NULL, bid, gid, eid, TYPE_wrd,
+	return AGGRgrouped3(retval, NULL, bid, gid, eid, TYPE_lng,
 						BATgroupcount, NULL, *ignorenils, "aggr.count");
 }
 
@@ -305,7 +289,7 @@ mal_export str AGGRcount3nonils(bat *retval, const bat *bid, const bat *gid, con
 str
 AGGRcount3nonils(bat *retval, const bat *bid, const bat *gid, const bat *eid)
 {
-	return AGGRgrouped3(retval, NULL, bid, gid, eid, TYPE_wrd,
+	return AGGRgrouped3(retval, NULL, bid, gid, eid, TYPE_lng,
 						BATgroupcount, NULL, 1, "aggr.count");
 }
 
@@ -313,7 +297,7 @@ mal_export str AGGRcount3nils(bat *retval, const bat *bid, const bat *gid, const
 str
 AGGRcount3nils(bat *retval, const bat *bid, const bat *gid, const bat *eid)
 {
-	return AGGRgrouped3(retval, NULL, bid, gid, eid, TYPE_wrd,
+	return AGGRgrouped3(retval, NULL, bid, gid, eid, TYPE_lng,
 						BATgroupcount, NULL, 0, "aggr.count");
 }
 
@@ -414,7 +398,7 @@ AGGRsubgroupedExt(bat *retval1, bat *retval2, const bat *bid, const bat *gid, co
 		if (BATcount(q) == 0) {
 			qvalue = 0.5;
 		} else {
-			qvalue = ((const dbl *)Tloc(q, BUNfirst(q)))[0];
+			qvalue = ((const dbl *)Tloc(q, 0))[0];
 			if (qvalue <  0|| qvalue > 1) {
 				char *s;
 				s = createException(MAL, malfunc, "quantile value of %f is not in range [0,1]", qvalue);
@@ -495,14 +479,6 @@ AGGRsubsum_int(bat *retval, const bat *bid, const bat *gid, const bat *eid, cons
 						  *abort_on_error, TYPE_int, BATgroupsum, NULL, "aggr.subsum");
 }
 
-mal_export str AGGRsubsum_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *skip_nils, const bit *abort_on_error);
-str
-AGGRsubsum_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *skip_nils, const bit *abort_on_error)
-{
-	return AGGRsubgrouped(retval, NULL, bid, gid, eid, NULL, *skip_nils,
-						  *abort_on_error, TYPE_wrd, BATgroupsum, NULL, "aggr.subsum");
-}
-
 mal_export str AGGRsubsum_lng(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *skip_nils, const bit *abort_on_error);
 str
 AGGRsubsum_lng(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *skip_nils, const bit *abort_on_error)
@@ -559,14 +535,6 @@ AGGRsubsumcand_int(bat *retval, const bat *bid, const bat *gid, const bat *eid, 
 {
 	return AGGRsubgrouped(retval, NULL, bid, gid, eid, sid, *skip_nils,
 						  *abort_on_error, TYPE_int, BATgroupsum, NULL, "aggr.subsum");
-}
-
-mal_export str AGGRsubsumcand_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bat *sid, const bit *skip_nils, const bit *abort_on_error);
-str
-AGGRsubsumcand_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bat *sid, const bit *skip_nils, const bit *abort_on_error)
-{
-	return AGGRsubgrouped(retval, NULL, bid, gid, eid, sid, *skip_nils,
-						  *abort_on_error, TYPE_wrd, BATgroupsum, NULL, "aggr.subsum");
 }
 
 mal_export str AGGRsubsumcand_lng(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bat *sid, const bit *skip_nils, const bit *abort_on_error);
@@ -627,14 +595,6 @@ AGGRsubprod_int(bat *retval, const bat *bid, const bat *gid, const bat *eid, con
 						  *abort_on_error, TYPE_int, BATgroupprod, NULL, "aggr.subprod");
 }
 
-mal_export str AGGRsubprod_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *skip_nils, const bit *abort_on_error);
-str
-AGGRsubprod_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *skip_nils, const bit *abort_on_error)
-{
-	return AGGRsubgrouped(retval, NULL, bid, gid, eid, NULL, *skip_nils,
-						  *abort_on_error, TYPE_wrd, BATgroupprod, NULL, "aggr.subprod");
-}
-
 mal_export str AGGRsubprod_lng(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *skip_nils, const bit *abort_on_error);
 str
 AGGRsubprod_lng(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *skip_nils, const bit *abort_on_error)
@@ -691,14 +651,6 @@ AGGRsubprodcand_int(bat *retval, const bat *bid, const bat *gid, const bat *eid,
 {
 	return AGGRsubgrouped(retval, NULL, bid, gid, eid, sid, *skip_nils,
 						  *abort_on_error, TYPE_int, BATgroupprod, NULL, "aggr.subprod");
-}
-
-mal_export str AGGRsubprodcand_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bat *sid, const bit *skip_nils, const bit *abort_on_error);
-str
-AGGRsubprodcand_wrd(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bat *sid, const bit *skip_nils, const bit *abort_on_error)
-{
-	return AGGRsubgrouped(retval, NULL, bid, gid, eid, sid, *skip_nils,
-						  *abort_on_error, TYPE_wrd, BATgroupprod, NULL, "aggr.subprod");
 }
 
 mal_export str AGGRsubprodcand_lng(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bat *sid, const bit *skip_nils, const bit *abort_on_error);
@@ -849,7 +801,7 @@ str
 AGGRsubcount(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *skip_nils)
 {
 	return AGGRsubgrouped(retval, NULL, bid, gid, eid, NULL, *skip_nils,
-						  0, TYPE_wrd, BATgroupcount, NULL, "aggr.subcount");
+						  0, TYPE_lng, BATgroupcount, NULL, "aggr.subcount");
 }
 
 mal_export str AGGRsubcountcand(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bat *sid, const bit *skip_nils);
@@ -857,7 +809,7 @@ str
 AGGRsubcountcand(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bat *sid, const bit *skip_nils)
 {
 	return AGGRsubgrouped(retval, NULL, bid, gid, eid, sid, *skip_nils,
-						  0, TYPE_wrd, BATgroupcount, NULL, "aggr.subcount");
+						  0, TYPE_lng, BATgroupcount, NULL, "aggr.subcount");
 }
 
 mal_export str AGGRsubmin(bat *retval, const bat *bid, const bat *gid, const bat *eid, const bit *skip_nils);

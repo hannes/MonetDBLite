@@ -9,7 +9,7 @@ CFLAGS += $(THREAD_SAVE_FLAGS)
 AM_CPPFLAGS = -I$(srcdir)
 libmonetdb5_la_CFLAGS=-DLIBMONETDB5 $(AM_CFLAGS)
 monetdb5dir = $(libdir)
-libmonetdb5_la_LIBADD = ../mal/libmal.la ../modules/atoms/libatoms.la ../modules/kernel/libkernel.la ../modules/mal/libmal.la ../optimizer/liboptimizer.la ../scheduler/libscheduler.la ../../gdk/libbat.la ../../common/stream/libstream.la ../../common/utils/libmcrypt.la ../../common/utils/libmuuid.la $(UUID_LIBS) $(MATH_LIBS) $(SOCKET_LIBS) $(MALLOC_LIBS) $(PTHREAD_LIBS) $(DL_LIBS) $(READLINE_LIBS) $(openssl_LIBS) $(pcre_LIBS) $(LTLIBICONV) $(zlib_LIBS)
+libmonetdb5_la_LIBADD = ../mal/libmal.la ../modules/atoms/libatoms.la ../modules/kernel/libkernel.la ../modules/mal/libmal.la ../optimizer/liboptimizer.la ../scheduler/libscheduler.la ../../gdk/libbat.la ../../common/stream/libstream.la ../../common/utils/libmcrypt.la ../../common/utils/libmuuid.la $(UUID_LIBS) $(MATH_LIBS) $(SOCKET_LIBS) $(MALLOC_LIBS) $(PTHREAD_LIBS) $(DL_LIBS) $(pcre_LIBS) $(LTLIBICONV) $(zlib_LIBS)
 $(do)install-monetdb5LTLIBRARIES : 
 nodist_libmonetdb5_la_SOURCES = 
 dist_libmonetdb5_la_SOURCES =

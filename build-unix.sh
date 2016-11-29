@@ -5,16 +5,17 @@ OPTFLAG="--enable-optimize"
 LINKFLAG="-g"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
-	OPTFLAG="--enable-debug"
+	OPTFLAG="--enable-debug --enable-assert"
 	LINKFLAG="-g"
 fi
 
+
 CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6" \
-./configure --enable-embedded \
---disable-fits --disable-geom --disable-rintegration --disable-gsl --disable-netcdf \
---disable-jdbc --disable-merocontrol --disable-odbc --disable-console --disable-microhttpd \
+./configure --enable-embedded  \
+--disable-fits --disable-geom --disable-rintegration --disable-pyintegration --disable-gsl --disable-netcdf \
+--disable-odbc --disable-console  \
 --without-openssl --without-uuid --without-curl --without-bz2 --without-lzma --without-libxml2 \
---without-perl --without-python2 --without-python3 --without-unixodbc --disable-mapi \
+--without-python2 --without-python3 --without-unixodbc --disable-mapi \
 --without-samtools --without-sphinxclient --without-geos --without-samtools --without-readline \
 $OPTFLAG --enable-silent-rules --disable-int128
 

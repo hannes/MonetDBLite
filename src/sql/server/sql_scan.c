@@ -196,12 +196,14 @@ scanner_init_keywords(void)
 	keywords_insert("GROUP", sqlGROUP);
 	keywords_insert("HAVING", HAVING);
 	keywords_insert("ILIKE", ILIKE);
+	keywords_insert("IMPRINTS", IMPRINTS);
 	keywords_insert("IN", sqlIN);
 	keywords_insert("INNER", INNER);
 	keywords_insert("INTO", INTO);
 	keywords_insert("IS", IS);
 	keywords_insert("JOIN", JOIN);
 	keywords_insert("KEY", KEY);
+	keywords_insert("LATERAL", LATERAL);
 	keywords_insert("LEFT", LEFT);
 	keywords_insert("LIKE", LIKE);
 	keywords_insert("LIMIT", LIMIT);
@@ -217,6 +219,7 @@ scanner_init_keywords(void)
 	keywords_insert("OPTION", OPTION);
 	keywords_insert("OR", OR);
 	keywords_insert("ORDER", ORDER);
+	keywords_insert("ORDERED", ORDERED);
 	keywords_insert("OUTER", OUTER);
 	keywords_insert("OVER", OVER);
 	keywords_insert("PARTITION", PARTITION);
@@ -336,6 +339,7 @@ scanner_init_keywords(void)
 	keywords_insert("TYPE", TYPE);
 	keywords_insert("PROCEDURE", PROCEDURE);
 	keywords_insert("FUNCTION", FUNCTION);
+	keywords_insert("LOADER", sqlLOADER);
 	keywords_insert("FILTER", FILTER);
 	keywords_insert("AGGREGATE", AGGREGATE);
 	keywords_insert("RETURNS", RETURNS);
@@ -351,7 +355,6 @@ scanner_init_keywords(void)
 	keywords_insert("PLAN", SQL_PLAN);
 	keywords_insert("DEBUG", SQL_DEBUG);
 	keywords_insert("TRACE", SQL_TRACE);
-	keywords_insert("DOT", SQL_DOT);
 	keywords_insert("PREPARE", PREPARE);
 	keywords_insert("PREP", PREPARE);
 	keywords_insert("EXECUTE", EXECUTE);
@@ -818,16 +821,23 @@ skip_c_comment(struct scanner * lc)
 	int cur;
 	int prev = 0;
 	int started = lc->started;
+	int depth = 1;
 
 	lc->started = 1;
-	while ((cur = scanner_getc(lc)) != EOF && 
-	       !(cur == '/' && prev == '*')) 
+	while (depth > 0 && (cur = scanner_getc(lc)) != EOF) {
+		if (prev == '*' && cur == '/')
+			depth--;
+		else if (prev == '/' && cur == '*') {
+			/* block comments can nest */
+			cur = 0; /* prevent slash-star-slash from matching */
+			depth++;
+		}
 		prev = cur;
+	}
 	lc->yysval = lc->yycur;
 	lc->started = started;
-	if (cur == '/')
-		cur = scanner_getc(lc);
-	return cur;
+	/* a comment is equivalent to a newline */
+	return cur == EOF ? cur : '\n';
 }
 
 static int 
@@ -841,8 +851,7 @@ skip_sql_comment(struct scanner * lc)
 		;
 	lc->yysval = lc->yycur;
 	lc->started = started;
-	if (cur == '\n')
-		cur = scanner_getc(lc);
+	/* a comment is equivalent to a newline */
 	return cur;
 }
 
@@ -960,6 +969,12 @@ int scanner_symbol(mvc * c, int cur)
 		utf8_putchar(lc, next); 
 		return scanner_token(lc, cur);
 	case '~': /* binary not */
+		lc->started = 1;
+		next = scanner_getc(lc);
+		if (next == '=') 
+			return scanner_token(lc, GEOM_MBR_EQUAL);
+		utf8_putchar(lc, next); 
+		return scanner_token(lc, cur);
 	case '^': /* binary xor */
 	case '*':
 	case '?':

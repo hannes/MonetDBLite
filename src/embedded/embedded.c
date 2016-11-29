@@ -130,8 +130,12 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 
 	if (silent) THRdata[0] = stream_blackhole_create();
 
-	if (mal_init() != 0) { // mal_init() does not return meaningful codes on failure
+	if (mal_init() != 0) {
 		retval = GDKstrdup("mal_init() failed");
+		goto cleanup;
+	}
+	if (!SQLisInitialized()) {
+		retval = GDKstrdup("SQL initialization failed");
 		goto cleanup;
 	}
 
@@ -302,9 +306,7 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 
 void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
-		SQLepilogue(NULL);
-		MTIMEepilogue(NULL);
-		mal_exit();
+		mserver_reset();
 		monetdb_embedded_initialized = 0;
 	}
 }

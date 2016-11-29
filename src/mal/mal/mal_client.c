@@ -42,7 +42,6 @@
 /* (author) M.L. Kersten */
 #include "monetdb_config.h"
 #include "mal_client.h"
-#include "mal_readline.h"
 #include "mal_import.h"
 #include "mal_parser.h"
 #include "mal_namespace.h"
@@ -223,7 +222,9 @@ MCinitClientRecord(Client c, oid user, bstream *fin, stream *fout)
 	c->curprg = c->backup = 0;
 	c->glb = 0;
 
-	/* remove garbage from previous connection */
+	/* remove garbage from previous connection 
+	 * be aware, a user can introduce several modules 
+	 * that should be freed to avoid memory leaks */
 	if (c->nspace) {
 		freeModule(c->nspace);
 		c->nspace = 0;
@@ -237,7 +238,6 @@ MCinitClientRecord(Client c, oid user, bstream *fin, stream *fout)
 	c->stimeout = 0;
 	c->stage = 0;
 	c->itrace = 0;
-	c->debugOptimizer = c->debugScheduler = 0;
 	c->flags = 0;
 	c->errbuf = 0;
 
@@ -337,10 +337,7 @@ MCforkClient(Client father)
 			GDKfree(son->prompt);
 		son->prompt = GDKstrdup(father->prompt);
 		son->promptlength = strlen(father->prompt);
-		/* reuse the scopes wherever possible */
-		if (son->nspace == 0)
-			son->nspace = newModule(NULL, putName("child"));
-		son->nspace->outer = father->nspace->outer;
+		son->nspace = newModule(NULL, putName("child"));
 	}
 	return son;
 }
@@ -578,11 +575,6 @@ MCreadClient(Client c)
 			return MCreadClient(c);
 		}
 		return 0;
-	}
-	if (*CURRENT(c) == '?') {
-		showHelp(c->nspace, CURRENT(c) + 1, c->fdout);
-		in->pos = in->len;
-		return MCreadClient(c);
 	}
 #ifdef MAL_CLIENT_DEBUG
 	printf("# finished stream read %d %d\n", (int) in->pos, (int) in->len);

@@ -18,7 +18,7 @@
 /* #define _DEBUG_SAMPLE_ */
 
 mal_export str
-SAMPLEuniform(bat *r, bat *b, wrd *s);
+SAMPLEuniform(bat *r, bat *b, lng *s);
 
 mal_export str
 SAMPLEuniform_dbl(bat *r, bat *b, dbl *p);

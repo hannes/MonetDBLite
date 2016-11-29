@@ -1094,10 +1094,10 @@ strPrelude(void *ret)
 	if (UTF8_upperBat == NULL) {
 		int i = UTF8_CONVERSIONS;
 
-		UTF8_upperBat = BATnew(TYPE_void, TYPE_int, UTF8_CONVERSIONS, TRANSIENT);
+		UTF8_upperBat = COLnew(0, TYPE_int, UTF8_CONVERSIONS, TRANSIENT);
 		if (UTF8_upperBat == NULL)
 			return NULL;
-		UTF8_lowerBat = BATnew(TYPE_void, TYPE_int, UTF8_CONVERSIONS, TRANSIENT);
+		UTF8_lowerBat = COLnew(0, TYPE_int, UTF8_CONVERSIONS, TRANSIENT);
 		if (UTF8_lowerBat == NULL) {
 			BBPreclaim(UTF8_upperBat);
 			UTF8_upperBat = NULL;
@@ -1107,8 +1107,6 @@ strPrelude(void *ret)
 			BUNappend(UTF8_upperBat, &UTF8_lower_upper[i].upper, FALSE);
 			BUNappend(UTF8_lowerBat, &UTF8_lower_upper[i].lower, FALSE);
 		}
-		BATseqbase(UTF8_upperBat, 0);
-		BATseqbase(UTF8_lowerBat, 0);
 		BATname(UTF8_upperBat, "monet_unicode_toupper");
 		BATname(UTF8_lowerBat, "monet_unicode_tolower");
 	}
@@ -1699,7 +1697,7 @@ STRFromWChr(str *res, const int *c)
 str
 STRWChrAt(int *res, const str *arg1, const int *at)
 {
-/* 64bit: should have wrd arg */
+/* 64bit: should have lng arg */
 	const char *s = *arg1;
 	const unsigned char *u;
 
@@ -1786,7 +1784,7 @@ STRUpper(str *res, const str *arg1)
 str
 STRstrSearch(int *res, const str *haystack, const str *needle)
 {
-/* 64bit: should return wrd */
+/* 64bit: should return lng */
 	char *p;
 	const char *s = *haystack;
 	const char *s2 = *needle;
@@ -1805,7 +1803,7 @@ STRstrSearch(int *res, const str *haystack, const str *needle)
 str
 STRReverseStrSearch(int *res, const str *arg1, const str *arg2)
 {
-/* 64bit: should return wrd */
+/* 64bit: should return lng */
 	size_t len, slen;
 	const char *p, *q;
 	size_t i;

@@ -31,8 +31,11 @@ returns table (
 	heapsize bigint,
 	hashes bigint,
 	phash boolean,
-	imprints bigint,
-	sorted boolean
+	"imprints" bigint,
+	sorted boolean,
+	revsorted boolean,
+	"unique" boolean,
+	orderidx bigint
 )
 external name sql."storage";
 
@@ -53,8 +56,11 @@ returns table (
 	heapsize bigint,
 	hashes bigint,
 	phash boolean,
-	imprints bigint,
-	sorted boolean
+	"imprints" bigint,
+	sorted boolean,
+	revsorted boolean,
+	"unique" boolean,
+	orderidx bigint
 )
 external name sql."storage";
 
@@ -72,8 +78,11 @@ returns table (
 	heapsize bigint,
 	hashes bigint,
 	phash boolean,
-	imprints bigint,
-	sorted boolean
+	"imprints" bigint,
+	sorted boolean,
+	revsorted boolean,
+	"unique" boolean,
+	orderidx bigint
 )
 external name sql."storage";
 
@@ -91,8 +100,11 @@ returns table (
 	heapsize bigint,
 	hashes bigint,
 	phash boolean,
-	imprints bigint,
-	sorted boolean
+	"imprints" bigint,
+	sorted boolean,
+	revsorted boolean,
+	"unique" boolean,
+	orderidx bigint
 )
 external name sql."storage";
 
@@ -109,7 +121,10 @@ create table sys.storagemodelinput(
 	"distinct" bigint,	-- indication of distinct number of strings
 	"atomwidth" int,	-- average width of strings or clob
 	"reference" boolean,	-- used as foreign key reference
-	"sorted" boolean	-- if set there is no need for an index
+	"sorted" boolean,	-- if set there is no need for an index
+	revsorted boolean,
+	"unique" boolean,
+	"orderidx" bigint	-- an ordered oid index
 );
 -- this table can be adjusted to reflect the anticipated final database size
 
@@ -119,7 +134,7 @@ begin
 	delete from sys.storagemodelinput;
 
 	insert into sys.storagemodelinput
-	select X."schema", X."table", X."column", X."type", X.typewidth, X.count, 0, X.typewidth, false, X.sorted from sys."storage"() X;
+	select X."schema", X."table", X."column", X."type", X.typewidth, X.count, 0, X.typewidth, false, X.sorted, X.revsorted, X."unique", X.orderidx from sys."storage"() X;
 
 	update sys.storagemodelinput
 	set reference = true
@@ -217,15 +232,18 @@ returns table (
 	columnsize bigint,
 	heapsize bigint,
 	hashes bigint,
-	imprints bigint,
-	sorted boolean)
+	"imprints" bigint,
+	sorted boolean,
+	revsorted boolean,
+	"unique" boolean,
+	orderidx bigint)
 begin
 	return select I."schema", I."table", I."column", I."type", I."count",
 	columnsize(I."type", I.count, I."distinct"),
 	heapsize(I."type", I."distinct", I."atomwidth"),
 	hashsize(I."reference", I."count"),
 	imprintsize(I."count",I."type"),
-	I.sorted
+	I.sorted, I.revsorted, I."unique", I.orderidx
 	from sys.storagemodelinput I;
 end;
 
@@ -238,6 +256,6 @@ as select "schema","table",max(count) as "count",
 	sum(columnsize) as columnsize,
 	sum(heapsize) as heapsize,
 	sum(hashes) as hashes,
-	sum(imprints) as imprints,
+	sum("imprints") as "imprints",
 	sum(case when sorted = false then 8 * count else 0 end) as auxiliary
 from sys.storagemodel() group by "schema","table";

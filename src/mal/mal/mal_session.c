@@ -12,10 +12,8 @@
 #include "mal_session.h"
 #include "mal_instruction.h" /* for pushEndInstruction() */
 #include "mal_interpreter.h" /* for showErrors(), runMAL(), garbageElement() */
-#include "mal_linker.h"	     /* for initLibraries() */
 #include "mal_parser.h"	     /* for parseMAL() */
 #include "mal_namespace.h"
-#include "mal_readline.h"
 #include "mal_authorize.h"
 #include "mal_private.h"
 #include <gdk.h>	/* for opendir and friends */
@@ -40,7 +38,6 @@ malBootstrap(void)
 	c = MCinitClient((oid) 0, 0, 0);
 	assert(c != NULL);
 	c->nspace = newModule(NULL, putName("user"));
-	initLibraries();
 	if ( (msg = defaultScenario(c)) ) {
 		GDKfree(msg);
 		GDKerror("malBootstrap:Failed to initialise default scenario");
@@ -59,11 +56,16 @@ malBootstrap(void)
 	}
 	pushEndInstruction(c->curprg->def);
 	chkProgram(c->fdout, c->nspace, c->curprg->def);
-	if (c->curprg->def->errors)
+	if (c->curprg->def->errors) {
 		showErrors(c);
+		return 0;
+	}
 	s = MALengine(c);
-	if (s)
+	if (s != MAL_SUCCEED) {
 		GDKfree(s);
+		return 0;
+	}
+
 	return 1;
 }
 
@@ -98,6 +100,8 @@ MSresetClientPrg(Client cntxt)
 	p->gc = 0;
 	p->retc = 1;
 	p->argc = 1;
+	setModuleId(p, putName("user"));
+	setFunctionId(p, putName("main"));
 	/* remove any MAL history */
 	if (mb->history) {
 		freeMalBlk(mb->history);
@@ -145,10 +149,9 @@ exit_streams( bstream *fin, stream *fout )
 {
 	if (fout && fout != GDKstdout) {
 		mnstr_flush(fout);
-		mnstr_close(fout);
-		mnstr_destroy(fout);
+		close_stream(fout);
 	}
-	if (fin) 
+	if (fin)
 		(void) bstream_destroy(fin);
 }
 
@@ -271,7 +274,6 @@ MSscheduleClient(str command, str challenge, bstream *fin, stream *fout)
 		/* move this back !! */
 		if (c->nspace == 0) {
 			c->nspace = newModule(NULL, putName("user"));
-			c->nspace->outer = mal_clients[0].nspace->outer;
 		}
 
 		if ((s = setScenario(c, lang)) != NULL) {
@@ -355,21 +357,16 @@ void
 MSresetVariables(Client cntxt, MalBlkPtr mb, MalStkPtr glb, int start)
 {
 	int i;
-	bit *used = GDKzalloc(mb->vtop * sizeof(bit));
-	if( used == NULL){
-		GDKerror("MSresetVariables" MAL_MALLOC_FAIL);
-		return;
-	}
 
 	for (i = 0; i < start && start < mb->vtop; i++)
-		used[i] = 1;
+		setVarUsed(mb,i);
 	if (mb->errors == 0)
 		for (i = start; i < mb->vtop; i++) {
-			if (used[i] || !isTmpVar(mb, i)) {
+			if (isVarUsed(mb,i) || !isTmpVar(mb,i)){
 				assert(!mb->var[i]->value.vtype || isVarConstant(mb, i));
-				used[i] = 1;
+				setVarUsed(mb,i);
 			}
-			if (glb && !used[i]) {
+			if (glb && !isVarUsed(mb,i)) {
 				if (isVarConstant(mb, i))
 					garbageElement(cntxt, &glb->stk[i]);
 				/* clean stack entry */
@@ -380,8 +377,7 @@ MSresetVariables(Client cntxt, MalBlkPtr mb, MalStkPtr glb, int start)
 		}
 
 	if (mb->errors == 0)
-		trimMalVariables_(mb, used, glb);
-	GDKfree(used);
+		trimMalVariables_(mb, glb);
 }
 
 /*
@@ -409,7 +405,7 @@ MSserveClient(void *dummy)
 		c->glb = newGlobalStack(MAXGLOBALS + mb->vsize);
 	if (c->glb == NULL) {
 		showException(c->fdout, MAL, "serveClient", MAL_MALLOC_FAIL);
-		c->mode = FINISHCLIENT + 1; /* == RUNCLIENT */
+		c->mode = RUNCLIENT;
 	} else {
 		c->glb->stktop = mb->vtop;
 		c->glb->blk = mb;
@@ -419,14 +415,13 @@ MSserveClient(void *dummy)
 		msg = defaultScenario(c);
 	if (msg) {
 		showException(c->fdout, MAL, "serveClient", "could not initialize default scenario");
-		c->mode = FINISHCLIENT + 1; /* == RUNCLIENT */
+		c->mode = RUNCLIENT;
 		GDKfree(msg);
 	} else {
 		do {
 			do {
 				msg = runScenario(c);
-				if (msg != MAL_SUCCEED && msg != M5OutOfMemory)
-					GDKfree(msg);
+				freeException(msg);
 				if (c->mode == FINISHCLIENT)
 					break;
 				resetScenario(c);
@@ -452,6 +447,11 @@ MSserveClient(void *dummy)
 	}
 	if (!isAdministrator(c))
 		MCcloseClient(c);
+	if (strcmp(c->nspace->name, "user") == 0) {
+		GDKfree(c->nspace->space);
+		GDKfree(c->nspace);
+		c->nspace = NULL;
+	}
 }
 
 /*
@@ -487,16 +487,6 @@ MALexitClient(Client c)
 str
 MALreader(Client c)
 {
-#ifndef HAVE_EMBEDDED
-	int r = 1;
-	if (c == mal_clients) {
-		r = readConsole(c);
-		if (r < 0 && c->fdin->eof == 0)
-			r = MCreadClient(c);
-		if (r > 0)
-			return MAL_SUCCEED;
-	} else
-#endif
 	if (MCreadClient(c) > 0)
 		return MAL_SUCCEED;
 	MT_lock_set(&mal_contextLock);

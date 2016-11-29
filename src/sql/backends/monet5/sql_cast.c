@@ -66,17 +66,15 @@ batnil_2_timestamp(bat *res, const bat *bid)
 	if ((b = BATdescriptor(*bid)) == NULL) {
 		throw(SQL, "batcalc.nil_2_timestamp", "Cannot access descriptor");
 	}
-	dst = BATnew(TYPE_void, TYPE_timestamp, BATcount(b), TRANSIENT);
+	dst = COLnew(b->hseqbase, TYPE_timestamp, BATcount(b), TRANSIENT);
 	if (dst == NULL) {
 		BBPunfix(b->batCacheid);
 		throw(SQL, "sql.2_timestamp", MAL_MALLOC_FAIL);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BATloop(b, p, q) {
 		timestamp r = *timestamp_nil;
 		BUNappend(dst, &r, FALSE);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BBPkeepref(*res = dst->batCacheid);
 	BBPunfix(b->batCacheid);
 	return MAL_SUCCEED;
@@ -94,12 +92,11 @@ batstr_2_timestamp(bat *res, const bat *bid)
 		throw(SQL, "batcalc.str_2_timestamp", "Cannot access descriptor");
 	}
 	bi = bat_iterator(b);
-	dst = BATnew(TYPE_void, TYPE_timestamp, BATcount(b), TRANSIENT);
+	dst = COLnew(b->hseqbase, TYPE_timestamp, BATcount(b), TRANSIENT);
 	if (dst == NULL) {
 		BBPunfix(b->batCacheid);
 		throw(SQL, "sql.2_timestamp", MAL_MALLOC_FAIL);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BATloop(b, p, q) {
 		str v = (str) BUNtail(bi, p);
 		timestamp r;
@@ -111,7 +108,6 @@ batstr_2_timestamp(bat *res, const bat *bid)
 		}
 		BUNappend(dst, &r, FALSE);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BBPkeepref(*res = dst->batCacheid);
 	BBPunfix(b->batCacheid);
 	return msg;
@@ -157,17 +153,15 @@ batnil_2_daytime(bat *res, const bat *bid)
 	if ((b = BATdescriptor(*bid)) == NULL) {
 		throw(SQL, "batcalc.nil_2_daytime", "Cannot access descriptor");
 	}
-	dst = BATnew(TYPE_void, TYPE_daytime, BATcount(b), TRANSIENT);
+	dst = COLnew(b->hseqbase, TYPE_daytime, BATcount(b), TRANSIENT);
 	if (dst == NULL) {
 		BBPunfix(b->batCacheid);
 		throw(SQL, "sql.2_daytime", MAL_MALLOC_FAIL);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BATloop(b, p, q) {
 		daytime r = daytime_nil;
 		BUNappend(dst, &r, FALSE);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BBPkeepref(*res = dst->batCacheid);
 	BBPunfix(b->batCacheid);
 	return MAL_SUCCEED;
@@ -185,12 +179,11 @@ batstr_2_daytime(bat *res, const bat *bid)
 		throw(SQL, "batcalc.str_2_daytime", "Cannot access descriptor");
 	}
 	bi = bat_iterator(b);
-	dst = BATnew(TYPE_void, TYPE_daytime, BATcount(b), TRANSIENT);
+	dst = COLnew(b->hseqbase, TYPE_daytime, BATcount(b), TRANSIENT);
 	if (dst == NULL) {
 		BBPunfix(b->batCacheid);
 		throw(SQL, "sql.2_daytime", MAL_MALLOC_FAIL);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BATloop(b, p, q) {
 		str v = (str) BUNtail(bi, p);
 		daytime r;
@@ -202,7 +195,6 @@ batstr_2_daytime(bat *res, const bat *bid)
 		}
 		BUNappend(dst, &r, FALSE);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BBPkeepref(*res = dst->batCacheid);
 	BBPunfix(b->batCacheid);
 	return msg;
@@ -258,17 +250,15 @@ batnil_2_date(bat *res, const bat *bid)
 	if ((b = BATdescriptor(*bid)) == NULL) {
 		throw(SQL, "batcalc.nil_2_date", "Cannot access descriptor");
 	}
-	dst = BATnew(TYPE_void, TYPE_date, BATcount(b), TRANSIENT);
+	dst = COLnew(b->hseqbase, TYPE_date, BATcount(b), TRANSIENT);
 	if (dst == NULL) {
 		BBPunfix(b->batCacheid);
 		throw(SQL, "sql.2_date", MAL_MALLOC_FAIL);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BATloop(b, p, q) {
 		date r = date_nil;
 		BUNappend(dst, &r, FALSE);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BBPkeepref(*res = dst->batCacheid);
 	BBPunfix(b->batCacheid);
 	return MAL_SUCCEED;
@@ -286,12 +276,11 @@ batstr_2_date(bat *res, const bat *bid)
 		throw(SQL, "batcalc.str_2_date", "Cannot access descriptor");
 	}
 	bi = bat_iterator(b);
-	dst = BATnew(TYPE_void, TYPE_date, BATcount(b), TRANSIENT);
+	dst = COLnew(b->hseqbase, TYPE_date, BATcount(b), TRANSIENT);
 	if (dst == NULL) {
 		BBPunfix(b->batCacheid);
 		throw(SQL, "sql.2_date", MAL_MALLOC_FAIL);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BATloop(b, p, q) {
 		str v = (str) BUNtail(bi, p);
 		date r;
@@ -303,7 +292,6 @@ batstr_2_date(bat *res, const bat *bid)
 		}
 		BUNappend(dst, &r, FALSE);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BBPkeepref(*res = dst->batCacheid);
 	BBPunfix(b->batCacheid);
 	return msg;
@@ -350,12 +338,11 @@ batstr_2_sqlblob(bat *res, const bat *bid)
 		throw(SQL, "batcalc.str_2_sqlblob", "Cannot access descriptor");
 	}
 	bi = bat_iterator(b);
-	dst = BATnew(TYPE_void, TYPE_sqlblob, BATcount(b), TRANSIENT);
+	dst = COLnew(b->hseqbase, TYPE_sqlblob, BATcount(b), TRANSIENT);
 	if (dst == NULL) {
 		BBPunfix(b->batCacheid);
 		throw(SQL, "sql.2_sqlblob", MAL_MALLOC_FAIL);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BATloop(b, p, q) {
 		str v = (str) BUNtail(bi, p);
 		sqlblob *r;
@@ -368,7 +355,6 @@ batstr_2_sqlblob(bat *res, const bat *bid)
 		BUNappend(dst, r, FALSE);
 		GDKfree(r);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BBPkeepref(*res = dst->batCacheid);
 	BBPunfix(b->batCacheid);
 	return msg;
@@ -458,12 +444,11 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		throw(SQL, "batcalc.str", "Cannot access descriptor");
 	}
 	bi = bat_iterator(b);
-	dst = BATnew(TYPE_void, TYPE_str, BATcount(b), TRANSIENT);
+	dst = COLnew(b->hseqbase, TYPE_str, BATcount(b), TRANSIENT);
 	if (dst == NULL) {
 		BBPunfix(b->batCacheid);
 		throw(SQL, "sql.str_cast", MAL_MALLOC_FAIL);
 	}
-	BATseqbase(dst, b->hseqbase);
 	BATloop(b, p, q) {
 		ptr v = (ptr) BUNtail(bi, p);
 		msg = SQLstr_cast_(&r, m, *eclass, *d1, *s1, *has_tz, v, b->ttype, *digits);
@@ -476,7 +461,6 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		GDKfree(r);
 		r = NULL;
 	}
-	BATseqbase(dst, b->hseqbase);
 	BBPkeepref(*res = dst->batCacheid);
 	BBPunfix(b->batCacheid);
 	return msg;
@@ -521,30 +505,6 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 #undef TP1
 
 #define TP1 bte
-#define TP2 wrd
-#include "sql_cast_impl_up_to_int.h"
-#undef TP2
-#undef TP1
-
-#define TP1 sht
-#define TP2 wrd
-#include "sql_cast_impl_up_to_int.h"
-#undef TP2
-#undef TP1
-
-#define TP1 int
-#define TP2 wrd
-#include "sql_cast_impl_up_to_int.h"
-#undef TP2
-#undef TP1
-
-#define TP1 wrd
-#define TP2 wrd
-#include "sql_cast_impl_up_to_int.h"
-#undef TP2
-#undef TP1
-
-#define TP1 bte
 #define TP2 lng
 #include "sql_cast_impl_up_to_int.h"
 #undef TP2
@@ -557,12 +517,6 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 #undef TP1
 
 #define TP1 int
-#define TP2 lng
-#include "sql_cast_impl_up_to_int.h"
-#undef TP2
-#undef TP1
-
-#define TP1 wrd
 #define TP2 lng
 #include "sql_cast_impl_up_to_int.h"
 #undef TP2
@@ -588,12 +542,6 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 #undef TP1
 
 #define TP1 int
-#define TP2 hge
-#include "sql_cast_impl_up_to_int.h"
-#undef TP2
-#undef TP1
-
-#define TP1 wrd
 #define TP2 hge
 #include "sql_cast_impl_up_to_int.h"
 #undef TP2
@@ -633,12 +581,6 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 #undef TP1
 
 #define TP1 flt
-#define TP2 wrd
-#include "sql_cast_impl_down_from_flt.h"
-#undef TP2
-#undef TP1
-
-#define TP1 flt
 #define TP2 lng
 #include "sql_cast_impl_down_from_flt.h"
 #undef TP2
@@ -666,12 +608,6 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 
 #define TP1 dbl
 #define TP2 int
-#include "sql_cast_impl_down_from_flt.h"
-#undef TP2
-#undef TP1
-
-#define TP1 dbl
-#define TP2 wrd
 #include "sql_cast_impl_down_from_flt.h"
 #undef TP2
 #undef TP1
@@ -710,12 +646,6 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 #undef TP2
 #undef TP1
 
-#define TP1 wrd
-#define TP2 flt
-#include "sql_cast_impl_up_to_flt.h"
-#undef TP2
-#undef TP1
-
 #define TP1 lng
 #define TP2 flt
 #include "sql_cast_impl_up_to_flt.h"
@@ -743,12 +673,6 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 #undef TP1
 
 #define TP1 int
-#define TP2 dbl
-#include "sql_cast_impl_up_to_flt.h"
-#undef TP2
-#undef TP1
-
-#define TP1 wrd
 #define TP2 dbl
 #include "sql_cast_impl_up_to_flt.h"
 #undef TP2
@@ -782,12 +706,6 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 #undef TP2
 #undef TP1
 
-#define TP1 wrd
-#define TP2 bte
-#include "sql_cast_impl_down_from_int.h"
-#undef TP2
-#undef TP1
-
 #define TP1 lng
 #define TP2 bte
 #include "sql_cast_impl_down_from_int.h"
@@ -808,12 +726,6 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 #undef TP2
 #undef TP1
 
-#define TP1 wrd
-#define TP2 sht
-#include "sql_cast_impl_down_from_int.h"
-#undef TP2
-#undef TP1
-
 #define TP1 lng
 #define TP2 sht
 #include "sql_cast_impl_down_from_int.h"
@@ -827,12 +739,6 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 #undef TP2
 #undef TP1
 #endif
-
-#define TP1 wrd
-#define TP2 int
-#include "sql_cast_impl_down_from_int.h"
-#undef TP2
-#undef TP1
 
 #define TP1 lng
 #define TP2 int
@@ -848,19 +754,7 @@ SQLbatstr_cast(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 #undef TP1
 #endif
 
-#define TP1 lng
-#define TP2 wrd
-#include "sql_cast_impl_down_from_int.h"
-#undef TP2
-#undef TP1
-
 #ifdef HAVE_HGE
-#define TP1 hge
-#define TP2 wrd
-#include "sql_cast_impl_down_from_int.h"
-#undef TP2
-#undef TP1
-
 #define TP1 hge
 #define TP2 lng
 #include "sql_cast_impl_down_from_int.h"
