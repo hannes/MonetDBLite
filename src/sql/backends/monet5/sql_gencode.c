@@ -3018,6 +3018,7 @@ backend_call(backend *be, Client c, cq *cq)
 	}
 }
 
+// FIXME: looking at m->link is no longer required
 int
 monet5_resolve_function(ptr M, sql_func *f)
 {

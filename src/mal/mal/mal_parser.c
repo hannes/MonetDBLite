@@ -1871,7 +1871,7 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			goto allLeft;
 		case 'U': case 'u': 
 			if (MALkeyword(cntxt, "unsafe", 6)) {
-				unsafeProp= 1;
+				unsafeProp = 1;
 				skipSpace(cntxt);
 				continue;
 			}

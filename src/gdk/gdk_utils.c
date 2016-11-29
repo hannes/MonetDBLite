@@ -765,6 +765,8 @@ GDKreset(int status)
 #endif
 		GDKnr_threads = 0;
 		GDKnrofthreads = 0;
+		GDKatomcnt = TYPE_str + 1;
+
 		close_stream((stream *) THRdata[0]);
 		close_stream((stream *) THRdata[1]);
 		memset((char*) GDKbatLock,0, sizeof(GDKbatLock));
