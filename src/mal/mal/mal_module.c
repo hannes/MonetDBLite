@@ -65,6 +65,8 @@ static void clrModuleIndex(Module cur){
 			}
 			return;
 		}
+		prev = m;
+		m = m->link;
 	}
 	assert(0);
 }

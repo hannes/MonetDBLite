@@ -18,7 +18,11 @@
 
 #define MAXSYMBOLS 12000 /* enough for the startup and some queries */
 static SymRecord symbolpool[MAXSYMBOLS];
-static int symboltop;
+static int symboltop = 0;
+
+void mal_instruction_reset() {
+	symboltop = 0;
+}
 
 Symbol
 newSymbol(str nme, int kind)

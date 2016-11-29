@@ -192,4 +192,6 @@ mal_export void strBeforeCall(ValPtr v, ValPtr bak);
 mal_export void strAfterCall(ValPtr v, ValPtr bak);
 mal_export void batBeforeCall(ValPtr v, ValPtr bak);
 mal_export void batAfterCall(ValPtr v, ValPtr bak);
+
+mal_export void mal_instruction_reset(void);
 #endif /*  _MAL_INSTR_H */
