@@ -27,7 +27,7 @@ touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 m
 echo '
 
 libmonetdb5$(SOEXT):
-	$(CC) -shared -o libmonetdb5$(SOEXT) $(pthread_LIBS) $(pcre_LIBS) $(zlib_LIBS) $(LIBICONV) `find $(SUBDIRS) -name "*.o" | xargs echo` 
+	$(CC) -shared -o libmonetdb5$(SOEXT) $(pthread_LIBS) $(pcre_LIBS) $(zlib_LIBS) $(LIBICONV) $(MATH_LIBS) $(DL_LIBS) `find $(SUBDIRS) -name "*.o" | xargs echo` 
 
 all: $(BUILT_SOURCES) monetdb_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive && $(MAKE) $(AM_MAKEFLAGS) libmonetdb5$(SOEXT)
@@ -51,6 +51,7 @@ cd ..
 mv src/libmonetdb5$SOEXT .
 
 gcc test.c -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -L. -o test
-./test
+
+LD_LIBRARY_PATH=. ./test
 
 
