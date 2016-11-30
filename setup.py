@@ -87,7 +87,7 @@ setup(
     author='Mark Raasveldt, Hannes Mühleisen',
     ext_modules=[Extension(
         name=package_name,
-        sources=[os.path.join(basedir, 'monetdblite_module.c')],
+        sources=[os.path.join(basedir, 'monetdblite.c')],
         define_macros=[('MONETDBLITE_LIBRARY_PATH', '"' + os.path.join(output_directory, monetdb_shared_lib) + '"')],
         include_dirs=[numpy.get_include()],
         language='c'
