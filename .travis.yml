@@ -1,2 +1,5 @@
 language: c
 script: ./build-unix.sh
+compiler:
+  - clang
+  - gcc
