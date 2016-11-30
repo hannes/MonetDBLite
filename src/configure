@@ -24446,7 +24446,8 @@ else
 fi
 
 
-ac_fn_c_check_type "$LINENO" "ptrdiff_t" "ac_cv_type_ptrdiff_t" "$ac_includes_default"
+ac_fn_c_check_type "$LINENO" "ptrdiff_t" "ac_cv_type_ptrdiff_t" "#include <stddef.h>
+"
 if test "x$ac_cv_type_ptrdiff_t" = xyes; then :
 
 cat >>confdefs.h <<_ACEOF
@@ -24717,7 +24718,8 @@ $as_echo_n "checking size of ptrdiff_t... " >&6; }
 if ${ac_cv_sizeof_ptrdiff_t+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (ptrdiff_t))" "ac_cv_sizeof_ptrdiff_t"        "$ac_includes_default"; then :
+  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (ptrdiff_t))" "ac_cv_sizeof_ptrdiff_t"        "#include <stddef.h>
+"; then :
 
 else
   if test "$ac_cv_type_ptrdiff_t" = yes; then
@@ -24750,7 +24752,8 @@ $as_echo_n "checking size of wchar_t... " >&6; }
 if ${ac_cv_sizeof_wchar_t+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (wchar_t))" "ac_cv_sizeof_wchar_t"        "$ac_includes_default"; then :
+  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (wchar_t))" "ac_cv_sizeof_wchar_t"        "#include <stddef.h>
+"; then :
 
 else
   if test "$ac_cv_type_wchar_t" = yes; then
