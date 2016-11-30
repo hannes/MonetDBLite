@@ -13,8 +13,48 @@
  */
 
 #include <Python.h>
-// FIXME: wrap dlopen/dlsym/dlerror for Windows users
+#ifdef WIN32
+#include <windows.h>
+
+void *
+dlopen(const char *file, int mode)
+{
+    (void) mode;
+    if (file != NULL) {
+        return (void *) LoadLibrary(file);
+    }
+    return GetModuleHandle(NULL);
+}
+
+int
+dlclose(void *handle)
+{
+    if (handle != NULL) {
+        return FreeLibrary((HINSTANCE) handle);
+    }
+    return -1;
+}
+
+void *
+dlsym(void *handle, const char *name)
+{
+    if (handle != NULL) {
+        return (void *) GetProcAddress((HINSTANCE) handle, name);
+    }
+    return NULL;
+}
+
+char *
+dlerror(void)
+{
+    static char msg[1024];
+
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, msg, sizeof(msg), NULL);
+    return msg;
+}
+#else
 #include <dlfcn.h>
+#endif
 
 #if PY_MAJOR_VERSION >= 3
 #define IS_PY3K
