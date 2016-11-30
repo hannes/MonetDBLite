@@ -285,6 +285,18 @@ AM_CONDITIONAL([HAVE_EMBEDDED_R], [test x$enable_embedded_r != xno])
 AS_VAR_IF([enable_embedded_r], [no], [],
 	[AC_DEFINE([HAVE_EMBEDDED_R], 1, [Support for MonetDB as a library for R])])
 
+
+dft_embedded_py=no
+AC_ARG_ENABLE(embedded-py,
+	AS_HELP_STRING([--enable-embedded-py],
+		[enable support for running MonetDB as a library for Python (default=no)]),
+	enable_embedded_py=$enableval,
+	enable_embedded_py=$dft_embedded_py)
+AM_CONDITIONAL(HAVE_EMBEDDED_PY, test x$enable_embedded_py != xno)
+if test "x$enable_embedded_py" != xno; then
+	AC_DEFINE(HAVE_EMBEDDED_PY, 1, [Support for MonetDB as a library for Python])
+fi
+
 dft_rintegration=auto
 AC_ARG_ENABLE([rintegration],
 	[AS_HELP_STRING([--enable-rintegration],

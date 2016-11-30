@@ -42,3 +42,14 @@ lib_embedded  = {
 		$(pcre_LIBS) $(PSAPILIB) \
 		$(SOCKET_LIBS) $(MALLOC_LIBS) $(DL_LIBS) $(PTHREAD_LIBS)
 }
+
+lib_embeddedpy  = {
+	COND = HAVE_EMBEDDED_PY
+	SOURCES = conversion.c embeddedpy.c pyclient.c pytypes.c type_conversion.c unicode.c
+	VERSION = 1
+	LIBS = ../mal/tools/libmonetdb5 \
+		libembedded \
+		../gdk/libbat \
+		$(pcre_LIBS) $(PSAPILIB) \
+		$(SOCKET_LIBS) $(MALLOC_LIBS) $(DL_LIBS) $(PTHREAD_LIBS)
+}

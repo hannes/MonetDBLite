@@ -8,30 +8,15 @@
 
 /*
  * M. Raasveldt
- * This file contains a number of helper functions for Python and Numpy types
+ * This file contains the conversion functions to go from BAT <> NumPy Array
  */
 
-#ifndef _PYTYPE_LIB_
-#define _PYTYPE_LIB_
+#ifndef _PYCONVERSION_LIB_
+#define _PYCONVERSION_LIB_
 
-#include <stdint.h>
-#include <stddef.h>
+#include "pyheader.h"
 
-#include "pyapi.h"
-
-// This describes return values, used in multiprocessing to tell the main process the size of the shared memory to allocate
-struct _ReturnBatDescr
-{
-    int npy_type;                        //npy type
-    size_t element_size;                 //element size in bytes
-    size_t bat_count;                    //number of elements in bat
-    size_t bat_size;                     //bat size in bytes
-    size_t bat_start;                    //start position of bat
-    bool has_mask;                       //if the return value has a mask or not
-};
-#define ReturnBatDescr struct _ReturnBatDescr
-
-struct _PyReturn{
+typedef struct {
     PyObject *numpy_array;              //PyArrayObject* with data (can be NULL, as long as array_data is set)
     PyObject *numpy_mask;               //PyArrayObject* with mask (NULL if there is no mask)
     void *array_data;                   //void* pointer to data
@@ -41,10 +26,9 @@ struct _PyReturn{
     lng mmap_id;
     int result_type;                    //result type as NPY_<TYPE>
     bool multidimensional;              //whether or not the result is multidimensional
-};
-#define PyReturn struct _PyReturn
+} PyReturn;
 
-struct _PyInput{
+typedef struct {
     void *dataptr;                      //pointer to input data
     BAT *bat;                           //pointer to input BAT
     int bat_type;                       //BAT type as TYPE_<type>
@@ -52,36 +36,8 @@ struct _PyInput{
     size_t count;                       //amount of elements in BAT
     bool scalar;                        //True if the input is a scalar (in this case, BAT* is NULL)
     PyObject *result;                   //Converted PyObject, probably shouldn't be here
-};
-#define PyInput struct _PyInput
+} PyInput;
 
-struct _QueryStruct{
-    bool pending_query;
-    char query[8192];
-    int nr_cols;
-    int mmapid;
-    size_t memsize;
-};
-#define QueryStruct struct _QueryStruct
-
-//! Returns true if a NPY_#type is an integral type, and false otherwise
-pyapi_export bool PyType_IsInteger(int);
-//! Returns true if a NPY_#type is a float type, and false otherwise
-pyapi_export bool PyType_IsFloat(int);
-//! Returns true if a NPY_#type is a double type, and false otherwise
-pyapi_export bool PyType_IsDouble(int);
-//! Formats NPY_#type as a String (so NPY_INT => "INT"), for usage in error reporting and warnings
-pyapi_export char *PyType_Format(int);
-//! Returns true if a PyObject is a scalar type ('scalars' in this context means numeric or string types)
-pyapi_export bool PyType_IsPyScalar(PyObject *object);
-//! Returns true if the PyObject is of type numpy.ndarray, and false otherwise
-pyapi_export bool PyType_IsNumpyArray(PyObject *object);
-//! Returns true if the PyObject is of type numpy.ma.core.MaskedArray, and false otherwise
-pyapi_export bool PyType_IsNumpyMaskedArray(PyObject *object);
-//! Returns true if the PyObject is of type pandas.core.frame.DataFrame, and false otherwise
-pyapi_export bool PyType_IsPandasDataFrame(PyObject *object);
-//! Returns true if the PyObject is of type lazyarray, and false otherwise
-pyapi_export bool PyType_IsLazyArray(PyObject *object);
 //! Create a Numpy Array Object from a PyInput structure containing a BAT
 pyapi_export PyObject *PyArrayObject_FromBAT(PyInput *input_bat, size_t start, size_t end, char **return_message, bool copy);
 //! Creates a Null Mask from a BAT (a Numpy Boolean Array of equal length to the BAT, where NULLMASK[i] = True if BAT[i] is NULL, and False otherwise)
@@ -102,26 +58,15 @@ pyapi_export BAT *PyObject_ConvertToBAT(PyReturn *ret, sql_subtype *type, int ba
 pyapi_export ssize_t PyType_Size(PyObject *obj);
 //! Populate a PyReturn object from a Python object
 pyapi_export str PyObject_GetReturnValues(PyObject *obj, PyReturn *return_value);
-pyapi_export char *BatType_Format(int);
+//! Returns whether or not a BAT type is of a standard type (string or numeric), or an extended type (e.g. blob, timestamp, etc)
+pyapi_export bit IsStandardBATType(int type);
+//! Returns whether or not a special conversion is possible for the SQL type (if this returns 0, string conversion is used instead)
+pyapi_export bit ConvertableSQLType(sql_subtype *sql_subtype);
+//! Convert a BAT of a non-standard type (SQL type) to a standard type (numeric or string)
+pyapi_export str ConvertFromSQLType(BAT *b, sql_subtype *sql_subtype, BAT **ret_bat, int *ret_type);
+//! Convert a BAT of a standard type (numeric or string) to a BAT of the specified SQL type
+pyapi_export str ConvertToSQLType(Client cntxt, BAT *b, sql_subtype *sql_subtype, BAT **ret_bat, int *ret_type);
 
-pyapi_export int PyType_ToBat(int);
-pyapi_export int BatType_ToPyType(int);
+str _conversion_init(void);
 
-pyapi_export bool Python_ObtainGIL(void);
-pyapi_export bool Python_ReleaseGIL(bool);
-
-#define bte_TO_PYSCALAR(value) PyInt_FromLong(value)
-#define bit_TO_PYSCALAR(value) PyInt_FromLong(value)
-#define sht_TO_PYSCALAR(value) PyInt_FromLong(value)
-#define int_TO_PYSCALAR(value) PyInt_FromLong(value)
-#define lng_TO_PYSCALAR(value) PyLong_FromLongLong(value)
-#define flt_TO_PYSCALAR(value) PyFloat_FromDouble(value)
-#define dbl_TO_PYSCALAR(value) PyFloat_FromDouble(value)
-
-// A simple #define that converts a numeric TYPE_<mtpe> value to a Python scalar
-#define SCALAR_TO_PYSCALAR(mtpe, value) mtpe##_TO_PYSCALAR(value)
-
-
-void _pytypes_init(void);
-
-#endif /* _PYTYPE_LIB_ */
+#endif /* _PYCONVERSION_LIB_ */

@@ -957,6 +957,8 @@ CC
 CROSS_COMPILING_FALSE
 CROSS_COMPILING_TRUE
 MONETDB5_PASSWDHASH
+HAVE_EMBEDDED_PY_FALSE
+HAVE_EMBEDDED_PY_TRUE
 HAVE_EMBEDDED_R_FALSE
 HAVE_EMBEDDED_R_TRUE
 HAVE_EMBEDDED_FALSE
@@ -1075,6 +1077,7 @@ enable_shp
 enable_gsl
 enable_embedded
 enable_embedded_r
+enable_embedded_py
 enable_rintegration
 enable_pyintegration
 enable_console
@@ -1805,6 +1808,8 @@ Optional Features:
                           (default=no)
   --enable-embedded-r     enable support for running MonetDB as a library for
                           R (default=no)
+  --enable-embedded-py    enable support for running MonetDB as a library for
+                          Python (default=no)
   --enable-rintegration   enable support for R integration into MonetDB
                           (default=auto)
   --enable-pyintegration  enable support for Python integration into MonetDB
@@ -4388,6 +4393,29 @@ if test "x$enable_embedded_r" = xno; then :
 else
 
 $as_echo "#define HAVE_EMBEDDED_R 1" >>confdefs.h
+
+fi
+
+
+dft_embedded_py=no
+# Check whether --enable-embedded-py was given.
+if test "${enable_embedded_py+set}" = set; then :
+  enableval=$enable_embedded_py; enable_embedded_py=$enableval
+else
+  enable_embedded_py=$dft_embedded_py
+fi
+
+ if test x$enable_embedded_py != xno; then
+  HAVE_EMBEDDED_PY_TRUE=
+  HAVE_EMBEDDED_PY_FALSE='#'
+else
+  HAVE_EMBEDDED_PY_TRUE='#'
+  HAVE_EMBEDDED_PY_FALSE=
+fi
+
+if test "x$enable_embedded_py" != xno; then
+
+$as_echo "#define HAVE_EMBEDDED_PY 1" >>confdefs.h
 
 fi
 
@@ -26045,6 +26073,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_EMBEDDED_R_TRUE}" && test -z "${HAVE_EMBEDDED_R_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_EMBEDDED_R\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_EMBEDDED_PY_TRUE}" && test -z "${HAVE_EMBEDDED_PY_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_EMBEDDED_PY\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${CROSS_COMPILING_TRUE}" && test -z "${CROSS_COMPILING_FALSE}"; then

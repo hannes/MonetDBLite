@@ -132,5 +132,6 @@ sql/scripts/
 	$(libdir)/monetdb5/createdb/39_analytics_hge.sql#HAVE_HGE
 embedded/
 	$(libdir)/libembedded.so
+	$(libdir)/libembeddedpy.so#HAVE_EMBEDDED_PY
 mapisplit/#HAVE_EMBEDDED_R
 	$(libdir)/libmapisplit.so

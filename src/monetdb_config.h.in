@@ -85,6 +85,9 @@
 /* Support for MonetDB as a library */
 #undef HAVE_EMBEDDED
 
+/* Support for MonetDB as a library for Python */
+#undef HAVE_EMBEDDED_PY
+
 /* Support for MonetDB as a library for R */
 #undef HAVE_EMBEDDED_R
 
