@@ -1,5 +1,5 @@
 #!/bin/sh
-cd src
+
 
 OPTFLAG="--enable-optimize"
 LINKFLAG="-g"
@@ -9,20 +9,21 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	LINKFLAG="-g"
 fi
 
+mkdir -p build
+cd build
+rm Makefile
+
 
 CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6" \
-./configure --enable-embedded  \
+../src/configure --enable-embedded  \
 --disable-fits --disable-geom --disable-rintegration --disable-pyintegration --disable-gsl --disable-netcdf \
 --disable-odbc --disable-console  \
 --without-openssl --without-uuid --without-curl --without-bz2 --without-lzma --without-libxml2 \
 --without-python2 --without-python3 --without-unixodbc --disable-mapi \
 --without-samtools --without-sphinxclient --without-geos --without-samtools --without-readline \
 $OPTFLAG --enable-silent-rules --disable-int128
-
-
-# TODO: support .so
-
-touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
+#exit 1
+# touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
 
 echo '
 
@@ -48,10 +49,8 @@ fi
 
 cd ..
 
-mv src/libmonetdb5$SOEXT .
+gcc test.c -Ibuild -Isrc -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -Lbuild -o test
 
-gcc test.c -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -L. -o test
-
-LD_LIBRARY_PATH=. ./test
+LD_LIBRARY_PATH=build ./test
 
 
