@@ -1,7 +1,7 @@
 if [ $# -eq 1 ]; then
 	NN=`echo $1 | sed 's/.in$//'`
 	echo $1
-	# sedscript.in created using 
+	# sedscript.tpl created using 
 	# grep -o "@[[:alnum:]_]*@" Makefile.in | sort -f | uniq | sed -e "s/^/s|/" -e "s/$/||/" > sedscript.tpl
 	sed -f src/embedded/windows/sedscript $1 > $NN
 else

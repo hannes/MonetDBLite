@@ -2,8 +2,8 @@
 SRC=`pwd | sed -e 's|/cygdrive/||' -e 's|/|:/|'`"/src"
 
 # figure out bitness
-BITS=32
-ARCH=i386
+BITS=64
+ARCH=x64
 # if [ "$R_ARCH" = "/i386" ] 
 # then
 # 	BITS=32
@@ -13,12 +13,18 @@ MONETDBLITE_DEBUG=YES
 
 #TODO: add 64 bit flag to cflags if architecure requires it
 
-CC=gcc
-ADD_CFLAGS="-O3"
+CC=C:/Rtools/mingw_64/bin/gcc
+ADD_CFLAGS="-O3 -m64"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
-	ADD_CFLAGS="-O0 -g"
+	ADD_CFLAGS="-O0 -g -m64"
 fi
+
+PYTHON_CFLAGS=`c:/Python27/python.exe python-cflags-windows.py`
+PYTHON_LDFLAGS=`c:/Python27/python.exe python-ldflags-windows.py`
+
+ADD_CFLAGS="$ADD_CFLAGS $PYTHON_CFLAGS"
+
 
 # patch sedscript for build/install/library paths
 sed -e "s|%CC%|$CC|" -e "s|%ADD_CFLAGS%|$ADD_CFLAGS|" -e "s|%PREFIX%|$SRC/../build|" -e "s|%SRCDIR%|$SRC|" src/embedded/windows/sedscript.tpl > src/embedded/windows/sedscript
@@ -55,7 +61,7 @@ fi
 
 OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
 
-$CC $ADD_CFLAGS -shared -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37/libs/$ARCH/ -lpcre 
+$CC $ADD_CFLAGS -shared -o libmonetdb5.dll $OFILES $PYTHON_LDFLAGS -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37/libs/$ARCH/ -lpcre 
 
 if [ ! -s libmonetdb5.dll ]
 then
@@ -70,5 +76,5 @@ cp src/embedded/windows/pcre-8.37/libs/$ARCH/pcre.dll .
 
 
 
-gcc test.c -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -L. -o test
+$CC -m64 test.c -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -L. -o test
 ./test
