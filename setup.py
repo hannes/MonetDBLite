@@ -8,6 +8,8 @@ import os
 import sys
 from shutil import copyfile
 
+pypi_upload = 'sdist' in sys.argv or 'register' in sys.argv
+
 def get_python_include_flags():
     pyver = sysconfig.get_config_var('VERSION')
     getvar = sysconfig.get_config_var
@@ -49,7 +51,9 @@ else:
     os.environ['MONETDBLITE_PYTHON_LINK_FLAGS'] = get_python_link_flags();
     current_directory = os.getcwd()
     os.chdir(basedir)
-    os.system('./build-unix.sh')
+    if not pypi_upload:
+        # don't build the package if we are uploading to pip
+        os.system('./build-unix.sh')
     so_extension = os.popen('grep "SOEXT =" ./src/Makefile | head -n 1 | sed "s/SOEXT *= //"').read().strip()
     os.chdir(current_directory)
     monetdb_shared_lib_base = "libmonetdb5" + so_extension
@@ -57,10 +61,16 @@ else:
 
 final_shared_library = os.path.join('monetdblite', monetdb_shared_lib_base)
 
-copyfile(monetdb_shared_lib, final_shared_library)
-if os.name == 'nt':
-    copyfile(os.path.join(basedir, 'msvcr100.dll'), os.path.join('monetdblite', 'msvcr100.dll'))
-    copyfile(os.path.join(basedir, 'pcre.dll'), os.path.join('monetdblite', 'pcre.dll'))
+if not pypi_upload:
+    # don't include the [so|dylib|dll] in the packaged version uploaded to pip
+    copyfile(monetdb_shared_lib, final_shared_library)
+    if os.name == 'nt':
+        copyfile(os.path.join(basedir, 'msvcr100.dll'), os.path.join('monetdblite', 'msvcr100.dll'))
+        copyfile(os.path.join(basedir, 'pcre.dll'), os.path.join('monetdblite', 'pcre.dll'))
+else:
+    os.system('rm monetdblite/*.so')
+    os.system('rm monetdblite/*.dylib')
+    os.system('rm monetdblite/*.dll')
 
 # now actually create the package
 # the package is a single C file that only dynamically
@@ -72,10 +82,11 @@ setup(
     author = 'Mark Raasveldt, Hannes Mühleisen',
     author_email = 'm.raasveldt@cwi.nl',
     keywords = 'MonetDB, MonetDBLite, Database',
-    packages = find_packages(),
+    packages = ['monetdblite'],
     package_data={
         'monetdblite': ['*.%s' % so_extension],
     },
-    url="https://github.com/hannesmuehleisen/MonetDBLite/tree/Dec2016Lite-Python"
+    url="https://github.com/hannesmuehleisen/MonetDBLite/tree/Dec2016Lite-Python",
+    long_description=open('README.md').read()
     )
 
