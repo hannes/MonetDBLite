@@ -209,7 +209,8 @@ insert_string_bat(BAT *b, BAT *n, int force)
 			}
 			b->tvarsized = 0;
 		}
-	}
+	} else if (unshare_string_heap(b) != GDK_SUCCEED)
+		return GDK_FAIL;
 	if (toff == 0 && n->twidth == b->twidth) {
 		/* we don't need to do any translation of offset
 		 * values, so we can use fast memcpy */
@@ -419,7 +420,7 @@ BATappend(BAT *b, BAT *n, bit force)
 	OIDXdestroy(b);
 
 	/* append two void,void bats */
-	if (b->ttype == TYPE_void && BATtdense(b)) {
+	if (b->ttype == TYPE_void && BATtdense(n)) {
 		oid f = n->tseqbase;
 
 		if (n->ttype != TYPE_void)
@@ -427,7 +428,7 @@ BATappend(BAT *b, BAT *n, bit force)
 
 		if (BATcount(b) == 0 && f != oid_nil)
 			BATtseqbase(b, f);
-		if (BATtdense(n) && BATcount(b) + b->tseqbase == f) {
+		if (BATcount(b) + b->tseqbase == f) {
 			sz += BATcount(b);
 			BATsetcount(b, sz);
 			if (b->tunique)
@@ -442,6 +443,11 @@ BATappend(BAT *b, BAT *n, bit force)
 		}
 	}
 
+	if (b->thash == (Hash *) 1) {
+		/* don't bother first loading the hash to then
+		 * change it */
+		HASHdestroy(b);
+	}
 	/* if growing too much, remove the hash, else we maintain it */
 	if (BATcheckhash(b) && (2 * b->thash->mask) < (BATcount(b) + sz)) {
 		HASHdestroy(b);
@@ -537,11 +543,6 @@ BATappend(BAT *b, BAT *n, bit force)
 			return GDK_FAIL;
 		}
 
-		if (b->thash == (Hash *) 1) {
-			/* don't bother first loading the hash to then
-			 * change it */
-			HASHdestroy(b);
-		}
 		BATloop(n, p, q) {
 			const void *t = BUNtail(ni, p);
 
