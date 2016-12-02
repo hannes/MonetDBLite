@@ -17,6 +17,9 @@ try:
 except:
 	raise Exception('MonetDBLite requires numpy but import of numpy failed')
 
+if os.name == 'nt':
+	os.environ["PATH"] += os.pathsep + os.path.dirname(os.path.abspath(__file__))
+
 dll = ctypes.PyDLL(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 	libs[0]), mode=ctypes.RTLD_GLOBAL)
 dll.python_monetdblite_init.argtypes = []
