@@ -1,5 +1,5 @@
 #!/bin/sh
-cd src
+
 
 OPTFLAG="--enable-optimize"
 LINKFLAG="-g"
@@ -8,6 +8,10 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	OPTFLAG="--enable-debug --enable-assert"
 	LINKFLAG="-g"
 fi
+
+mkdir -p build
+cd build
+rm Makefile
 
 
 CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS $LINKFLAG -D_XPG6 $MONETDBLITE_PYTHON_INCLUDE_FLAGS" \
@@ -25,6 +29,7 @@ make clean
 cd ..
 
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
+
 
 echo '
 
@@ -50,10 +55,8 @@ fi
 
 cd ..
 
-mv src/libmonetdb5$SOEXT .
+gcc test.c -Ibuild -Isrc -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -Lbuild -o test
 
-gcc test.c -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -L. -o test
-
-LD_LIBRARY_PATH=. ./test
+LD_LIBRARY_PATH=build ./test
 
 
