@@ -62,7 +62,7 @@ static str PyClientObject_GetClient(PyObject *client, Client *c, MT_Lock** query
 PyObject* python_monetdb_sql(PyObject* client, char* query) {
 	Client c = monetdb_default_client;
 	MT_Lock* query_lock = &monetdb_default_query_lock;
-	if (!monetdb_embedded_initialized) {
+	if (!monetdb_is_initialized()) {
 		return PyString_FromString("MonetDB has not been initialized yet");
 	}
 	if (client != NULL && client != Py_None) {
@@ -224,7 +224,7 @@ PyObject* python_monetdb_insert(PyObject* client, char* schema, char* table_name
 	Client c;
 	MT_Lock* query_lock;
 
-	if (!monetdb_embedded_initialized) {
+	if (!monetdb_is_initialized()) {
 		return PyString_FromString("MonetDB has not been initialized yet");
 	}
 	if (schema) {
