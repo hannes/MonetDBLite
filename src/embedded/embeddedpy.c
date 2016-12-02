@@ -27,30 +27,19 @@ static str monetdblite_insert(PyObject *client, char *schema, char *table, PyObj
 static Client monetdb_default_client;
 static MT_Lock monetdb_default_query_lock;
 
-PyObject *monetdb_init(PyObject *self, PyObject *args)
-{
-	(void) self;
-	if (!PyString_CheckExact(args)) {
-		PyErr_SetString(PyExc_TypeError, "Expected a directory name as an argument.");
-		return NULL;
-	}
-
+PyObject* python_monetdb_init(char* directory, int silent) {
 	{
-		char *msg;
-		char *directory = PyString_AS_STRING(args);
-		if (GDKcreatedir(directory) != GDK_SUCCEED) {
-			PyErr_Format(PyExc_Exception, "Failed to create directory %s.", directory);
-			return NULL;
-		}
-		msg = monetdb_startup(directory, true, true);
+		char *msg = NULL;
+		/*if (GDKcreatedir(directory) != GDK_SUCCEED) {
+			return PyString_FromFormat("Failed to create directory %s.", directory);
+		}*/
+		msg = monetdb_startup(directory, silent, 0);
 		if (msg != MAL_SUCCEED) {
-			PyErr_Format(PyExc_Exception, "Failed to initialize MonetDB. %s", msg);
-			return NULL;
+			return PyString_FromFormat("Failed to initialize MonetDB: %s.", msg);
 		}
 		monetdb_default_client = (Client) monetdb_connect();
 		if (!monetdb_default_client) {
-			PyErr_SetString(PyExc_Exception, "Failed to connect to MonetDB.");
-			return NULL;
+			return PyString_FromString("Failed to connect to MonetDB.");
 		}
 		MT_lock_init(&monetdb_default_query_lock, "default_client_lock");
 	}
@@ -60,7 +49,7 @@ PyObject *monetdb_init(PyObject *self, PyObject *args)
 static str PyClientObject_GetClient(PyObject *client, Client *c, MT_Lock** query_lock) {
 	*c = monetdb_default_client;
 	*query_lock = &monetdb_default_query_lock;
-	if (client != NULL) {
+	if (client != NULL && client != Py_None) {
 		if (!PyClient_CheckExact(client)) {
 			return GDKstrdup("conn must be a connection object created by monetdblite.connect().");
 		}
@@ -70,63 +59,49 @@ static str PyClientObject_GetClient(PyObject *client, Client *c, MT_Lock** query
 	return MAL_SUCCEED;
 }
 
-PyObject *monetdb_sql(PyObject *self, PyObject *args, PyObject *keywds)
-{
+PyObject* python_monetdb_sql(PyObject* client, char* query) {
 	Client c = monetdb_default_client;
 	MT_Lock* query_lock = &monetdb_default_query_lock;
-	char *query;
-	PyObject *client = NULL;
-	static char *kwlist[] = {"query", "conn", NULL};
-	(void) self;
 	if (!monetdb_embedded_initialized) {
-		PyErr_SetString(PyExc_Exception, "monetdb has not been initialized yet");
-		return NULL;
+		return PyString_FromString("MonetDB has not been initialized yet");
 	}
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|O", kwlist, &query, &client)) {
-		return NULL;
-	}
-	if (client != NULL) {
+	if (client != NULL && client != Py_None) {
 		str msg = PyClientObject_GetClient(client, &c, &query_lock);
 		if (msg != NULL) {
-			PyErr_SetString(PyExc_Exception, msg);
-			return NULL;
+			return PyString_FromString(msg);
 		}
 	}
 	{
 		PyObject *result;
 		res_table* output = NULL;
-		PyObject *queryobject;
 		char *querystring;
 		size_t querylength;
-		char* err;
+		char* msg = NULL;
 		// Append ';'' to the SQL query
-		queryobject = PyString_FromString(query);
-		querylength = strlen(PyString_AS_STRING(queryobject));
+		querylength = strlen(query);
 		querystring = malloc(querylength + 2);
 		if (!querystring) {
 			PyErr_SetString(PyExc_Exception, "malloc failure");
 			return NULL;
 		}
-		strcpy(querystring, PyString_AS_STRING(queryobject));
+		strcpy(querystring, query);
 		querystring[querylength] = ';';
 		querystring[querylength + 1] = '\0';
 		// Perform the SQL query
 Py_BEGIN_ALLOW_THREADS
 		MT_lock_set(query_lock);
-		err = monetdb_query(c, querystring, true, (void**)&output);
+		msg = monetdb_query(c, querystring, true, (void**)&output);
 		MT_lock_unset(query_lock);
 Py_END_ALLOW_THREADS
 		free(querystring);
-		if (err != NULL) { 
-			PyErr_Format(PyExc_Exception, "SQL Query Failed: %s", (err ? err : "<no error>"));
-			return NULL;
+		if (msg) {
+			return PyString_FromFormat("SQL Query Failed: %s", msg);
 		}
 		// Construct a dictionary from the output columns (dict[name] = column)
 		result = PyDict_New();
 		if (output && output->nr_cols > 0) {
 			PyInput input;
 			PyObject *numpy_array;
-			char *msg = NULL;
 			int i;
 			for (i = 0; i < output->nr_cols; i++) {
 				res_col col = output->cols[i];
@@ -141,8 +116,7 @@ Py_END_ALLOW_THREADS
 				numpy_array = PyMaskedArray_FromBAT(&input, 0, input.count, &msg, true);
 				if (!numpy_array) {
 					monetdb_cleanup_result(c, output);
-					PyErr_Format(PyExc_Exception, "SQL Query Failed: %s", (msg ? msg : "<no error>"));
-					return NULL;
+					return PyString_FromFormat("SQL Query Failed: %s", msg);
 				}
 				PyDict_SetItem(result, PyString_FromString(output->cols[i].name), numpy_array);
 			}
@@ -152,65 +126,6 @@ Py_END_ALLOW_THREADS
 			Py_RETURN_NONE;
 		}
 	}
-}
-
-PyObject *monetdb_create(PyObject *self, PyObject *args, PyObject *keywds)
-{
-	char *schema_name = "sys";
-	char *table_name;
-	PyObject *values = NULL, *client = NULL, *colnames = NULL;
-	char **column_names = NULL;
-	char *msg = NULL;
-	PyObject *keys = NULL;
-	static char *kwlist[] = {"name", "values", "colnames", "schema", "conn", NULL};
-	int columns;
-	int i;
-	(void) self;
-	if (!monetdb_embedded_initialized) {
-		PyErr_SetString(PyExc_Exception, "monetdb has not been initialized yet");
-		return NULL;
-	}
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sO|OsO", kwlist, &table_name, &values, &colnames, &schema_name, &client)) {
-		return NULL;
-	}
-
-	if (PyDict_CheckExact(values)) {
-		keys = PyDict_Keys(values);
-		colnames = keys;
-	} else {
-		if (colnames == NULL) {
-			PyErr_SetString(PyExc_TypeError, "no colnames are specified and values is not a dict");
-			return NULL;
-		} 
-		if (!PyList_Check(colnames)) {
-			PyErr_SetString(PyExc_TypeError, "colnames must be a list");
-			return NULL;
-		}
-		if (PyList_Size(colnames) == 0) {
-			PyErr_SetString(PyExc_TypeError, "colnames must have at least one element");
-			return NULL;
-		}
-	}
-	columns = PyList_Size(colnames);
-	column_names = GDKzalloc(columns * sizeof(char*));
-	for(i = 0; i < columns; i++) {
-		PyObject *key = PyList_GetItem(colnames, i);
-		if (!PyString_CheckExact(key)) {
-			msg = GDKzalloc(1024);
-			snprintf(msg, 1024, "expected a key of type 'str', but key was of type %s", key->ob_type->tp_name);
-			goto cleanup;
-		}
-		column_names[i] = PyString_AS_STRING(key);
-	}
-	msg = monetdblite_insert(client, schema_name, table_name, values, column_names, NULL, NULL, columns);
-cleanup:
-	if (column_names) GDKfree(column_names);
-	if (keys) Py_DECREF(keys);
-	if (msg != NULL) {
-		PyErr_Format(PyExc_Exception, "%s", msg);
-		return NULL;
-	}
-	Py_RETURN_NONE;
 }
 
 static str monetdblite_insert(PyObject *client, char *schema_name, char *table_name, PyObject *values, char **column_names, int *column_types, sql_subtype **sql_subtypes, int columns) {
@@ -282,11 +197,7 @@ static str monetdblite_insert(PyObject *client, char *schema_name, char *table_n
 	}
 Py_BEGIN_ALLOW_THREADS
 	MT_lock_set(query_lock);
-	// FIXME: create table
-	/*if (!column_types) 
-		msg = monetdb_create_table(c, schema_name, table_name, append_bats, columns);
-	else*/
-		msg = monetdb_append(c, schema_name, table_name, append_bats, columns);
+	msg = monetdb_append(c, schema_name, table_name, append_bats, columns);
 	MT_lock_unset(query_lock);
 Py_END_ALLOW_THREADS
 cleanup:
@@ -303,12 +214,8 @@ cleanup:
 	return msg;
 }
 
-PyObject *monetdb_insert(PyObject *self, PyObject *args, PyObject *keywds)
-{
+PyObject* python_monetdb_insert(PyObject* client, char* schema, char* table_name, PyObject* values) {
 	char *schema_name = "sys";
-	char *table_name;
-	PyObject *values = NULL, *client = NULL;
-	static char *kwlist[] = {"name", "values", "schema", "conn", NULL};
 	char *msg = NULL;
 	int columns;
 	char **column_names = NULL;
@@ -316,13 +223,12 @@ PyObject *monetdb_insert(PyObject *self, PyObject *args, PyObject *keywds)
 	sql_subtype **sql_subtypes = NULL;
 	Client c;
 	MT_Lock* query_lock;
-	(void) self;
+
 	if (!monetdb_embedded_initialized) {
-		PyErr_SetString(PyExc_Exception, "monetdb has not been initialized yet");
-		return NULL;
+		return PyString_FromString("MonetDB has not been initialized yet");
 	}
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sO|sO", kwlist, &table_name, &values, &schema_name, &client)) {
-		return NULL;
+	if (schema) {
+		schema_name = schema;
 	}
 	msg = PyClientObject_GetClient(client, &c, &query_lock);
 	if (msg != NULL) {
@@ -339,25 +245,32 @@ cleanup:
 	if (column_types) GDKfree(column_types);
 	if (sql_subtypes) GDKfree(sql_subtypes);
 	if (msg != NULL) {
-		PyErr_Format(PyExc_Exception, "%s", msg);
-		return NULL;
+		return PyString_FromString(msg);
 	}
 	Py_RETURN_NONE;
 }
 
-PyObject *monetdb_client(PyObject *self)
-{
+PyObject* python_monetdb_client(void) {
 	Client c = monetdb_connect();
-	(void) self;
 	if (c == NULL) {
-		PyErr_Format(PyExc_Exception, "Failed to create client context.");
-		return NULL;
+		return PyString_FromString("Failed to create client context.");
 	}
 	return PyClient_Create(c);
 }
 
-void monetdblite_init(void)
-{
+PyObject *python_monetdb_shutdown() {
+	monetdb_shutdown();
+	Py_RETURN_NONE;
+}
+
+static int monetdb_numpy_initialized = 0;
+void python_monetdblite_init(void) {
+	if (monetdb_numpy_initialized) return;
+
+    if (PyType_Ready(&PyClientType) < 0)
+        return;
+
+	monetdb_numpy_initialized = 1;
 	//import numpy stuff
 	_import_array();
 	//init monetdb client

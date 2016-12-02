@@ -6,6 +6,7 @@
 static void
 pyclient_dealloc(PyClientObject *self) {
     monetdb_disconnect(self->cntxt);
+    MT_lock_destroy(&self->query_lock);
     self->cntxt = NULL;
 }
 

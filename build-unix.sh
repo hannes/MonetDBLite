@@ -10,7 +10,7 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 fi
 
 
-CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6 $MONETDBLITE_PYTHON_INCLUDE_FLAGS" \
+CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS $LINKFLAG -D_XPG6 $MONETDBLITE_PYTHON_INCLUDE_FLAGS" \
 ./configure --enable-embedded  \
 --disable-fits --disable-geom --disable-rintegration --disable-pyintegration --disable-gsl --disable-netcdf \
 --disable-odbc --disable-console --enable-embedded-py=yes \

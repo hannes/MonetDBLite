@@ -471,11 +471,11 @@ create_table_or_view(mvc *sql, char *sname, sql_table *t, int temp)
 str 
 create_table_from_emit(Client cntxt, char *sname, char *tname, sql_emit_col *columns, size_t ncols) 
 {
-    	size_t i;
-    	sql_table *t;
-    	sql_schema *s;
-    	mvc *sql = NULL;
-    	str msg = MAL_SUCCEED;
+	size_t i;
+	sql_table *t;
+	sql_schema *s;
+	mvc *sql = NULL;
+	str msg = MAL_SUCCEED;
 
 	if ((msg = getSQLContext(cntxt, NULL, &sql, NULL)) != NULL)
 		return msg;
@@ -485,7 +485,7 @@ create_table_from_emit(Client cntxt, char *sname, char *tname, sql_emit_col *col
 	/* for some reason we don't have an allocator here so make one */
 	sql->sa = sa_create();
 
-    	if (!sname) 
+    if (!sname) 
 		sname = "sys";
 	if (!(s = mvc_bind_schema(sql, sname))) {
 		msg = sql_error(sql, 02, "3F000!CREATE TABLE: no such schema '%s'", sname);

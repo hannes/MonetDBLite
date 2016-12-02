@@ -68,6 +68,7 @@
 #if PY_MAJOR_VERSION >= 3
 #define IS_PY3K
 #define PyString_FromString PyUnicode_FromString
+#define PyString_FromFormat PyUnicode_FromFormat
 #define PyString_Check PyUnicode_Check
 #define PyString_CheckExact PyUnicode_CheckExact
 #define PyString_AsString PyUnicode_AsUTF8
