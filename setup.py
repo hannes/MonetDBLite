@@ -32,10 +32,11 @@ def get_python_link_flags():
 # if you change this you also need to change the init function in monetdblite_module.c
 basedir = os.path.dirname(os.path.realpath(__file__))
 if os.name == 'nt':
-    #print("FIXME: link to shipped .dll file depending on 32-bit/64-bit windows and python 2/python 3")
+    print("FIXME: link to shipped .dll file depending on 32-bit/64-bit windows and python 2/python 3")
     monetdb_shared_lib_base = "libmonetdb5.dll"
     monetdb_shared_lib = os.path.join(basedir, monetdb_shared_lib_base)
-   # exit(1)
+    so_extension = '.dll'
+    exit(1)
 else:
     try:
         import numpy
@@ -73,7 +74,8 @@ setup(
     keywords = 'MonetDB, MonetDBLite, Database',
     packages = find_packages(),
     package_data={
-        'monetdblite': ['*.so', '*.dylib', '*.dll'],
+        'monetdblite': ['*.%s' % so_extension],
     },
+    url="https://github.com/hannesmuehleisen/MonetDBLite/tree/Dec2016Lite-Python"
     )
 
