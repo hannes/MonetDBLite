@@ -2,7 +2,7 @@
 
 [MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a serverless SQL database that runs inside of your Python process and does not require the installation of any external software. MonetDBLite is based on free and open-source [MonetDB](https://www.monetdb.org/Home), a product of the [Centrum Wiskunde & Informatica](http://www.cwi.nl).
 
-MonetDBLite for Python requires ````numpy``` to be installed.
+MonetDBLite for Python requires ```numpy``` to be installed.
 
 ## Installation
 
@@ -35,7 +35,7 @@ The return value of this function is the result of the query encoded as a dictio
 
 ### Inserting Data
 
-New tables can be created using the monetdblite.create command. The command takes a table name and a dictionary of NumPy arrays to insert into the database. Each column has to be the same length.
+New tables can be created using the ```monetdblite.create``` command. The command takes a table name and a dictionary of NumPy arrays to insert into the database. Each column has to be the same length.
 
 ```python
 # create the integers table with a single column (i)
@@ -45,7 +45,7 @@ monetdblite.create('integers', {'i': numpy.arange(100)})
 monetdblite.sql('SELECT * FROM integers')
 ```
 
-In the same way, data can be inserted using the monetdblite.insert command.
+In the same way, data can be inserted using the ```monetdblite.insert``` command.
 
 ```python
 # insert 100 values into the table 'integers' that we created in the previous example
@@ -55,7 +55,7 @@ monetdblite.insert('integers', {'i': numpy.arange(100)})
 Changes made to the database will automatically be written to disk as they are made, unless they are wrapped in a transaction.
 
 ### Shutdown
-Only a single monetdblite instance can be active within your Python process. It is however possible to shutdown the currently running monetdblite instance and relaunch it using a different directory. This can be done using the monetdblite.shutdown command. 
+Only a single monetdblite instance can be active within your Python process. It is however possible to shutdown the currently running monetdblite instance and relaunch it using a different directory. This can be done using the ```monetdblite.shutdown``` command. 
 
 ```python
 # shutdown the currently running monetdblite instance
@@ -67,7 +67,7 @@ monetdblite.init('/path/to/different/database')
 ### Multiple Clients
 By default, monetdblite uses a single client for each query. A single client can only run a single query at a time within a single transaction. It is possible to separate queries with different clients, allowing you to run multiple queries and transactions in parallel.
 
-First, a client must be created with the monetdblite.connect command. The client can then be passed to subsequent queries using the optional client parameter.
+First, a client must be created with the ```monetdblite.connect``` command. The client can then be passed to subsequent queries using the optional client parameter.
 
 ```python
 # create a new client connection
