@@ -33,7 +33,7 @@
 
 #include <locale.h>
 
-int monetdb_embedded_initialized = 0;
+static int monetdb_embedded_initialized = 0;
 
 FILE* embedded_stdout;
 FILE* embedded_stderr;
@@ -165,11 +165,16 @@ cleanup:
 	return retval;
 }
 
+int monetdb_is_initialized(void) {
+	return monetdb_embedded_initialized > 0;
+}
+
+
 char* monetdb_query(void* conn, char* query, char execute, void** result) {
 	str res = MAL_SUCCEED;
 	Client c = (Client) conn;
 	mvc* m;
-	if (!monetdb_embedded_initialized) {
+	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
 	}
 	if (!MCvalid((Client) conn)) {
@@ -212,7 +217,7 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	Client c = (Client) conn;
 	mvc* m;
 
-	if (!monetdb_embedded_initialized) {
+	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
 	}
 	if(table == NULL || data == NULL || ncols < 1) {
