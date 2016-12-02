@@ -100,7 +100,6 @@ language.o language.lo: language.c language.h ../../mal/../../gdk/gdk.h ../../ma
 mal_io.o mal_io.lo: mal_io.c mal_io.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_instruction.h ../../mal/mal_interpreter.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_system.h ../../../gdk/gdk_posix.h ../../../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_utils.h ../../../gdk/gdk_calc.h ../../../common/options/monet_options.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk.h ../../mal/mal_resolve.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_factory.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h
 tablet.o tablet.lo: tablet.c tablet.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../atoms/../../mal/mal.h ../atoms/../../../common/stream/stream_socket.h ../atoms/streams.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_resolve.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_interpreter.h ../kernel/../../../gdk/gdk.h ../kernel/../../mal/mal_exception.h ../kernel/../../mal/mal_interpreter.h ../kernel/algebra.h ../../../common/options/monet_options.h ../../../common/stream/stream.h ../../../common/stream/stream_socket.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h ../../mal/mal_factory.h
 calc.o calc.lo: calc.c ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_interpreter.h ../../../common/options/monet_options.h ../../../common/stream/stream.h ../../mal/mal_resolve.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_factory.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h
-manual.o manual.lo: manual.c manual.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_resolve.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_interpreter.h ../../mal/mal_utils.h ../../../common/options/monet_options.h ../../../common/stream/stream.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h ../../mal/mal_factory.h
 clients.o clients.lo: clients.c clients.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_interpreter.h ../../../common/utils/mcrypt.h ../../mal/mal_scenario.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_instruction.h ../../mal/mal_resolve.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_authorize.h ../../mal/mal_private.h ../atoms/../../../gdk/gdk.h ../atoms/../../mal/mal.h ../atoms/../../mal/mal_exception.h ../atoms/mtime.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_system.h ../../../gdk/gdk_posix.h ../../../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_utils.h ../../../gdk/gdk_calc.h ../../../common/options/monet_options.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk.h ../../mal/mal_factory.h ../../mal/mal_import.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h ../../mal/mal_session.h ../../mal/mal_utils.h
 groupby.o groupby.lo: groupby.c groupby.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_interpreter.h ../kernel/../../../gdk/gdk.h ../kernel/group.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_system.h ../../../gdk/gdk_posix.h ../../../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_utils.h ../../../gdk/gdk_calc.h ../../../common/options/monet_options.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk.h ../../mal/mal_resolve.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_factory.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h
 iterator.o iterator.lo: iterator.c iterator.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_interpreter.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_system.h ../../../gdk/gdk_posix.h ../../../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_utils.h ../../../gdk/gdk_calc.h ../../../common/options/monet_options.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk.h ../../mal/mal_resolve.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_factory.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h
@@ -132,8 +131,6 @@ libmal_la-language.lo: language.c language.h ../../mal/../../gdk/gdk.h ../../mal
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(language_CFLAGS) -c -o libmal_la-language.lo `test -f 'language.c' || echo '$(srcdir)/'`language.c
 libmal_la-mal_io.lo: mal_io.c mal_io.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_instruction.h ../../mal/mal_interpreter.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_system.h ../../../gdk/gdk_posix.h ../../../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_utils.h ../../../gdk/gdk_calc.h ../../../common/options/monet_options.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk.h ../../mal/mal_resolve.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_factory.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mal_io_CFLAGS) -c -o libmal_la-mal_io.lo `test -f 'mal_io.c' || echo '$(srcdir)/'`mal_io.c
-libmal_la-manual.lo: manual.c manual.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_resolve.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_interpreter.h ../../mal/mal_utils.h ../../../common/options/monet_options.h ../../../common/stream/stream.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h ../../mal/mal_factory.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(manual_CFLAGS) -c -o libmal_la-manual.lo `test -f 'manual.c' || echo '$(srcdir)/'`manual.c
 libmal_la-mat.lo: mat.c mat.h ../../mal/mal_resolve.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_interpreter.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../../common/stream/stream.h ../../../common/options/monet_options.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_factory.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(mat_CFLAGS) -c -o libmal_la-mat.lo `test -f 'mat.c' || echo '$(srcdir)/'`mat.c
 libmal_la-mkey.lo: mkey.c mkey.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_interpreter.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_system.h ../../../gdk/gdk_posix.h ../../../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_utils.h ../../../gdk/gdk_calc.h ../../../common/options/monet_options.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk.h ../../mal/mal_resolve.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_factory.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h
@@ -161,63 +158,7 @@ libmal_la-calc.lo: calc.c ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ..
 libmal_la-batcalc.lo: batcalc.c ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_interpreter.h ../../../common/options/monet_options.h ../../../common/stream/stream.h ../../mal/mal_resolve.h ../../mal/mal_profiler.h ../../mal/mal_client.h ../../mal/mal_factory.h ../../mal/mal_module.h ../../mal/mal_function.h ../../mal/mal_listing.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmal_la_CFLAGS) $(CFLAGS) $(batcalc_CFLAGS) -c -o libmal_la-batcalc.lo `test -f 'batcalc.c' || echo '$(srcdir)/'`batcalc.c
 nodist_libmal_la_SOURCES =
-dist_libmal_la_SOURCES = batExtensions.c batExtensions.h bbp.c bbp.h clients.c clients.h factories.c factories.h groupby.c groupby.h inspect.c inspect.h orderidx.c orderidx.h iterator.c iterator.h projectionpath.c projectionpath.h language.c language.h mal_io.c mal_io.h manual.c manual.h mat.c mat.h mkey.c mkey.h manifold.c manifold.h pcre.c profiler.c profiler.h querylog.c querylog.h sysmon.c sysmon.h tablet.c tablet.h tokenizer.c tokenizer.h transaction.c sample.c sample.h calc.c batcalc.c
-install-exec-local-pcre.mal: pcre.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/pcre.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/pcre.mal
-
-uninstall-local-pcre.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/pcre.mal
-
-install-exec-local-manifold.mal: manifold.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/manifold.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/manifold.mal
-
-uninstall-local-manifold.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/manifold.mal
-
-install-exec-local-sysmon.mal: sysmon.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/sysmon.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/sysmon.mal
-
-uninstall-local-sysmon.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/sysmon.mal
-
-install-exec-local-groupby.mal: groupby.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/groupby.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/groupby.mal
-
-uninstall-local-groupby.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/groupby.mal
-
-install-exec-local-mal_init.mal: mal_init.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/mal_init.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/mal_init.mal
-
-uninstall-local-mal_init.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/mal_init.mal
-
-install-exec-local-bbp.mal: bbp.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/bbp.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/bbp.mal
-
-uninstall-local-bbp.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/bbp.mal
-
-install-exec-local-mal_io.mal: mal_io.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/mal_io.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/mal_io.mal
-
-uninstall-local-mal_io.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/mal_io.mal
-
+dist_libmal_la_SOURCES = batExtensions.c batExtensions.h bbp.c bbp.h clients.c clients.h factories.c factories.h groupby.c groupby.h inspect.c inspect.h orderidx.c orderidx.h iterator.c iterator.h projectionpath.c projectionpath.h language.c language.h mal_io.c mal_io.h mat.c mat.h mkey.c mkey.h manifold.c manifold.h pcre.c profiler.c profiler.h querylog.c querylog.h sysmon.c sysmon.h tablet.c tablet.h tokenizer.c tokenizer.h transaction.c sample.c sample.h calc.c batcalc.c
 install-exec-local-batExtensions.mal: batExtensions.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
 	-$(RM) $(DESTDIR)$(libdir)/monetdb5/batExtensions.mal
@@ -226,53 +167,13 @@ install-exec-local-batExtensions.mal: batExtensions.mal
 uninstall-local-batExtensions.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/batExtensions.mal
 
-install-exec-local-manual.mal: manual.mal
+install-exec-local-clients.mal: clients.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/manual.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/manual.mal
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/clients.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/clients.mal
 
-uninstall-local-manual.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/manual.mal
-
-install-exec-local-language.mal: language.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/language.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/language.mal
-
-uninstall-local-language.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/language.mal
-
-install-exec-local-factories.mal: factories.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/factories.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/factories.mal
-
-uninstall-local-factories.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/factories.mal
-
-install-exec-local-inspect.mal: inspect.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/inspect.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/inspect.mal
-
-uninstall-local-inspect.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/inspect.mal
-
-install-exec-local-mat.mal: mat.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/mat.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/mat.mal
-
-uninstall-local-mat.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/mat.mal
-
-install-exec-local-profiler.mal: profiler.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/profiler.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/profiler.mal
-
-uninstall-local-profiler.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/profiler.mal
+uninstall-local-clients.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/clients.mal
 
 install-exec-local-iterator.mal: iterator.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
@@ -282,6 +183,14 @@ install-exec-local-iterator.mal: iterator.mal
 uninstall-local-iterator.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/iterator.mal
 
+install-exec-local-language.mal: language.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/language.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/language.mal
+
+uninstall-local-language.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/language.mal
+
 install-exec-local-transaction.mal: transaction.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
 	-$(RM) $(DESTDIR)$(libdir)/monetdb5/transaction.mal
@@ -290,13 +199,13 @@ install-exec-local-transaction.mal: transaction.mal
 uninstall-local-transaction.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/transaction.mal
 
-install-exec-local-sample.mal: sample.mal
+install-exec-local-manifold.mal: manifold.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/sample.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/sample.mal
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/manifold.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/manifold.mal
 
-uninstall-local-sample.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/sample.mal
+uninstall-local-manifold.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/manifold.mal
 
 install-exec-local-orderidx.mal: orderidx.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
@@ -314,13 +223,13 @@ install-exec-local-querylog.mal: querylog.mal
 uninstall-local-querylog.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/querylog.mal
 
-install-exec-local-clients.mal: clients.mal
+install-exec-local-factories.mal: factories.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/clients.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/clients.mal
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/factories.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/factories.mal
 
-uninstall-local-clients.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/clients.mal
+uninstall-local-factories.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/factories.mal
 
 install-exec-local-batmtime.mal: batmtime.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
@@ -330,6 +239,38 @@ install-exec-local-batmtime.mal: batmtime.mal
 uninstall-local-batmtime.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/batmtime.mal
 
+install-exec-local-inspect.mal: inspect.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/inspect.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/inspect.mal
+
+uninstall-local-inspect.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/inspect.mal
+
+install-exec-local-sample.mal: sample.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/sample.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/sample.mal
+
+uninstall-local-sample.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/sample.mal
+
+install-exec-local-bbp.mal: bbp.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/bbp.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/bbp.mal
+
+uninstall-local-bbp.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/bbp.mal
+
+install-exec-local-groupby.mal: groupby.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/groupby.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/groupby.mal
+
+uninstall-local-groupby.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/groupby.mal
+
 install-exec-local-mkey.mal: mkey.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
 	-$(RM) $(DESTDIR)$(libdir)/monetdb5/mkey.mal
@@ -337,6 +278,54 @@ install-exec-local-mkey.mal: mkey.mal
 
 uninstall-local-mkey.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/mkey.mal
+
+install-exec-local-sysmon.mal: sysmon.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/sysmon.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/sysmon.mal
+
+uninstall-local-sysmon.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/sysmon.mal
+
+install-exec-local-pcre.mal: pcre.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/pcre.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/pcre.mal
+
+uninstall-local-pcre.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/pcre.mal
+
+install-exec-local-mat.mal: mat.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/mat.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/mat.mal
+
+uninstall-local-mat.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/mat.mal
+
+install-exec-local-mal_init.mal: mal_init.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/mal_init.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/mal_init.mal
+
+uninstall-local-mal_init.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/mal_init.mal
+
+install-exec-local-mal_io.mal: mal_io.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/mal_io.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/mal_io.mal
+
+uninstall-local-mal_io.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/mal_io.mal
+
+install-exec-local-profiler.mal: profiler.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/profiler.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/profiler.mal
+
+uninstall-local-profiler.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/profiler.mal
 
 AM_CPPFLAGS = -I$(srcdir) -I../../mal -I$(srcdir)/../../mal -I../atoms -I$(srcdir)/../atoms -I../kernel -I$(srcdir)/../kernel -I../../../clients/mapilib -I$(srcdir)/../../../clients/mapilib -I../../../common/options -I$(srcdir)/../../../common/options -I../../../common/stream -I$(srcdir)/../../../common/stream -I../../../common/utils -I$(srcdir)/../../../common/utils -I../../../gdk -I$(srcdir)/../../../gdk $(pcre_CFLAGS) $(zlib_CFLAGS) $(BZIP_INCS) $(MSGCONTROL_FLAGS) $(openssl_CFLAGS)
 install-exec-local-01_batcalc.mal: 01_batcalc.mal
@@ -361,10 +350,10 @@ dist-hook:
 	cp -pR $(srcdir)/Tests/* $(distdir)/Tests
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
-EXTRA_DIST = Makefile.ag Makefile.msc 00_batExtensions_hge.mal 00_batcalc_hge.mal 00_calc_hge.mal 00_iterator_hge.mal 00_language_hge.mal 00_mkey_hge.mal 01_batcalc.mal 01_calc.mal batExtensions.c batExtensions.h batExtensions.mal batcalc.c batmtime.mal bbp.c bbp.h bbp.mal calc.c clients.c clients.h clients.mal factories.c factories.h factories.mal groupby.c groupby.h groupby.mal inspect.c inspect.h inspect.mal iterator.c iterator.h iterator.mal language.c language.h language.mal mal_init.mal mal_io.c mal_io.h mal_io.mal manifold.c manifold.h manifold.mal manual.c manual.h manual.mal mat.c mat.h mat.mal mkey.c mkey.h mkey.mal orderidx.c orderidx.h orderidx.mal pcre.c pcre.mal profiler.c profiler.h profiler.mal projectionpath.c projectionpath.h querylog.c querylog.h querylog.mal sample.c sample.h sample.mal sysmon.c sysmon.h sysmon.mal tablet.c tablet.h tablet.mal tokenizer.c tokenizer.h transaction.c transaction.mal
+EXTRA_DIST = Makefile.ag Makefile.msc 00_batExtensions_hge.mal 00_batcalc_hge.mal 00_calc_hge.mal 00_iterator_hge.mal 00_language_hge.mal 00_mkey_hge.mal 01_batcalc.mal 01_calc.mal batExtensions.c batExtensions.h batExtensions.mal batcalc.c batmtime.mal bbp.c bbp.h bbp.mal calc.c clients.c clients.h clients.mal factories.c factories.h factories.mal groupby.c groupby.h groupby.mal inspect.c inspect.h inspect.mal iterator.c iterator.h iterator.mal language.c language.h language.mal mal_init.mal mal_io.c mal_io.h mal_io.mal manifold.c manifold.h manifold.mal mat.c mat.h mat.mal mkey.c mkey.h mkey.mal orderidx.c orderidx.h orderidx.mal pcre.c pcre.mal profiler.c profiler.h profiler.mal projectionpath.c projectionpath.h querylog.c querylog.h querylog.mal sample.c sample.h sample.mal sysmon.c sysmon.h sysmon.mal tablet.c tablet.h tablet.mal tokenizer.c tokenizer.h transaction.c transaction.mal
 noinst_LTLIBRARIES = libmal.la
 install-malLTLIBRARIES:
-uninstall-local: uninstall-local-$(C_00_batExtensions_hge_mal) uninstall-local-$(C_00_batcalc_hge_mal) uninstall-local-$(C_00_calc_hge_mal) uninstall-local-$(C_00_iterator_hge_mal) uninstall-local-$(C_00_language_hge_mal) uninstall-local-$(C_00_mkey_hge_mal) uninstall-local-01_batcalc.mal uninstall-local-01_calc.mal uninstall-local-batExtensions.mal uninstall-local-batmtime.mal uninstall-local-bbp.mal uninstall-local-clients.mal uninstall-local-factories.mal uninstall-local-groupby.mal uninstall-local-inspect.mal uninstall-local-iterator.mal uninstall-local-language.mal uninstall-local-mal_init.mal uninstall-local-mal_io.mal uninstall-local-manifold.mal uninstall-local-manual.mal uninstall-local-mat.mal uninstall-local-mkey.mal uninstall-local-orderidx.mal uninstall-local-pcre.mal uninstall-local-profiler.mal uninstall-local-querylog.mal uninstall-local-sample.mal uninstall-local-sysmon.mal uninstall-local-transaction.mal
-install-exec-local: install-exec-local-$(C_00_batExtensions_hge_mal) install-exec-local-$(C_00_batcalc_hge_mal) install-exec-local-$(C_00_calc_hge_mal) install-exec-local-$(C_00_iterator_hge_mal) install-exec-local-$(C_00_language_hge_mal) install-exec-local-$(C_00_mkey_hge_mal) install-exec-local-01_batcalc.mal install-exec-local-01_calc.mal install-exec-local-batExtensions.mal install-exec-local-batmtime.mal install-exec-local-bbp.mal install-exec-local-clients.mal install-exec-local-factories.mal install-exec-local-groupby.mal install-exec-local-inspect.mal install-exec-local-iterator.mal install-exec-local-language.mal install-exec-local-mal_init.mal install-exec-local-mal_io.mal install-exec-local-manifold.mal install-exec-local-manual.mal install-exec-local-mat.mal install-exec-local-mkey.mal install-exec-local-orderidx.mal install-exec-local-pcre.mal install-exec-local-profiler.mal install-exec-local-querylog.mal install-exec-local-sample.mal install-exec-local-sysmon.mal install-exec-local-transaction.mal
+uninstall-local: uninstall-local-$(C_00_batExtensions_hge_mal) uninstall-local-$(C_00_batcalc_hge_mal) uninstall-local-$(C_00_calc_hge_mal) uninstall-local-$(C_00_iterator_hge_mal) uninstall-local-$(C_00_language_hge_mal) uninstall-local-$(C_00_mkey_hge_mal) uninstall-local-01_batcalc.mal uninstall-local-01_calc.mal uninstall-local-batExtensions.mal uninstall-local-batmtime.mal uninstall-local-bbp.mal uninstall-local-clients.mal uninstall-local-factories.mal uninstall-local-groupby.mal uninstall-local-inspect.mal uninstall-local-iterator.mal uninstall-local-language.mal uninstall-local-mal_init.mal uninstall-local-mal_io.mal uninstall-local-manifold.mal uninstall-local-mat.mal uninstall-local-mkey.mal uninstall-local-orderidx.mal uninstall-local-pcre.mal uninstall-local-profiler.mal uninstall-local-querylog.mal uninstall-local-sample.mal uninstall-local-sysmon.mal uninstall-local-transaction.mal
+install-exec-local: install-exec-local-$(C_00_batExtensions_hge_mal) install-exec-local-$(C_00_batcalc_hge_mal) install-exec-local-$(C_00_calc_hge_mal) install-exec-local-$(C_00_iterator_hge_mal) install-exec-local-$(C_00_language_hge_mal) install-exec-local-$(C_00_mkey_hge_mal) install-exec-local-01_batcalc.mal install-exec-local-01_calc.mal install-exec-local-batExtensions.mal install-exec-local-batmtime.mal install-exec-local-bbp.mal install-exec-local-clients.mal install-exec-local-factories.mal install-exec-local-groupby.mal install-exec-local-inspect.mal install-exec-local-iterator.mal install-exec-local-language.mal install-exec-local-mal_init.mal install-exec-local-mal_io.mal install-exec-local-manifold.mal install-exec-local-mat.mal install-exec-local-mkey.mal install-exec-local-orderidx.mal install-exec-local-pcre.mal install-exec-local-profiler.mal install-exec-local-querylog.mal install-exec-local-sample.mal install-exec-local-sysmon.mal install-exec-local-transaction.mal
 
   include $(top_srcdir)/buildtools/conf/rules.mk
