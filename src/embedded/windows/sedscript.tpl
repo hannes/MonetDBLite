@@ -290,4 +290,4 @@ s|@zlib_CFLAGS@||
 s|@zlib_LIBS@||
 s|@liblzma_CFLAGS@||
 s|@liblzma_LIBS@||
-
+s|@HAVE_EMBEDDED_PY_TRUE@||

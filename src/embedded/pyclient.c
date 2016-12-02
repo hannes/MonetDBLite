@@ -11,7 +11,7 @@ pyclient_dealloc(PyClientObject *self) {
 }
 
 PyTypeObject PyClientType = {
-    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    PyVarObject_HEAD_INIT(NULL, 0)
     "monetdb._connection",
     sizeof(PyClientObject),
     0,
