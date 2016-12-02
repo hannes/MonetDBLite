@@ -9,10 +9,7 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	LINKFLAG="-g"
 fi
 
-mkdir -p build
-cd build
-rm Makefile
-
+cd src
 
 CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS $LINKFLAG -D_XPG6 $MONETDBLITE_PYTHON_INCLUDE_FLAGS" \
 ./configure --enable-embedded  \
@@ -29,7 +26,6 @@ make clean
 cd ..
 
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
-
 
 echo '
 
@@ -52,11 +48,8 @@ then
 	echo "library file was not created, something went wrong"
 	exit 1
 fi
-
+mv libmonetdb5$SOEXT ..
 cd ..
 
-gcc test.c -Ibuild -Isrc -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -Lbuild -o test
-
-LD_LIBRARY_PATH=build ./test
 
 

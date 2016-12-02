@@ -57,6 +57,9 @@ else:
 final_shared_library = os.path.join('monetdblite', monetdb_shared_lib_base)
 
 copyfile(monetdb_shared_lib, final_shared_library)
+if os.name == 'nt':
+    copyfile(os.path.join(basedir, 'msvcr100.dll'), os.path.join('monetdblite', 'msvcr100.dll'))
+    copyfile(os.path.join(basedir, 'pcre.dll'), os.path.join('monetdblite', 'pcre.dll'))
 
 # now actually create the package
 # the package is a single C file that only dynamically
