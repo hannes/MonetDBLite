@@ -1,29 +1,52 @@
+#!/bin/sh
+
 # figure out where the sourcetree is
 SRC=`pwd | sed -e 's|/cygdrive/||' -e 's|/|:/|'`"/src"
 
-# figure out bitness
-BITS=64
-ARCH=x64
-# if [ "$R_ARCH" = "/i386" ] 
-# then
-# 	BITS=32
-# fi
-MONETDBLITE_DEBUG=YES
+ARCH=i386
+CC=C:/monetdblite/Rtools/mingw_32/bin/gcc
+M64=""
 
+BITS=$1
+PYTHON=$2
 
-#TODO: add 64 bit flag to cflags if architecure requires it
+echo $BITS
 
-CC=C:/Rtools/mingw_64/bin/gcc
-ADD_CFLAGS="-O3 -m64"
-if [ ! -z $MONETDBLITE_DEBUG ] ; then
-	echo "Using debug flags"
-	ADD_CFLAGS="-O0 -g -m64"
+if [ $BITS -eq 64 ] 
+then
+	ARCH=x64
+	CC=C:/monetdblite/Rtools/mingw_64/bin/gcc
+	M64="-m64"
 fi
 
-PYTHON_CFLAGS=`c:/Python27/python.exe python-cflags-windows.py`
-PYTHON_LDFLAGS=`c:/Python27/python.exe python-ldflags-windows.py`
+if [ $PYTHON -eq 2 ] 
+	then
+	if [ $BITS -eq 32 ]
+	then
+		PYTHONBIN='C:/tools/python2-x86_32/python.exe'
+	else
+		PYTHONBIN='C:/tools/python2/python.exe'
+	fi
+#else
+	# python 3
+fi
+
+rm -r src/embedded/windows/pcre-*
+unzip -o windows-buildfiles/pcre-8.37.zip -d src/embedded/windows
+
+
+ADD_CFLAGS="-O3 $M64"
+if [ ! -z $MONETDBLITE_DEBUG ] ; then
+	echo "Using debug flags"
+	ADD_CFLAGS="-O0 -g $M64"
+fi
+
+PYTHON_CFLAGS=`$PYTHONBIN python-cflags-windows.py`
+PYTHON_LDFLAGS=`$PYTHONBIN python-ldflags-windows.py`
 
 ADD_CFLAGS="$ADD_CFLAGS $PYTHON_CFLAGS"
+
+echo $ADD_CFLAGS
 
 
 # patch sedscript for build/install/library paths
