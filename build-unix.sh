@@ -45,11 +45,8 @@ make -j
 
 if [ ! -s libmonetdb5$SOEXT ]
 then
-	echo "library file was not created, something went wrong"
+	echo "Library file was not created, something went wrong"
 	exit 1
 fi
 mv libmonetdb5$SOEXT ..
 cd ..
-
-
-

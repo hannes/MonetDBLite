@@ -8,7 +8,7 @@ import os
 import sys
 from shutil import copyfile
 
-pypi_upload = 'sdist' in sys.argv or 'register' in sys.argv
+pypi_upload = 'MONETDBLITE_PIP_UPLOAD' in os.environ
 
 def get_python_include_flags():
     pyver = sysconfig.get_config_var('VERSION')
@@ -31,7 +31,6 @@ def get_python_link_flags():
         libs.extend(getvar('LINKFORSHARED').split())
     return ' '.join(libs)
 
-# if you change this you also need to change the init function in monetdblite_module.c
 basedir = os.path.dirname(os.path.realpath(__file__))
 if os.name == 'nt':
     print("FIXME: link to shipped .dll file depending on 32-bit/64-bit windows and python 2/python 3")
@@ -51,9 +50,11 @@ else:
     os.environ['MONETDBLITE_PYTHON_LINK_FLAGS'] = get_python_link_flags();
     current_directory = os.getcwd()
     os.chdir(basedir)
+    # FIXME: check return value of build-unix.sh
     if not pypi_upload:
         # don't build the package if we are uploading to pip
-        os.system('./build-unix.sh')
+        if os.system('./build-unix.sh') != 0:
+            raise Exception('Failed to compile MonetDBLite sources.')
     so_extension = os.popen('grep "SOEXT =" ./src/Makefile | head -n 1 | sed "s/SOEXT *= //"').read().strip()
     os.chdir(current_directory)
     monetdb_shared_lib_base = "libmonetdb5" + so_extension
@@ -61,6 +62,7 @@ else:
 
 final_shared_library = os.path.join('monetdblite', monetdb_shared_lib_base)
 
+long_description = ""
 if not pypi_upload:
     # don't include the [so|dylib|dll] in the packaged version uploaded to pip
     copyfile(monetdb_shared_lib, final_shared_library)
@@ -68,25 +70,31 @@ if not pypi_upload:
         copyfile(os.path.join(basedir, 'msvcr100.dll'), os.path.join('monetdblite', 'msvcr100.dll'))
         copyfile(os.path.join(basedir, 'pcre.dll'), os.path.join('monetdblite', 'pcre.dll'))
 else:
-    os.system('rm monetdblite/*.so')
-    os.system('rm monetdblite/*.dylib')
-    os.system('rm monetdblite/*.dll')
+    os.chdir(os.path.join(basedir, 'src'))
+    os.system('make clean')
+    os.system('rm ../monetdblite/*.so ../monetdblite/*.dylib ../monetdblite/*.dll')
+    os.chdir(current_directory)
+    try:
+        import pypandoc
+        long_description = pypandoc.convert('README.md', 'rst')
+    except(IOError, ImportError):
+        long_description = open('README.md').read()
 
 # now actually create the package
 # the package is a single C file that only dynamically
 # loads functions from libmonetdb5.[so|dylib|dll]
 setup(
     name = "monetdblite",
-    version = '0.1',
+    version = '0.1.0',
     description = 'Embedded MonetDB Python Database.',
     author = 'Mark Raasveldt, Hannes Mühleisen',
     author_email = 'm.raasveldt@cwi.nl',
     keywords = 'MonetDB, MonetDBLite, Database',
     packages = ['monetdblite'],
     package_data={
-        'monetdblite': ['*.%s' % so_extension],
+        'monetdblite': ['*.so', '*.dylib', '*.dll'],
     },
     url="https://github.com/hannesmuehleisen/MonetDBLite/tree/Dec2016Lite-Python",
-    long_description=open('README.md').read()
+    long_description = long_description
     )
 
