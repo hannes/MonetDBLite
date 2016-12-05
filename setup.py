@@ -7,6 +7,7 @@ import ntpath
 import os
 import sys
 from shutil import copyfile
+import subprocess
 
 pypi_upload = 'MONETDBLITE_PIP_UPLOAD' in os.environ
 
@@ -50,11 +51,12 @@ else:
     os.environ['MONETDBLITE_PYTHON_LINK_FLAGS'] = get_python_link_flags();
     current_directory = os.getcwd()
     os.chdir(basedir)
-    # FIXME: check return value of build-unix.sh
     if not pypi_upload:
         # don't build the package if we are uploading to pip
-        if os.system('./build-unix.sh') != 0:
-            raise Exception('Failed to compile MonetDBLite sources.')
+        proc = subprocess.Popen(['./build-unix.sh'], stderr=subprocess.PIPE)
+        if proc.wait() != 0:
+            error = proc.stderr.read()
+            raise Exception('Failed to compile MonetDBLite sources:\n' + str(error))
     so_extension = os.popen('grep "SOEXT =" ./src/Makefile | head -n 1 | sed "s/SOEXT *= //"').read().strip()
     os.chdir(current_directory)
     monetdb_shared_lib_base = "libmonetdb5" + so_extension
