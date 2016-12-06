@@ -76,7 +76,7 @@ monetdb_embedded_query <- function(conn, query, execute=TRUE, resultconvert=TRUE
 	}
 	if (is.list(res)) {
 		resp$type <- 1 # Q_TABLE
-		attr(res, "row.names") <- c(NA_integer_, as.integer(attr(res, "__rows")))
+		attr(res, "row.names") <- c(NA_integer_, as.integer(-1 * attr(res, "__rows")))
   		class(res) <- "data.frame"
 		names(res) <- gsub("\\", "", names(res), fixed=T)
 		resp$tuples <- res

@@ -85,7 +85,6 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
     if (length(row_names) == nr) {
 	setAttrib(data, R_RowNamesSymbol, row_names);
 
-	PROTECT(row_names = allocVector(INTSXP, nr));
 	PROTECT(row_names = allocVector(INTSXP, 2));
 	INTEGER(row_names)[0] = NA_INTEGER;
 	INTEGER(row_names)[1] = nr;

@@ -3088,7 +3088,6 @@ for comp in \
 	'netcdf       ' \
 	'openssl      ' \
 	'pcre         ' \
-	'perl         ' \
 	'proj         ' \
 	'pthread      ' \
 	'python2      ' \
