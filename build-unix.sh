@@ -18,7 +18,11 @@ CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS $LINKFLAG -D_XPG6 $MONETDBLITE_PYT
 --without-openssl --without-uuid --without-curl --without-bz2 --without-lzma --without-libxml2 \
 --without-python2 --without-python3 --without-unixodbc --disable-mapi \
 --without-samtools --without-sphinxclient --without-geos --without-samtools --without-readline \
-$OPTFLAG --enable-silent-rules --disable-int128
+$OPTFLAG --enable-silent-rules --disable-int128 --disable-strict
+
+if [ ! $? -eq 0 ]; then
+	exit 1
+fi
 
 # always rebuild the embedded directory because we might be linking with a different python version
 cd embedded

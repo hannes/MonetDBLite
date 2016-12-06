@@ -56,7 +56,7 @@ else:
         proc = subprocess.Popen(['./build-unix.sh'], stderr=subprocess.PIPE)
         if proc.wait() != 0:
             error = proc.stderr.read()
-            raise Exception('Failed to compile MonetDBLite sources:\n' + str(error))
+            raise Exception('Failed to compile MonetDBLite sources: ' + ("No error specified" if error == None else error))
     so_extension = os.popen('grep "SOEXT =" ./src/Makefile | head -n 1 | sed "s/SOEXT *= //"').read().strip()
     os.chdir(current_directory)
     monetdb_shared_lib_base = "libmonetdb5" + so_extension
@@ -87,7 +87,7 @@ else:
 # loads functions from libmonetdb5.[so|dylib|dll]
 setup(
     name = "monetdblite",
-    version = '0.1.0',
+    version = '0.1.1',
     description = 'Embedded MonetDB Python Database.',
     author = 'Mark Raasveldt, Hannes Mühleisen',
     author_email = 'm.raasveldt@cwi.nl',
