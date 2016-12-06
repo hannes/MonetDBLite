@@ -44,8 +44,8 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 		return monetdb_error_R(err);
 	}
 	if (output && output->nr_cols > 0) {
-		int i, ncols = output->nr_cols;
-		SEXP retlist, names, varvalue = R_NilValue;
+		int i = 0, ncols = output->nr_cols;
+		SEXP retlist = NULL, names = NULL;
 		PROTECT(retlist = allocVector(VECSXP, ncols));
 		if (!retlist) {
 			UNPROTECT(1);
@@ -60,6 +60,7 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 			Rf_ScalarReal(BATcount(BATdescriptor(output->cols[0].b))));
 		for (i = 0; i < ncols; i++) {
 			BAT* b = BATdescriptor(output->cols[i].b);
+			SEXP varvalue = NULL;
 			SEXP varname = PROTECT(RSTR(output->cols[i].name));
 			if (!varname) {
 				UNPROTECT(i * 2 + 3);
@@ -73,8 +74,8 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 				PutRNGstate();
 				return monetdb_error_R("Conversion error");
 			}
-			SET_STRING_ELT(names, i, varname);
 			SET_VECTOR_ELT(retlist, i, varvalue);
+			SET_STRING_ELT(names, i, varname);
 		}
 		monetdb_cleanup_result(R_ExternalPtrAddr(connsexp), output);
 		SET_NAMES(retlist, names);
