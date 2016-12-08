@@ -12,8 +12,8 @@ lib_gdk = {
 	VERSION = $(GDK_VERSION)
 	NAME = bat
 	SOURCES = \
+		gdk_select.c gdk_calc.c \
 		gdk.h gdk_cand.h gdk_atomic.h gdk_batop.c \
-		gdk_select.c \
 		gdk_search.c gdk_hash.c gdk_hash.h gdk_tm.c \
 		gdk_orderidx.c \
 		gdk_align.c gdk_bbp.c gdk_bbp.h \
@@ -25,7 +25,7 @@ lib_gdk = {
 		gdk_posix.c gdk_logger.c gdk_sample.c \
 		gdk_private.h gdk_delta.h gdk_logger.h gdk_posix.h \
 		gdk_system.h gdk_system_private.h gdk_tm.h gdk_storage.h \
-		gdk_calc.c gdk_calc.h gdk_calc_compare.h gdk_calc_private.h \
+		gdk_calc.h gdk_calc_compare.h gdk_calc_private.h \
 		gdk_aggr.c gdk_group.c \
 		gdk_imprints.c gdk_imprints.h \
 		gdk_join.c gdk_project.c \
