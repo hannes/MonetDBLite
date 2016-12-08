@@ -1429,3 +1429,24 @@ BKCintersectcand(bat *ret, const bat *aid, const bat *bid)
 	BBPkeepref(*ret);
 	return MAL_SUCCEED;
 }
+
+str
+INSPECTgetEnvironment(bat *ret, bat *ret2)
+{
+	BAT *b, *bn;
+
+	b = COLcopy(GDKkey, GDKkey->ttype, 0, TRANSIENT);
+	if (b == 0)
+		throw(MAL, "inspect.getEnvironment", MAL_MALLOC_FAIL);
+	bn = COLcopy(GDKval, GDKval->ttype, 0, TRANSIENT);
+	if (bn == 0){
+		BBPunfix(b->batCacheid);
+		throw(MAL, "inspect.getEnvironment", MAL_MALLOC_FAIL);
+ 	}
+	BAThseqbase(b,0);
+	BAThseqbase(bn,0);
+
+	BBPkeepref(*ret = b->batCacheid);
+	BBPkeepref(*ret2 = bn->batCacheid);
+	return MAL_SUCCEED;
+}

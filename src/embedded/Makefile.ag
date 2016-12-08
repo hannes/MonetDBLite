@@ -35,8 +35,7 @@ INCLUDES = ../mal/mal \
 lib_embedded  = {
 	SOURCES = embedded.c embedded.h
 	VERSION = 1
-	LIBS = ../mal/tools/libmonetdb5 \
-		../gdk/libbat \
+	LIBS = ../gdk/libbat \
 		$(pcre_LIBS) $(PSAPILIB) \
 		$(SOCKET_LIBS) $(MALLOC_LIBS) $(DL_LIBS) $(PTHREAD_LIBS)
 }

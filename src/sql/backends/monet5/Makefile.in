@@ -136,8 +136,8 @@ LTLIBRARIES = $(sql_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 lib_sql_la_DEPENDENCIES = ../../server/libsqlserver.la \
 	../../storage/libstore.la ../../storage/bat/libbatstore.la \
-	../../common/libsqlcommon.la ../../../mal/tools/libmonetdb5.la \
-	../../../gdk/libbat.la ../../../common/stream/libstream.la \
+	../../common/libsqlcommon.la ../../../gdk/libbat.la \
+	../../../common/stream/libstream.la \
 	../../../common/utils/libmcrypt.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 dist_lib_sql_la_OBJECTS = lib_sql_la-sql.lo lib_sql_la-mal_backend.lo \
@@ -510,7 +510,7 @@ zlib_LIBS = @zlib_LIBS@
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 lib_sql_la_CFLAGS = -DLIBSQL $(AM_CFLAGS)
 sqldir = $(libdir)/monetdb5
-lib_sql_la_LIBADD = ../../server/libsqlserver.la ../../storage/libstore.la ../../storage/bat/libbatstore.la ../../common/libsqlcommon.la ../../../mal/tools/libmonetdb5.la ../../../gdk/libbat.la ../../../common/stream/libstream.la ../../../common/utils/libmcrypt.la $(PTHREAD_LIBS) $(openssl_LIBS) $(MATH_LIBS)
+lib_sql_la_LIBADD = ../../server/libsqlserver.la ../../storage/libstore.la ../../storage/bat/libbatstore.la ../../common/libsqlcommon.la ../../../gdk/libbat.la ../../../common/stream/libstream.la ../../../common/utils/libmcrypt.la $(PTHREAD_LIBS) $(openssl_LIBS) $(MATH_LIBS)
 nodist_lib_sql_la_SOURCES = 
 dist_lib_sql_la_SOURCES = sql.c sql.h mal_backend.c mal_backend.h sql_user.c sql_user.h sql_scenario.c sql_scenario.h sql_execute.c sql_execute.h sql_assert.c sql_assert.h sql_upgrades.c sql_upgrades.h rel_bin.c rel_bin.h sql_statement.c sql_statement.h sql_statistics.c sql_statistics.h sql_gencode.c sql_gencode.h sql_optimizer.c sql_optimizer.h sql_result.c sql_result.h sql_cast.c sql_cast.h sql_cast_impl_down_from_flt.h sql_cast_impl_down_from_int.h sql_cast_impl_up_to_flt.h sql_cast_impl_up_to_int.h sql_round.c sql_round_impl.h sql_bat2time.c sql_fround.c sql_fround_impl.h sql_orderidx.c sql_orderidx.h sql_rank.c sql_rank.h
 lib_sql_la_LDFLAGS = -module -avoid-version

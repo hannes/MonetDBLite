@@ -35,7 +35,6 @@ lib_modules = {
 		groupby.c groupby.h \
 		orderidx.c orderidx.h \
 		iterator.c  iterator.h \
-		inspect.c inspect.h \
 		projectionpath.c  projectionpath.h \
 		language.c language.h \
 		mat.c mat.h \
@@ -64,7 +63,7 @@ headers_mal = {
 		language.mal mal_init.mal bbp.mal \
 		profiler.mal batExtensions.mal orderidx.mal \
 		mkey.mal manifold.mal \
-		iterator.mal inspect.mal \
+		iterator.mal \
 		groupby.mal pcre.mal mat.mal \
 		sample.mal \
 		batmtime.mal querylog.mal sysmon.mal

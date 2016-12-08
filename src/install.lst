@@ -41,10 +41,9 @@ mal/modules/
 	$(libdir)/monetdb5/str.mal
 	$(libdir)/monetdb5/batExtensions.mal
 	$(libdir)/monetdb5/language.mal
-	$(libdir)/monetdb5/inspect.mal
+	$(libdir)/monetdb5/aggr.mal
 	$(libdir)/monetdb5/mat.mal
 	$(libdir)/monetdb5/group.mal
-	$(libdir)/monetdb5/aggr.mal
 	$(libdir)/monetdb5/profiler.mal
 	$(libdir)/monetdb5/iterator.mal
 	$(libdir)/monetdb5/sample.mal
@@ -56,8 +55,6 @@ mal/modules/
 	$(libdir)/monetdb5/orderidx.mal
 mal/optimizer/
 	$(libdir)/monetdb5/optimizer.mal
-mal/tools/
-	$(libdir)/libmonetdb5.so
 sql/
 sql/include/
 sql/common/

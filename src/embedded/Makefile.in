@@ -135,10 +135,9 @@ am__installdirs = "$(DESTDIR)$(embeddeddir)" \
 	"$(DESTDIR)$(embeddedrdir)"
 LTLIBRARIES = $(embedded_LTLIBRARIES) $(embeddedr_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libembedded_la_DEPENDENCIES = ../mal/tools/libmonetdb5.la \
-	../gdk/libbat.la $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+libembedded_la_DEPENDENCIES = ../gdk/libbat.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 dist_libembedded_la_OBJECTS = libembedded_la-embedded.lo
 nodist_libembedded_la_OBJECTS =
 libembedded_la_OBJECTS = $(dist_libembedded_la_OBJECTS) \
@@ -517,7 +516,7 @@ zlib_LIBS = @zlib_LIBS@
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 libembedded_la_CFLAGS = -DLIBEMBEDDED $(AM_CFLAGS)
 embeddeddir = $(libdir)
-libembedded_la_LIBADD = ../mal/tools/libmonetdb5.la ../gdk/libbat.la $(pcre_LIBS) $(PSAPILIB) $(SOCKET_LIBS) $(MALLOC_LIBS) $(DL_LIBS) $(PTHREAD_LIBS)
+libembedded_la_LIBADD = ../gdk/libbat.la $(pcre_LIBS) $(PSAPILIB) $(SOCKET_LIBS) $(MALLOC_LIBS) $(DL_LIBS) $(PTHREAD_LIBS)
 nodist_libembedded_la_SOURCES = 
 dist_libembedded_la_SOURCES = embedded.c embedded.h
 libembedded_la_LDFLAGS = -version-info 1

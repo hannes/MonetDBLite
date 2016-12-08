@@ -4,7 +4,7 @@
 #
 # Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
 
-inline function sql_environment()(name:bat[:str],value:bat[:str]);
-	(name,value):= inspect.getEnvironment();
-	return (name,value) := (name,value);
-end sql_environment;
+
+command sql_environment() (name:bat[:str],value:bat[:str])
+address INSPECTgetEnvironment
+comment "Collect the environment variables.";

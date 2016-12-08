@@ -58,4 +58,7 @@ mal_export str BKCshrinkBATmap(bat *ret, const bat *bid, const bat *did);
 mal_export str BKCreuseBATmap(bat *ret, const bat *bid, const bat *did);
 mal_export str BKCmergecand(bat *ret, const bat *aid, const bat *bid);
 mal_export str BKCintersectcand(bat *ret, const bat *aid, const bat *bid);
+
+mal_export str INSPECTgetEnvironment(bat *ret, bat *ret2);
+
 #endif /*_BAT_H_*/

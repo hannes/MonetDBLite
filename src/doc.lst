@@ -8,7 +8,6 @@ mal/
 mal/mal/
 mal/modules/
 mal/optimizer/
-mal/tools/
 sql/
 sql/include/
 sql/common/
