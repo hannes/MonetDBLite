@@ -126,7 +126,7 @@ class MonetDBLiteBaseTests(unittest.TestCase):
             monetdblite.insert('pylite08', [[33],[44]])
 
     def test_many_sql_statements(self):
-        for i in range(1000):
+        for i in range(5):
             conn = monetdblite.connectclient()
             monetdblite.sql('START TRANSACTION', client=conn)
             monetdblite.sql('CREATE TABLE pylite09 (i INTEGER)', client=conn)
