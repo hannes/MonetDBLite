@@ -47,7 +47,6 @@
 #include "opt_multiplex.h"
 #include "opt_profiler.h"
 #include "opt_pushselect.h"
-#include "opt_querylog.h"
 #include "opt_reduce.h"
 #include "opt_remap.h"
 #include "opt_reorder.h"
@@ -67,7 +66,6 @@ struct{
 	{"deadcode", &OPTdeadcodeImplementation},
 	{"emptybind", &OPTemptybindImplementation},
 	{"evaluate", &OPTevaluateImplementation},
-//	{"factorize", &OPTfactorizeImplementation},
 	{"garbageCollector", &OPTgarbageCollectorImplementation},
 	{"generator", &OPTgeneratorImplementation},
 	{"inline", &OPTinlineImplementation},
@@ -79,12 +77,9 @@ struct{
 	{"multiplex", &OPTmultiplexImplementation},
 	{"profiler", &OPTprofilerImplementation},
 	{"pushselect", &OPTpushselectImplementation},
-	{"querylog", &OPTquerylogImplementation},
 	{"reduce", &OPTreduceImplementation},
 	{"remap", &OPTremapImplementation},
-//	{"remoteQueries", &OPTremoteQueriesImplementation},
 	{"reorder", &OPTreorderImplementation},
-//	{"volcano", &OPTvolcanoImplementation},
 	{0,0}
 };
 mal_export str OPTwrapper(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p);

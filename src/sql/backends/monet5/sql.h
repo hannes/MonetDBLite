@@ -48,7 +48,6 @@
 #include "sql_qc.h"
 #include "sql_env.h"
 #include "sql_statement.h"
-#include "querylog.h"
 
 #include <bat/bat_storage.h>
 #include <bat/bat_utils.h>

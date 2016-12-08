@@ -46,7 +46,6 @@
 #include <rel_bin.h>
 #include <rel_dump.h>
 #include <rel_remote.h>
-#include "querylog.h"
 
 static int _dumpstmt(backend *sql, MalBlkPtr mb, stmt *s);
 

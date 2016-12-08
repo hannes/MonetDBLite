@@ -39,9 +39,6 @@ lib_modules = {
 		mkey.c mkey.h \
 		manifold.c manifold.h \
 		pcre.c \
-		profiler.c profiler.h \
-		querylog.c querylog.h \
-		sysmon.c sysmon.h \
 		tablet.c tablet.h \
 		sample.c sample.h \
 		calc.c batcalc.c
@@ -59,12 +56,12 @@ headers_mal = {
 		batmmath.mal \
 		group.mal aggr.mal \
 		language.mal mal_init.mal \
-		profiler.mal batExtensions.mal orderidx.mal \
+		batExtensions.mal orderidx.mal \
 		mkey.mal manifold.mal \
 		iterator.mal \
 		pcre.mal mat.mal \
 		sample.mal \
-		batmtime.mal querylog.mal sysmon.mal
+		batmtime.mal
 	}
 		
 headers_hge = {
@@ -89,7 +86,7 @@ EXTRA_DIST = aggr.mal 00_aggr_hge.mal group.mal algebra.mal \
 	mal_init.mal mkey.mal manifold.mal pcre.mal \
 	tablet.mal tablet.h sample.mal orderidx.mal \
 	mat.mal \
-	batmtime.mal querylog.mal sysmon.mal \
+	batmtime.mal querylog.mal \
 	01_calc.mal 01_batcalc.mal \
 	00_calc_hge.mal 00_batcalc_hge.mal \
 	00_iterator_hge.mal 00_language_hge.mal \

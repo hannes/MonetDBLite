@@ -4431,53 +4431,6 @@ dump_trace(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	return MAL_SUCCEED;
 }
 
-str
-sql_querylog_catalog(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	int i;
-	BAT *t[8];
-
-	(void) cntxt;
-	(void) mb;
-	QLOGcatalog(t);
-	for (i = 0; i < 8; i++) {
-		bat id = t[i]->batCacheid;
-
-		*getArgReference_bat(stk, pci, i) = id;
-		BBPkeepref(id);
-	}
-	return MAL_SUCCEED;
-}
-
-str
-sql_querylog_calls(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	int i;
-	BAT *t[10];
-
-	(void) cntxt;
-	(void) mb;
-	QLOGcalls(t);
-	for (i = 0; i < 9; i++) {
-		bat id = t[i]->batCacheid;
-
-		*getArgReference_bat(stk, pci, i) = id;
-		BBPkeepref(id);
-	}
-	return MAL_SUCCEED;
-}
-
-str
-sql_querylog_empty(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	(void) cntxt;
-	(void) mb;
-	(void) stk;
-	(void) pci;
-	QLOGempty(NULL);
-	return MAL_SUCCEED;
-}
-
 /* str sql_rowid(oid *rid, ptr v, str *sname, str *tname); */
 str
 sql_rowid(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
