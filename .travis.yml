@@ -9,7 +9,7 @@ python:
   - "pypy"
   - "pypy3"
 install:
-  - pip install numpy --user
-  - pip install . --user
+  - pip install numpy
+  - pip install .
 # command to run tests
 script: pytest
