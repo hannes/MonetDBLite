@@ -7,4 +7,4 @@
 # mal, modules, optimizer, scheduler: the main libmonetdb5 body
 # tools: builds libmonetdb5 from mal, modules, optimizer, scheduler
 # extras: builds optional/separate libraries that require libmonetdb5
-SUBDIRS = mal modules optimizer scheduler tools
+SUBDIRS = mal modules optimizer tools

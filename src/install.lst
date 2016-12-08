@@ -56,10 +56,6 @@ mal/modules/
 	$(libdir)/monetdb5/orderidx.mal
 mal/optimizer/
 	$(libdir)/monetdb5/optimizer.mal
-mal/scheduler/
-	$(libdir)/monetdb5/run_memo.mal
-	$(libdir)/monetdb5/run_adder.mal
-	$(libdir)/monetdb5/run_isolate.mal
 mal/tools/
 	$(libdir)/libmonetdb5.so
 sql/

@@ -3002,7 +3002,6 @@ common/utils/Makefile
 mal/mal/Makefile
 mal/modules/Makefile
 mal/optimizer/Makefile
-mal/scheduler/Makefile
 mal/tools/Makefile
 sql/include/Makefile
 sql/common/Makefile

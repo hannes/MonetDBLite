@@ -15,7 +15,7 @@ lib_monetdb5 = {
 	DIR = libdir
 	SOURCES = libmonetdb5.rc
 	LIBS = ../mal/libmal ../modules/libmodules \
-		../optimizer/liboptimizer ../scheduler/libscheduler \
+		../optimizer/liboptimizer \
 		../../gdk/libbat \
 		../../common/stream/libstream \
 		../../common/utils/libmcrypt \
