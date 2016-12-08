@@ -32,12 +32,10 @@ mal/modules/
 	$(libdir)/monetdb5/sysmon.mal
 	$(libdir)/monetdb5/mtime.mal
 	$(libdir)/monetdb5/batstr.mal
-	$(libdir)/monetdb5/groupby.mal
 	$(libdir)/monetdb5/mal_init.mal
 	$(libdir)/monetdb5/algebra.mal
 	$(libdir)/monetdb5/bat5.mal
 	$(libdir)/monetdb5/mmath.mal
-	$(libdir)/monetdb5/bbp.mal
 	$(libdir)/monetdb5/str.mal
 	$(libdir)/monetdb5/batExtensions.mal
 	$(libdir)/monetdb5/language.mal

@@ -31,8 +31,6 @@ lib_modules = {
 		group.c group.h \
 		mmath.c mmath.h \
 		batExtensions.c batExtensions.h \
-		bbp.c bbp.h \
-		groupby.c groupby.h \
 		orderidx.c orderidx.h \
 		iterator.c  iterator.h \
 		projectionpath.c  projectionpath.h \
@@ -60,11 +58,11 @@ headers_mal = {
 		mmath.mal batstr.mal \
 		batmmath.mal \
 		group.mal aggr.mal \
-		language.mal mal_init.mal bbp.mal \
+		language.mal mal_init.mal \
 		profiler.mal batExtensions.mal orderidx.mal \
 		mkey.mal manifold.mal \
 		iterator.mal \
-		groupby.mal pcre.mal mat.mal \
+		pcre.mal mat.mal \
 		sample.mal \
 		batmtime.mal querylog.mal sysmon.mal
 	}
@@ -88,7 +86,7 @@ headers_auto = {
 
 EXTRA_DIST = aggr.mal 00_aggr_hge.mal group.mal algebra.mal \
     batExtensions.mal iterator.mal \
-	groupby.mal mal_init.mal mkey.mal manifold.mal pcre.mal \
+	mal_init.mal mkey.mal manifold.mal pcre.mal \
 	tablet.mal tablet.h sample.mal orderidx.mal \
 	mat.mal \
 	batmtime.mal querylog.mal sysmon.mal \

@@ -31,10 +31,11 @@
 #include <rel_dump.h>
 #include <rel_bin.h>
 #include <opt_pipes.h>
-#include "bbp.h"
 #include "orderidx.h"
 #include "mal_instruction.h"
 #include "mal_resource.h"
+#include "bat5.h"
+
 
 static int
 rel_is_table(sql_rel *rel)
