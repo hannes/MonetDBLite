@@ -21,7 +21,6 @@ mal/modules/
 mal/modules/atoms/
 	$(libdir)/monetdb5/blob.mal
 	$(libdir)/monetdb5/str.mal
-	$(libdir)/monetdb5/streams.mal
 	$(libdir)/monetdb5/mtime.mal
 mal/modules/kernel/
 	$(libdir)/monetdb5/autoload/00_aggr_hge.mal#HAVE_HGE
@@ -31,7 +30,6 @@ mal/modules/kernel/
 	$(libdir)/monetdb5/aggr.mal
 	$(libdir)/monetdb5/batstr.mal
 	$(libdir)/monetdb5/group.mal
-	$(libdir)/monetdb5/status.mal
 	$(libdir)/monetdb5/algebra.mal
 mal/modules/mal/
 	$(libdir)/monetdb5/autoload/00_batcalc_hge.mal#HAVE_HGE

@@ -17,9 +17,8 @@ lib_atoms = {
 	SOURCES = \
 		blob.c blob.h \
 		mtime.c mtime.h \
-		str.c str.h \
-		streams.c streams.h
-}
+		str.c str.h 
+	}
 
 headers_mal = {
 	HEADERS = mal
@@ -27,6 +26,5 @@ headers_mal = {
 	SOURCES = \
 		blob.mal \
 		mtime.mal \
-		str.mal \
-		streams.mal
+		str.mal 
 		}

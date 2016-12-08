@@ -24,7 +24,6 @@
 #
 # The order of the includes defines the dependencies.
 include mmath;
-include streams;
 # The kernel stuff to make it work
 include bat5;
 include batExtensions;

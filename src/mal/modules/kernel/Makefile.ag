@@ -21,14 +21,13 @@ lib_kernel = {
 		batmmath.c batmmath.h \
 		batstr.c \
 		group.c group.h \
-		mmath.c mmath.h \
-		status.c status.h 
+		mmath.c mmath.h
 }
 
 headers_mal = {
 	HEADERS = mal
 	DIR = libdir/monetdb5
-	SOURCES = bat5.mal algebra.mal status.mal \
+	SOURCES = bat5.mal algebra.mal \
 		mmath.mal batstr.mal \
 		batmmath.mal \
 		group.mal aggr.mal
