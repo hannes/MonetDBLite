@@ -26,6 +26,7 @@
  * The primitives below are chosen to accomodate the SQL
  * front-end to produce reasonable efficient code.
  */
+
 #include "monetdb_config.h"
 #include "mat.h"
 

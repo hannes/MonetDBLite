@@ -5,10 +5,8 @@
 # Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
 
 INCLUDES = ../../include ../../common ../../storage ../../server \
-		   ../../../mal/modules/atoms \
-		   ../../../mal/modules/kernel \
+		   ../../../mal/modules \
 		   ../../../mal/mal \
-		   ../../../mal/modules/mal \
 		   ../../../mal/optimizer \
 		   ../../../mal/scheduler \
 		   ../../../mal/extras/rapi \

@@ -18,6 +18,7 @@
  */
 #include "monetdb_config.h"
 #include "batmmath.h"
+
 #ifdef HAVE_FENV_H
 #include <fenv.h>
 #else

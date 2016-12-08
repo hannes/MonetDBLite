@@ -10,10 +10,8 @@ INCLUDES = .. ../../include ../../common \
 		   ../../../common/options \
 		   ../../../common/stream \
 		   ../../../gdk \
-		   ../../../mal/modules/atoms \
-		   ../../../mal/modules/kernel \
+		   ../../../mal/modules \
 		   ../../../mal/mal \
-		   ../../../mal/modules/mal \
 		   ../../../mal/optimizer \
 		   ../../../mal/scheduler 
 

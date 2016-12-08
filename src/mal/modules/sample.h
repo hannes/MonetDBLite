@@ -15,6 +15,8 @@
 #ifndef _SAMPLE_H_
 #define _SAMPLE_H_
 
+#include "mal.h"
+
 /* #define _DEBUG_SAMPLE_ */
 
 mal_export str

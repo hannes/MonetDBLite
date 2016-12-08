@@ -36,11 +36,11 @@
 #include <mal_stack.h>
 #include <mal_interpreter.h>
 
-#include <tablet.h>
+#include "tablet.h"
 #include <mtime.h>
 #include <math.h>
-#include <blob.h>
-#include <mkey.h>
+#include "blob.h"
+#include "mkey.h"
 #include <str.h>
 #include "sql_privileges.h"
 #include "sql_decimal.h"

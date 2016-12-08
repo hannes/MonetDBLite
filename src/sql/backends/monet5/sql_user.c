@@ -17,9 +17,10 @@
  */
 #include "monetdb_config.h"
 #include "sql_user.h"
+
+#include "bat5.h"
 #include "sql_mvc.h"
 #include "sql_privileges.h"
-#include "bat5.h"
 #include "mal_interpreter.h"
 #include "mal_authorize.h"
 #include "mcrypt.h"

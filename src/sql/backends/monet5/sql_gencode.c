@@ -36,7 +36,6 @@
 #include "sql_optimizer.h"
 #include "mal_namespace.h"
 #include "opt_prelude.h"
-#include "querylog.h"
 #include "mal_builder.h"
 
 #include <rel_select.h>
@@ -47,6 +46,7 @@
 #include <rel_bin.h>
 #include <rel_dump.h>
 #include <rel_remote.h>
+#include "querylog.h"
 
 static int _dumpstmt(backend *sql, MalBlkPtr mb, stmt *s);
 

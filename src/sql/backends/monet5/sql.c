@@ -30,9 +30,9 @@
 #include <rel_exp.h>
 #include <rel_dump.h>
 #include <rel_bin.h>
-#include <bbp.h>
 #include <opt_pipes.h>
-#include <orderidx.h>
+#include "bbp.h"
+#include "orderidx.h"
 #include "mal_instruction.h"
 #include "mal_resource.h"
 

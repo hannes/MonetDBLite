@@ -29,8 +29,10 @@
  *
  * @+ Module Definition
  */
+
 #include "monetdb_config.h"
 #include "blob.h"
+
 
 int TYPE_blob;
 int TYPE_sqlblob;

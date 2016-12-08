@@ -8,8 +8,9 @@
 
 #include "monetdb_config.h"
 #include "opt_querylog.h"
-#include "mtime.h"
+
 #include "querylog.h"
+#include "mtime.h"
 
 int 
 OPTquerylogImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)

@@ -37,10 +37,9 @@
 
 #include "monetdb_config.h"
 #include "tablet.h"
-#include "algebra.h"
-
 #include <string.h>
 #include <ctype.h>
+#include "algebra.h"
 
 /*#define _DEBUG_TABLET_ */
 /*#define _DEBUG_TABLET_CNTRL */

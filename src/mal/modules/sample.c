@@ -30,9 +30,9 @@
  */
 
 #include "monetdb_config.h"
+#include "sample.h"
 #include <gdk.h>
 #include <mal_exception.h>
-#include "sample.h"
 
 /*
  * @- Uniform Sampling.

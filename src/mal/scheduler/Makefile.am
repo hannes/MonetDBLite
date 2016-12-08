@@ -49,7 +49,7 @@ dist-hook:
 	mkdir -p $(distdir)/Tests
 	cp -pR $(srcdir)/Tests/* $(distdir)/Tests
 CFLAGS += $(THREAD_SAVE_FLAGS)
-AM_CPPFLAGS = -I$(srcdir) -I../mal -I$(srcdir)/../mal -I../optimizer -I$(srcdir)/../optimizer -I../modules/atoms -I$(srcdir)/../modules/atoms -I../modules/mal -I$(srcdir)/../modules/mal -I../modules/kernel -I$(srcdir)/../modules/kernel -I../../common/options -I$(srcdir)/../../common/options -I../../common/stream -I$(srcdir)/../../common/stream -I../../common/utils -I$(srcdir)/../../common/utils -I../../gdk -I$(srcdir)/../../gdk
+AM_CPPFLAGS = -I$(srcdir) -I../mal -I$(srcdir)/../mal -I../optimizer -I$(srcdir)/../optimizer -I../modules -I$(srcdir)/../modules -I../../common/options -I$(srcdir)/../../common/options -I../../common/stream -I$(srcdir)/../../common/stream -I../../common/utils -I$(srcdir)/../../common/utils -I../../gdk -I$(srcdir)/../../gdk
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
 EXTRA_DIST = Makefile.ag Makefile.msc run_adder.c run_adder.h run_adder.mal run_isolate.c run_isolate.h run_isolate.mal run_memo.c run_memo.h run_memo.mal run_pipeline.c run_pipeline.h

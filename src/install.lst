@@ -18,45 +18,42 @@ mal/mal/
 	$(includedir)/monetdb/mal_instruction.h
 	$(includedir)/monetdb/mal.h
 mal/modules/
-mal/modules/atoms/
-	$(libdir)/monetdb5/blob.mal
-	$(libdir)/monetdb5/str.mal
-	$(libdir)/monetdb5/mtime.mal
-mal/modules/kernel/
-	$(libdir)/monetdb5/autoload/00_aggr_hge.mal#HAVE_HGE
-	$(libdir)/monetdb5/bat5.mal
-	$(libdir)/monetdb5/batmmath.mal
-	$(libdir)/monetdb5/mmath.mal
-	$(libdir)/monetdb5/aggr.mal
-	$(libdir)/monetdb5/batstr.mal
-	$(libdir)/monetdb5/group.mal
-	$(libdir)/monetdb5/algebra.mal
-mal/modules/mal/
 	$(libdir)/monetdb5/autoload/00_batcalc_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_calc_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_mkey_hge.mal#HAVE_HGE
+	$(libdir)/monetdb5/autoload/00_aggr_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_iterator_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_language_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_batExtensions_hge.mal#HAVE_HGE
-	$(libdir)/monetdb5/batExtensions.mal
-	$(libdir)/monetdb5/pcre.mal
-	$(libdir)/monetdb5/iterator.mal
-	$(libdir)/monetdb5/language.mal
-	$(libdir)/monetdb5/manifold.mal
-	$(libdir)/monetdb5/orderidx.mal
-	$(libdir)/monetdb5/querylog.mal
-	$(libdir)/monetdb5/inspect.mal
-	$(libdir)/monetdb5/sample.mal
-	$(libdir)/monetdb5/bbp.mal
-	$(libdir)/monetdb5/groupby.mal
-	$(libdir)/monetdb5/mkey.mal
-	$(libdir)/monetdb5/sysmon.mal
-	$(libdir)/monetdb5/batmtime.mal
-	$(libdir)/monetdb5/mat.mal
-	$(libdir)/monetdb5/mal_init.mal
-	$(libdir)/monetdb5/profiler.mal
 	$(libdir)/monetdb5/autoload/01_batcalc.mal
 	$(libdir)/monetdb5/autoload/01_calc.mal
+	$(libdir)/monetdb5/pcre.mal
+	$(libdir)/monetdb5/manifold.mal
+	$(libdir)/monetdb5/sysmon.mal
+	$(libdir)/monetdb5/mtime.mal
+	$(libdir)/monetdb5/batstr.mal
+	$(libdir)/monetdb5/groupby.mal
+	$(libdir)/monetdb5/mal_init.mal
+	$(libdir)/monetdb5/algebra.mal
+	$(libdir)/monetdb5/bat5.mal
+	$(libdir)/monetdb5/mmath.mal
+	$(libdir)/monetdb5/bbp.mal
+	$(libdir)/monetdb5/str.mal
+	$(libdir)/monetdb5/batExtensions.mal
+	$(libdir)/monetdb5/language.mal
+	$(libdir)/monetdb5/inspect.mal
+	$(libdir)/monetdb5/mat.mal
+	$(libdir)/monetdb5/group.mal
+	$(libdir)/monetdb5/aggr.mal
+	$(libdir)/monetdb5/profiler.mal
+	$(libdir)/monetdb5/iterator.mal
+	$(libdir)/monetdb5/sample.mal
+	$(libdir)/monetdb5/blob.mal
+	$(libdir)/monetdb5/querylog.mal
+	$(libdir)/monetdb5/batmmath.mal
+	$(libdir)/monetdb5/batmtime.mal
+	$(libdir)/monetdb5/mkey.mal
+	$(libdir)/monetdb5/orderidx.mal
 mal/optimizer/
 	$(libdir)/monetdb5/optimizer.mal
 mal/scheduler/

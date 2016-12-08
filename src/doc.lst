@@ -7,9 +7,6 @@ gdk/
 mal/
 mal/mal/
 mal/modules/
-mal/modules/atoms/
-mal/modules/kernel/
-mal/modules/mal/
 mal/optimizer/
 mal/scheduler/
 mal/tools/

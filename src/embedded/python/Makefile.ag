@@ -8,8 +8,7 @@ INCLUDES = \
 	../../../../../clients/mapilib \
 	../../../../../common/options \
 	../../../../../common/stream \
-	../../../../../monetdb5/modules/atoms \
-	../../../../../monetdb5/modules/mal \
+	../../../../../monetdb5/modules \
 	../../../../../gdk \
 	../../../../../monetdb5/mal \
 	../../../../../sql/backends/monet5 \

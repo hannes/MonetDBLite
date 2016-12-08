@@ -10,8 +10,8 @@
 #include "bat_storage.h"
 #include "bat_utils.h"
 #include <sql_string.h>
-#include <algebra.h>
 #include <gdk_atoms.h>
+#include "../../../mal/modules/algebra.h"
 
 #define SNAPSHOT_MINSIZE ((BUN) 1024*128)
 

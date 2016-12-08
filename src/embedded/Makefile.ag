@@ -18,9 +18,7 @@
 MTSAFE
 
 INCLUDES = ../mal/mal \
-		   ../mal/modules/atoms \
-		   ../mal/modules/mal \
-		   ../mal/modules/kernel \
+		   ../mal/modules \
 		   ../mal/extras/rapi \
 		   ../gdk \
 		   ../common/stream \

@@ -32,7 +32,6 @@
 #include "mal_builder.h"
 #include "mal_namespace.h"
 #include "mal_linker.h"
-#include "bat5.h"
 #include <mtime.h>
 #include "optimizer.h"
 #include "opt_statistics.h"
@@ -40,6 +39,8 @@
 #include "opt_pipes.h"
 #include "opt_mitosis.h"
 #include <unistd.h>
+
+#include "bat5.h"
 #include "sql_upgrades.h"
 
 static int SQLinitialized = 0;

@@ -11,11 +11,12 @@
 #include "monetdb_config.h"
 #include "opt_prelude.h"
 #include "opt_support.h"
+
+#include "manifold.h"
 #include "mal_interpreter.h"
 #include "mal_listing.h"
 #include "opt_multiplex.h"
 #include "optimizer_private.h"
-#include "manifold.h"
 
 /*
  * Optimizer catalog with runtime statistics;

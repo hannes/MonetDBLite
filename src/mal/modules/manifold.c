@@ -9,6 +9,7 @@
 /*
  * M.L. Kersten
  */
+
 #include "monetdb_config.h"
 #include "manifold.h"
 #include "mal_resolve.h"

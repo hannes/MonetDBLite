@@ -12,6 +12,7 @@
  */
 #ifndef _BBP_H_
 #define _BBP_H_
+#include "bat5.h"
 #include "mal.h"
 #include "mal_client.h"
 #include "mal_interpreter.h"
@@ -21,7 +22,6 @@
 #include "mal_client.h"
 #include "mal_interpreter.h"
 #include "mal_profiler.h"
-#include "bat5.h"
 
 #ifdef _MSC_VER
 #define getcwd _getcwd

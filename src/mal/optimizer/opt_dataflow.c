@@ -11,9 +11,10 @@
  */
 #include "monetdb_config.h"
 #include "opt_dataflow.h"
+
+#include "manifold.h"
 #include "mal_instruction.h"
 #include "mal_interpreter.h"
-#include "manifold.h"
 
 /*
  * dataflow processing incurs overhead and is only

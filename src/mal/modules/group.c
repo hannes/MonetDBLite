@@ -7,10 +7,10 @@
  */
 
 #include "monetdb_config.h"
+#include "algebra.h"
 #include "mal.h"
 #include "mal_exception.h"
 #include "group.h"
-#include "algebra.h"
 
 str
 GRPsubgroup4(bat *ngid, bat *next, bat *nhis, const bat *bid, const bat *gid, const bat *eid, const bat *hid)

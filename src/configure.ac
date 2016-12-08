@@ -3010,9 +3010,6 @@ sql/storage/Makefile
 sql/server/Makefile
 sql/backends/Makefile
 sql/scripts/Makefile
-mal/modules/atoms/Makefile
-mal/modules/kernel/Makefile
-mal/modules/mal/Makefile
 sql/storage/bat/Makefile
 sql/backends/monet5/Makefile
 ])
