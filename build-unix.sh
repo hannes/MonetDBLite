@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 OPTFLAG="--enable-optimize"
 LINKFLAG="-g"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
@@ -49,7 +48,7 @@ make -j
 
 if [ ! -s libmonetdb5$SOEXT ]
 then
-	echo "Library file was not created, something went wrong"
+	echo "Library file was not created, something went wrong" >&2
 	exit 1
 fi
 mv libmonetdb5$SOEXT ..

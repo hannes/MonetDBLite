@@ -56,7 +56,9 @@ else:
         proc = subprocess.Popen(['./build-unix.sh'], stderr=subprocess.PIPE)
         if proc.wait() != 0:
             error = proc.stderr.read()
-            raise Exception('Failed to compile MonetDBLite sources: ' + ("No error specified" if error == None else error))
+            raise Exception('Failed to compile MonetDBLite sources: ' + 
+                ("No error specified" if error == None else 
+                (error.decode('utf8') if sys.version_info.major >= 3 else error)))
     so_extension = os.popen('grep "SOEXT =" ./src/Makefile | head -n 1 | sed "s/SOEXT *= //"').read().strip()
     os.chdir(current_directory)
     monetdb_shared_lib_base = "libmonetdb5" + so_extension
