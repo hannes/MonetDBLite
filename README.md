@@ -1,3 +1,6 @@
+
+[![Build Status](https://travis-ci.org/hannesmuehleisen/MonetDBLite.svg?branch=Dec2016Lite-Python)](https://travis-ci.org/hannesmuehleisen/MonetDBLite)
+
 # MonetDBLite for Python
 
 [MonetDBLite](https://www.monetdb.org/blog/monetdblite-r) is a serverless SQL database that runs inside of your Python process and does not require the installation of any external software. MonetDBLite is based on free and open-source [MonetDB](https://www.monetdb.org/Home), a product of the [Centrum Wiskunde & Informatica](http://www.cwi.nl).
