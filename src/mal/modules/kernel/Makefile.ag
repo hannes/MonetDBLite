@@ -16,15 +16,11 @@ lib_kernel = {
 	NOINST
 	SOURCES = \
 		aggr.c \
-		alarm.c \
 		algebra.c algebra.h \
 		bat5.c bat5.h \
-		batcolor.c batcolor.h \
 		batmmath.c batmmath.h \
 		batstr.c \
 		group.c group.h \
-		logger.c \
-		microbenchmark.c microbenchmark.h \
 		mmath.c mmath.h \
 		status.c status.h 
 }
@@ -33,10 +29,9 @@ headers_mal = {
 	HEADERS = mal
 	DIR = libdir/monetdb5
 	SOURCES = bat5.mal algebra.mal status.mal \
-		mmath.mal alarm.mal batstr.mal \
-		batcolor.mal batmmath.mal \
-		group.mal aggr.mal \
-		logger.mal microbenchmark.mal
+		mmath.mal batstr.mal \
+		batmmath.mal \
+		group.mal aggr.mal
 }
 
 headers_hge = {
@@ -46,6 +41,5 @@ headers_hge = {
 	SOURCES = 00_aggr_hge.mal
 }
 
-EXTRA_DIST = alarm.mal logger.mal microbenchmark.mal aggr.mal 00_aggr_hge.mal group.mal algebra.mal
+EXTRA_DIST = aggr.mal 00_aggr_hge.mal group.mal algebra.mal
 
-EXTRA_DIST_DIR = Tests

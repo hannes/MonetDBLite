@@ -15,7 +15,6 @@
  */
 #include "monetdb_config.h"
 #include "sql.h"
-#include "streams.h"
 #include "sql_result.h"
 #include "sql_gencode.h"
 #include <sql_storage.h>
@@ -34,7 +33,6 @@
 #include <bbp.h>
 #include <opt_pipes.h>
 #include <orderidx.h>
-#include "clients.h"
 #include "mal_instruction.h"
 #include "mal_resource.h"
 
@@ -345,17 +343,6 @@ SQLabort(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	return msg;
 }
 
-str
-SQLshutdown_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	str msg;
-
-	if ((msg = CLTshutdown(cntxt, mb, stk, pci)) == MAL_SUCCEED) {
-		/* administer the shutdown */
-		mnstr_printf(GDKstdout, "#%s\n", *getArgReference_str(stk, pci, 0));
-	}
-	return msg;
-}
 
 str
 SQLtransaction2(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
@@ -4441,12 +4428,6 @@ dump_trace(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		BBPkeepref(id);
 	}
 	return MAL_SUCCEED;
-}
-
-str
-sql_sessions_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	return CLTsessions(cntxt, mb, stk, pci);
 }
 
 str

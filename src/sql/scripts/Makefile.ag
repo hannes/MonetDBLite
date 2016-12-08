@@ -13,7 +13,6 @@ headers_sql = {
 		10_math.sql \
 		11_times.sql \
 		13_date.sql \
-		14_inet.sql \
 		15_querylog.sql \
 		16_tracelog.sql \
 		17_temporal.sql \
@@ -26,7 +25,6 @@ headers_sql = {
 		27_rejects.sql \
 		39_analytics.sql \
 		41_md5sum.sql \
-		45_uuid.sql \
 		46_profiler.sql \
 		51_sys_schema_extension.sql \
 		75_storagemodel.sql \

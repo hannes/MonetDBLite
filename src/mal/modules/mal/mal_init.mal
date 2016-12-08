@@ -23,7 +23,6 @@
 # upon use of the function will it create the necessary exception.
 #
 # The order of the includes defines the dependencies.
-include alarm;
 include mmath;
 include streams;
 # The kernel stuff to make it work
@@ -40,29 +39,19 @@ include mkey;
 
 # Atom extensions
 include blob;
-include color;
 include str;
-include url;
-include uuid;
 include mtime;
-include inet;
-include identifier;
 
 # The hardwired multiplex extensions
 include batmmath;
 #include batcalc; -- moved to autoload/01_batcalc
 include batmtime;
 include batstr;
-include batcolor;
 
 # MAL related extensions
-include sabaoth;
 include pcre;
-include clients;
 include bbp;
-include mal_io;
 include manifold;
-include factories;
 
 include mat;
 include inspect;

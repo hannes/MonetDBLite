@@ -20,7 +20,6 @@
 /* #define _DEBUG_TABLET_ */
 
 #include <gdk.h>
-#include "streams.h"
 #include <mal_exception.h>
 #include <mal_client.h>
 #include <mal_interpreter.h>

@@ -16,14 +16,9 @@ lib_atoms = {
 	NOINST
 	SOURCES = \
 		blob.c blob.h \
-		color.c color.h \
-		identifier.c \
-		inet.c \
 		mtime.c mtime.h \
 		str.c str.h \
-		streams.c streams.h \
-		url.c url.h \
-		uuid.c
+		streams.c streams.h
 }
 
 headers_mal = {
@@ -31,12 +26,7 @@ headers_mal = {
 	DIR = libdir/monetdb5
 	SOURCES = \
 		blob.mal \
-		color.mal \
-		identifier.mal \
-		inet.mal \
 		mtime.mal \
-		streams.mal \
 		str.mal \
-		url.mal \
-		uuid.mal
-}
+		streams.mal
+		}

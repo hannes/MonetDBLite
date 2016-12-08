@@ -5,22 +5,6 @@
 
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 
-install-exec-local-color.mal: color.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/color.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/color.mal
-
-uninstall-local-color.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/color.mal
-
-install-exec-local-url.mal: url.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/url.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/url.mal
-
-uninstall-local-url.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/url.mal
-
 install-exec-local-blob.mal: blob.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
 	-$(RM) $(DESTDIR)$(libdir)/monetdb5/blob.mal
@@ -28,6 +12,14 @@ install-exec-local-blob.mal: blob.mal
 
 uninstall-local-blob.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/blob.mal
+
+install-exec-local-str.mal: str.mal
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/str.mal
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/str.mal
+
+uninstall-local-str.mal: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/str.mal
 
 install-exec-local-streams.mal: streams.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
@@ -45,77 +37,30 @@ install-exec-local-mtime.mal: mtime.mal
 uninstall-local-mtime.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/mtime.mal
 
-install-exec-local-inet.mal: inet.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/inet.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/inet.mal
-
-uninstall-local-inet.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/inet.mal
-
-install-exec-local-uuid.mal: uuid.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/uuid.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/uuid.mal
-
-uninstall-local-uuid.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/uuid.mal
-
-install-exec-local-str.mal: str.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/str.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/str.mal
-
-uninstall-local-str.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/str.mal
-
-install-exec-local-identifier.mal: identifier.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/identifier.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/identifier.mal
-
-uninstall-local-identifier.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/identifier.mal
-
 mtime.o mtime.lo: mtime.c mtime.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-streams.o streams.lo: streams.c streams.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../../common/stream/stream_socket.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-url.o url.lo: url.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h url.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-inet.o inet.lo: inet.c ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-uuid.o uuid.lo: uuid.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_atom.h
-color.o color.lo: color.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h color.h
-identifier.o identifier.lo: identifier.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 str.o str.lo: str.c str.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
+streams.o streams.lo: streams.c streams.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../../common/stream/stream_socket.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 blob.o blob.lo: blob.c blob.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 CFLAGS += $(THREAD_SAVE_FLAGS)
 libatoms_la_CFLAGS=-DLIBATOMS $(AM_CFLAGS)
 atomsdir = $(libdir)
 libatoms_la-blob.lo: blob.c blob.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libatoms_la_CFLAGS) $(CFLAGS) $(blob_CFLAGS) -c -o libatoms_la-blob.lo `test -f 'blob.c' || echo '$(srcdir)/'`blob.c
-libatoms_la-color.lo: color.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h color.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libatoms_la_CFLAGS) $(CFLAGS) $(color_CFLAGS) -c -o libatoms_la-color.lo `test -f 'color.c' || echo '$(srcdir)/'`color.c
-libatoms_la-identifier.lo: identifier.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libatoms_la_CFLAGS) $(CFLAGS) $(identifier_CFLAGS) -c -o libatoms_la-identifier.lo `test -f 'identifier.c' || echo '$(srcdir)/'`identifier.c
-libatoms_la-inet.lo: inet.c ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libatoms_la_CFLAGS) $(CFLAGS) $(inet_CFLAGS) -c -o libatoms_la-inet.lo `test -f 'inet.c' || echo '$(srcdir)/'`inet.c
 libatoms_la-mtime.lo: mtime.c mtime.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libatoms_la_CFLAGS) $(CFLAGS) $(mtime_CFLAGS) -c -o libatoms_la-mtime.lo `test -f 'mtime.c' || echo '$(srcdir)/'`mtime.c
 libatoms_la-str.lo: str.c str.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libatoms_la_CFLAGS) $(CFLAGS) $(str_CFLAGS) -c -o libatoms_la-str.lo `test -f 'str.c' || echo '$(srcdir)/'`str.c
 libatoms_la-streams.lo: streams.c streams.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../../common/stream/stream_socket.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libatoms_la_CFLAGS) $(CFLAGS) $(streams_CFLAGS) -c -o libatoms_la-streams.lo `test -f 'streams.c' || echo '$(srcdir)/'`streams.c
-libatoms_la-url.lo: url.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h url.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libatoms_la_CFLAGS) $(CFLAGS) $(url_CFLAGS) -c -o libatoms_la-url.lo `test -f 'url.c' || echo '$(srcdir)/'`url.c
-libatoms_la-uuid.lo: uuid.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_atom.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libatoms_la_CFLAGS) $(CFLAGS) $(uuid_CFLAGS) -c -o libatoms_la-uuid.lo `test -f 'uuid.c' || echo '$(srcdir)/'`uuid.c
 nodist_libatoms_la_SOURCES =
-dist_libatoms_la_SOURCES = blob.c blob.h color.c color.h identifier.c inet.c mtime.c mtime.h str.c str.h streams.c streams.h url.c url.h uuid.c
+dist_libatoms_la_SOURCES = blob.c blob.h mtime.c mtime.h str.c str.h streams.c streams.h
 AM_CPPFLAGS = -I$(srcdir) -I../../mal -I$(srcdir)/../../mal -I../../../common/options -I$(srcdir)/../../../common/options -I../../../common/stream -I$(srcdir)/../../../common/stream -I../../../common/utils -I$(srcdir)/../../../common/utils -I../../../gdk -I$(srcdir)/../../../gdk
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
-EXTRA_DIST = Makefile.ag Makefile.msc blob.c blob.h blob.mal color.c color.h color.mal identifier.c identifier.mal inet.c inet.mal mtime.c mtime.h mtime.mal str.c str.h str.mal streams.c streams.h streams.mal url.c url.h url.mal uuid.c uuid.mal
+EXTRA_DIST = Makefile.ag Makefile.msc blob.c blob.h blob.mal mtime.c mtime.h mtime.mal str.c str.h str.mal streams.c streams.h streams.mal
 noinst_LTLIBRARIES = libatoms.la
 install-atomsLTLIBRARIES:
-uninstall-local: uninstall-local-blob.mal uninstall-local-color.mal uninstall-local-identifier.mal uninstall-local-inet.mal uninstall-local-mtime.mal uninstall-local-str.mal uninstall-local-streams.mal uninstall-local-url.mal uninstall-local-uuid.mal
-install-exec-local: install-exec-local-blob.mal install-exec-local-color.mal install-exec-local-identifier.mal install-exec-local-inet.mal install-exec-local-mtime.mal install-exec-local-str.mal install-exec-local-streams.mal install-exec-local-url.mal install-exec-local-uuid.mal
+uninstall-local: uninstall-local-blob.mal uninstall-local-mtime.mal uninstall-local-str.mal uninstall-local-streams.mal
+install-exec-local: install-exec-local-blob.mal install-exec-local-mtime.mal install-exec-local-str.mal install-exec-local-streams.mal
 
   include $(top_srcdir)/buildtools/conf/rules.mk

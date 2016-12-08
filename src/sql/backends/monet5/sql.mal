@@ -19,20 +19,6 @@ pattern init():void
 address SQLinitEnvironment
 comment "Initialize the environment for MAL";
 
-pattern shutdown(delay:bte, force:bit):str
-address SQLshutdown_wrap;
-pattern shutdown(delay:sht, force:bit):str
-address SQLshutdown_wrap;
-pattern shutdown(delay:int, force:bit):str
-address SQLshutdown_wrap;
-
-pattern shutdown(delay:bte):str
-address SQLshutdown_wrap;
-pattern shutdown(delay:sht):str
-address SQLshutdown_wrap;
-pattern shutdown(delay:int):str
-address SQLshutdown_wrap;
-
 pattern mvc():int
 address SQLmvc
 comment "Get the multiversion catalog context. 
@@ -448,10 +434,6 @@ comment "Glue together the calling sequence";
 pattern sql_variables():bat[:str]
 address sql_variables
 comment "return the table with session variables";
-
-pattern sessions() ( user:bat[:str], start:bat[:timestamp],stimeout:bat[:lng], lastcmd:bat[:timestamp], qtimeout:bat[:lng], idle:bat[:bit])
-address sql_sessions_wrap
-comment "SQL export table of active sessions, their timeouts and idle status";
 
 pattern db_users() :bat[:str]
 address db_users_wrap

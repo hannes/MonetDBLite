@@ -106,12 +106,11 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libkernel_la_LIBADD =
-dist_libkernel_la_OBJECTS = libkernel_la-aggr.lo libkernel_la-alarm.lo \
+dist_libkernel_la_OBJECTS = libkernel_la-aggr.lo \
 	libkernel_la-algebra.lo libkernel_la-bat5.lo \
-	libkernel_la-batcolor.lo libkernel_la-batmmath.lo \
-	libkernel_la-batstr.lo libkernel_la-group.lo \
-	libkernel_la-logger.lo libkernel_la-microbenchmark.lo \
-	libkernel_la-mmath.lo libkernel_la-status.lo
+	libkernel_la-batmmath.lo libkernel_la-batstr.lo \
+	libkernel_la-group.lo libkernel_la-mmath.lo \
+	libkernel_la-status.lo
 nodist_libkernel_la_OBJECTS =
 libkernel_la_OBJECTS = $(dist_libkernel_la_OBJECTS) \
 	$(nodist_libkernel_la_OBJECTS)
@@ -475,10 +474,10 @@ AM_CPPFLAGS = -I$(srcdir) -I../../mal -I$(srcdir)/../../mal -I../atoms -I$(srcdi
 libkernel_la_CFLAGS = -DLIBKERNEL $(AM_CFLAGS)
 kerneldir = $(libdir)
 nodist_libkernel_la_SOURCES = 
-dist_libkernel_la_SOURCES = aggr.c alarm.c algebra.c algebra.h bat5.c bat5.h batcolor.c batcolor.h batmmath.c batmmath.h batstr.c group.c group.h logger.c microbenchmark.c microbenchmark.h mmath.c mmath.h status.c status.h
+dist_libkernel_la_SOURCES = aggr.c algebra.c algebra.h bat5.c bat5.h batmmath.c batmmath.h batstr.c group.c group.h mmath.c mmath.h status.c status.h
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
-EXTRA_DIST = Makefile.ag Makefile.msc 00_aggr_hge.mal aggr.c aggr.mal alarm.c alarm.mal algebra.c algebra.h algebra.mal bat5.c bat5.h bat5.mal batcolor.c batcolor.h batcolor.mal batmmath.c batmmath.h batmmath.mal batstr.c batstr.mal group.c group.h group.mal logger.c logger.mal microbenchmark.c microbenchmark.h microbenchmark.mal mmath.c mmath.h mmath.mal status.c status.h status.mal
+EXTRA_DIST = Makefile.ag Makefile.msc 00_aggr_hge.mal aggr.c aggr.mal algebra.c algebra.h algebra.mal bat5.c bat5.h bat5.mal batmmath.c batmmath.h batmmath.mal batstr.c batstr.mal group.c group.h group.mal mmath.c mmath.h mmath.mal status.c status.h status.mal
 noinst_LTLIBRARIES = libkernel.la
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -632,9 +631,6 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
-	$(MAKE) $(AM_MAKEFLAGS) \
-	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
-	  dist-hook
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
@@ -746,11 +742,11 @@ uninstall-am: uninstall-local
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
 	clean-libtool clean-noinstLTLIBRARIES cscopelist-am ctags \
-	ctags-am dist-hook distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-exec-local install-html \
+	ctags-am distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-exec-local install-html \
 	install-html-am install-info install-info-am install-man \
 	install-pdf install-pdf-am install-ps install-ps-am \
 	install-strip installcheck installcheck-am installdirs \
@@ -771,26 +767,14 @@ install-exec-local-00_aggr_hge.mal: 00_aggr_hge.mal
 uninstall-local-00_aggr_hge.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/autoload/00_aggr_hge.mal
 
-alarm.o alarm.lo: alarm.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-mmath.o mmath.lo: mmath.c mmath.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-batcolor.o batcolor.lo: batcolor.c batcolor.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../atoms/color.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 aggr.o aggr.lo: aggr.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 algebra.o algebra.lo: algebra.c algebra.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_interpreter.h
 bat5.o bat5.lo: bat5.c bat5.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 group.o group.lo: group.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h group.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h algebra.h ../../mal/mal_interpreter.h
-microbenchmark.o microbenchmark.lo: microbenchmark.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h microbenchmark.h
 status.o status.lo: status.c ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h status.h
-logger.o logger.lo: logger.c ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../../gdk/gdk_logger.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
+mmath.o mmath.lo: mmath.c mmath.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 batstr.o batstr.lo: batstr.c ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../atoms/../../../gdk/gdk.h ../atoms/../../mal/mal.h ../atoms/../../mal/mal_exception.h ../atoms/str.h
 batmmath.o batmmath.lo: batmmath.c batmmath.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-install-exec-local-alarm.mal: alarm.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/alarm.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/alarm.mal
-
-uninstall-local-alarm.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/alarm.mal
-
 install-exec-local-bat5.mal: bat5.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
 	-$(RM) $(DESTDIR)$(libdir)/monetdb5/bat5.mal
@@ -798,14 +782,6 @@ install-exec-local-bat5.mal: bat5.mal
 
 uninstall-local-bat5.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/bat5.mal
-
-install-exec-local-microbenchmark.mal: microbenchmark.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/microbenchmark.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/microbenchmark.mal
-
-uninstall-local-microbenchmark.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/microbenchmark.mal
 
 install-exec-local-batmmath.mal: batmmath.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
@@ -847,14 +823,6 @@ install-exec-local-group.mal: group.mal
 uninstall-local-group.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/group.mal
 
-install-exec-local-batcolor.mal: batcolor.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/batcolor.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/batcolor.mal
-
-uninstall-local-batcolor.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/batcolor.mal
-
 install-exec-local-status.mal: status.mal
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
 	-$(RM) $(DESTDIR)$(libdir)/monetdb5/status.mal
@@ -870,44 +838,25 @@ install-exec-local-algebra.mal: algebra.mal
 
 uninstall-local-algebra.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/algebra.mal
-
-install-exec-local-logger.mal: logger.mal
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/logger.mal
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/logger.mal
-
-uninstall-local-logger.mal: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/logger.mal
 libkernel_la-aggr.lo: aggr.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(aggr_CFLAGS) -c -o libkernel_la-aggr.lo `test -f 'aggr.c' || echo '$(srcdir)/'`aggr.c
-libkernel_la-alarm.lo: alarm.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(alarm_CFLAGS) -c -o libkernel_la-alarm.lo `test -f 'alarm.c' || echo '$(srcdir)/'`alarm.c
 libkernel_la-algebra.lo: algebra.c algebra.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../../mal/mal_interpreter.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(algebra_CFLAGS) -c -o libkernel_la-algebra.lo `test -f 'algebra.c' || echo '$(srcdir)/'`algebra.c
 libkernel_la-bat5.lo: bat5.c bat5.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(bat5_CFLAGS) -c -o libkernel_la-bat5.lo `test -f 'bat5.c' || echo '$(srcdir)/'`bat5.c
-libkernel_la-batcolor.lo: batcolor.c batcolor.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../atoms/color.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(batcolor_CFLAGS) -c -o libkernel_la-batcolor.lo `test -f 'batcolor.c' || echo '$(srcdir)/'`batcolor.c
 libkernel_la-batmmath.lo: batmmath.c batmmath.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(batmmath_CFLAGS) -c -o libkernel_la-batmmath.lo `test -f 'batmmath.c' || echo '$(srcdir)/'`batmmath.c
 libkernel_la-batstr.lo: batstr.c ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h ../atoms/../../../gdk/gdk.h ../atoms/../../mal/mal.h ../atoms/../../mal/mal_exception.h ../atoms/str.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(batstr_CFLAGS) -c -o libkernel_la-batstr.lo `test -f 'batstr.c' || echo '$(srcdir)/'`batstr.c
 libkernel_la-group.lo: group.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h group.h ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h algebra.h ../../mal/mal_interpreter.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(group_CFLAGS) -c -o libkernel_la-group.lo `test -f 'group.c' || echo '$(srcdir)/'`group.c
-libkernel_la-logger.lo: logger.c ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../../gdk/gdk_logger.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(logger_CFLAGS) -c -o libkernel_la-logger.lo `test -f 'logger.c' || echo '$(srcdir)/'`logger.c
-libkernel_la-microbenchmark.lo: microbenchmark.c ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h microbenchmark.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(microbenchmark_CFLAGS) -c -o libkernel_la-microbenchmark.lo `test -f 'microbenchmark.c' || echo '$(srcdir)/'`microbenchmark.c
 libkernel_la-mmath.lo: mmath.c mmath.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(mmath_CFLAGS) -c -o libkernel_la-mmath.lo `test -f 'mmath.c' || echo '$(srcdir)/'`mmath.c
 libkernel_la-status.lo: status.c ../../../gdk/gdk_system.h ../../../gdk/gdk_atomic.h ../../../gdk/gdk_posix.h ../../../gdk/../common/stream/stream.h ../../../gdk/gdk_delta.h ../../../gdk/gdk_hash.h ../../../gdk/gdk_atoms.h ../../../gdk/gdk_bbp.h ../../../gdk/gdk_utils.h ../../../gdk/../common/options/monet_options.h ../../../gdk/gdk_calc.h ../../../gdk/gdk.h ../../mal/mal_instruction.h ../../mal/mal_type.h ../../mal/mal.h ../../mal/../../gdk/gdk.h ../../mal/../../gdk/gdk_system.h ../../mal/../../gdk/gdk_atomic.h ../../mal/../../gdk/gdk_posix.h ../../mal/../../common/stream/stream.h ../../mal/../../gdk/gdk_delta.h ../../mal/../../gdk/gdk_hash.h ../../mal/../../gdk/gdk_atoms.h ../../mal/../../gdk/gdk_bbp.h ../../mal/../../gdk/gdk_utils.h ../../mal/../../common/options/monet_options.h ../../mal/../../gdk/gdk_calc.h ../../mal/mal_stack.h ../../mal/mal_namespace.h ../../mal/mal_errors.h ../../mal/mal_exception.h status.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkernel_la_CFLAGS) $(CFLAGS) $(status_CFLAGS) -c -o libkernel_la-status.lo `test -f 'status.c' || echo '$(srcdir)/'`status.c
-dist-hook:
-	mkdir -p $(distdir)/Tests
-	cp -pR $(srcdir)/Tests/* $(distdir)/Tests
 install-kernelLTLIBRARIES:
-uninstall-local: uninstall-local-$(C_00_aggr_hge_mal) uninstall-local-aggr.mal uninstall-local-alarm.mal uninstall-local-algebra.mal uninstall-local-bat5.mal uninstall-local-batcolor.mal uninstall-local-batmmath.mal uninstall-local-batstr.mal uninstall-local-group.mal uninstall-local-logger.mal uninstall-local-microbenchmark.mal uninstall-local-mmath.mal uninstall-local-status.mal
-install-exec-local: install-exec-local-$(C_00_aggr_hge_mal) install-exec-local-aggr.mal install-exec-local-alarm.mal install-exec-local-algebra.mal install-exec-local-bat5.mal install-exec-local-batcolor.mal install-exec-local-batmmath.mal install-exec-local-batstr.mal install-exec-local-group.mal install-exec-local-logger.mal install-exec-local-microbenchmark.mal install-exec-local-mmath.mal install-exec-local-status.mal
+uninstall-local: uninstall-local-$(C_00_aggr_hge_mal) uninstall-local-aggr.mal uninstall-local-algebra.mal uninstall-local-bat5.mal uninstall-local-batmmath.mal uninstall-local-batstr.mal uninstall-local-group.mal uninstall-local-mmath.mal uninstall-local-status.mal
+install-exec-local: install-exec-local-$(C_00_aggr_hge_mal) install-exec-local-aggr.mal install-exec-local-algebra.mal install-exec-local-bat5.mal install-exec-local-batmmath.mal install-exec-local-batstr.mal install-exec-local-group.mal install-exec-local-mmath.mal install-exec-local-status.mal
 
   include $(top_srcdir)/buildtools/conf/rules.mk
 

@@ -23,7 +23,6 @@
 #include <rel_dump.h>
 #include <rel_bin.h>
 #include <opt_pipes.h>
-#include "clients.h"
 #include "mal_instruction.h"
 
 str

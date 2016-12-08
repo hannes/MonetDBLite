@@ -28,7 +28,6 @@
 #include "sql_mvc.h"
 #include "sql_user.h"
 #include "sql_datetime.h"
-#include "mal_io.h"
 #include "mal_parser.h"
 #include "mal_builder.h"
 #include "mal_namespace.h"
