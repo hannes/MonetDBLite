@@ -7,8 +7,8 @@ extern FILE* embedded_stderr;
 #define assert(ignore) ((void) 0)
 #undef stdout
 #define stdout embedded_stdout
-//#undef stderr
-//#define stderr embedded_stderr
+#undef stderr
+#define stderr embedded_stderr
 
 #ifdef HAVE_EMBEDDED_R
 #define srand(seed) ((void) (seed))
