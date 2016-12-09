@@ -23,7 +23,7 @@ def get_python_include_flags():
 def get_python_link_flags():
     pyver = sysconfig.get_config_var('VERSION')
     getvar = sysconfig.get_config_var
-    libs = ['-lpython' + pyver]
+    libs = ['-L' + sysconfig.get_config_var('LIBDIR') + ' -lpython' + pyver]
     libs += getvar('LIBS').split()
     libs += getvar('SYSLIBS').split()
     if not getvar('Py_ENABLE_SHARED'):
