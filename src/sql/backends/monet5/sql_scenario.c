@@ -193,6 +193,14 @@ SQLepilogue(void *ret)
 			}
 		}
 		mvc_exit();
+#ifdef HAVE_EMBEDDED
+		{ // clean up scenario registry so we do not run out
+			Scenario s = findScenario("sql");
+			Scenario ms = findScenario("msql");
+			if (s) s->name = NULL;
+			if (ms) ms->name = NULL;
+		}
+#endif
 		SQLinitialized = FALSE;
 	}
 	MT_lock_unset(&sql_contextLock);

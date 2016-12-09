@@ -87,7 +87,7 @@ MCinit(void)
 		/* client connections */ maxclients;
 	mal_clients = GDKzalloc(sizeof(ClientRec) * MAL_MAXCLIENTS);
 	if( mal_clients == NULL){
-		showException(GDKout, MAL, "MCinit",MAL_MALLOC_FAIL);
+		showException(GDKout, MAL, "MCinit", MAL_MALLOC_FAIL);
 		mal_exit();
 	}
 }

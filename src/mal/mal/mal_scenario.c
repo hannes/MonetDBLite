@@ -459,7 +459,6 @@ resetScenario(Client c)
 	scen = findScenario(c->scenario);
 	if (scen != NULL && scen->exitClientCmd)
 		(*scen->exitClientCmd) (c);
-
 	c->scenario = c->oldscenario;
 	for (i = 0; i < 7; i++) {
 		c->state[i] = c->oldstate[i];
