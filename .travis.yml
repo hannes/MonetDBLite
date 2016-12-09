@@ -7,7 +7,7 @@ python:
   - "pypy"
   - "pypy3"
 install:
-  - pip install numpy pytest
+  - pip install numpy pandas
   - pip install .
 # command to run tests
-script: pytest
+script: py.test
