@@ -23,7 +23,7 @@ def get_python_include_flags():
 def get_python_link_flags():
     pyver = sysconfig.get_config_var('VERSION')
     getvar = sysconfig.get_config_var
-    libs = ['-L' + sysconfig.get_config_var('LIBDIR') + ' -lpython' + pyver]
+    libs = ['-L' + sysconfig.get_config_var('LIBDIR') + ' -l' + sysconfig.get_config_var('LIBDEST').split(os.sep)[-1]]
     libs += getvar('LIBS').split()
     libs += getvar('SYSLIBS').split()
     if not getvar('Py_ENABLE_SHARED'):
@@ -89,7 +89,7 @@ else:
 # loads functions from libmonetdb5.[so|dylib|dll]
 setup(
     name = "monetdblite",
-    version = '0.1.1',
+    version = '0.1.8',
     description = 'Embedded MonetDB Python Database.',
     author = 'Mark Raasveldt, Hannes Mühleisen',
     author_email = 'm.raasveldt@cwi.nl',
