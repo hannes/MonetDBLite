@@ -1713,6 +1713,7 @@ AS_VAR_IF([have_pcre], [yes], [
 	LIBS="$save_LIBS"
 	CFLAGS="$save_CFLAGS"])
 
+have_pcre=no
 AS_VAR_IF([have_pcre], [yes], [
 	AC_DEFINE([HAVE_LIBPCRE], 1, [Define if you have the pcre library])])
 AM_CONDITIONAL([HAVE_PCRE], [test x"$have_pcre" != xno])

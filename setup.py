@@ -32,6 +32,14 @@ def get_python_link_flags():
         libs.extend(getvar('LINKFORSHARED').split())
     return ' '.join(libs)
 
+import os
+libdir = sysconfig.get_config_var('LIBDIR')
+print('PYTHON LIBDIR: %s' % libdir)
+print(os.popen('ls "%s"' % (libdir)).read())
+print('PYTHON LINKFLAGS')
+print(get_python_link_flags())
+
+
 basedir = os.path.dirname(os.path.realpath(__file__))
 if os.name == 'nt':
     print("FIXME: link to shipped .dll file depending on 32-bit/64-bit windows and python 2/python 3")

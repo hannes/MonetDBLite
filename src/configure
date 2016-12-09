@@ -21061,6 +21061,7 @@ fi
 	CFLAGS="$save_CFLAGS"
 fi
 
+have_pcre=no
 if test "x$have_pcre" = xyes; then :
 
 
