@@ -4,10 +4,9 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
-  - "pypy"
-  - "pypy3"
+  - "3.6"
 install:
   - pip install numpy pandas
-  - pip install .
+  - python setup.py install
 # command to run tests
 script: py.test
