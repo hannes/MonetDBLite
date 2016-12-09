@@ -23,7 +23,8 @@ def get_python_include_flags():
 def get_python_link_flags():
     pyver = sysconfig.get_config_var('VERSION')
     getvar = sysconfig.get_config_var
-    libs = ['-L' + sysconfig.get_config_var('LIBDIR') + ' -l' + sysconfig.get_config_var('LIBDEST').split(os.sep)[-1]]
+    libs = ['-L' + sysconfig.get_config_var('LIBDIR') + 
+           ' -l' + sysconfig.get_config_var('LIBRARY').replace('.a', '').replace('.so', '').replace('.dll', '').replace('.so', '').replace('lib', '')]
     libs += getvar('LIBS').split()
     libs += getvar('SYSLIBS').split()
     if not getvar('Py_ENABLE_SHARED'):
@@ -32,13 +33,7 @@ def get_python_link_flags():
         libs.extend(getvar('LINKFORSHARED').split())
     return ' '.join(libs)
 
-import os
-libdir = sysconfig.get_config_var('LIBDIR')
-print('PYTHON LIBDIR: %s' % libdir)
-print(os.popen('ls "%s"' % (libdir)).read())
-print('PYTHON LINKFLAGS')
 print(get_python_link_flags())
-
 
 basedir = os.path.dirname(os.path.realpath(__file__))
 if os.name == 'nt':
