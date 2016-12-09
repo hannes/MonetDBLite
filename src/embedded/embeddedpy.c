@@ -261,7 +261,7 @@ PyObject* python_monetdb_client(void) {
 PyObject* python_monetdb_disconnect(PyObject* client) {
 	str msg;
 	Client c;
-	MT_Lock query_lock;
+	MT_Lock* query_lock;
 
 	msg = PyClientObject_GetClient(client, &c, &query_lock);
 	if (msg != NULL) {
