@@ -2007,6 +2007,8 @@ SQLupgrades(Client c, mvc *m)
 	char *err;
 	sql_schema *s = mvc_bind_schema(m, "sys");
 
+#ifndef HAVE_EMBEDDED
+
 	/* if function sys.md5(str) does not exist, we need to
 	 * update */
 	sql_find_subtype(&tp, "clob", 0, 0);
@@ -2063,6 +2065,8 @@ SQLupgrades(Client c, mvc *m)
 			GDKfree(err);
 		}
 	}
+#endif
+
 
 	/* add missing epoch functions */
 	if ((err = sql_update_epoch(c, m)) != NULL) {
@@ -2114,6 +2118,7 @@ SQLupgrades(Client c, mvc *m)
 		fprintf(stderr, "!%s\n", err);
 		GDKfree(err);
 	}
+
 
 	if ((f = sql_bind_func(m->sa, s, "uuid", NULL, NULL, F_FUNC)) != NULL &&
 	    sql_privilege(m, ROLE_PUBLIC, f->func->base.id, PRIV_EXECUTE, 0) != PRIV_EXECUTE) {
