@@ -152,6 +152,9 @@ test_that("the garbage collector closes connections", {
 })
 
 
+
+
+
 test_that("the logger does not misbehave", {
 	con <- monetdb_embedded_connect()
 	monetdb_embedded_query(con, "CREATE TABLE foo(i INTEGER, j INTEGER)")
@@ -254,6 +257,16 @@ test_that("dynamic NULL AS statements translate cleanly", {
 	monetdb_embedded_disconnect(con)
 	monetdb_embedded_shutdown()
 	
+})
+
+test_that("we can restart without exhausting scenarios", {
+	for (i in 1:10) {
+		monetdb_embedded_startup(dbdir3)
+		con <- monetdb_embedded_connect()
+		monetdb_embedded_query(con, "SELECT * FROM tables")
+		monetdb_embedded_disconnect(con)
+		monetdb_embedded_shutdown()
+	}
 })
 
 test_that("check for database corruption at the conclusion of all other tests", {

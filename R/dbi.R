@@ -168,7 +168,7 @@ setMethod("dbGetInfo", "MonetDBConnection", def=function(dbObj, ...) {
 })
 
 setMethod("dbIsValid", "MonetDBConnection", def=function(dbObj, ...) {
-  return(invisible(!is.na(tryCatch({dbGetInfo(dbObj);TRUE}, error=function(e){NA}))))
+  return(invisible(!is.na(tryCatch({dbGetQuery(dbObj, "SELECT 1");TRUE}, error=function(e){NA}))))
 })
 
 setMethod("dbDisconnect", "MonetDBConnection", def=function(conn, ...) {
