@@ -94,9 +94,9 @@ def convert(data):
     Return the appropriate conversion function based upon the python type.
     """
     if type(data) in mapping_dict:
-        return utf8_encode(mapping_dict[type(data)](data))
+        return mapping_dict[type(data)](data)
     else:
         for type_, func in mapping:
             if issubclass(type(data), type_):
-                return utf8_encode(func(data))
+                return func(data)
     raise ProgrammingError("type %s not supported as value" % type(data))
