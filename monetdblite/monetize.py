@@ -12,6 +12,17 @@ python_version = sys.version_info.major
 
 from monetdblite.exceptions import ProgrammingError
 
+if sys.version_info.major >= 3:
+    def utf8_encode(str):
+        if str == None:
+            return None
+        if type(str) == type(""):
+            return str.encode('utf-8')
+        return str
+else:
+    def utf8_encode(str):
+        return str
+
 
 def monet_none(data):
     """
@@ -80,9 +91,9 @@ def convert(data):
     Return the appropriate conversion function based upon the python type.
     """
     if type(data) in mapping_dict:
-        return mapping_dict[type(data)](data)
+        return utf8_encode(mapping_dict[type(data)](data))
     else:
         for type_, func in mapping:
             if issubclass(type(data), type_):
-                return func(data)
+                return utf8_encode(func(data))
     raise ProgrammingError("type %s not supported as value" % type(data))
