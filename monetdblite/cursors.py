@@ -115,7 +115,7 @@ class Cursor(object):
         self.messages = []
 
         # convert to utf-8
-        operation = embeddedmonetdb.utf8_encode(operation)
+        operation = operation
 
         self.operation = operation
 
@@ -137,6 +137,8 @@ class Cursor(object):
 
         if discard_previous:
             self.__results = []
+
+        query = embeddedmonetdb.utf8_encode(query)
         result = self.connection.execute(query, client=self.monetdblite_connection)
         result_set_length = 0 if type(result) != type({}) or len(result) == 0 else len(result[list(result.keys())[0]])
         if result_set_length > 0:
