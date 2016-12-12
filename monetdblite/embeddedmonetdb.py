@@ -100,9 +100,10 @@ def insert(table, values, schema=None, client=None):
     if type(values) != type({}):
         values = __convert_pandas_to_numpy_dict__(values)
     else:
-        values = {}
+        vals = {}
         for tpl in values.items():
-            values[tpl[0]] = numpy.array(tpl[1])
+            vals[tpl[0]] = numpy.array(tpl[1])
+        values = vals
     retval = dll.python_monetdb_insert(client, utf8_encode(schema), utf8_encode(table), values)
     if type(retval) == type(''):
         raise __throw_exception(str(retval))
@@ -116,9 +117,10 @@ def create(table, values, schema=None, client=None):
     if type(values) != type({}):
         values = __convert_pandas_to_numpy_dict__(values)
     else:
-        values = {}
+        vals = {}
         for tpl in values.items():
-            values[tpl[0]] = numpy.array(tpl[1])
+            vals[tpl[0]] = numpy.array(tpl[1])
+        values = vals
     if schema == None:
         schema = "sys"
     for key,value in values.items():
