@@ -25,10 +25,15 @@ if [ $PYTHON -eq 2 ]
 	then
 		PYTHONBIN='C:/tools/python2-x86_32/python.exe'
 	else
-		PYTHONBIN='C:/tools/python2/python.exe'
+		PYTHONBIN='C:/Python27/python.exe'
 	fi
-#else
-	# python 3
+else
+	if [ $BITS -eq 32 ]
+	then
+		PYTHONBIN='C:/ProgramData/chocolatey/lib/python3-x86_32/tools/python.exe'
+	else
+		PYTHONBIN='C:/Python35/python.exe'
+	fi
 fi
 
 rm -r src/embedded/windows/pcre-*
