@@ -86,7 +86,10 @@ def sql(query, client=None):
 def __convert_pandas_to_numpy_dict__(df):
     import pandas, numpy
     if type(df) == pandas.DataFrame:
-        return {tpl[0]: numpy.array(tpl[1].values()) for tpl in df.to_dict().items()}
+        res = {}
+        for tpl in df.to_dict().items():
+            res[tpl[0]] = numpy.array(tpl[1].values())
+        return res
     return df
 
 def insert(table, values, schema=None, client=None):
