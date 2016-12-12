@@ -1777,6 +1777,7 @@ AS_CASE([$have_zlib],
 		 AC_CHECK_LIB([z], [gzopen], [have_zlib=yes zlib_LIBS="-lz" zlib_CFLAGS= ])],
 	[yes],
 		[AC_SUBST([PKG_ZLIB], [zlib])])
+have_zlib=no
 AS_VAR_IF([have_zlib], [yes], [
 	AC_DEFINE([HAVE_LIBZ], 1, [Define if you have the z library])])
 AM_CONDITIONAL([HAVE_LIBZ], [test x"$have_zlib" != xno])
