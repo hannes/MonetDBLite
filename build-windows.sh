@@ -36,7 +36,7 @@ else
 	fi
 fi
 
-rm -r src/embedded/windows/pcre-*
+rm -rf src/embedded/windows/pcre-*
 unzip -o windows-buildfiles/pcre-8.37.zip -d src/embedded/windows
 
 
