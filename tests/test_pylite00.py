@@ -5,6 +5,9 @@ import monetdblitetest
 import monetdblite
 import numpy
 import unittest
+import sys
+
+PY26 = sys.version_info[0] == 2 and sys.version_info[1] <= 6
 
 class MonetDBLiteBaseTests(unittest.TestCase):
     def setUp(self):
@@ -70,8 +73,9 @@ class MonetDBLiteBaseTests(unittest.TestCase):
         result = monetdblite.sql('SELECT MIN(i) AS minimum FROM pylite05', client=conn)
         self.assertEquals(result['minimum'][0], 0, "Incorrect result")
         # attempt to query the table from another client
-        with self.assertRaises(monetdblite.DatabaseError):
-            monetdblite.sql('SELECT * FROM pylite05', client=conn2)
+        if not PY26:
+            with self.assertRaises(monetdblite.DatabaseError):
+                monetdblite.sql('SELECT * FROM pylite05', client=conn2)
 
         # now commit the table
         monetdblite.sql('COMMIT', client=conn)
@@ -82,6 +86,9 @@ class MonetDBLiteBaseTests(unittest.TestCase):
     def test_errors(self):
         global dbfarm
         monetdblite.shutdown()
+
+        if PY26:
+            return
 
         # select before init
         with self.assertRaises(monetdblite.DatabaseError):

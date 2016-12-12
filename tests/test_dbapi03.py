@@ -5,6 +5,10 @@ import monetdblitetest
 import monetdblite
 import numpy
 import unittest
+import sys
+
+
+PY26 = sys.version_info[0] == 2 and sys.version_info[1] <= 6
 
 identifier_escape = monetdblite.monetize.monet_identifier_escape
 
@@ -50,8 +54,9 @@ class ShutdownTests(unittest.TestCase):
 
         conn = monetdblite.connect(dbfarm)
         c = conn.cursor()
-        with self.assertRaises(monetdblite.DatabaseError):
-            c.execute('SELECT * FROM integers')
+        if not PY26:
+            with self.assertRaises(monetdblite.DatabaseError):
+                c.execute('SELECT * FROM integers')
 
 
     def test_many_shutdowns(self):
@@ -74,8 +79,9 @@ class ShutdownTests(unittest.TestCase):
         conn.close()
 
         conn = monetdblite.connect(dbfarm)
-        with self.assertRaises(monetdblite.ProgrammingError):
-            c.execute('SELECT * FROM integers')
+        if not PY26:
+            with self.assertRaises(monetdblite.ProgrammingError):
+                c.execute('SELECT * FROM integers')
 
 
 
