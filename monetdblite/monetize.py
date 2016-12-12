@@ -80,7 +80,7 @@ mapping = [
     (type(None), monet_none),
 ]
 
-if python_version == 2:
+if not PY3:
     mapping += ((unicode, monet_unicode),)
 
 mapping_dict = dict(mapping)
