@@ -70,7 +70,7 @@ def init(directory):
     """Initializes the MonetDBLite database in the specified directory."""
     retval = dll.python_monetdb_init(utf8_encode(directory), 0)
     if retval != None:
-        raise __throw_exception(str(retval))
+        raise __throw_exception(str(retval) + ' in ' + str(directory))
 
 def sql(query, client=None):
     """Executes a SQL statement on the database if the database 
@@ -86,7 +86,7 @@ def sql(query, client=None):
 def __convert_pandas_to_numpy_dict__(df):
     import pandas, numpy
     if type(df) == pandas.DataFrame:
-        return {x: numpy.array(y.values()) for x,y in df.to_dict().items()}
+        return {tpl[0]: numpy.array(tpl[1].values()) for tpl in df.to_dict().items()}
     return df
 
 def insert(table, values, schema=None, client=None):
