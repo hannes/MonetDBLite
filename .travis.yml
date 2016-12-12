@@ -4,10 +4,6 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
-  - "3.6"
-before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install libz-dev lib32z1-dev zlib1g-dev
 install:
   - pip install numpy pandas
   - python setup.py install
