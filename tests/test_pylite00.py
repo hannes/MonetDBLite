@@ -29,9 +29,16 @@ class MonetDBLiteBaseTests(unittest.TestCase):
 
     def test_monetdblite_insert(self):
         monetdblite.create('pylite02', {'i': numpy.arange(100000)})
-        monetdblite.insert('pylite02', numpy.arange(100000))
-        result = monetdblite.sql('select * from pylite02')
-        self.assertEquals(len(result['i']), 200000, "Incorrect result")
+        try:
+            import pandas
+            monetdblite.insert('pylite02', numpy.arange(100000))
+            result = monetdblite.sql('select * from pylite02')
+            self.assertEquals(len(result['i']), 200000, "Incorrect result")
+        except:
+            #no pandas
+            result = monetdblite.sql('select * from pylite02')
+            self.assertEquals(len(result['i']), 100000, "Incorrect result")
+            return
 
     def test_monetdblite_create_multiple_columns(self):
         arrays = numpy.arange(100000).reshape((5,20000))
@@ -42,7 +49,7 @@ class MonetDBLiteBaseTests(unittest.TestCase):
 
     def test_sql_types(self):
         monetdblite.sql('CREATE TABLE pylite04_decimal(d DECIMAL(18,3))')
-        monetdblite.insert('pylite04_decimal', numpy.arange(100000))
+        monetdblite.insert('pylite04_decimal', {'d': numpy.arange(100000)})
         result = monetdblite.sql('SELECT * FROM pylite04_decimal')
         self.assertEquals(result['d'][0], 0, "Incorrect result")
 

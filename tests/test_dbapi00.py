@@ -35,7 +35,11 @@ class SimpleDBAPITest(unittest.TestCase):
             "Incorrect result returned")
 
     def test_pandas_selection(self):
-        import pandas
+        try:
+            import pandas
+        except:
+            # no pandas, skip this test
+            return
         c.execute('SELECT * FROM integers')
         result = c.fetchdf()
         arr = numpy.ma.masked_array(numpy.arange(11))
