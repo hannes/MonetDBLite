@@ -6,9 +6,9 @@
 
 import sys
 
-python_version = sys.version_info.major
+PY3 = sys.version_info[0] >= 3
 
-if python_version >= 3:
+if PY3:
     StandardError = Exception
 
 

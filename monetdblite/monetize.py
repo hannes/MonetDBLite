@@ -8,11 +8,11 @@ import datetime
 import decimal
 import sys
 
-python_version = sys.version_info.major
+PY3 = sys.version_info[0] >= 3
 
 from monetdblite.exceptions import ProgrammingError
 
-if sys.version_info.major >= 3:
+if PY3:
     def utf8_encode(str):
         if str == None:
             return None

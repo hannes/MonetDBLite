@@ -9,6 +9,8 @@ import sys
 from shutil import copyfile
 import subprocess
 
+PY3 = sys.version_info[0] >= 3
+
 pypi_upload = 'MONETDBLITE_PIP_UPLOAD' in os.environ
 
 def get_python_include_flags():
@@ -61,7 +63,7 @@ else:
             error = proc.stderr.read()
             raise Exception('Failed to compile MonetDBLite sources: ' + 
                 ("No error specified" if error == None else 
-                (error.decode('utf8') if sys.version_info.major >= 3 else error)))
+                (error.decode('utf8') if PY3 else error)))
     so_extension = os.popen('grep "SOEXT =" ./src/Makefile | head -n 1 | sed "s/SOEXT *= //"').read().strip()
     os.chdir(current_directory)
     monetdb_shared_lib_base = "libmonetdb5" + so_extension

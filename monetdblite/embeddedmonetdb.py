@@ -11,7 +11,7 @@ import sys
 from monetdblite import monetize
 from monetdblite import exceptions
 
-python_version = sys.version_info.major
+PY3 = sys.version_info[0] >= 3
 
 basedir = os.path.dirname(os.path.abspath(__file__))
 libs = [x for x in os.listdir(basedir) if 
@@ -52,7 +52,7 @@ dll.python_monetdb_disconnect.restype = None
 dll.python_monetdb_shutdown.argtypes = []
 dll.python_monetdb_shutdown.restype = None
 
-if sys.version_info.major >= 3:
+if PY3:
     def utf8_encode(str):
         if str == None:
             return None
