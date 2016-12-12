@@ -59,7 +59,10 @@ def monet_bytes(data):
     """
     converts bytes to string
     """
-    return monet_escape(data)
+    if not PY3:
+        return monet_escape(data)
+    else:
+        return monet_escape(data.decode('utf8'))
 
 
 def monet_unicode(data):

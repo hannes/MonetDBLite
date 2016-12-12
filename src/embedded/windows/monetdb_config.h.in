@@ -265,7 +265,7 @@
 /* #undef HAVE_LIBPCL */
 
 /* Define if you have the pcre library */
-/* #undef HAVE_LIBPCRE */
+#define HAVE_LIBPCRE
 
 /* Define if you have the perfctr library */
 /* #undef HAVE_LIBPERFCTR */
