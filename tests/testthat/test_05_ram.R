@@ -1,6 +1,8 @@
 
-
-if( .Platform$OS.type != 'windows' ) library(ulimit)
+if( .Platform$OS.type != 'windows' ) {
+	devtools::install_github("krlmlr/ulimit")
+	library(ulimit)
+}
 
 library(testthat)
 library(callr)
