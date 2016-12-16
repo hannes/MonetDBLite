@@ -327,8 +327,6 @@ pattern optimizer.selcrack(mod:str, fcn:str):str
 address OPTwrapper
 comment "Selection cracking";
 
-#opt_trace.mal
-
 pattern optimizer.trace():str
 address OPTwrapper;
 pattern optimizer.trace(mod:str, fcn:str):str
