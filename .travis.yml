@@ -8,6 +8,11 @@ r:
 
 after_success:
   - test $TRAVIS_R_VERSION_STRING = "release" && Rscript -e 'covr::codecov()'
+
+install:
+  - ./travis-tool.sh install_github hadley/testthat
+  - ./travis-tool.sh install_github hadley/dplyr
+  - ./travis-tool.sh install_github rstats-db/DBI
   
 addons:
   apt_packages:
