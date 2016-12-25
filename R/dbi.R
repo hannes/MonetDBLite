@@ -159,7 +159,7 @@ setMethod("dbGetInfo", "MonetDBConnection", def=function(dbObj, ...) {
   ll <- as.list(envdata$value)
   names(ll) <- envdata$name
   ll$name <- "MonetDBConnection"
-  ll$db.version <- NA
+  ll$db.version <- packageDescription( "MonetDBLite" )$Release
   ll$dbname <- ll$gdk_dbname
   ll$username <- NA
   ll$host <- NA
