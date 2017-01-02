@@ -108,7 +108,7 @@ test_that("dplyr multiple objects", {
 })
 
 
-# FAILS
+# https://github.com/hannesmuehleisen/MonetDBLite/issues/18
 # test_that("dplyr copy_to", {
 	# expect_equal(
 		# explain(c4_sqlite),
@@ -118,17 +118,22 @@ test_that("dplyr multiple objects", {
 
 test_that("dplyr group_by", {
 	expect_equal(
-		collect(by_tailnum_sqlite <- group_by(flights_sqlite, tailnum)),
-		collect(by_tailnum_monetdb <- group_by(flights_monetdb, tailnum))
+		collect(by_tailnum <<- group_by(flights, tailnum)),
+		collect(by_tailnum_monetdb <<- group_by(flights_monetdb, tailnum),n=Inf)
+	)
+
+	expect_equal(
+		collect(by_tailnum_sqlite <<- group_by(flights_sqlite, tailnum),n=Inf),
+		collect(by_tailnum_monetdb <<- group_by(flights_monetdb, tailnum),n=Inf)
 	)
 })
 
-test_that("shutdown", {
-	DBI::dbDisconnect(my_db_monetdb$con, shutdown=TRUE)
-})
 
 
-# # # # # # # # FAILS # # # # # # # #
+
+
+# https://www.monetdb.org/bugzilla/show_bug.cgi?id=6178
+# test_that("dplyr summarise", {
 
 	# delay_sqlite <- summarise(by_tailnum_sqlite,
 	  # count = n(),
@@ -144,9 +149,12 @@ test_that("shutdown", {
 	# )
 
 	# expect_equal(
-		# collect(delay_sqlite),
-		# collect(delay_monetdb)
+		# collect(arrange( delay_sqlite , tailnum )),
+		# collect(arrange( delay_monetdb , tailnum ))
 	# )
+
+# })
+
 
 
 	# delay_sqlite <- filter(delay_sqlite, count > 20, dist < 2000)
@@ -204,4 +212,11 @@ test_that("shutdown", {
 		# collect(ranked_monetdb)
 	# )
 
+
+
+
+
+test_that("shutdown", {
+	DBI::dbDisconnect(my_db_monetdb$con, shutdown=TRUE)
+})
 
