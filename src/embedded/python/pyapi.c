@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 2008-2015 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 #include "pyapi.h"
@@ -1651,7 +1651,7 @@ PyObject *PyArrayObject_FromBAT(PyInput *inp, size_t t_start, size_t t_end, char
             BATloop(b, p, q) {
                 char *t = (char *) BUNtail(li, p);
                 for(; *t != 0; t++) {
-                    if (*t < 0) {
+                    if (*t & 0x80) {
                         unicode = true;
                         break;
                     }
