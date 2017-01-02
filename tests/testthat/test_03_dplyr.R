@@ -9,7 +9,6 @@ my_db_monetdb <- FALSE
 flights_sqlite <- FALSE
 flights_monetdb <- FALSE
 
-
 test_that("we can connect", {
 	my_db_sqlite <<- src_sqlite(tempfile(), create = T)
 	my_db_monetdb <<- src_monetdb(embedded=dbdir)
@@ -129,88 +128,89 @@ test_that("dplyr group_by", {
 })
 
 
-
-
-
 # https://www.monetdb.org/bugzilla/show_bug.cgi?id=6178
-# test_that("dplyr summarise", {
+test_that("dplyr summarise 2", {
+    skip("Somehow results are not equal here")
 
-	# delay_sqlite <- summarise(by_tailnum_sqlite,
-	  # count = n(),
-	  # dist = mean(distance),
-	  # delay = mean(arr_delay)
-	# )
-
-
-	# delay_monetdb <- summarise(by_tailnum_monetdb,
-	  # count = n(),
-	  # dist = mean(distance),
-	  # delay = mean(arr_delay)
-	# )
-
-	# expect_equal(
-		# collect(arrange( delay_sqlite , tailnum )),
-		# collect(arrange( delay_monetdb , tailnum ))
-	# )
-
-# })
+	delay_sqlite <- summarise(by_tailnum_sqlite,
+	  count = as.integer(n()),
+	  dist = mean(distance),
+	  delay = mean(arr_delay)
+	)
 
 
+	delay_monetdb <- summarise(by_tailnum_monetdb,
+	  count = as.integer(n()),
+	  dist = mean(distance),
+	  delay = mean(arr_delay)
+	)
 
-	# delay_sqlite <- filter(delay_sqlite, count > 20, dist < 2000)
-	# delay_monetdb <- filter(delay_monetdb, count > 20, dist < 2000)
-
-	# expect_equal(
-		# collect(delay_sqlite),
-		# collect(delay_monetdb)
-	# )
+	expect_equal(
+		collect(arrange( delay_sqlite , tailnum )),
+		collect(arrange( delay_monetdb , tailnum ))
+	)
 
 
-	# delay_local_sqlite <- collect(delay_sqlite)
-	# delay_local_monetdb <- collect(delay_monetdb)
+	delay_sqlite <- filter(delay_sqlite, count > 20, dist < 2000)
+	delay_monetdb <- filter(delay_monetdb, count > 20, dist < 2000)
 
-	# expect_equal(
-		# collect(delay_local_sqlite),
-		# collect(delay_local_monetdb)
-	# )
+	expect_equal(
+		collect(delay_sqlite),
+		collect(delay_monetdb)
+	)
 
-	# daily_sqlite <- group_by(flights_sqlite, year, month, day)
-	# daily_monetdb <- group_by(flights_monetdb, year, month, day)
+	delay_local_sqlite <- collect(delay_sqlite)
+	delay_local_monetdb <- collect(delay_monetdb)
 
+	expect_equal(
+		collect(delay_local_sqlite),
+		collect(delay_local_monetdb)
+	)
+
+	daily_sqlite <- group_by(flights_sqlite, year, month, day)
+	daily_monetdb <- group_by(flights_monetdb, year, month, day)
+
+
+	#  sqlite seems not to support that?!
 	# bestworst_sqlite <- daily_sqlite %>% 
-	  # select(flight, arr_delay) %>% 
-	  # filter(arr_delay == min(arr_delay) || arr_delay == max(arr_delay))
+	#   select(flight, arr_delay) %>% 
+	#   filter(arr_delay == min(arr_delay) || arr_delay == max(arr_delay))
 
 	# bestworst_monetdb <- daily_monetdb %>% 
-	  # select(flight, arr_delay) %>% 
-	  # filter(arr_delay == min(arr_delay) || arr_delay == max(arr_delay))
+	#   select(flight, arr_delay) %>% 
+	#   filter(arr_delay == min(arr_delay) || arr_delay == max(arr_delay))
 
 	# expect_equal( bestworst_sqlite$query , bestworst_monetdb$query )
 
 	# expect_equal(
-		# collect(bestworst_sqlite),
-		# collect(bestworst_monetdb)
+	# 	collect(bestworst_sqlite),
+	# 	collect(bestworst_monetdb)
 	# )
 
-
-
 	# ranked_sqlite <- daily_sqlite %>% 
-	  # select(arr_delay) %>% 
-	  # mutate(rank = rank(desc(arr_delay)))
+	#   select(arr_delay) %>% 
+	#   mutate(rank = rank(desc(arr_delay)))
 
 
 
 	# ranked_monetdb <- daily_monetdb %>% 
-	  # select(arr_delay) %>% 
-	  # mutate(rank = rank(desc(arr_delay)))
+	#   select(arr_delay) %>% 
+	#   mutate(rank = rank(desc(arr_delay)))
 
 
 	# expect_equal( ranked_sqlite$query , ranked_monetdb$query )
 
 	# expect_equal(
-		# collect(ranked_sqlite),
-		# collect(ranked_monetdb)
+	# 	collect(ranked_sqlite),
+	# 	collect(ranked_monetdb)
 	# )
+
+
+})
+
+
+
+	
 
 
 

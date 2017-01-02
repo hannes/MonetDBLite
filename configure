@@ -7,7 +7,7 @@ CPPFLAGS=`"${R_HOME}/bin/R" CMD config CPPFLAGS`
 CPICFLAGS=`"${R_HOME}/bin/R" CMD config CPICFLAGS`
 
 OPTFLAG="--enable-optimize"
-LINKFLAG="-g"
+LINKFLAG=""
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
 	OPTFLAG="--enable-debug --enable-assert"
@@ -29,7 +29,7 @@ rm libmonetdb5.so
 echo '
 
 libmonetdb5.so:
-	$(R_HOME)/bin/R CMD SHLIB $(LINKFLAG) -lz -lpcre -o $@ `find $(SUBDIRS) -name "*.o" | xargs echo` 
+	$(R_HOME)/bin/R CMD SHLIB -lz -lpcre -o $@ `find $(SUBDIRS) -name "*.o" | xargs echo` 
 
 all: $(BUILT_SOURCES) monetdb_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive && $(MAKE) $(AM_MAKEFLAGS) libmonetdb5.so

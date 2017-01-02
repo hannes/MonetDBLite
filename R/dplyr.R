@@ -14,7 +14,6 @@ src_monetdb <- function(dbname="demo", host = "localhost", port = 50000L, user =
   dplyrMt <- getNamespace("dplyr")$.__S3MethodsTable__.
 
   dplyrMt[["sql_translate_env.MonetDBConnection"]]     <- sql_translate_env.MonetDBConnection
-  dplyrMt[["src_translate_env.src_monetdb"]]           <- src_translate_env.src_monetdb
   dplyrMt[["src_desc.src_monetdb"]]                    <- src_desc.src_monetdb
   dplyrMt[["tbl.src_monetdb"]]                         <- tbl.src_monetdb
   dplyrMt[["db_query_fields.MonetDBConnection"]]       <- db_query_fields.MonetDBEmbeddedConnection
@@ -24,11 +23,18 @@ src_monetdb <- function(dbname="demo", host = "localhost", port = 50000L, user =
   dplyrMt[["db_insert_into.MonetDBConnection"]]        <- db_insert_into.MonetDBConnection
   dplyrMt[["db_create_index.MonetDBConnection"]]       <- db_create_index.MonetDBConnection
   dplyrMt[["db_analyze.MonetDBConnection"]]            <- db_analyze.MonetDBConnection
-  dplyrMt[["sql_subquery.MonetDBConnection"]]          <- sql_subquery.MonetDBConnection
   dplyrMt[["sample_n.tbl_monetdb"]]                    <- sample_n.tbl_monetdb
   dplyrMt[["sample_frac.tbl_monetdb"]]                 <- sample_frac.tbl_monetdb
 
   s
+}
+
+
+tbl.src_monetdb <- function(src, from, ...) {
+  if(!grepl("^\\s*SELECT\\s+.*", as.character(from), ignore.case=T, perl=T)) {
+    from <- dplyr::build_sql("SELECT * FROM ", dplyr::ident(from))
+  }
+  dplyr::tbl_sql("monetdb", src = src, from = from, ...)
 }
 
 sql_translate_env.MonetDBConnection <- function(con) {
@@ -46,24 +52,6 @@ sql_translate_env.MonetDBConnection <- function(con) {
   )
 }
 
-
-# old, dplyr < 0.5
-src_translate_env.src_monetdb <- function(x) {
-  dplyr::sql_variant(
-    dplyr::sql_translator(.parent = dplyr::base_scalar,
-    `!=` = dplyr::sql_infix("<>")
-    ),
-    dplyr::sql_translator(.parent = dplyr::base_agg,
-      n = function() dplyr::sql("COUNT(*)"),
-      sd =  dplyr::sql_prefix("STDDEV_SAMP"),
-      var = dplyr::sql_prefix("VAR_SAMP"),
-      median = dplyr::sql_prefix("MEDIAN"),
-      n_distinct = function(x) {dplyr::build_sql(dplyr::sql("count(distinct "), 
-        x, dplyr::sql(")"))}
-    )
-  )
-}
-
 src_desc <- function(x) UseMethod("src_desc")
 
 src_desc.src_monetdb <- function(x) {
@@ -74,20 +62,13 @@ src_desc.src_monetdb <- function(x) {
   }
 }
 
-tbl.src_monetdb <- function(src, from, ...) {
-  if(!grepl("^\\s*SELECT\\s+.*", as.character(from), ignore.case=T, perl=T)) {
-    from <- dplyr::build_sql("SELECT * FROM ", dplyr::ident(from))
-  }
-  monetdb_check_subquery(from)
-  dplyr::tbl_sql("monetdb", src = src, from = from, ...)
-}
 
 sample_n.tbl_monetdb <- function(x, size, replace = FALSE, weight = NULL) {
   if (replace || !is.null(weight)) {
     stop("Sorry, replace and weight are not supported for MonetDB tables. \
       Consider collect()'ing first.")
   }
-  DBI::dbGetQuery(x$src$con, dplyr::build_sql(x$query$sql, " SAMPLE ", as.integer(size)))
+  DBI::dbGetQuery(x$src$con, dplyr::build_sql("SELECT * FROM (", x$query$sql, ") AS s SAMPLE ", as.integer(size)))
 }
 
 sample_frac.tbl_monetdb <- function(tbl, frac=1, replace = FALSE, weight = NULL) {
@@ -107,10 +88,6 @@ db_query_fields.MonetDBConnection <- function(con, sql, ...) {
 }
 
 db_query_fields.MonetDBEmbeddedConnection <- function(con, sql, ...) {
-  # this is a fix for dplyr < 0.5
-  if(!grepl("^\\s*SELECT\\s+.*", as.character(sql), ignore.case=T, perl=T)) {
-    sql <- dplyr::build_sql("SELECT * FROM ", sql)
-  }
   names(DBI::dbGetQuery(con, sql, execute = F))
 }
 
@@ -144,20 +121,6 @@ db_analyze.MonetDBConnection <- function(con, table, ...) {
   TRUE
 }
 
-sql_subquery.MonetDBConnection <- function(con, sql, name = unique_name(), ...) {
-  if (dplyr::is.ident(sql)) return(sql)
-  monetdb_check_subquery(sql)
-  if (length(name) != 1) name <- unique_name()
-  nn <- dplyr::ident(name)
-  dplyr::build_sql("(", sql, ") AS ", nn, con = con)
-}
-
-monetdb_check_subquery <- function(sql) {
-  if (grepl("ORDER BY|LIMIT|OFFSET", as.character(sql), ignore.case=TRUE)) {
-    stop(sql," contains ORDER BY, LIMIT or OFFSET keywords, which are not supported.")
-  }
-}
-
 monetdb_queryinfo <- function(conn, query) {
   info <- emptyenv()
   tryCatch({
@@ -173,13 +136,3 @@ monetdb_queryinfo <- function(conn, query) {
   })
   info
 }
-
-# copied from dplyr's utils.r, sql_subquery needs it
-unique_name <- local({
-  i <- 0
-
-  function() {
-    i <<- i + 1
-    paste0("_W", i)
-  }
-})
