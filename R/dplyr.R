@@ -16,6 +16,8 @@ src_monetdb <- function(dbname="demo", host = "localhost", port = 50000L, user =
   dplyrMt[["sql_translate_env.MonetDBConnection"]]     <- sql_translate_env.MonetDBConnection
   dplyrMt[["src_desc.src_monetdb"]]                    <- src_desc.src_monetdb
   dplyrMt[["tbl.src_monetdb"]]                         <- tbl.src_monetdb
+  dplyrMt[["con_acquire.src_monetdb"]]                 <- con_acquire.src_monetdb
+  dplyrMt[["con_release.src_monetdb"]]                 <- con_release.src_monetdb
   dplyrMt[["db_query_fields.MonetDBConnection"]]       <- db_query_fields.MonetDBEmbeddedConnection
   dplyrMt[["db_query_rows.MonetDBConnection"]]         <- db_query_rows.MonetDBConnection
   dplyrMt[["db_query_rows.MonetDBEmbeddedConnection"]] <- db_query_rows.MonetDBEmbeddedConnection
@@ -52,8 +54,6 @@ sql_translate_env.MonetDBConnection <- function(con) {
   )
 }
 
-src_desc <- function(x) UseMethod("src_desc")
-
 src_desc.src_monetdb <- function(x) {
   if (inherits(x$con, "MonetDBEmbeddedConnection")) {
     paste0("MonetDBLite ", packageVersion("MonetDBLite"), " (", monetdb_embedded_env$started_dir, ")")
@@ -62,6 +62,12 @@ src_desc.src_monetdb <- function(x) {
   }
 }
 
+con_acquire.src_monetdb <- function(src) {
+  src$obj
+}
+
+con_release.src_monetdb <- function(src, con) {
+}
 
 sample_n.tbl_monetdb <- function(x, size, replace = FALSE, weight = NULL) {
   if (replace || !is.null(weight)) {

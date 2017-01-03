@@ -61,6 +61,6 @@ my_iris  <- copy_to(my_db, iris)
 my_iris2 <- tbl(my_db, 'iris')
 
 # shut down the database
-dbDisconnect(my_db$con, shutdown=TRUE)
+DBI::dbDisconnect(con_acquire(my_db), shutdown=TRUE)
 }
 

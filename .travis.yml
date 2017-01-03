@@ -8,7 +8,7 @@ r:
 
 r_github_packages:
   - hadley/testthat
-#  - hadley/dplyr
+  - hadley/dplyr
   - rstats-db/DBI
   
 addons:

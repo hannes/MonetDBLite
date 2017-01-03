@@ -11,7 +11,7 @@ flights_monetdb <- FALSE
 
 test_that("we can connect", {
 	my_db_sqlite <<- src_sqlite(tempfile(), create = T)
-	my_db_monetdb <<- src_monetdb(embedded=dbdir)
+	my_db_monetdb <<- src_monetdblite(dbdir)
 })
 
 # TEMPORARY until https://github.com/hannesmuehleisen/MonetDBLite/issues/15
@@ -194,18 +194,10 @@ test_that("dplyr summarise 2", {
 	
 	expect_equal( class( collect( ranked_monetdb ) ) , c( "grouped_df" , "tbl_df" , "tbl" , "data.frame" ) )
 
-
 })
 
 
-
-	
-
-
-
-
-
 test_that("shutdown", {
-	DBI::dbDisconnect(my_db_monetdb$con, shutdown=TRUE)
+	DBI::dbDisconnect(con_acquire(my_db_monetdb), shutdown=TRUE)
 })
 
