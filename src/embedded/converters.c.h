@@ -253,7 +253,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 				ele_blob = BLOBnull();
 			}
 			BLOBput(b->tvheap, &bun_offset, ele_blob);
-			BUNappend(b, &bun_offset, FALSE);
+			BUNappend(b, ele_blob, FALSE);
 			GDKfree(ele_blob);
 		}
 	}
