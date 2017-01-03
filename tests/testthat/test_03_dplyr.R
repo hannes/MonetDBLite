@@ -128,9 +128,7 @@ test_that("dplyr group_by", {
 })
 
 
-# https://www.monetdb.org/bugzilla/show_bug.cgi?id=6178
 test_that("dplyr summarise 2", {
-    skip("Somehow results are not equal here")
 
 	delay_sqlite <- summarise(by_tailnum_sqlite,
 	  count = as.integer(n()),
@@ -145,65 +143,56 @@ test_that("dplyr summarise 2", {
 	  delay = mean(arr_delay)
 	)
 
+	# using data.frame() until
+	# https://github.com/hadley/dplyr/issues/2264
 	expect_equal(
-		collect(arrange( delay_sqlite , tailnum )),
-		collect(arrange( delay_monetdb , tailnum ))
+		data.frame(collect(arrange( delay_sqlite , tailnum ))),
+		data.frame(collect(arrange( delay_monetdb , tailnum )))
 	)
 
 
 	delay_sqlite <- filter(delay_sqlite, count > 20, dist < 2000)
 	delay_monetdb <- filter(delay_monetdb, count > 20, dist < 2000)
 
+	# using data.frame() until
+	# https://github.com/hadley/dplyr/issues/2264
 	expect_equal(
-		collect(delay_sqlite),
-		collect(delay_monetdb)
+		data.frame(collect(arrange(delay_sqlite,tailnum))),
+		data.frame(collect(arrange(delay_monetdb,tailnum)))
 	)
 
-	delay_local_sqlite <- collect(delay_sqlite)
-	delay_local_monetdb <- collect(delay_monetdb)
+	delay_local_sqlite <- collect(arrange(delay_sqlite,tailnum))
+	delay_local_monetdb <- collect(arrange(delay_monetdb,tailnum))
 
+	# using data.frame() until
+	# https://github.com/hadley/dplyr/issues/2264
 	expect_equal(
-		collect(delay_local_sqlite),
-		collect(delay_local_monetdb)
+		data.frame(delay_local_sqlite),
+		data.frame(delay_local_monetdb)
 	)
 
 	daily_sqlite <- group_by(flights_sqlite, year, month, day)
 	daily_monetdb <- group_by(flights_monetdb, year, month, day)
 
 
-	#  sqlite seems not to support that?!
-	# bestworst_sqlite <- daily_sqlite %>% 
-	#   select(flight, arr_delay) %>% 
-	#   filter(arr_delay == min(arr_delay) || arr_delay == max(arr_delay))
+	# MIN and MAX window functions are not supported in monetdb
+	# https://www.monetdb.org/Documentation/Manuals/SQLreference/WindowFunctions
+	bestworst_monetdb <- daily_monetdb %>% 
+	  select(flight, arr_delay) %>% 
+	  filter(arr_delay == min(arr_delay) || arr_delay == max(arr_delay))
 
-	# bestworst_monetdb <- daily_monetdb %>% 
-	#   select(flight, arr_delay) %>% 
-	#   filter(arr_delay == min(arr_delay) || arr_delay == max(arr_delay))
-
-	# expect_equal( bestworst_sqlite$query , bestworst_monetdb$query )
-
-	# expect_equal(
-	# 	collect(bestworst_sqlite),
-	# 	collect(bestworst_monetdb)
-	# )
-
-	# ranked_sqlite <- daily_sqlite %>% 
-	#   select(arr_delay) %>% 
-	#   mutate(rank = rank(desc(arr_delay)))
+	expect_error( collect( bestworst_monetdb ) )
 
 
+	# RANK window function is supported
+	ranked_monetdb <- daily_monetdb %>% 
+	  select(arr_delay) %>% 
+	  mutate(rank = rank(desc(arr_delay)))
 
-	# ranked_monetdb <- daily_monetdb %>% 
-	#   select(arr_delay) %>% 
-	#   mutate(rank = rank(desc(arr_delay)))
 
-
-	# expect_equal( ranked_sqlite$query , ranked_monetdb$query )
-
-	# expect_equal(
-	# 	collect(ranked_sqlite),
-	# 	collect(ranked_monetdb)
-	# )
+	expect_true( "tbl_monetdb" %in% class( ranked_monetdb ) )
+	
+	expect_equal( class( collect( ranked_monetdb ) ) , c( "grouped_df" , "tbl_df" , "tbl" , "data.frame" ) )
 
 
 })
