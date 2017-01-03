@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/hannesmuehleisen/MonetDBLite.svg?branch=master)](https://travis-ci.org/hannesmuehleisen/MonetDBLite)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/hannesmuehleisen/MonetDBLite?branch=master&svg=true)](https://ci.appveyor.com/project/hannesmuehleisen/MonetDBLite)
-[![codecov](https://codecov.io/gh/hannesmuehleisen/MonetDBLite/branch/master/graph/badge.svg)](https://codecov.io/gh/hannesmuehleisen/MonetDBLite)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MonetDBLite)](https://CRAN.R-project.org/package=MonetDBLite) 
 [![](http://cranlogs.r-pkg.org/badges/MonetDBLite)](https://dgrtwo.shinyapps.io/cranview/)
 

@@ -6,12 +6,9 @@ r:
   - release
   - devel
 
-after_success:
-  - test $TRAVIS_R_VERSION_STRING = "release" && Rscript -e 'covr::codecov()'
-
-github_packages:
+r_github_packages:
   - hadley/testthat
-  - hadley/dplyr
+#  - hadley/dplyr
   - rstats-db/DBI
   
 addons:
