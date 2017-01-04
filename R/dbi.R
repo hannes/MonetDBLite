@@ -783,11 +783,11 @@ setMethod("dbFetch", signature(res="MonetDBEmbeddedResult", n="numeric"), def=fu
   if (!dbIsValid(res)) {
     stop("Cannot fetch results from closed response.")
   }
-  if (n == 0) {
-    stop("Fetch 0 rows? Really?")
-  }
   if (res@env$info$type == Q_UPDATE) { 
     return(data.frame())
+  }
+  if (n == 0) {
+    return(head(res@env$resp$tuples, 0))
   }
   if (res@env$delivered < 0) {
     res@env$delivered <- 0

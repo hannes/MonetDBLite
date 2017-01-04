@@ -16,9 +16,6 @@ src_monetdb <- function(dbname="demo", host = "localhost", port = 50000L, user =
   dplyrMt[["sql_translate_env.MonetDBConnection"]]     <- sql_translate_env.MonetDBConnection
   dplyrMt[["src_desc.src_monetdb"]]                    <- src_desc.src_monetdb
   dplyrMt[["tbl.src_monetdb"]]                         <- tbl.src_monetdb
-  dplyrMt[["db_query_fields.MonetDBConnection"]]       <- db_query_fields.MonetDBEmbeddedConnection
-  dplyrMt[["db_query_rows.MonetDBConnection"]]         <- db_query_rows.MonetDBConnection
-  dplyrMt[["db_query_rows.MonetDBEmbeddedConnection"]] <- db_query_rows.MonetDBEmbeddedConnection
   dplyrMt[["db_save_query.MonetDBConnection"]]         <- db_save_query.MonetDBConnection
   dplyrMt[["db_insert_into.MonetDBConnection"]]        <- db_insert_into.MonetDBConnection
   dplyrMt[["db_create_index.MonetDBConnection"]]       <- db_create_index.MonetDBConnection
@@ -79,23 +76,6 @@ sample_frac.tbl_monetdb <- function(tbl, frac=1, replace = FALSE, weight = NULL)
   dplyr::sample_n(tbl, n, replace, weight)
 }
 
-db_query_fields.MonetDBConnection <- function(con, sql, ...) {
-  # prepare gives us column info without actually running a query. Nice.
-  DBI::dbGetQuery(con, dplyr::build_sql("PREPARE ", sql))$column
-}
-
-db_query_fields.MonetDBEmbeddedConnection <- function(con, sql, ...) {
-  names(DBI::dbGetQuery(con, sql, execute = F))
-}
-
-db_query_rows.MonetDBConnection <- function(con, sql, ...) {
-  monetdb_queryinfo(con,sql)$rows
-}
-
-db_query_rows.MonetDBEmbeddedConnection <- function(con, sql, ...) {
-  attr(DBI::dbGetQuery(con, sql, resultconvert = F), "__rows")
-}
-
 db_insert_into.MonetDBConnection <- function(con, table, values, ...) {
   DBI::dbWriteTable(con, DBI::dbQuoteIdentifier(con, table), values,
     append=T, transaction=F, csvdump=T)
@@ -116,20 +96,4 @@ db_create_index.MonetDBConnection <- function(con, table, columns, name = NULL,
 
 db_analyze.MonetDBConnection <- function(con, table, ...) {
   TRUE
-}
-
-monetdb_queryinfo <- function(conn, query) {
-  info <- emptyenv()
-  tryCatch({
-    .mapiRequest(conn, "Xreply_size 1")
-    res <- dbSendQuery(conn, query)
-    info <- res@env$info
-    dbClearResult(res);
-  }, error = function(e) {
-    print(e)
-    warning("Failed to calculate result set size for ", query)
-  }, finally = {
-    .mapiRequest(conn, paste0("Xreply_size ", REPLY_SIZE))
-  })
-  info
 }
