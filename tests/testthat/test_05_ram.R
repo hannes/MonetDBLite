@@ -26,7 +26,7 @@ test_that( "MonetDBLite handles heavy shutdown/startup situations" , {
 			library(DBI)
 			td1 <- paste0( tempdir() , "/one" )
 			td2 <- paste0( tempdir() , "/two" )
-			for( j in seq( repetitions ) ){
+			for( i in seq( repetitions ) ){
 				cat( "two server startup and shutdown iteration" , i , '\r' )
 				conn <- dbConnect( MonetDBLite::MonetDBLite() , td1 )
 				dbDisconnect( conn , shutdown = TRUE )
