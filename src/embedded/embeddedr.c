@@ -45,6 +45,7 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 	}
 	if (output && output->nr_cols > 0) {
 		int i = 0, ncols = output->nr_cols;
+		ssize_t nrows = -1;
 		SEXP retlist = NULL, names = NULL;
 		PROTECT(retlist = allocVector(VECSXP, ncols));
 		if (!retlist) {
@@ -56,8 +57,7 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 			UNPROTECT(2);
 			return monetdb_error_R("Memory allocation failed");
 		}
-		SET_ATTR(retlist, install("__rows"),
-			Rf_ScalarReal(BATcount(BATdescriptor(output->cols[0].b))));
+
 		for (i = 0; i < ncols; i++) {
 			BAT* b = BATdescriptor(output->cols[i].b);
 			SEXP varvalue = NULL;
@@ -65,6 +65,9 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 			if (!varname) {
 				UNPROTECT(i * 2 + 3);
 				return monetdb_error_R("Memory allocation failed");
+			}
+			if (nrows < 0) {
+				nrows = BATcount(b);
 			}
 			if (!LOGICAL(resultconvertsexp)[0]) {
 				BATsetcount(b, 0); // hehe
@@ -76,7 +79,9 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 			}
 			SET_VECTOR_ELT(retlist, i, varvalue);
 			SET_STRING_ELT(names, i, varname);
+			BBPunfix(b->batCacheid);
 		}
+		SET_ATTR(retlist, install("__rows"), Rf_ScalarReal(nrows));
 		monetdb_cleanup_result(R_ExternalPtrAddr(connsexp), output);
 		SET_NAMES(retlist, names);
 		/*
