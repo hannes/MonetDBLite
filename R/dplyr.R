@@ -16,12 +16,13 @@ src_monetdb <- function(dbname="demo", host = "localhost", port = 50000L, user =
   dplyrMt[["sql_translate_env.MonetDBConnection"]]     <- sql_translate_env.MonetDBConnection
   dplyrMt[["src_desc.src_monetdb"]]                    <- src_desc.src_monetdb
   dplyrMt[["tbl.src_monetdb"]]                         <- tbl.src_monetdb
+  dplyrMt[["sample_n.tbl_monetdb"]]                    <- sample_n.tbl_monetdb
+  dplyrMt[["sample_frac.tbl_monetdb"]]                 <- sample_frac.tbl_monetdb
   dplyrMt[["db_save_query.MonetDBConnection"]]         <- db_save_query.MonetDBConnection
   dplyrMt[["db_insert_into.MonetDBConnection"]]        <- db_insert_into.MonetDBConnection
   dplyrMt[["db_create_index.MonetDBConnection"]]       <- db_create_index.MonetDBConnection
   dplyrMt[["db_analyze.MonetDBConnection"]]            <- db_analyze.MonetDBConnection
-  dplyrMt[["sample_n.tbl_monetdb"]]                    <- sample_n.tbl_monetdb
-  dplyrMt[["sample_frac.tbl_monetdb"]]                 <- sample_frac.tbl_monetdb
+  dplyrMt[["db_explain.MonetDBEmbeddedConnection"]]    <- db_explain.MonetDBEmbeddedConnection
 
   s
 }
@@ -96,4 +97,14 @@ db_create_index.MonetDBConnection <- function(con, table, columns, name = NULL,
 
 db_analyze.MonetDBConnection <- function(con, table, ...) {
   TRUE
+}
+
+db_explain.MonetDBEmbeddedConnection <- function(con, sql, ...) {
+  exsql <- dplyr::build_sql("PLAN ", dplyr::sql(sql), con = con)
+  expl  <- DBI::dbGetQuery(con, exsql)
+  planstr <- expl[[1]][[1]]
+  planstr <- gsub("\n=", "\n", planstr, perl=T)
+  planstr <- gsub("^\n", "", planstr, perl=T)
+
+  planstr
 }

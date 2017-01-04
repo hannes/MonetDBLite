@@ -457,6 +457,42 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
 		mnstr_printf(c->fdout, "#SQLstatement:\n");
 #endif
 		scanner_query_processed(&(m->scanner));
+
+		// PLAN output
+		if (m->emode == m_plan && mvc_status(m) == NULL) {
+			list *refs = sa_list(m->sa);
+			stream *s;
+			buffer *b = buffer_create(16364); /* hopefully enough */
+			if (!b) {
+				msg = createException(PARSE, "SQLparser", "Memory allocation failed");
+				goto endofcompile;
+			}
+			s = buffer_wastream(b, "SQL Plan");
+			if (!s) {
+				msg = createException(PARSE, "SQLparser", "Memory allocation failed");
+				buffer_destroy(b);
+				goto endofcompile;
+			}
+
+			rel_print_refs(m, s, r, 0, refs, 1);
+			rel_print_(m, s, r, 0, refs, 1);
+			mnstr_printf(s, "\n");
+			mnstr_writeBte(s, 0);
+
+			*result = res_table_create(m->session->tr, m->result_id++, 1, 1, NULL, NULL);
+			if (!*result) {
+				msg = createException(PARSE, "SQLparser", "Memory allocation failed");
+			} else {
+				res_col_create(m->session->tr, *result, "plan", "plan", "varchar", 0, 0, TYPE_str, b->buf);
+			}
+
+			mnstr_close(s);
+			mnstr_destroy(s);
+			buffer_destroy(b);
+
+			goto endofcompile;
+		}
+
 		if (s == 0 || (err = mvc_status(m))) {
 			msg = createException(PARSE, "SQLparser", "%s", m->errstr);
 			handle_error(m, c->fdout, status);
@@ -469,6 +505,9 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
 			c->glb = oldglb;
 			goto endofcompile;
 		}
+
+
+
 		/* generate MAL code */
 #ifdef _SQL_COMPILE
 		mnstr_printf(c->fdout, "#SQLstatement:pre-compile\n");

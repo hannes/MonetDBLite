@@ -25,9 +25,14 @@ test_that("dplyr copy_to()", {
 
 	flights_monetdb <<- copy_to(my_db_monetdb, flights, temporary = FALSE, indexes = list(
 	  c("year", "month", "day"), "carrier", "tailnum"))
+
 })
 
 
+test_that("explain works", {
+	explain(flights_monetdb)
+	explain(flights_sqlite)
+})
 
 
 test_that("dplyr tbl( sql() )", {
@@ -38,45 +43,28 @@ test_that("dplyr tbl( sql() )", {
 })
 
 
-test_that("dplyr select()", {
+test_that("dplyr basic verbs", {
 	expect_equal(
 		collect(select(flights_sqlite, year:day, dep_delay, arr_delay)) ,
 		collect(select(flights_monetdb, year:day, dep_delay, arr_delay))
 	)
-})
-
-
-test_that("dplyr filter()", {
 	expect_equal(
 		collect(filter(flights_sqlite, dep_delay > 240)) ,
 		collect(filter(flights_monetdb, dep_delay > 240))
 	)
-})
-
-
-test_that("dplyr arrange()", {
 	expect_equal(
 		collect(arrange(flights_sqlite, year, month, day, dep_time)) ,
 		collect(arrange(flights_monetdb, year, month, day, dep_time))
 	)
-})
-
-
-test_that("dplyr mutate()", {
 	expect_equal(
 		collect(mutate(flights_sqlite, speed = air_time / distance)) ,
 		collect(mutate(flights_monetdb, speed = air_time / distance))
 	)
-})
-
-
-test_that("dplyr summarise()", {
 	expect_equal(
 		data.frame(summarise(flights_sqlite, delay = mean(dep_time))),
 		data.frame(summarise(flights_monetdb, delay = mean(dep_time)))
 	)
 })
-
 
 
 test_that("dplyr multiple objects", {
@@ -107,14 +95,6 @@ test_that("dplyr multiple objects", {
 })
 
 
-# https://github.com/hannesmuehleisen/MonetDBLite/issues/18
-# test_that("dplyr copy_to", {
-	# expect_equal(
-		# explain(c4_sqlite),
-		# explain(c4_monetdb)
-	# )
-
-
 test_that("dplyr group_by", {
 	expect_equal(
 		collect(by_tailnum <<- group_by(flights, tailnum)),
@@ -129,13 +109,11 @@ test_that("dplyr group_by", {
 
 
 test_that("dplyr summarise 2", {
-
 	delay_sqlite <- summarise(by_tailnum_sqlite,
 	  count = as.integer(n()),
 	  dist = mean(distance),
 	  delay = mean(arr_delay)
 	)
-
 
 	delay_monetdb <- summarise(by_tailnum_monetdb,
 	  count = as.integer(n()),
@@ -149,7 +127,6 @@ test_that("dplyr summarise 2", {
 		data.frame(collect(arrange( delay_sqlite , tailnum ))),
 		data.frame(collect(arrange( delay_monetdb , tailnum )))
 	)
-
 
 	delay_sqlite <- filter(delay_sqlite, count > 20, dist < 2000)
 	delay_monetdb <- filter(delay_monetdb, count > 20, dist < 2000)
@@ -174,7 +151,6 @@ test_that("dplyr summarise 2", {
 	daily_sqlite <- group_by(flights_sqlite, year, month, day)
 	daily_monetdb <- group_by(flights_monetdb, year, month, day)
 
-
 	# MIN and MAX window functions are not supported in monetdb
 	# https://www.monetdb.org/Documentation/Manuals/SQLreference/WindowFunctions
 	bestworst_monetdb <- daily_monetdb %>% 
@@ -183,17 +159,13 @@ test_that("dplyr summarise 2", {
 
 	expect_error( collect( bestworst_monetdb ) )
 
-
 	# RANK window function is supported
 	ranked_monetdb <- daily_monetdb %>% 
 	  select(arr_delay) %>% 
 	  mutate(rank = rank(desc(arr_delay)))
 
-
 	expect_true( "tbl_monetdb" %in% class( ranked_monetdb ) )
-	
 	expect_equal( class( collect( ranked_monetdb ) ) , c( "grouped_df" , "tbl_df" , "tbl" , "data.frame" ) )
-
 })
 
 
