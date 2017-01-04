@@ -18,11 +18,12 @@ setMethod("dbIsValid", "MonetDBDriver", def=function(dbObj, ...) invisible(TRUE)
 setMethod("dbUnloadDriver", "MonetDBDriver", def=function(drv, ...) invisible(TRUE))
 
 setMethod("dbGetInfo", "MonetDBDriver", def=function(dbObj, ...)
-  list(name="MonetDBDriver", 
-       driver.version=utils::packageVersion("MonetDBLite"), 
-       DBI.version=utils::packageVersion("DBI"), 
-       client.version=NA, 
-       max.connections=125) # R can only handle 128 connections, three of which are pre-allocated
+  
+  list(name            = "MonetDBDriver", 
+       driver.version  = utils::packageVersion("MonetDBLite"), 
+       DBI.version     = utils::packageVersion("DBI"), 
+       client.version  = utils::packageVersion("MonetDBLite"), 
+       max.connections = 125) # R can only handle 128 connections, three of which are pre-allocated
 )
 
 # shorthand for connecting to the DB, very handy, e.g. dbListTables(mc("acs"))
@@ -159,7 +160,7 @@ setMethod("dbGetInfo", "MonetDBConnection", def=function(dbObj, ...) {
   ll <- as.list(envdata$value)
   names(ll) <- envdata$name
   ll$name <- "MonetDBConnection"
-  ll$db.version <- packageVersion("MonetDBLite")
+  ll$db.version <- utils::packageVersion("MonetDBLite")
   ll$dbname <- ll$gdk_dbname
   ll$username <- NA
   ll$host <- NA
