@@ -515,6 +515,7 @@ SQLinitClient(Client c)
 				msg = createException(MAL, "createdb", "could not load inlined createdb script");
 
 			bstream_destroy(createdb_bstream);
+			free(createdb_buf);
 
 			if (m->sa)
 				sa_destroy(m->sa);
