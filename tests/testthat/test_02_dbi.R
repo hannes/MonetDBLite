@@ -62,14 +62,18 @@ test_that("results are correct", {
 
 	expect_equal(dbColumnInfo(res)[[1,1]], "Species")
 	expect_equal(dbColumnInfo(res)[[2,1]], "Sepal.Width")
-	expect_equal(dbGetRowCount(res), 150L)
+	expect_equal(dbGetRowCount(res), 0)
 
 	data <- dbFetch(res, 10)
+	expect_equal(dbGetRowCount(res), 10)
+
 	expect_equal(dim(data)[[1]], 10)
 	expect_equal(dim(data)[[2]], 2)
 	expect_false(dbHasCompleted(res))
 
 	data2 <- dbFetch(res, -1)
+	expect_equal(dbGetRowCount(res), 150)
+
 	expect_equal(dim(data2)[[1]], 140)
 	expect_true(dbHasCompleted(res))
 	expect_true(dbIsValid(res))

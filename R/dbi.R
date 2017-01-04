@@ -876,7 +876,10 @@ setMethod("dbGetStatement", "MonetDBResult", def = function(res, ...) {
 valueClass = "character")
 
 setMethod("dbGetRowCount", "MonetDBResult", def = function(res, ...) {
-  res@env$info$rows
+  if (res@env$delivered < 1) {
+    return(0)
+  }
+  res@env$delivered 
 }, 
 valueClass = "numeric")
 
