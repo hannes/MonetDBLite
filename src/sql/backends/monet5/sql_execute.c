@@ -459,7 +459,7 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
 		scanner_query_processed(&(m->scanner));
 
 		// PLAN output
-		if (m->emode == m_plan && mvc_status(m) == NULL) {
+		if (m->emode == m_plan && mvc_status(m) == 0) {
 			list *refs = sa_list(m->sa);
 			stream *s;
 			buffer *b = buffer_create(16364); /* hopefully enough */
