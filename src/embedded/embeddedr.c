@@ -168,6 +168,9 @@ SEXP monetdb_append_R(SEXP connsexp, SEXP schemasexp, SEXP namesexp, SEXP tabled
 
 	wrapup:
 		PutRNGstate();
+		if (ad) {
+			GDKfree(ad);
+		}
 		if (t_column_names) {
 			GDKfree(t_column_names);
 		}

@@ -203,9 +203,8 @@ malInclude(Client c, str name, int listing)
 		c->fdin = bstream_create(mal_init_stream, mal_init_len);
 		bstream_next(c->fdin);
 		parseMAL(c, c->curprg, 1);
-		free(mal_init_buf);
-		free(mal_init_stream);
-		free(c->fdin);
+		bstream_destroy(c->fdin);
+		buffer_destroy(mal_init_buf);
 		c->fdin = NULL;
 	}
 #else

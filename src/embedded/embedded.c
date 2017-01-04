@@ -200,7 +200,7 @@ char* monetdb_query(void* conn, char* query, char execute, void** result) {
 	else if (m->session->status < 0 && m->session->auto_commit == 0){
 		res = GDKstrdup("Current transaction is aborted (please ROLLBACK)");
 	} else {
-		res = SQLstatementIntern(c, &query, "name", execute, 0, (res_table **) result);
+		res = SQLstatementIntern(c, &query, "main", execute, 0, (res_table **) result);
 	}
 	SQLautocommit(c, m);
 	return res;
