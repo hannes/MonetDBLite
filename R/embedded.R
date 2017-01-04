@@ -129,8 +129,7 @@ monetdb_embedded_disconnect <- function(conn) {
 }
 
 monetdb_embedded_shutdown <- function() {
-		
-        gc()	
+    gc()	
         
 	if (monetdb_embedded_env$started_dir != "" && !dir.exists(monetdb_embedded_env$started_dir)) {
 		stop("Somehow the database directory went missing ", monetdb_embedded_env$started_dir)

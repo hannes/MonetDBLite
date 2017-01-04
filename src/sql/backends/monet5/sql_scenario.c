@@ -505,17 +505,19 @@ SQLinitClient(Client c)
 		maybeupgrade = 0;
 		{
 			size_t createdb_len = strlen(createdb_inline);
-			buffer* createdb_buf = buffer_create(createdb_len);
-			stream* createdb_stream = buffer_rastream(createdb_buf, "createdb.sql");
+			buffer createdb_buf;
+			stream* createdb_stream = buffer_rastream(&createdb_buf, "createdb.sql");
 			bstream* createdb_bstream = bstream_create(createdb_stream, createdb_len);
-			buffer_init(createdb_buf, createdb_inline, createdb_len);
+			createdb_buf.pos = 0;
+			createdb_buf.len = createdb_len;
+			createdb_buf.buf = createdb_inline;
+
 			if (bstream_next(createdb_bstream) >= 0)
 				msg = SQLstatementIntern(c, &createdb_bstream->buf, "sql.init", TRUE, FALSE, NULL);
 			else
 				msg = createException(MAL, "createdb", "could not load inlined createdb script");
 
 			bstream_destroy(createdb_bstream);
-			free(createdb_buf);
 
 			if (m->sa)
 				sa_destroy(m->sa);

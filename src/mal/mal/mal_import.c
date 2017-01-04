@@ -194,9 +194,11 @@ malInclude(Client c, str name, int listing)
 	(void) p;
 	{
 		size_t mal_init_len = strlen(mal_init_inline);
-		buffer* mal_init_buf = buffer_create(mal_init_len);
-		stream* mal_init_stream = buffer_rastream(mal_init_buf, name);
-		buffer_init(mal_init_buf, mal_init_inline, mal_init_len);
+		buffer mal_init_buf;
+		stream* mal_init_stream = buffer_rastream(&mal_init_buf, name);
+		mal_init_buf.pos = 0;
+		mal_init_buf.len = mal_init_len;
+		mal_init_buf.buf = mal_init_inline;
 		c->srcFile = name;
 		c->yycur = 0;
 		c->bak = NULL;
@@ -204,7 +206,6 @@ malInclude(Client c, str name, int listing)
 		bstream_next(c->fdin);
 		parseMAL(c, c->curprg, 1);
 		bstream_destroy(c->fdin);
-		free(mal_init_buf);
 		c->fdin = NULL;
 	}
 #else
