@@ -33,7 +33,7 @@ monetdb_embedded_startup <- function(dir=tempdir(), quiet=TRUE, sequential=TRUE)
 		return(invisible(TRUE))
 	}
 	if (is.character(res)) {
-		stop("Failed to initialize embedded MonetDB ", res)
+		stop("Failed to initialize embedded MonetDB ", gsub("\n", " ", res, fixed=TRUE))
 	}
 	monetdb_embedded_env$is_started <- TRUE
 	monetdb_embedded_env$started_dir <- dir
@@ -69,7 +69,7 @@ monetdb_embedded_query <- function(conn, query, execute=TRUE, resultconvert=TRUE
 	resp <- list()
 	if (is.character(res)) { # error
 		resp$type <- "!" # MSG_MESSAGE
-		resp$message <- res
+		resp$message <- gsub("\n", " ", res, fixed=TRUE)
 	}
 	if (is.logical(res)) { # no result set, but successful
 		resp$type <- 2 # Q_UPDATE
