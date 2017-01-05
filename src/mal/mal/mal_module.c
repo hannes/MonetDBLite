@@ -48,13 +48,13 @@ mal_module_reset(void)
 }
 
 static void clrModuleIndex(str nme, Module cur){
-		if( moduleIndex[(int)(*nme)][(int)(*(nme+1))]== cur)
-			moduleIndex[(int)(*nme)][(int)(*(nme+1))]= cur->link;
+		if( moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]]== cur)
+			moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]]= cur->link;
 }
 
 static void setModuleIndex(str nme, Module cur){
-		cur->link= moduleIndex[(int)(*nme)][(int)(*(nme+1))];
-		moduleIndex[(int)(*nme)][(int)(*(nme+1))]= cur;
+		cur->link= moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]];
+		moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]]= cur;
 }
 
 /*
@@ -84,8 +84,7 @@ Module newModule(Module scope, str nme){
 	// User modules are never global
 	if( strcmp(nme,"user")){
 		setModuleIndex(nme,cur);
-		if ( moduleChain)
-			cur->next = moduleChain;
+		cur->next = moduleChain;
 		moduleChain = cur;
 	}
 	return cur;
@@ -99,8 +98,7 @@ Module fixModule(Module scope, str nme){
 
 	if( strcmp(nme,"user")==0)
 		return scope;
-	if( moduleIndex[(int)(*nme)][(int)(*(nme+1))])
-		s= moduleIndex[(int)(*nme)][(int)(*(nme+1))];
+	s= moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]];
 	while(s != NULL){
 		if( nme == s->name )
 			return s;
@@ -251,7 +249,7 @@ void deleteSymbol(Module scope, Symbol prg){
 Module findModule(Module scope, str name){
 	Module def=scope;
 	if( name==NULL) return scope;
-	scope= moduleIndex[(int)(*name)][(int)(*(name+1))];
+	scope= moduleIndex[((unsigned char *) name)[0]][((unsigned char *) name)[1]];
 	while(scope != NULL){
 			if( name == scope->name )
 					return scope;
@@ -264,7 +262,7 @@ Module findModule(Module scope, str name){
 int isModuleDefined(Module scope, str name){
 	if( name==NULL || scope==NULL) return FALSE;
 	if( name == scope->name) return TRUE;
-	scope= moduleIndex[(int)(*name)][(int)(*(name+1))];
+	scope= moduleIndex[((unsigned char *) name)[0]][((unsigned char *) name)[1]];
 	while(scope != NULL){
 			if( name == scope->name )
 					return TRUE;
