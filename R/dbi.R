@@ -87,7 +87,7 @@ setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="m
     embedded <- substring(dbname, 13, nchar(dbname))
   }
 
-  if (inherits(drv, "MonetDBEmbeddedDriver")) {
+  if (inherits(drv, "MonetDBEmbeddedDriver") && missing(embedded)) {
     if (missing(dbname)) embedded <- tempdir()
     else embedded <- dbname
   }
