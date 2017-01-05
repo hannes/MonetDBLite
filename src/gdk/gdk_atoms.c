@@ -579,22 +579,6 @@ batWrite(const bat *a, stream *s, size_t cnt)
 	return mnstr_writeIntArray(s, (const int *) a, cnt) ? GDK_SUCCEED : GDK_FAIL;
 }
 
-#ifdef HAVE_HGE
-static hge h_pow(hge base, hge exp) {
-	hge result = 1;
-#else
-static lng h_pow(lng base, lng exp) {
-	lng result = 1;
-#endif
-    while (exp)
-    {
-        if (exp & 1)
-            result *= base;
-        exp >>= 1;
-        base *= base;
-    }
-    return result;
-}
 
 /*
  * numFromStr parses the head of the string for a number, accepting an

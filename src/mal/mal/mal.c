@@ -114,8 +114,6 @@ int mal_init(void){
  */
 void mserver_reset(void)
 {
-	str err = 0;
-
 	GDKprepareExit();
 	MCstopClients(0);
 	setHeartbeat(-1);
