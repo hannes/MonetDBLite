@@ -128,7 +128,10 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 		GDKsetenv("sql_optimizer", "sequential_pipe");
 	}
 
-	if (silent) THRdata[0] = stream_blackhole_create();
+	if (silent) {
+		close_stream((stream*) THRdata[0]);
+		THRdata[0] = stream_blackhole_create();
+	}
 
 	if (mal_init() != 0) {
 		retval = GDKstrdup("mal_init() failed");
