@@ -112,7 +112,7 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	}
 
 	embedded_stdout = fopen(NULLFILE, "w");
-	embedded_stderr = fopen(NULLFILE, "w");
+	embedded_stderr = embedded_stdout;
 
 	setlen = mo_builtin_settings(&set);
 	setlen = mo_add_option(&set, setlen, opt_cmdline, "gdk_dbpath", dbdir);
@@ -316,7 +316,6 @@ void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
 		mserver_reset();
 		fclose(embedded_stdout);
-		fclose(embedded_stderr);
 		monetdb_embedded_initialized = 0;
 	}
 }
