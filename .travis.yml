@@ -14,3 +14,6 @@ r_github_packages:
 addons:
   apt_packages:
     - pandoc
+
+after_failure:
+  - ./travis-tool.sh dump_logs
