@@ -261,6 +261,8 @@ setMethod("dbSendQuery", signature(conn="MonetDBConnection", statement="characte
   if(!is.null(log_file <- getOption("monetdb.log.query", NULL)))
     cat(c(statement, ";\n"), file = log_file, sep="", append = TRUE)
   # the actual request
+  statement <- enc2utf8(statement)
+
   resp <- NA
   tryCatch({
     mresp <- .mapiRequest(conn, paste0("s", statement, "\n;"), async=async)
@@ -336,7 +338,9 @@ setMethod("dbSendQuery", signature(conn="MonetDBEmbeddedConnection", statement="
   if(!is.null(list) || length(list(...))){
     if (length(list(...))) statement <- .bindParameters(statement, list(...))
     if (!is.null(list)) statement <- .bindParameters(statement, list)
-  } 
+  }
+  statement <- enc2utf8(statement)
+
   env <- NULL
   if (getOption("monetdb.debug.query", F)) message("QQ: '", statement, "'")
   if(!is.null(log_file <- getOption("monetdb.log.query", NULL)))
