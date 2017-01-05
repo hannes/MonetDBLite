@@ -7,10 +7,10 @@ library(testthat)
 library(callr)
 
 test_that( "MonetDBLite handles heavy shutdown/startup situations" , {
-	skip("Too heavy for now")
+	if (Sys.getenv("MONETDBLITE_DEBUG") != "") skip("Skipping on Hannes' poor box")
 
 	single_restarts <- 
-		function( repetitions = 1000 ){
+		function( repetitions = 500 ){
 			library(DBI)
 			for( i in seq( repetitions ) ) {
 				cat( "single startup and shutdown iteration" , i , '\r' )
@@ -22,7 +22,7 @@ test_that( "MonetDBLite handles heavy shutdown/startup situations" , {
 
 		
 	double_restarts <-
-		function( repetitions = 500 ){
+		function( repetitions = 250 ){
 			library(DBI)
 			td1 <- paste0( tempdir() , "/one" )
 			td2 <- paste0( tempdir() , "/two" )
