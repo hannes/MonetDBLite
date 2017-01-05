@@ -303,7 +303,7 @@ install-exec-local-batmtime.mal: batmtime.mal
 uninstall-local-batmtime.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/batmtime.mal
 
-AM_CPPFLAGS = -I$(srcdir) -I../../common/options -I$(srcdir)/../../common/options -I../../common/stream -I$(srcdir)/../../common/stream -I../../common/utils -I$(srcdir)/../../common/utils -I../../gdk -I$(srcdir)/../../gdk -I../../ -I$(srcdir)/../../ -I../mal -I$(srcdir)/../mal -I../../clients/mapilib -I$(srcdir)/../../clients/mapilib $(pcre_CFLAGS) $(zlib_CFLAGS) $(BZIP_INCS) $(MSGCONTROL_FLAGS) $(openssl_CFLAGS)
+AM_CPPFLAGS = -I$(srcdir) -I../../common/options -I$(srcdir)/../../common/options -I../../common/stream -I$(srcdir)/../../common/stream -I../../common/utils -I$(srcdir)/../../common/utils -I../../gdk -I$(srcdir)/../../gdk -I../../ -I$(srcdir)/../../ -I../mal -I$(srcdir)/../mal $(pcre_CFLAGS) $(zlib_CFLAGS) $(BZIP_INCS) $(MSGCONTROL_FLAGS) $(openssl_CFLAGS)
 libmodules_la_CFLAGS=-DLIBMODULES $(AM_CFLAGS)
 modulesdir = $(libdir)
 libmodules_la-blob.lo: blob.c ../../monetdb_config.h blob.h ../mal/../../gdk/gdk.h ../mal/../../gdk/gdk_system.h ../mal/../../gdk/gdk_atomic.h ../mal/../../gdk/gdk_posix.h ../mal/../../common/stream/stream.h ../mal/../../gdk/gdk_delta.h ../mal/../../gdk/gdk_hash.h ../mal/../../gdk/gdk_atoms.h ../mal/../../gdk/gdk_bbp.h ../mal/../../gdk/gdk_utils.h ../mal/../../common/options/monet_options.h ../mal/../../gdk/gdk_calc.h ../mal/mal.h ../mal/mal_instruction.h ../mal/mal_type.h ../mal/mal_stack.h ../mal/mal_namespace.h ../mal/mal_errors.h ../mal/mal_exception.h

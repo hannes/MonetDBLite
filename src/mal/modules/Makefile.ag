@@ -11,7 +11,6 @@ INCLUDES = ../../common/options \
 	../../gdk \
 	../../ \
 	../mal \
-	../../clients/mapilib \
 	$(pcre_CFLAGS) $(zlib_CFLAGS) $(BZIP_INCS) $(MSGCONTROL_FLAGS) $(openssl_CFLAGS)
    
 		   
