@@ -315,6 +315,8 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
 		mserver_reset();
+		fclose(embedded_stdout);
+		fclose(embedded_stderr);
 		monetdb_embedded_initialized = 0;
 	}
 }
