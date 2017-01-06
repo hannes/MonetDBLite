@@ -20,7 +20,7 @@ CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS -I$R_INCLUDE_DIR $CPICFLAGS -D_XPG6" \
 --disable-odbc --disable-console  \
 --without-openssl --without-uuid --without-curl --without-bz2 --without-lzma --without-libxml2 \
 --without-python2 --without-python3 --without-unixodbc --disable-mapi \
---without-samtools --without-sphinxclient --without-geos --without-samtools --without-readline \
+--without-samtools --without-sphinxclient --without-geos --without-readline \
 $OPTFLAG --enable-silent-rules --disable-int128
 
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in

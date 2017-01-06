@@ -76,4 +76,18 @@ setMethod("mdbapply", signature(conn="MonetDBConnection"),  def=function(conn, t
   res
 })
 
-
+monetdb_queryinfo <- function(conn, query) {
+  info <- emptyenv()
+  tryCatch({
+    .mapiRequest(conn, "Xreply_size 1")
+    res <- dbSendQuery(conn, query)
+    info <- res@env$info
+    dbClearResult(res);
+  }, error = function(e) {
+    print(e)
+    warning("Failed to calculate result set size for ", query)
+  }, finally = {
+    .mapiRequest(conn, paste0("Xreply_size ", REPLY_SIZE))
+  })
+  info
+}

@@ -7,7 +7,8 @@ library(testthat)
 library(callr)
 
 test_that( "MonetDBLite handles heavy shutdown/startup situations" , {
-	if (Sys.getenv("MONETDBLITE_DEBUG") != "") skip("Skipping on Hannes' poor box")
+	#if (Sys.getenv("MONETDBLITE_DEBUG") != "") skip("Skipping on Hannes' poor box")
+	skip("Too heavy for now")
 
 	single_restarts <- 
 		function( repetitions = ( 128 * 4 ) + 1 ){

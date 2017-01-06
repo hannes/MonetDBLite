@@ -10,7 +10,6 @@ r_github_packages:
   - hadley/testthat
   - hadley/dplyr
   - rstats-db/DBI
-  - r-pkgs/callr
   
 addons:
   apt_packages:
