@@ -56,6 +56,9 @@
 /* Define to 1 if you have the <bam/sam.h> header file. */
 #undef HAVE_BAM_SAM_H
 
+/* Define to 1 if you have the `clock_gettime' function. */
+#undef HAVE_CLOCK_GETTIME
+
 /* Define if you have the CommonCrypto library */
 #undef HAVE_COMMONCRYPTO
 

@@ -25333,6 +25333,7 @@ LIBS="$LIBS $MATH_LIBS"
 for ac_func in \
 	asctime_r \
 	backtrace \
+	clock_gettime \
 	ctime_r \
 	fabsf \
 	fallocate \
