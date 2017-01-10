@@ -8,8 +8,10 @@ import os
 import sys
 from shutil import copyfile
 import subprocess
+import platform
 
 PY3 = sys.version_info[0] >= 3
+bits = platform.architecture()[0]
 
 pypi_upload = 'MONETDBLITE_PIP_UPLOAD' in os.environ
 
@@ -35,15 +37,14 @@ def get_python_link_flags():
         libs.extend(getvar('LINKFORSHARED').split())
     return ' '.join(libs)
 
-print(get_python_link_flags())
-
 basedir = os.path.dirname(os.path.realpath(__file__))
 if os.name == 'nt':
-    print("FIXME: link to shipped .dll file depending on 32-bit/64-bit windows and python 2/python 3")
+    basedir = 'C:\\monetdblite\\build\\ffd2a0a35d2fed128a199f8537628c58a43c49ab\\python%d-%s' % (3 if PY3 else 2, platform.architecture()[0])
+    print(basedir)
     monetdb_shared_lib_base = "libmonetdb5.dll"
     monetdb_shared_lib = os.path.join(basedir, monetdb_shared_lib_base)
     so_extension = '.dll'
-    exit(1)
+
 else:
     try:
         import numpy

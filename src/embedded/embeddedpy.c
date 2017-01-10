@@ -283,9 +283,6 @@ static int monetdb_numpy_initialized = 0;
 void python_monetdblite_init(void) {
 	if (monetdb_numpy_initialized) return;
 
-    if (PyType_Ready(&PyClientType) < 0)
-        return;
-
 	monetdb_numpy_initialized = 1;
 	//import numpy stuff
 	_import_array();
