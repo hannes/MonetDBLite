@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /* Author(s) M.L. Kersten
@@ -194,18 +194,18 @@ malInclude(Client c, str name, int listing)
 	(void) p;
 	{
 		size_t mal_init_len = strlen(mal_init_inline);
-		buffer* mal_init_buf = buffer_create(mal_init_len);
-		stream* mal_init_stream = buffer_rastream(mal_init_buf, name);
-		buffer_init(mal_init_buf, mal_init_inline, mal_init_len);
+		buffer mal_init_buf;
+		stream* mal_init_stream = buffer_rastream(&mal_init_buf, name);
+		mal_init_buf.pos = 0;
+		mal_init_buf.len = mal_init_len;
+		mal_init_buf.buf = mal_init_inline;
 		c->srcFile = name;
 		c->yycur = 0;
 		c->bak = NULL;
 		c->fdin = bstream_create(mal_init_stream, mal_init_len);
 		bstream_next(c->fdin);
 		parseMAL(c, c->curprg, 1);
-		free(mal_init_buf);
-		free(mal_init_stream);
-		free(c->fdin);
+		bstream_destroy(c->fdin);
 		c->fdin = NULL;
 	}
 #else

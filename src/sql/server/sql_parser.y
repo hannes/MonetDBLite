@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 %{
@@ -3499,7 +3499,7 @@ filter_exp:
  ;
 
 subquery:
-    '(' select_no_parens ')'	{ $$ = $2; }
+    '(' select_no_parens_orderby ')'	{ $$ = $2; }
  |  '(' VALUES row_commalist ')'	
 				{ $$ = _symbol_create_list( SQL_VALUES, $3); }
  |  '(' with_query ')'	
@@ -4387,10 +4387,12 @@ literal:
 		  if (!err) {
 		    int bits = digits2bits(digits), obits = bits;
 
-		    for (;(one<<(bits-1)) > value; bits--)
-			    ;
-		   
- 		    if (bits != obits && 
+		    while (bits > 0 &&
+			   (bits == sizeof(value) * 8 ||
+			    (one << (bits - 1)) > value))
+			  bits--;
+
+ 		    if (bits != obits &&
 		       (bits == 8 || bits == 16 || bits == 32 || bits == 64))
 				bits++;
 		

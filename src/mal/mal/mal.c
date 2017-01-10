@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /* (author) M. Kersten */
@@ -114,8 +114,6 @@ int mal_init(void){
  */
 void mserver_reset(void)
 {
-	str err = 0;
-
 	GDKprepareExit();
 	MCstopClients(0);
 	setHeartbeat(-1);
@@ -131,12 +129,12 @@ void mserver_reset(void)
 	GDKfree(mal_clients->prompt);
 	GDKfree(mal_clients->username);
 	freeStack(mal_clients->glb);
+	freeSymbol(mal_clients->curprg);
 	mal_client_reset();
 	mal_linker_reset();
 	mal_resource_reset();
 	mal_runtime_reset();
 	mal_module_reset();
-	mal_instruction_reset();
 
 	memset((char*) monet_cwd, 0, sizeof(monet_cwd));
 	monet_memory = 0;

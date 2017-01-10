@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -49,15 +49,6 @@
 #include "mal_runtime.h"
 #include "mal_authorize.h"
 
-/*
- * This should be in src/mal/mal.h, as the function is implemented in
- * src/mal/mal.c; however, it cannot, as "Client" isn't known there ...
- * |-( For now, we move the prototype here, as it it only used here.
- * Maybe, we should consider also moving the implementation here...
- */
-
-static void freeClient(Client c);
-
 int MAL_MAXCLIENTS = 0;
 ClientRec *mal_clients;
 
@@ -87,7 +78,7 @@ MCinit(void)
 		/* client connections */ maxclients;
 	mal_clients = GDKzalloc(sizeof(ClientRec) * MAL_MAXCLIENTS);
 	if( mal_clients == NULL){
-		showException(GDKout, MAL, "MCinit",MAL_MALLOC_FAIL);
+		showException(GDKout, MAL, "MCinit", MAL_MALLOC_FAIL);
 		mal_exit();
 	}
 }
@@ -353,7 +344,7 @@ MCforkClient(Client father)
  * effects of sharing IO descriptors, also its children. Conversely, a
  * child can not close a parent.
  */
-void
+static void
 freeClient(Client c)
 {
 	Thread t = c->mythread;

@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -15,7 +15,6 @@
  */
 #include "monetdb_config.h"
 #include "sql.h"
-#include "streams.h"
 #include "sql_result.h"
 #include "sql_gencode.h"
 #include <sql_storage.h>
@@ -31,12 +30,12 @@
 #include <rel_exp.h>
 #include <rel_dump.h>
 #include <rel_bin.h>
-#include <bbp.h>
 #include <opt_pipes.h>
-#include <orderidx.h>
-#include "clients.h"
+#include "orderidx.h"
 #include "mal_instruction.h"
 #include "mal_resource.h"
+#include "bat5.h"
+
 
 static int
 rel_is_table(sql_rel *rel)
@@ -345,17 +344,6 @@ SQLabort(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	return msg;
 }
 
-str
-SQLshutdown_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	str msg;
-
-	if ((msg = CLTshutdown(cntxt, mb, stk, pci)) == MAL_SUCCEED) {
-		/* administer the shutdown */
-		mnstr_printf(GDKstdout, "#%s\n", *getArgReference_str(stk, pci, 0));
-	}
-	return msg;
-}
 
 str
 SQLtransaction2(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
@@ -2374,7 +2362,7 @@ DELTAbat(bat *result, const bat *col, const bat *uid, const bat *uval, const bat
 str
 DELTAsub(bat *result, const bat *col, const bat *cid, const bat *uid, const bat *uval, const bat *ins)
 {
-	BAT *c, *cminu, *u_id, *u_val, *u, *i = NULL, *res;
+	BAT *c, *cminu = NULL, *u_id, *u_val, *u, *i = NULL, *res;
 	gdk_return ret;
 
 	if ((u_id = BBPquickdesc(*uid, 0)) == NULL)
@@ -4443,59 +4431,6 @@ dump_trace(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	return MAL_SUCCEED;
 }
 
-str
-sql_sessions_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	return CLTsessions(cntxt, mb, stk, pci);
-}
-
-str
-sql_querylog_catalog(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	int i;
-	BAT *t[8];
-
-	(void) cntxt;
-	(void) mb;
-	QLOGcatalog(t);
-	for (i = 0; i < 8; i++) {
-		bat id = t[i]->batCacheid;
-
-		*getArgReference_bat(stk, pci, i) = id;
-		BBPkeepref(id);
-	}
-	return MAL_SUCCEED;
-}
-
-str
-sql_querylog_calls(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	int i;
-	BAT *t[10];
-
-	(void) cntxt;
-	(void) mb;
-	QLOGcalls(t);
-	for (i = 0; i < 9; i++) {
-		bat id = t[i]->batCacheid;
-
-		*getArgReference_bat(stk, pci, i) = id;
-		BBPkeepref(id);
-	}
-	return MAL_SUCCEED;
-}
-
-str
-sql_querylog_empty(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	(void) cntxt;
-	(void) mb;
-	(void) stk;
-	(void) pci;
-	QLOGempty(NULL);
-	return MAL_SUCCEED;
-}
-
 /* str sql_rowid(oid *rid, ptr v, str *sname, str *tname); */
 str
 sql_rowid(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
@@ -4715,6 +4650,9 @@ vacuum(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, str (*func) (bat
 		throw(SQL, name, "42000!insufficient privileges");
 	if ((!list_empty(t->idxs.set) || !list_empty(t->keys.set)))
 		throw(SQL, name, "%s not allowed on tables with indices", name + 4);
+	if (t->system)
+		throw(SQL, name, "%s not allowed on system tables", name + 4);
+
 	if (has_snapshots(m->session->tr))
 		throw(SQL, name, "%s not allowed on snapshots", name + 4);
 	if (!m->session->auto_commit)
@@ -4805,6 +4743,7 @@ SQLvacuum(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	node *o;
 	int ordered = 0;
 	BUN cnt = 0;
+	BUN dcnt;
 
 	if ((msg = getSQLContext(cntxt, mb, &m, NULL)) != NULL)
 		return msg;
@@ -4821,9 +4760,14 @@ SQLvacuum(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		throw(SQL, "sql.vacuum", "42000!insufficient privileges");
 	if ((!list_empty(t->idxs.set) || !list_empty(t->keys.set)))
 		throw(SQL, "sql.vacuum", "vacuum not allowed on tables with indices");
+	if (t->system)
+		throw(SQL, "sql.vacuum", "vacuum not allowed on system tables");
+
 	if (has_snapshots(m->session->tr))
 		throw(SQL, "sql.vacuum", "vacuum not allowed on snapshots");
 
+	if (!m->session->auto_commit)
+		throw(SQL, "sql.vacuum", "vacuum only allowed in auto commit mode");
 	tr = m->session->tr;
 
 	for (o = t->columns.set->h; o && ordered == 0; o = o->next) {
@@ -4841,16 +4785,17 @@ SQLvacuum(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if( del == NULL)
 		throw(SQL, "sql.vacuum", "Can not access deletion column");
 
-	if (BATcount(del) > 0) {
+	dcnt = BATcount(del);
+	BBPunfix(del->batCacheid);
+	if (dcnt > 0) {
 		/* now decide on the algorithm */
 		if (ordered) {
-			if (BATcount(del) > cnt / 20)
-				SQLshrink(cntxt, mb, stk, pci);
+			if (dcnt > cnt / 20)
+				return SQLshrink(cntxt, mb, stk, pci);
 		} else {
-			SQLreuse(cntxt, mb, stk, pci);
+			return SQLreuse(cntxt, mb, stk, pci);
 		}
 	}
-	BBPunfix(del->batCacheid);
 	return MAL_SUCCEED;
 }
 

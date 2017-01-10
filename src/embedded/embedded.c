@@ -112,7 +112,7 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	}
 
 	embedded_stdout = fopen(NULLFILE, "w");
-	embedded_stderr = fopen(NULLFILE, "w");
+	embedded_stderr = embedded_stdout;
 
 	setlen = mo_builtin_settings(&set);
 	setlen = mo_add_option(&set, setlen, opt_cmdline, "gdk_dbpath", dbdir);
@@ -128,7 +128,10 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 		GDKsetenv("sql_optimizer", "sequential_pipe");
 	}
 
-	if (silent) THRdata[0] = stream_blackhole_create();
+	if (silent) {
+		close_stream((stream*) THRdata[0]);
+		THRdata[0] = stream_blackhole_create();
+	}
 
 	if (mal_init() != 0) {
 		retval = GDKstrdup("mal_init() failed");
@@ -200,7 +203,7 @@ char* monetdb_query(void* conn, char* query, char execute, void** result) {
 	else if (m->session->status < 0 && m->session->auto_commit == 0){
 		res = GDKstrdup("Current transaction is aborted (please ROLLBACK)");
 	} else {
-		res = SQLstatementIntern(c, &query, "name", execute, 0, (res_table **) result);
+		res = SQLstatementIntern(c, &query, "main", execute, 0, (res_table **) result);
 	}
 	SQLautocommit(c, m);
 	return res;
@@ -312,6 +315,7 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
 		mserver_reset();
+		fclose(embedded_stdout);
 		monetdb_embedded_initialized = 0;
 	}
 }

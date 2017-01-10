@@ -2,13 +2,11 @@
 # License, v. 2.0.  If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
-# Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+# Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
 
 INCLUDES = ../../include ../../common ../../storage ../../server \
-		   ../../../mal/modules/atoms \
-		   ../../../mal/modules/kernel \
+		   ../../../mal/modules \
 		   ../../../mal/mal \
-		   ../../../mal/modules/mal \
 		   ../../../mal/optimizer \
 		   ../../../mal/scheduler \
 		   ../../../mal/extras/rapi \
@@ -47,7 +45,6 @@ lib__sql = {
 		   ../../storage/libstore \
 		   ../../storage/bat/libbatstore \
 		   ../../common/libsqlcommon \
- 		   ../../../mal/tools/libmonetdb5 \
 		   ../../../gdk/libbat \
 		   ../../../common/stream/libstream \
 		   ../../../common/utils/libmcrypt \
@@ -59,7 +56,7 @@ headers_mal = {
 	HEADERS = mal
 	DIR = libdir/monetdb5
 	SOURCES = sql_aggr_bte.mal  sql_aggr_flt.mal sql_aggr_dbl.mal  sql_aggr_int.mal  sql_aggr_lng.mal \
-		sql_aggr_sht.mal  sql_decimal.mal  sql_inspect.mal \
+		sql_aggr_sht.mal  sql_decimal.mal sql_inspect.mal \
 		sql_rank.mal sql.mal
 }
 
@@ -86,7 +83,7 @@ headers_autoload_hge = {
 EXTRA_DIST = 40_sql.mal \
 	41_sql_hge.mal sql_hge.mal sql_aggr_hge.mal sql_decimal_hge.mal \
 	sql_aggr_bte.mal  sql_aggr_flt.mal  sql_aggr_int.mal  sql_aggr_lng.mal \
-	sql_aggr_sht.mal  sql_decimal.mal  sql_inspect.mal \
+	sql_aggr_sht.mal  sql_decimal.mal sql_inspect.mal \
 	sql_rank.mal sql.mal 
 
 EXTRA_DIST_DIR = Tests

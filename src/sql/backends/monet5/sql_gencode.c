@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -36,7 +36,6 @@
 #include "sql_optimizer.h"
 #include "mal_namespace.h"
 #include "opt_prelude.h"
-#include "querylog.h"
 #include "mal_builder.h"
 
 #include <rel_select.h>
@@ -3232,6 +3231,7 @@ backend_create_sql_func(backend *be, sql_func *f, list *restypes, list *ops)
 	if (sideeffects)
 		curBlk->unsafeProp = 1;
 	f->sa = sa;
+	sa_register(sa);
 	/* optimize the code */
 	SQLaddQueryToCache(c);
 	if( curBlk->inlineProp == 0)

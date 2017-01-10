@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /* (author) M.L. Kersten
@@ -17,11 +17,6 @@
 #include "mal_authorize.h"
 #include "mal_private.h"
 #include <gdk.h>	/* for opendir and friends */
-
-#ifdef HAVE_EMBEDDED
-// FIXME:
-//#include "mal_init_inline.h"
-#endif
 
 /*
  * The MonetDB server uses a startup script to boot the system.
@@ -65,7 +60,6 @@ malBootstrap(void)
 		GDKfree(s);
 		return 0;
 	}
-
 	return 1;
 }
 
@@ -435,8 +429,19 @@ MSserveClient(void *dummy)
 	/*
 	 * At this stage we should clean out the MAL block
 	 */
-	freeMalBlk(c->curprg->def);
-	c->curprg->def = 0;
+	if (c->backup) {
+		assert(0);
+		freeSymbol(c->backup);
+		c->backup = 0;
+	}
+	if (c->curprg) {
+		assert(0);
+		freeSymbol(c->curprg);
+		c->curprg = 0;
+	}
+	if (c->nspace) {
+		assert(0);
+	}
 
 	if (c->mode > FINISHCLIENT) {
 		if (isAdministrator(c) /* && moreClients(0)==0 */) {
@@ -447,7 +452,7 @@ MSserveClient(void *dummy)
 	}
 	if (!isAdministrator(c))
 		MCcloseClient(c);
-	if (strcmp(c->nspace->name, "user") == 0) {
+	if (c->nspace && strcmp(c->nspace->name, "user") == 0) {
 		GDKfree(c->nspace->space);
 		GDKfree(c->nspace);
 		c->nspace = NULL;
@@ -481,6 +486,17 @@ MALexitClient(Client c)
 	if (c->bak)
 		return NULL;
 	c->mode = FINISHCLIENT;
+	if (c->backup) {
+		assert(0);
+		freeSymbol(c->backup);
+		c->backup = NULL;
+	}
+	/* should be in the nspace */
+	c->curprg = NULL;
+	if (c->nspace) {
+		freeModule(c->nspace);
+		c->nspace = NULL;
+	}
 	return NULL;
 }
 

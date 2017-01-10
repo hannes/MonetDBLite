@@ -5,7 +5,7 @@ dnl This Source Code Form is subject to the terms of the Mozilla Public
 dnl License, v. 2.0.  If a copy of the MPL was not distributed with this
 dnl file, You can obtain one at http://mozilla.org/MPL/2.0/.
 dnl
-dnl Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+dnl Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
 
 dnl Process this file with autoconf to produce a configure script.
 
@@ -46,7 +46,7 @@ dnl  configure file, whereas comments starting with dnl are elided
 dnl  (including their trailing newline).
 
 AC_PREREQ([2.63])
-AC_INIT([MonetDB], [11.25.0], [https://bugs.monetdb.org/], [MonetDB], [https://www.monetdb.org/])
+AC_INIT([MonetDB], [11.25.4], [https://bugs.monetdb.org/], [MonetDB], [https://www.monetdb.org/])
 AC_CONFIG_AUX_DIR([buildtools/conf])
 AC_CONFIG_MACRO_DIR([buildtools/conf])
 AC_CANONICAL_HOST
@@ -2543,6 +2543,7 @@ LIBS="$LIBS $MATH_LIBS"
 AC_CHECK_FUNCS([\
 	asctime_r \
 	backtrace \
+	clock_gettime \
 	ctime_r \
 	fabsf \
 	fallocate \
@@ -3002,17 +3003,12 @@ common/utils/Makefile
 mal/mal/Makefile
 mal/modules/Makefile
 mal/optimizer/Makefile
-mal/scheduler/Makefile
-mal/tools/Makefile
 sql/include/Makefile
 sql/common/Makefile
 sql/storage/Makefile
 sql/server/Makefile
 sql/backends/Makefile
 sql/scripts/Makefile
-mal/modules/atoms/Makefile
-mal/modules/kernel/Makefile
-mal/modules/mal/Makefile
 sql/storage/bat/Makefile
 sql/backends/monet5/Makefile
 ])
@@ -3088,7 +3084,6 @@ for comp in \
 	'netcdf       ' \
 	'openssl      ' \
 	'pcre         ' \
-	'perl         ' \
 	'proj         ' \
 	'pthread      ' \
 	'python2      ' \

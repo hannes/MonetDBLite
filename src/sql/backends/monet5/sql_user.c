@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -17,9 +17,10 @@
  */
 #include "monetdb_config.h"
 #include "sql_user.h"
+
+#include "bat5.h"
 #include "sql_mvc.h"
 #include "sql_privileges.h"
-#include "bat5.h"
 #include "mal_interpreter.h"
 #include "mal_authorize.h"
 #include "mcrypt.h"

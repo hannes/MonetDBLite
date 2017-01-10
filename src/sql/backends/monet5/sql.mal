@@ -2,7 +2,7 @@
 # License, v. 2.0.  If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
-# Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+# Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
 
 module batsql;
 module sql;
@@ -18,20 +18,6 @@ comment "Switch to processing precompiled sql statements";
 pattern init():void
 address SQLinitEnvironment
 comment "Initialize the environment for MAL";
-
-pattern shutdown(delay:bte, force:bit):str
-address SQLshutdown_wrap;
-pattern shutdown(delay:sht, force:bit):str
-address SQLshutdown_wrap;
-pattern shutdown(delay:int, force:bit):str
-address SQLshutdown_wrap;
-
-pattern shutdown(delay:bte):str
-address SQLshutdown_wrap;
-pattern shutdown(delay:sht):str
-address SQLshutdown_wrap;
-pattern shutdown(delay:int):str
-address SQLshutdown_wrap;
 
 pattern mvc():int
 address SQLmvc
@@ -350,22 +336,6 @@ pattern create_view_upgrade_oct2014(sname:str,v:str) :int
 address UPGcreate_view
 comment "Create the view described by f, needed for the Oct2014 upgrade";
 
-unsafe pattern exportHead(s:streams, res_id:int) :void
-address mvc_export_head_wrap
-comment "Export a result (in order) to stream s"; 
-
-unsafe pattern exportResult(s:streams, res_id:int) :void
-address mvc_export_result_wrap
-comment "Export a result (in order) to stream s"; 
-
-unsafe pattern exportChunk(s:streams, res_id:int) :void
-address mvc_export_chunk_wrap
-comment "Export a chunk of the result set (in order) to stream s"; 
-
-unsafe pattern exportChunk(s:streams, res_id:int, offset:int, nr:int) :void
-address mvc_export_chunk_wrap
-comment "Export a chunk of the result set (in order) to stream s"; 
-
 unsafe pattern exportOperation() :void
 address mvc_export_operation_wrap
 comment "Export result of schema/transaction queries"; 
@@ -448,10 +418,6 @@ comment "Glue together the calling sequence";
 pattern sql_variables():bat[:str]
 address sql_variables
 comment "return the table with session variables";
-
-pattern sessions() ( user:bat[:str], start:bat[:timestamp],stimeout:bat[:lng], lastcmd:bat[:timestamp], qtimeout:bat[:lng], idle:bat[:bit])
-address sql_sessions_wrap
-comment "SQL export table of active sessions, their timeouts and idle status";
 
 pattern db_users() :bat[:str]
 address db_users_wrap
@@ -600,67 +566,6 @@ pattern batcalc.identity(b:bat[:any_2], s:oid ) (resb:bat[:oid],ns:oid)
 address PBATSQLidentity
 comment "Returns the unique row identitfiers.";
 
-pattern querylog_catalog()(
-	id:bat[:oid],
-	user:bat[:str],
-	defined:bat[:timestamp],
-	query:bat[:str],
-	pipe:bat[:str],
-	plan:bat[:str],
-	mal:bat[:int],
-	optimize:bat[:lng]
-)
-address sql_querylog_catalog
-comment "Obtain the query log catalog";
-
-pattern querylog_calls()(
-	id:bat[:oid],
-	start:bat[:timestamp],
-	stop:bat[:timestamp],
-	arguments:bat[:str],
-	tuples:bat[:lng],
-	exec:bat[:lng],
-	result:bat[:lng],
-	cpuload:bat[:int],
-	iowait:bat[:int]
-)
-address sql_querylog_calls
-comment "Obtain the query log calls";
-
-pattern querylog_empty()
-address sql_querylog_empty;
-
-command querylog_enable()
-address QLOGenable;
-command querylog_enable(thres:int)
-address QLOGenableThreshold;
-command querylog_disable()
-address QLOGdisable;
-
-
-pattern sysmon_queue()(qtag:bat[:lng], user:bat[:str],started:bat[:timestamp],estimate:bat[:timestamp],progress:bat[:int], status:bat[:str], tag:bat[:oid], query:bat[:str])
-address SYSMONqueue;
-
-pattern sysmon_pause(tag:sht)
-address SYSMONpause;
-pattern sysmon_pause(tag:int)
-address SYSMONpause;
-pattern sysmon_pause(tag:lng)
-address SYSMONpause;
-
-pattern sysmon_resume(tag:sht)
-address SYSMONresume;
-pattern sysmon_resume(tag:int)
-address SYSMONresume;
-pattern sysmon_resume(tag:lng)
-address SYSMONresume;
-
-pattern sysmon_stop(tag:sht)
-address SYSMONstop;
-pattern sysmon_stop(tag:int)
-address SYSMONstop;
-pattern sysmon_stop(tag:lng)
-address SYSMONstop;
 
 pattern copy_rejects() (rowid:bat[:lng], fldid:bat[:int], msg:bat[:str], inp:bat[:str])
 address COPYrejects;

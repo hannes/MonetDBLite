@@ -26,10 +26,10 @@ void mapi_line_split(char* line, char** out, size_t ncols) {
 	int tokenStart = 2;
 	int endQuote = 0;
 	int curPos;
-
 	int linelen = (int) strlen(line);
 	mapi_line_chrstate state = INCRAP;
 
+	(void) ncols;
 	for (curPos = 2; curPos < linelen - 1; curPos++) {
 		char chr = line[curPos];
 

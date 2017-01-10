@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -507,6 +507,7 @@ GDKinit(opt *set, int setlen)
 		return 0;
 	MT_init_posix();
 	THRinit();
+#ifndef HAVE_EMBEDDED
 #ifndef NATIVE_WIN32
 	BATSIGinit();
 #endif
@@ -515,6 +516,7 @@ GDKinit(opt *set, int setlen)
 #ifndef __MINGW32__ // MinGW does not have these
 	_set_abort_behavior(0, _CALL_REPORTFAULT | _WRITE_ABORT_MSG);
 	_set_error_mode(_OUT_TO_STDERR);
+#endif
 #endif
 #endif
 	/* now try to lock the database */

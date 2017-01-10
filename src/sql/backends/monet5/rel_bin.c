@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 #include "monetdb_config.h"
@@ -1898,8 +1898,10 @@ rel2bin_semijoin( mvc *sql, sql_rel *rel, list *refs)
 				break;
 
 			s = exp_bin(sql, en->data, left, right, NULL, NULL, NULL, NULL);
-			if (!s) 
+			if (!s) {
+				assert(0);
 				return NULL;
+			}
 			if (join_idx != sql->opt_stats[0])
 				idx = 1;
 			/* stop on first non equality join */

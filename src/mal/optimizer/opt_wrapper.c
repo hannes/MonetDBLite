@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*  author M.L. Kersten
@@ -36,7 +36,6 @@
 #include "opt_deadcode.h"
 #include "opt_emptybind.h"
 #include "opt_evaluate.h"
-#include "opt_factorize.h"
 #include "opt_garbageCollector.h"
 #include "opt_generator.h"
 #include "opt_inline.h"
@@ -48,13 +47,10 @@
 #include "opt_multiplex.h"
 #include "opt_profiler.h"
 #include "opt_pushselect.h"
-#include "opt_querylog.h"
 #include "opt_reduce.h"
 #include "opt_remap.h"
-#include "opt_remoteQueries.h"
 #include "opt_reorder.h"
 #include "opt_statistics.h"
-#include "opt_volcano.h"
 
 struct{
 	str nme;
@@ -70,7 +66,6 @@ struct{
 	{"deadcode", &OPTdeadcodeImplementation},
 	{"emptybind", &OPTemptybindImplementation},
 	{"evaluate", &OPTevaluateImplementation},
-	{"factorize", &OPTfactorizeImplementation},
 	{"garbageCollector", &OPTgarbageCollectorImplementation},
 	{"generator", &OPTgeneratorImplementation},
 	{"inline", &OPTinlineImplementation},
@@ -82,12 +77,9 @@ struct{
 	{"multiplex", &OPTmultiplexImplementation},
 	{"profiler", &OPTprofilerImplementation},
 	{"pushselect", &OPTpushselectImplementation},
-	{"querylog", &OPTquerylogImplementation},
 	{"reduce", &OPTreduceImplementation},
 	{"remap", &OPTremapImplementation},
-	{"remoteQueries", &OPTremoteQueriesImplementation},
 	{"reorder", &OPTreorderImplementation},
-	{"volcano", &OPTvolcanoImplementation},
 	{0,0}
 };
 mal_export str OPTwrapper(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p);
@@ -156,7 +148,8 @@ str OPTwrapper (Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p){
 		((sizeof( MalBlkRecord) +mb->ssize * offsetof(InstrRecord, argv)+ mb->vtop * sizeof(int) /* argv estimate */ +mb->vtop* sizeof(VarRecord) + mb->vsize*sizeof(VarPtr)+1023)/1024),
 		usec);
 	QOTupdateStatistics(curmodnme,actions,usec);
-	addtoMalBlkHistory(mb);
+	if( actions >= 0)
+		addtoMalBlkHistory(mb);
 	if ( mb->errors)
 		throw(MAL, optimizer, PROGRAM_GENERAL ":%s.%s", modnme, fcnnme);
 	return MAL_SUCCEED;

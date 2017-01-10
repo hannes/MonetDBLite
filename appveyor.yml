@@ -28,6 +28,10 @@ environment:
 
 build_script:
   - travis-tool.sh install_deps
+  - travis-tool.sh install_github hadley/testthat
+  - travis-tool.sh install_github hadley/dplyr
+  - travis-tool.sh install_github rstats-db/DBI
+
 
 test_script:
   - travis-tool.sh run_tests
