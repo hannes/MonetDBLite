@@ -2,7 +2,7 @@
 
 
 OPTFLAG="--enable-optimize"
-LINKFLAG="-g"
+LINKFLAG=""
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
 	OPTFLAG="--enable-debug --enable-assert"
@@ -22,8 +22,6 @@ CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6" \
 --without-python2 --without-python3 --without-unixodbc --disable-mapi \
 --without-samtools --without-sphinxclient --without-geos --without-samtools --without-readline \
 $OPTFLAG --enable-silent-rules --disable-int128
-#exit 1
-# touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
 
 echo '
 
