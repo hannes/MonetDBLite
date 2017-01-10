@@ -49,8 +49,8 @@ fi
 
 cd ..
 
-gcc test.c -Ibuild -Isrc -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -Lbuild -o test
+gcc test.c -Ibuild -Isrc -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -Lbuild -o test
 
-LD_LIBRARY_PATH=build ./test
+DYLD_LIBRARY_PATH=build LD_LIBRARY_PATH=build ./test
 
 
