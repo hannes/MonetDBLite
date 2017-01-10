@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 #ifndef _MAL_SCENARIO_H
@@ -27,7 +27,7 @@
  * An exception or error detected while parsing is turned
  * into an exception and aborts the scenario.
  */
-#define MAXSCEN 128
+#define MAXSCEN 8
 
 typedef struct SCENARIO {
 	str name, language;
@@ -67,7 +67,6 @@ mal_export void showScenarioByName(stream *f, str s);
 mal_export void showScenario(stream *f, Scenario s);
 mal_export void showAllScenarios(stream *f);
 mal_export void resetScenario(Client c);
-
 mal_export Scenario findScenario(str nme);
 mal_export void updateScenario(str scen, str nme, MALfcn fcn);
 

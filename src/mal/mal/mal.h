@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -165,7 +165,7 @@ typedef struct {
 	bit barrier;				/* flow of control modifier takes:
 								   BARRIER, LEAVE, REDO, EXIT, CATCH, RAISE */
 	bit typechk;				/* type check status */
-	bit gc;						/* garbage control flags */
+	bte gc;						/* garbage control flags */
 	bit polymorphic;			/* complex type analysis */
 	bit varargs;				/* variable number of arguments */
 	int jump;					/* controlflow program counter */

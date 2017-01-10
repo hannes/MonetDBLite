@@ -8,7 +8,10 @@ mkdir -p $PREFIX/install
 mkdir -p $PREFIX/build
 
 (
-cd src; ./bootstrap
+cd src 
+./configure
+make distclean
+./bootstrap
 # buildtools/conf/lt~obsolete.m4 file name violates CRAN policies, rename and replace references
 mv "buildtools/conf/lt~obsolete.m4" buildtools/conf/lt-obsolete.m4
 find . \( -name "Makefile.in" -or -name "aclocal.m4" \) -exec sed -i "" -e "s/lt~obsolete\.m4/lt-obsolete\.m4/g" {} \;
@@ -18,9 +21,9 @@ cd $PREFIX/build
 
 $SRCDIR/src/configure --prefix=$PREFIX/install \
 --disable-fits --disable-geom --disable-rintegration --disable-gsl --disable-netcdf \
---disable-jdbc --disable-merocontrol --disable-odbc --disable-console --disable-microhttpd \
+--disable-odbc --disable-console \
 --without-openssl --without-uuid --without-curl --without-bz2 --without-lzma --without-libxml2 \
---without-perl --without-python2 --without-python3 --without-unixodbc --disable-mapi \
+--without-python2 --without-python3 --without-unixodbc --disable-mapi \
 --without-samtools --without-sphinxclient --without-geos --without-samtools --without-readline \
 --enable-debug --enable-silent-rules --disable-assert --disable-strict --disable-int128
 

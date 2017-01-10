@@ -6,7 +6,7 @@
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 
 AM_CPPFLAGS = -I$(srcdir)
-SUBDIRS =  mal modules optimizer scheduler tools
+SUBDIRS =  mal modules optimizer
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
 EXTRA_DIST = Makefile.ag Makefile.msc

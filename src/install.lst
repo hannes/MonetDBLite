@@ -18,68 +18,38 @@ mal/mal/
 	$(includedir)/monetdb/mal_instruction.h
 	$(includedir)/monetdb/mal.h
 mal/modules/
-mal/modules/atoms/
-	$(libdir)/monetdb5/color.mal
-	$(libdir)/monetdb5/url.mal
-	$(libdir)/monetdb5/blob.mal
-	$(libdir)/monetdb5/streams.mal
-	$(libdir)/monetdb5/mtime.mal
-	$(libdir)/monetdb5/inet.mal
-	$(libdir)/monetdb5/uuid.mal
-	$(libdir)/monetdb5/str.mal
-	$(libdir)/monetdb5/identifier.mal
-mal/modules/kernel/
-	$(libdir)/monetdb5/autoload/00_aggr_hge.mal#HAVE_HGE
-	$(libdir)/monetdb5/alarm.mal
-	$(libdir)/monetdb5/bat5.mal
-	$(libdir)/monetdb5/microbenchmark.mal
-	$(libdir)/monetdb5/batmmath.mal
-	$(libdir)/monetdb5/mmath.mal
-	$(libdir)/monetdb5/aggr.mal
-	$(libdir)/monetdb5/batstr.mal
-	$(libdir)/monetdb5/group.mal
-	$(libdir)/monetdb5/batcolor.mal
-	$(libdir)/monetdb5/status.mal
-	$(libdir)/monetdb5/algebra.mal
-	$(libdir)/monetdb5/logger.mal
-mal/modules/mal/
 	$(libdir)/monetdb5/autoload/00_batcalc_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_calc_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_mkey_hge.mal#HAVE_HGE
+	$(libdir)/monetdb5/autoload/00_aggr_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_iterator_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_language_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_batExtensions_hge.mal#HAVE_HGE
-	$(libdir)/monetdb5/batExtensions.mal
-	$(libdir)/monetdb5/clients.mal
-	$(libdir)/monetdb5/iterator.mal
-	$(libdir)/monetdb5/language.mal
-	$(libdir)/monetdb5/transaction.mal
-	$(libdir)/monetdb5/manifold.mal
-	$(libdir)/monetdb5/orderidx.mal
-	$(libdir)/monetdb5/querylog.mal
-	$(libdir)/monetdb5/factories.mal
-	$(libdir)/monetdb5/batmtime.mal
-	$(libdir)/monetdb5/inspect.mal
-	$(libdir)/monetdb5/sample.mal
-	$(libdir)/monetdb5/bbp.mal
-	$(libdir)/monetdb5/groupby.mal
-	$(libdir)/monetdb5/mkey.mal
-	$(libdir)/monetdb5/sysmon.mal
-	$(libdir)/monetdb5/pcre.mal
-	$(libdir)/monetdb5/mat.mal
-	$(libdir)/monetdb5/mal_init.mal
-	$(libdir)/monetdb5/mal_io.mal
-	$(libdir)/monetdb5/profiler.mal
 	$(libdir)/monetdb5/autoload/01_batcalc.mal
 	$(libdir)/monetdb5/autoload/01_calc.mal
+	$(libdir)/monetdb5/batExtensions.mal
+	$(libdir)/monetdb5/mal_init.mal
+	$(libdir)/monetdb5/pcre.mal
+	$(libdir)/monetdb5/iterator.mal
+	$(libdir)/monetdb5/language.mal
+	$(libdir)/monetdb5/aggr.mal
+	$(libdir)/monetdb5/manifold.mal
+	$(libdir)/monetdb5/blob.mal
+	$(libdir)/monetdb5/bat5.mal
+	$(libdir)/monetdb5/batmmath.mal
+	$(libdir)/monetdb5/mmath.mal
+	$(libdir)/monetdb5/mtime.mal
+	$(libdir)/monetdb5/batstr.mal
+	$(libdir)/monetdb5/sample.mal
+	$(libdir)/monetdb5/mat.mal
+	$(libdir)/monetdb5/mkey.mal
+	$(libdir)/monetdb5/orderidx.mal
+	$(libdir)/monetdb5/group.mal
+	$(libdir)/monetdb5/str.mal
+	$(libdir)/monetdb5/algebra.mal
+	$(libdir)/monetdb5/batmtime.mal
 mal/optimizer/
 	$(libdir)/monetdb5/optimizer.mal
-mal/scheduler/
-	$(libdir)/monetdb5/run_memo.mal
-	$(libdir)/monetdb5/run_adder.mal
-	$(libdir)/monetdb5/run_isolate.mal
-mal/tools/
-	$(libdir)/libmonetdb5.so
 sql/
 sql/include/
 sql/common/
@@ -105,29 +75,27 @@ sql/backends/monet5/
 	$(libdir)/monetdb5/sql_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/sql_decimal_hge.mal#HAVE_HGE
 sql/scripts/
-	$(libdir)/monetdb5/createdb/80_statistics.sql
-	$(libdir)/monetdb5/createdb/39_analytics.sql
-	$(libdir)/monetdb5/createdb/26_sysmon.sql
-	$(libdir)/monetdb5/createdb/13_date.sql
 	$(libdir)/monetdb5/createdb/75_storagemodel.sql
-	$(libdir)/monetdb5/createdb/17_temporal.sql
-	$(libdir)/monetdb5/createdb/10_math.sql
-	$(libdir)/monetdb5/createdb/51_sys_schema_extension.sql
-	$(libdir)/monetdb5/createdb/21_dependency_functions.sql
-	$(libdir)/monetdb5/createdb/09_like.sql
-	$(libdir)/monetdb5/createdb/22_clients.sql
+	$(libdir)/monetdb5/createdb/27_rejects.sql
 	$(libdir)/monetdb5/createdb/41_md5sum.sql
 	$(libdir)/monetdb5/createdb/20_vacuum.sql
-	$(libdir)/monetdb5/createdb/25_debug.sql
-	$(libdir)/monetdb5/createdb/11_times.sql
-	$(libdir)/monetdb5/createdb/45_uuid.sql
-	$(libdir)/monetdb5/createdb/16_tracelog.sql
-	$(libdir)/monetdb5/createdb/99_system.sql
+	$(libdir)/monetdb5/createdb/13_date.sql
+	$(libdir)/monetdb5/createdb/51_sys_schema_extension.sql
 	$(libdir)/monetdb5/createdb/18_index.sql
+	$(libdir)/monetdb5/createdb/80_statistics.sql
 	$(libdir)/monetdb5/createdb/15_querylog.sql
-	$(libdir)/monetdb5/createdb/27_rejects.sql
-	$(libdir)/monetdb5/createdb/14_inet.sql
+	$(libdir)/monetdb5/createdb/39_analytics.sql
 	$(libdir)/monetdb5/createdb/46_profiler.sql
+	$(libdir)/monetdb5/createdb/17_temporal.sql
+	$(libdir)/monetdb5/createdb/10_math.sql
+	$(libdir)/monetdb5/createdb/21_dependency_functions.sql
+	$(libdir)/monetdb5/createdb/26_sysmon.sql
+	$(libdir)/monetdb5/createdb/09_like.sql
+	$(libdir)/monetdb5/createdb/22_clients.sql
+	$(libdir)/monetdb5/createdb/16_tracelog.sql
+	$(libdir)/monetdb5/createdb/11_times.sql
+	$(libdir)/monetdb5/createdb/99_system.sql
+	$(libdir)/monetdb5/createdb/25_debug.sql
 	$(libdir)/monetdb5/createdb/39_analytics_hge.sql#HAVE_HGE
 embedded/
 	$(libdir)/libembedded.so

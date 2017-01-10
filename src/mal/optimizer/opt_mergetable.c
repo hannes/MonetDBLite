@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 #include "monetdb_config.h"
@@ -1107,10 +1107,7 @@ mat_group_aggr(MalBlkPtr mb, InstrPtr p, mat_t *mat, int b, int g, int e)
 	ai2 = pushArgument(mb, ai2, getArg(ai1, 0));
 	ai2 = pushArgument(mb, ai2, mat[g].mv);
 	ai2 = pushArgument(mb, ai2, mat[e].mv);
-	if (isAvg)
-		ai2 = pushBit(mb, ai2, 0); /* do not skip nils */
-	else
-		ai2 = pushBit(mb, ai2, 1); /* skip nils */
+	ai2 = pushBit(mb, ai2, 1); /* skip nils */
 	if (getFunctionId(p) != subminRef && getFunctionId(p) != submaxRef)
 		ai2 = pushBit(mb, ai2, 1);
 	pushInstruction(mb, ai2);
@@ -1531,13 +1528,27 @@ mat_topn(MalBlkPtr mb, InstrPtr p, matlist_t *ml, int m, int n, int o)
 static void
 mat_sample(MalBlkPtr mb, InstrPtr p, matlist_t *ml, int m)
 {
+	/* transform
+	 * a := sample.subuniform(b,n);
+	 * into
+	 * t1 := sample.subuniform(b1,n);
+	 * t2 := sample.subuniform(b2,n);
+	 * ...
+	 * t0 := mat.pack(t1,t2,...);
+	 * tn := sample.subuniform(t0,n);
+	 * a := algebra.projection(tn,t0);
+	 *
+	 * Note that this does *not* give a uniform sample of the original
+	 * bat b!
+	 */
+
 	int tpe = getArgType(mb,p,0), k, piv;
-	InstrPtr pck, q;
+	InstrPtr pck, q, r;
 
 	pck = newInstruction(mb,ASSIGNsymbol);
 	setModuleId(pck, matRef);
 	setFunctionId(pck, packRef);
-	getArg(pck,0) = getArg(p,0);
+	getArg(pck,0) = newTmpVariable(mb, tpe);
 
 	for(k=1; k< ml->v[m].mi->argc; k++) {
 		q = copyInstruction(p);
@@ -1552,8 +1563,17 @@ mat_sample(MalBlkPtr mb, InstrPtr p, matlist_t *ml, int m)
 	pushInstruction(mb,pck);
 
 	q = copyInstruction(p);
+	getArg(q,0) = newTmpVariable(mb, tpe);
 	getArg(q,q->retc) = getArg(pck,0);
 	pushInstruction(mb,q);
+
+	r = newInstruction(mb, ASSIGNsymbol);
+	setModuleId(r, algebraRef);
+	setFunctionId(r, projectionRef);
+	getArg(r,0) = getArg(p,0);
+	pushArgument(mb, r, getArg(q, 0));
+	pushArgument(mb, r, getArg(pck, 0));
+	pushInstruction(mb, r);
 
 	ml->v[piv].packed = 1;
 	ml->v[piv].type = mat_slc;
@@ -1627,8 +1647,9 @@ OPTmergetableImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 	ml.vsize = mb->vsize;
 	ml.horigin = (int*) GDKmalloc(sizeof(int)* ml.vsize);
 	ml.torigin = (int*) GDKmalloc(sizeof(int)* ml.vsize);
-	if ( ml.v == NULL || ml.horigin == NULL || ml.torigin == NULL) 
+	if ( ml.v == NULL || ml.horigin == NULL || ml.torigin == NULL) {
 		goto cleanup;
+	}
 	for (i=0; i<ml.vsize; i++) 
 		ml.horigin[i] = ml.torigin[i] = -1;
 
@@ -1941,9 +1962,9 @@ OPTmergetableImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 			freeInstruction(ml.v[i].mi);
 	}
 cleanup:
-	GDKfree(ml.v);
-	GDKfree(ml.horigin);
-	GDKfree(ml.torigin);
+	if (ml.v) GDKfree(ml.v);
+	if (ml.horigin) GDKfree(ml.horigin);
+	if (ml.torigin) GDKfree(ml.torigin);
     /* Defense line against incorrect plans */
     if( actions > 0){
         chkTypes(cntxt->fdout, cntxt->nspace, mb, FALSE);

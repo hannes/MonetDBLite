@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -28,12 +28,10 @@
 #include "sql_mvc.h"
 #include "sql_user.h"
 #include "sql_datetime.h"
-#include "mal_io.h"
 #include "mal_parser.h"
 #include "mal_builder.h"
 #include "mal_namespace.h"
 #include "mal_linker.h"
-#include "bat5.h"
 #include <mtime.h>
 #include "optimizer.h"
 #include "opt_statistics.h"
@@ -41,6 +39,8 @@
 #include "opt_pipes.h"
 #include "opt_mitosis.h"
 #include <unistd.h>
+
+#include "bat5.h"
 #include "sql_upgrades.h"
 
 static int SQLinitialized = 0;
@@ -193,13 +193,21 @@ SQLepilogue(void *ret)
 			}
 		}
 		mvc_exit();
+#ifdef HAVE_EMBEDDED
+		{ // clean up scenario registry so we do not run out
+			Scenario s = findScenario("sql");
+			Scenario ms = findScenario("msql");
+			if (s) s->name = NULL;
+			if (ms) ms->name = NULL;
+		}
+#endif
 		SQLinitialized = FALSE;
 	}
 	MT_lock_unset(&sql_contextLock);
 	return MAL_SUCCEED;
 }
 
-MT_Id sqllogthread, minmaxthread;
+MT_Id sqllogthread, idlethread;
 
 static str
 SQLinit(void)
@@ -249,12 +257,10 @@ SQLinit(void)
 		throw(SQL, "SQLinit", "Starting log manager failed");
 	}
 	GDKregister(sqllogthread);
-#if 0
-	if (MT_create_thread(&minmaxthread, (void (*)(void *)) mvc_minmaxmanager, NULL, MT_THR_JOINABLE) != 0) {
-		throw(SQL, "SQLinit", "Starting minmax manager failed");
+	if (MT_create_thread(&idlethread, (void (*)(void *)) mvc_idlemanager, NULL, MT_THR_JOINABLE) != 0) {
+		throw(SQL, "SQLinit", "Starting idle manager failed");
 	}
-	GDKregister(minmaxthread);
-#endif
+	GDKregister(idlethread);
 	return MAL_SUCCEED;
 }
 
@@ -499,18 +505,20 @@ SQLinitClient(Client c)
 		maybeupgrade = 0;
 		{
 			size_t createdb_len = strlen(createdb_inline);
-			buffer* createdb_buf = buffer_create(createdb_len);
-			stream* createdb_stream = buffer_rastream(createdb_buf, "createdb.sql");
+			buffer createdb_buf;
+			stream* createdb_stream = buffer_rastream(&createdb_buf, "createdb.sql");
 			bstream* createdb_bstream = bstream_create(createdb_stream, createdb_len);
-			buffer_init(createdb_buf, createdb_inline, createdb_len);
+			createdb_buf.pos = 0;
+			createdb_buf.len = createdb_len;
+			createdb_buf.buf = createdb_inline;
+
 			if (bstream_next(createdb_bstream) >= 0)
 				msg = SQLstatementIntern(c, &createdb_bstream->buf, "sql.init", TRUE, FALSE, NULL);
 			else
 				msg = createException(MAL, "createdb", "could not load inlined createdb script");
 
-			free(createdb_buf);
-			free(createdb_stream);
-			free(createdb_bstream);
+			bstream_destroy(createdb_bstream);
+
 			if (m->sa)
 				sa_destroy(m->sa);
 			m->sa = NULL;
@@ -610,8 +618,10 @@ SQLexitClient(Client c)
 		if (m->session->active) {
 			mvc_rollback(m, 0, NULL);
 		}
+
 		res_tables_destroy(m->results);
 		m->results = NULL;
+
 		mvc_destroy(m);
 		backend_destroy(be);
 		c->state[MAL_SCENARIO_OPTIMIZE] = NULL;
@@ -1193,9 +1203,6 @@ SQLCacheRemove(Client c, str nme)
 	s = findSymbolInModule(c->nspace, nme);
 	if (s == NULL)
 		throw(MAL, "cache.remove", "internal error, symbol missing\n");
-	if (getInstrPtr(s->def, 0)->token == FACTORYsymbol)
-		shutdownFactoryByName(c, c->nspace, nme);
-	else
-		deleteSymbol(c->nspace, s);
+	deleteSymbol(c->nspace, s);
 	return MAL_SUCCEED;
 }

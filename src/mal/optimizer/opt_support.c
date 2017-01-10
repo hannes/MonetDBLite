@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
  /* (c) M. Kersten
@@ -11,11 +11,12 @@
 #include "monetdb_config.h"
 #include "opt_prelude.h"
 #include "opt_support.h"
+
+#include "manifold.h"
 #include "mal_interpreter.h"
 #include "mal_listing.h"
 #include "opt_multiplex.h"
 #include "optimizer_private.h"
-#include "manifold.h"
 
 /*
  * Optimizer catalog with runtime statistics;

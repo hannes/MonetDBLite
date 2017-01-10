@@ -1,7 +1,7 @@
 #!/bin/sh
 
 OPTFLAG="--enable-optimize"
-LINKFLAG="-g"
+LINKFLAG=""
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
 	OPTFLAG="--enable-debug --enable-assert"
@@ -29,6 +29,7 @@ make clean
 cd ..
 
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
+
 
 echo '
 

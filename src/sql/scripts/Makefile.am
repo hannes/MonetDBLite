@@ -5,38 +5,6 @@
 
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 
-install-exec-local-80_statistics.sql: 80_statistics.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/80_statistics.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/80_statistics.sql
-
-uninstall-local-80_statistics.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/80_statistics.sql
-
-install-exec-local-39_analytics.sql: 39_analytics.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/39_analytics.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/39_analytics.sql
-
-uninstall-local-39_analytics.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/39_analytics.sql
-
-install-exec-local-26_sysmon.sql: 26_sysmon.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/26_sysmon.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/26_sysmon.sql
-
-uninstall-local-26_sysmon.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/26_sysmon.sql
-
-install-exec-local-13_date.sql: 13_date.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/13_date.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/13_date.sql
-
-uninstall-local-13_date.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/13_date.sql
-
 install-exec-local-75_storagemodel.sql: 75_storagemodel.sql
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
 	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/75_storagemodel.sql
@@ -45,53 +13,13 @@ install-exec-local-75_storagemodel.sql: 75_storagemodel.sql
 uninstall-local-75_storagemodel.sql: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/75_storagemodel.sql
 
-install-exec-local-17_temporal.sql: 17_temporal.sql
+install-exec-local-27_rejects.sql: 27_rejects.sql
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/17_temporal.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/17_temporal.sql
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/27_rejects.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/27_rejects.sql
 
-uninstall-local-17_temporal.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/17_temporal.sql
-
-install-exec-local-10_math.sql: 10_math.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/10_math.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/10_math.sql
-
-uninstall-local-10_math.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/10_math.sql
-
-install-exec-local-51_sys_schema_extension.sql: 51_sys_schema_extension.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/51_sys_schema_extension.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/51_sys_schema_extension.sql
-
-uninstall-local-51_sys_schema_extension.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/51_sys_schema_extension.sql
-
-install-exec-local-21_dependency_functions.sql: 21_dependency_functions.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/21_dependency_functions.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/21_dependency_functions.sql
-
-uninstall-local-21_dependency_functions.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/21_dependency_functions.sql
-
-install-exec-local-09_like.sql: 09_like.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/09_like.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/09_like.sql
-
-uninstall-local-09_like.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/09_like.sql
-
-install-exec-local-22_clients.sql: 22_clients.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/22_clients.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/22_clients.sql
-
-uninstall-local-22_clients.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/22_clients.sql
+uninstall-local-27_rejects.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/27_rejects.sql
 
 install-exec-local-41_md5sum.sql: 41_md5sum.sql
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
@@ -109,45 +37,21 @@ install-exec-local-20_vacuum.sql: 20_vacuum.sql
 uninstall-local-20_vacuum.sql: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/20_vacuum.sql
 
-install-exec-local-25_debug.sql: 25_debug.sql
+install-exec-local-13_date.sql: 13_date.sql
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/25_debug.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/25_debug.sql
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/13_date.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/13_date.sql
 
-uninstall-local-25_debug.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/25_debug.sql
+uninstall-local-13_date.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/13_date.sql
 
-install-exec-local-11_times.sql: 11_times.sql
+install-exec-local-51_sys_schema_extension.sql: 51_sys_schema_extension.sql
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/11_times.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/11_times.sql
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/51_sys_schema_extension.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/51_sys_schema_extension.sql
 
-uninstall-local-11_times.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/11_times.sql
-
-install-exec-local-45_uuid.sql: 45_uuid.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/45_uuid.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/45_uuid.sql
-
-uninstall-local-45_uuid.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/45_uuid.sql
-
-install-exec-local-16_tracelog.sql: 16_tracelog.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/16_tracelog.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/16_tracelog.sql
-
-uninstall-local-16_tracelog.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/16_tracelog.sql
-
-install-exec-local-99_system.sql: 99_system.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/99_system.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/99_system.sql
-
-uninstall-local-99_system.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/99_system.sql
+uninstall-local-51_sys_schema_extension.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/51_sys_schema_extension.sql
 
 install-exec-local-18_index.sql: 18_index.sql
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
@@ -157,6 +61,14 @@ install-exec-local-18_index.sql: 18_index.sql
 uninstall-local-18_index.sql: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/18_index.sql
 
+install-exec-local-80_statistics.sql: 80_statistics.sql
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/80_statistics.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/80_statistics.sql
+
+uninstall-local-80_statistics.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/80_statistics.sql
+
 install-exec-local-15_querylog.sql: 15_querylog.sql
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
 	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/15_querylog.sql
@@ -165,21 +77,13 @@ install-exec-local-15_querylog.sql: 15_querylog.sql
 uninstall-local-15_querylog.sql: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/15_querylog.sql
 
-install-exec-local-27_rejects.sql: 27_rejects.sql
+install-exec-local-39_analytics.sql: 39_analytics.sql
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/27_rejects.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/27_rejects.sql
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/39_analytics.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/39_analytics.sql
 
-uninstall-local-27_rejects.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/27_rejects.sql
-
-install-exec-local-14_inet.sql: 14_inet.sql
-	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
-	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/14_inet.sql
-	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/14_inet.sql
-
-uninstall-local-14_inet.sql: 
-	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/14_inet.sql
+uninstall-local-39_analytics.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/39_analytics.sql
 
 install-exec-local-46_profiler.sql: 46_profiler.sql
 	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
@@ -188,6 +92,86 @@ install-exec-local-46_profiler.sql: 46_profiler.sql
 
 uninstall-local-46_profiler.sql: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/46_profiler.sql
+
+install-exec-local-17_temporal.sql: 17_temporal.sql
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/17_temporal.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/17_temporal.sql
+
+uninstall-local-17_temporal.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/17_temporal.sql
+
+install-exec-local-10_math.sql: 10_math.sql
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/10_math.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/10_math.sql
+
+uninstall-local-10_math.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/10_math.sql
+
+install-exec-local-21_dependency_functions.sql: 21_dependency_functions.sql
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/21_dependency_functions.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/21_dependency_functions.sql
+
+uninstall-local-21_dependency_functions.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/21_dependency_functions.sql
+
+install-exec-local-26_sysmon.sql: 26_sysmon.sql
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/26_sysmon.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/26_sysmon.sql
+
+uninstall-local-26_sysmon.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/26_sysmon.sql
+
+install-exec-local-09_like.sql: 09_like.sql
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/09_like.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/09_like.sql
+
+uninstall-local-09_like.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/09_like.sql
+
+install-exec-local-22_clients.sql: 22_clients.sql
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/22_clients.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/22_clients.sql
+
+uninstall-local-22_clients.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/22_clients.sql
+
+install-exec-local-16_tracelog.sql: 16_tracelog.sql
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/16_tracelog.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/16_tracelog.sql
+
+uninstall-local-16_tracelog.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/16_tracelog.sql
+
+install-exec-local-11_times.sql: 11_times.sql
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/11_times.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/11_times.sql
+
+uninstall-local-11_times.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/11_times.sql
+
+install-exec-local-99_system.sql: 99_system.sql
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/99_system.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/99_system.sql
+
+uninstall-local-99_system.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/99_system.sql
+
+install-exec-local-25_debug.sql: 25_debug.sql
+	-mkdir -p $(DESTDIR)$(libdir)/monetdb5/createdb
+	-$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/25_debug.sql
+	$(INSTALL_DATA) $< $(DESTDIR)$(libdir)/monetdb5/createdb/25_debug.sql
+
+uninstall-local-25_debug.sql: 
+	$(RM) $(DESTDIR)$(libdir)/monetdb5/createdb/25_debug.sql
 
 if HAVE_HGE
 C_39_analytics_hge_sql = 39_analytics_hge.sql
@@ -206,8 +190,8 @@ MT_SAFE =
 AM_CPPFLAGS = -I$(srcdir)
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
-EXTRA_DIST = Makefile.ag Makefile.msc 09_like.sql 10_math.sql 11_times.sql 13_date.sql 14_inet.sql 15_querylog.sql 16_tracelog.sql 17_temporal.sql 18_index.sql 20_vacuum.sql 21_dependency_functions.sql 22_clients.sql 25_debug.sql 26_sysmon.sql 27_rejects.sql 39_analytics.sql 39_analytics_hge.sql 41_md5sum.sql 45_uuid.sql 46_profiler.sql 51_sys_schema_extension.sql 75_storagemodel.sql 80_statistics.sql 99_system.sql
-uninstall-local: uninstall-local-$(C_39_analytics_hge_sql) uninstall-local-09_like.sql uninstall-local-10_math.sql uninstall-local-11_times.sql uninstall-local-13_date.sql uninstall-local-14_inet.sql uninstall-local-15_querylog.sql uninstall-local-16_tracelog.sql uninstall-local-17_temporal.sql uninstall-local-18_index.sql uninstall-local-20_vacuum.sql uninstall-local-21_dependency_functions.sql uninstall-local-22_clients.sql uninstall-local-25_debug.sql uninstall-local-26_sysmon.sql uninstall-local-27_rejects.sql uninstall-local-39_analytics.sql uninstall-local-41_md5sum.sql uninstall-local-45_uuid.sql uninstall-local-46_profiler.sql uninstall-local-51_sys_schema_extension.sql uninstall-local-75_storagemodel.sql uninstall-local-80_statistics.sql uninstall-local-99_system.sql
-install-exec-local: install-exec-local-$(C_39_analytics_hge_sql) install-exec-local-09_like.sql install-exec-local-10_math.sql install-exec-local-11_times.sql install-exec-local-13_date.sql install-exec-local-14_inet.sql install-exec-local-15_querylog.sql install-exec-local-16_tracelog.sql install-exec-local-17_temporal.sql install-exec-local-18_index.sql install-exec-local-20_vacuum.sql install-exec-local-21_dependency_functions.sql install-exec-local-22_clients.sql install-exec-local-25_debug.sql install-exec-local-26_sysmon.sql install-exec-local-27_rejects.sql install-exec-local-39_analytics.sql install-exec-local-41_md5sum.sql install-exec-local-45_uuid.sql install-exec-local-46_profiler.sql install-exec-local-51_sys_schema_extension.sql install-exec-local-75_storagemodel.sql install-exec-local-80_statistics.sql install-exec-local-99_system.sql
+EXTRA_DIST = Makefile.ag Makefile.msc 09_like.sql 10_math.sql 11_times.sql 13_date.sql 15_querylog.sql 16_tracelog.sql 17_temporal.sql 18_index.sql 20_vacuum.sql 21_dependency_functions.sql 22_clients.sql 25_debug.sql 26_sysmon.sql 27_rejects.sql 39_analytics.sql 39_analytics_hge.sql 41_md5sum.sql 46_profiler.sql 51_sys_schema_extension.sql 75_storagemodel.sql 80_statistics.sql 99_system.sql
+uninstall-local: uninstall-local-$(C_39_analytics_hge_sql) uninstall-local-09_like.sql uninstall-local-10_math.sql uninstall-local-11_times.sql uninstall-local-13_date.sql uninstall-local-15_querylog.sql uninstall-local-16_tracelog.sql uninstall-local-17_temporal.sql uninstall-local-18_index.sql uninstall-local-20_vacuum.sql uninstall-local-21_dependency_functions.sql uninstall-local-22_clients.sql uninstall-local-25_debug.sql uninstall-local-26_sysmon.sql uninstall-local-27_rejects.sql uninstall-local-39_analytics.sql uninstall-local-41_md5sum.sql uninstall-local-46_profiler.sql uninstall-local-51_sys_schema_extension.sql uninstall-local-75_storagemodel.sql uninstall-local-80_statistics.sql uninstall-local-99_system.sql
+install-exec-local: install-exec-local-$(C_39_analytics_hge_sql) install-exec-local-09_like.sql install-exec-local-10_math.sql install-exec-local-11_times.sql install-exec-local-13_date.sql install-exec-local-15_querylog.sql install-exec-local-16_tracelog.sql install-exec-local-17_temporal.sql install-exec-local-18_index.sql install-exec-local-20_vacuum.sql install-exec-local-21_dependency_functions.sql install-exec-local-22_clients.sql install-exec-local-25_debug.sql install-exec-local-26_sysmon.sql install-exec-local-27_rejects.sql install-exec-local-39_analytics.sql install-exec-local-41_md5sum.sql install-exec-local-46_profiler.sql install-exec-local-51_sys_schema_extension.sql install-exec-local-75_storagemodel.sql install-exec-local-80_statistics.sql install-exec-local-99_system.sql
 
   include $(top_srcdir)/buildtools/conf/rules.mk

@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -16,14 +16,6 @@
 #include "mal_utils.h"
 #include "mal_exception.h"
 
-#define MAXSYMBOLS 12000 /* enough for the startup and some queries */
-static SymRecord symbolpool[MAXSYMBOLS];
-static int symboltop = 0;
-
-void mal_instruction_reset() {
-	symboltop = 0;
-}
-
 Symbol
 newSymbol(str nme, int kind)
 {
@@ -33,13 +25,9 @@ newSymbol(str nme, int kind)
 		GDKerror("newSymbol:unexpected name (=null)\n");
 		return NULL;
 	}
-	if( symboltop < MAXSYMBOLS){
-		cur = symbolpool + symboltop++;
-	} else {
-		cur = (Symbol) GDKzalloc(sizeof(SymRecord));
-		if (cur == NULL)
-			return NULL;
-	}
+	cur = (Symbol) GDKzalloc(sizeof(SymRecord));
+	if (cur == NULL)
+		return NULL;
 	cur->name = putName(nme);
 	cur->kind = kind;
 	cur->peer = NULL;
@@ -60,8 +48,7 @@ freeSymbol(Symbol s)
 		freeMalBlk(s->def);
 		s->def = NULL;
 	}
-	if( !( s >= symbolpool && s < symbolpool + MAXSYMBOLS))
-		GDKfree(s);
+	GDKfree(s);
 }
 
 void
@@ -743,7 +730,6 @@ makeVarSpace(MalBlkPtr mb)
 		if (new == NULL) {
 			mb->errors++;
 			showScriptException(GDKout, mb, 0, MAL, "newMalBlk:no storage left\n");
-			assert(0);
 			return -1;
 		}
 		memset(new + mb->vsize, 0, (s - mb->vsize) * sizeof(VarPtr));
@@ -1271,6 +1257,9 @@ defConstant(MalBlkPtr mb, int type, ValPtr cst)
 		return k;
 	}
 	k = newTmpVariable(mb, type);
+	if (k == -1) {
+		return k;
+	}
 	setVarConstant(mb, k);
 	setVarFixed(mb, k);
 	if (type >= 0 && type < GDKatomcnt && ATOMextern(type))

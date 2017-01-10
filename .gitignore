@@ -13,3 +13,5 @@ src/config.status
 monetdb_config.h
 autom4te.cache
 MonetDBLite_*
+build
+test

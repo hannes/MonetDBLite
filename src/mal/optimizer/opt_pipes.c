@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 /*
@@ -42,6 +42,7 @@ static struct PIPELINES {
  * If you change the minimal pipe, please also update the man page
  * (see tools/mserver/mserver5.1) accordingly!
  */
+/*
 	{"minimal_pipe",
 	 "optimizer.inline();"
 	 "optimizer.remap();"
@@ -52,6 +53,7 @@ static struct PIPELINES {
 	 "optimizer.candidates();"
 	 "optimizer.garbageCollector();",
 	 "stable", NULL, NULL, 1},
+*/
 /* The default pipe line contains as of Feb2010
  * mitosis-mergetable-reorder, aimed at large tables and improved
  * access locality.
@@ -82,7 +84,6 @@ static struct PIPELINES {
 	 "optimizer.reduce();"
 	 "optimizer.matpack();"
 	 "optimizer.dataflow();"
-	 "optimizer.querylog();"
 	 "optimizer.multiplex();"
 	 "optimizer.generator();"
 	 "optimizer.profiler();"
@@ -93,6 +94,7 @@ static struct PIPELINES {
 /*
  * Volcano style execution produces a sequence of blocks from the source relation
  */
+/*
 	{"volcano_pipe",
 	 "optimizer.inline();"
 	 "optimizer.remap();"
@@ -123,6 +125,7 @@ static struct PIPELINES {
 	 "optimizer.jit();"
 	 "optimizer.garbageCollector();",
 	 "stable", NULL, NULL, 1},
+*/
 /* The no_mitosis pipe line is (and should be kept!) identical to the
  * default pipeline, except that optimizer mitosis is omitted.  It is
  * used mainly to make some tests work deterministically, and to check
@@ -133,6 +136,7 @@ static struct PIPELINES {
  * If you change the no_mitosis pipe, please also update the man page
  * (see tools/mserver/mserver5.1) accordingly!
  */
+/*
 	{"no_mitosis_pipe",
 	 "optimizer.inline();"
 	 "optimizer.remap();"
@@ -161,6 +165,7 @@ static struct PIPELINES {
 	 "optimizer.jit();"
 	 "optimizer.garbageCollector();",
 	 "stable", NULL, NULL, 1},
+*/
 /* The sequential pipe line is (and should be kept!) identical to the
  * default pipeline, except that optimizers mitosis & dataflow are
  * omitted.  It is use mainly to make some tests work
@@ -190,7 +195,6 @@ static struct PIPELINES {
 	 "optimizer.deadcode();"
 	 "optimizer.reduce();"
 	 "optimizer.matpack();"
-	 "optimizer.querylog();"
 	 "optimizer.multiplex();"
 	 "optimizer.generator();"
 	 "optimizer.profiler();"
