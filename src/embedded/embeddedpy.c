@@ -258,6 +258,22 @@ PyObject* python_monetdb_client(void) {
 	return PyClient_Create(c);
 }
 
+PyObject* python_monetdb_disconnect(PyObject* client) {
+	str msg;
+	Client c;
+	MT_Lock* query_lock;
+
+	msg = PyClientObject_GetClient(client, &c, &query_lock);
+	if (msg != NULL) {
+		return PyString_FromString(msg);
+	}
+	if (c == monetdb_default_client) {
+		return PyString_FromString("The default client should not be disconnected.");
+	}
+	PyClientType.tp_dealloc(client);
+	Py_RETURN_NONE;
+}
+
 PyObject *python_monetdb_shutdown() {
 	monetdb_shutdown();
 	Py_RETURN_NONE;

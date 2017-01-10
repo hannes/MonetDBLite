@@ -1,5 +1,12 @@
-language: c
-script: ./build-unix.sh
-compiler:
-  - clang
-  - gcc
+language: python
+python:
+  - "2.6"
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+install:
+  - pip install numpy pandas
+  - python setup.py install
+# command to run tests
+script: py.test

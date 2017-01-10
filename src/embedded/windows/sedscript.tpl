@@ -24,7 +24,7 @@ s|@atomic_ops_CFLAGS@||
 s|@atomic_ops_LIBS@||
 s|@AUTOCONF@||
 s|@AUTOHEADER@||
-s|@AUTOMAKE@||
+s|@AUTOMAKE@|true|
 s|@AWK@|gawk|
 s|@BASH@|sh|
 s|@bindir@|${exec_prefix}/bin|

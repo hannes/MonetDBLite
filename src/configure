@@ -20950,7 +20950,7 @@ esac
 
 
 # PCRE library
-# required for MonetDB5 (and SQL), optional otherwise
+# required on Windows, optional on POSIX systems with GNU regex
 req_pcre_ver='4.5'
 
 pkg_failed=no
@@ -21060,6 +21060,8 @@ fi
 	LIBS="$save_LIBS"
 	CFLAGS="$save_CFLAGS"
 fi
+
+have_pcre=no
 if test "x$have_pcre" = xyes; then :
 
 
@@ -21074,16 +21076,49 @@ else
   HAVE_PCRE_FALSE=
 fi
 
-case $enable_monetdb5-$have_pcre in #(
-  yes-no) :
 
-	as_fn_error $? "PCRE library not found but required for MonetDB5" "$LINENO" 5 ;; #(
-  auto-no) :
+have_gnuregex=yes
+if test "x$have_pcre" = xyes; then :
+
+else
+
+	if test "$cross_compiling" = yes; then :
+  have_gnuregex=no
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <regex.h>
+int
+main ()
+{
+regex_t re; regcomp(&re, "hello", REG_EXTENDED|REG_NOSUB);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  have_gnuregex=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+
+fi
+
+case $enable_monetdb5-$have_pcre-$have_gnuregex in #(
+  yes-no-no) :
+
+	as_fn_error $? "PCRE library or GNU regex library not found but required for MonetDB5" "$LINENO" 5 ;; #(
+  auto-no-no) :
 
 	enable_monetdb5=no
 	if ${disable_monetdb5:+false} :; then :
 
-		disable_monetdb5="(PCRE library not found but required for MonetDB5)"
+		disable_monetdb5="(PCRE library or GNU regex library not found but required for MonetDB5)"
 fi ;; #(
   *) :
      ;;
@@ -21425,6 +21460,7 @@ fi
   *) :
      ;;
 esac
+have_zlib=no
 if test "x$have_zlib" = xyes; then :
 
 

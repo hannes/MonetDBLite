@@ -1,122 +1,73 @@
+"""
+MonetDBLite is an embedded database.
 
-import ctypes
-import os
-import sys
+To set up a connection use monetdblite.connect()
+"""
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0.  If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# Copyright 1997 - July 2008 CWI, August 2008 - 2016 MonetDB B.V.
 
-python_version = sys.version_info.major
+import pkg_resources
+from monetdblite import connections
+from monetdblite import cursors
+from monetdblite import exceptions
+from monetdblite import embeddedmonetdb
 
-basedir = os.path.dirname(os.path.abspath(__file__))
-libs = [x for x in os.listdir(basedir) if 
-		x.startswith('libmonetdb5') and (x.endswith('.so') or x.endswith('.dylib') or x.endswith('.dll'))]
+from monetdblite.connections import Connection
+from monetdblite.exceptions import *
 
-if len(libs) == 0:
-	raise Exception('Could not locate library file "libmonetdb5.[dll|so|dylib] in folder %s' % basedir)
 
 try:
-	import numpy
-except:
-	raise Exception('MonetDBLite requires numpy but import of numpy failed')
-
-if os.name == 'nt':
-	os.environ["PATH"] += os.pathsep + os.path.dirname(os.path.abspath(__file__))
-
-dll = ctypes.PyDLL(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
-	libs[0]), mode=ctypes.RTLD_GLOBAL)
-dll.python_monetdblite_init.argtypes = []
-dll.python_monetdblite_init.restype = None
-dll.python_monetdblite_init()
-
-dll.python_monetdb_init.argtypes = [ctypes.c_char_p, ctypes.c_int]
-dll.python_monetdb_init.restype = ctypes.py_object
-
-dll.python_monetdb_sql.argtypes = [ctypes.py_object, ctypes.c_char_p]
-dll.python_monetdb_sql.restype = ctypes.py_object
-
-dll.python_monetdb_insert.argtypes = [ctypes.py_object, ctypes.c_char_p, ctypes.c_char_p, ctypes.py_object]
-dll.python_monetdb_insert.restype = ctypes.py_object
-
-dll.python_monetdb_client.argtypes = []
-dll.python_monetdb_client.restype = ctypes.py_object
-
-dll.python_monetdb_shutdown.argtypes = []
-dll.python_monetdb_shutdown.restype = None
-
-if sys.version_info.major >= 3:
-	def utf8_encode(str):
-		if str == None:
-			return None
-		return str.encode('utf-8')
-else:
-	def utf8_encode(str):
-		return str
+    __version__ = pkg_resources.require("monetdblite")[0].version
+except pkg_resources.DistributionNotFound:
+    __version__ = "1.0rc"
 
 
-def init(directory):
-	retval = dll.python_monetdb_init(utf8_encode(directory), 0)
-	if retval != None:
-		raise Exception(str(retval))
+apilevel = "2.0"
+threadsafety = 0
+paramstyle = "pyformat"
 
-def sql(query, client=None):
-	retval = dll.python_monetdb_sql(client, utf8_encode(query))
-	if type(retval) == type(''):
-		raise Exception(str(retval))
-	else:
-		return retval
 
-def insert(table, values, schema=None, client=None):
-	retval = dll.python_monetdb_insert(client, utf8_encode(schema), utf8_encode(table), values)
-	if type(retval) == type(''):
-		raise Exception(str(retval))
-	else:
-		return retval
+def connect(*args, **kwargs):
+    return Connection(*args, **kwargs)
 
-def create(table, values, schema=None, client=None):
-	column_types = []
-	if schema == None:
-		schema = "sys"
-	for key,value in values.items():
-		arr = numpy.array(value)
-		if arr.dtype == numpy.bool:
-			column_type = "BOOLEAN"
-		elif arr.dtype == numpy.int8:
-			column_type = 'TINYINT'
-		elif arr.dtype == numpy.int16 or arr.dtype == numpy.uint8:
-			column_type = 'SMALLINT'
-		elif arr.dtype == numpy.int32  or arr.dtype == numpy.uint16:
-			column_type = 'INT'
-		elif arr.dtype == numpy.int64  or arr.dtype == numpy.uint32 or arr.dtype == numpy.uint64:
-			column_type = 'BIGINT'
-		elif arr.dtype == numpy.float32:
-			column_type = 'REAL'
-		elif arr.dtype == numpy.float64:
-			column_type = 'DOUBLE'
-		elif numpy.issubdtype(arr.dtype, numpy.str_) or numpy.issubdtype(arr.dtype, numpy.unicode_):
-			column_type = 'STRING'
-		else:
-			raise Exception('Unsupported dtype: %s' %  (str(arr.dtype)))
-		column_types.append(column_type)
-	query = 'CREATE TABLE "%s"."%s" (' % (schema, table)
-	index = 0
-	for key in values.keys():
-		query += '"%s" %s, ' % (key, column_types[index])
-		index += 1
-	query = query[:-2] + ");"
-	# create the table
-	sql(query, client=client);
-	# insert the data into the table
-	insert(table, values, schema, client)
+connect.__doc__ = Connection.__init__.__doc__
 
-def connect():
-	retval = dll.python_monetdb_client()
-	if type(retval) == type(''):
-		raise Exception(str(retval))
-	else:
-		return retval
 
-def shutdown():
-	retval = dll.python_monetdb_shutdown()
-	if type(retval) == type(''):
-		raise Exception(str(retval))
-	else:
-		return retval
+def init(*args, **kwargs):
+    return embeddedmonetdb.init(*args, **kwargs)
 
+init.__doc__ = embeddedmonetdb.init.__doc__
+
+def sql(*args, **kwargs):
+    return embeddedmonetdb.sql(*args, **kwargs)
+
+sql.__doc__ = embeddedmonetdb.sql.__doc__
+
+
+def insert(*args, **kwargs):
+    return embeddedmonetdb.insert(*args, **kwargs)
+
+insert.__doc__ = embeddedmonetdb.insert.__doc__
+
+def create(*args, **kwargs):
+    return embeddedmonetdb.create(*args, **kwargs)
+
+create.__doc__ = embeddedmonetdb.create.__doc__
+
+def connectclient(*args, **kwargs):
+    return embeddedmonetdb.connect(*args, **kwargs)
+
+connectclient.__doc__ = embeddedmonetdb.connect.__doc__
+
+def disconnectclient(*args, **kwargs):
+    return embeddedmonetdb.disconnect(*args, **kwargs)
+
+disconnectclient.__doc__ = embeddedmonetdb.disconnect.__doc__
+
+def shutdown(*args, **kwargs):
+    return embeddedmonetdb.shutdown(*args, **kwargs)
+
+shutdown.__doc__ = embeddedmonetdb.shutdown.__doc__

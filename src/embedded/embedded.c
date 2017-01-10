@@ -286,7 +286,7 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 
 	s = mvc_bind_schema(m, schema_name);
 	if (s == NULL)
-		return createException(MAL, "embedded", "Missing schema!");
+		return createException(MAL, "embedded", "Missing schema %s!", schema_name);
 	t = mvc_bind_table(m, s, table_name);
 	if (t == NULL)
 		return createException(MAL, "embedded", "Could not find table %s", table_name);
