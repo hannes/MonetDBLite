@@ -79,7 +79,7 @@ rm config.status
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
 rm libmonetdb5.dll
 
-make -j
+make
 if [ $? -ne 0 ]
 then
 	echo "build failure"
