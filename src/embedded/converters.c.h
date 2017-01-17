@@ -183,7 +183,8 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		if (!IS_LOGICAL(s)) {
 			return NULL;
 		}
-		SXP_TO_BAT(bit, LOGICAL_POINTER, *p==NA_LOGICAL);
+		// logicals are 4-byte integers in R, we lose NA's if we compare after the cast to char
+		SXP_TO_BAT(bit, LOGICAL_POINTER, LOGICAL_POINTER(s)[j] == NA_LOGICAL);
 		break;
 	}
 	case TYPE_dbl: {

@@ -196,6 +196,16 @@ test_that("we can have empty result sets", {
 	expect_true(!is.null(dbGetQuery(con, "SELECT * FROM tables WHERE 1=0")))
 })
 
+
+test_that("NA's survive bulk appends", {
+	dbBegin(con)
+	tdata <- as.logical(c(NA, TRUE, FALSE))
+	dbWriteTable(con, tname, data.frame(col1 = tdata), transaction=F)
+	# TODO: currently, booleans end up being integer columns in R
+	expect_equal(as.logical(dbReadTable(con, tname)$col1), tdata)
+	dbRollback(con)
+})
+
 test_that("we can write raw values", {
 	dbBegin(con)
 	dbWriteTable(con, tname, data.frame(a=c(1,2), b=I(list(raw(42), raw(43)))))
