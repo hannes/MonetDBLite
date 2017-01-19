@@ -478,6 +478,7 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 	int stkpc = 0;
 	RuntimeProfileRecord runtimeProfile, runtimeProfileFunction;
 	lng lastcheck = 0;
+	int	startedProfileQueue = 0;
 #define CHECKINTERVAL 1000 /* how often do we check for client disconnect */
 	runtimeProfile.ticks = runtimeProfileFunction.ticks = 0;
 
@@ -518,6 +519,7 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 
 	/* also produce event record for start of function */
 	if ( startpc == 1 &&  startpc < mb->stop ){
+		startedProfileQueue = 1;
 		runtimeProfileInit(cntxt, mb, stk);
 		runtimeProfileBegin(cntxt, mb, stk, getInstrPtr(mb,0), &runtimeProfileFunction);
 		mb->starttime = GDKusec();
@@ -767,7 +769,6 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 				ret = shutdownFactory(cntxt, mb);
 			runtimeProfileExit(cntxt, mb, stk, pci, &runtimeProfile);
 			runtimeProfileExit(cntxt, mb, stk, getInstrPtr(mb,0), &runtimeProfileFunction);
-			runtimeProfileFinish(cntxt, mb);
 			if (pcicaller && garbageControl(getInstrPtr(mb, 0)))
 				garbageCollector(cntxt, mb, stk, TRUE);
 			if (cntxt->qtimeout && GDKusec()- mb->starttime > cntxt->qtimeout){
@@ -800,8 +801,6 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 		if( mb->stop <= 1)
 			continue;
 		runtimeProfileExit(cntxt, mb, stk, pci, &runtimeProfile);
-		if (ret != MAL_SUCCEED)
-			runtimeProfileFinish(cntxt, mb);
 		/* check for strong debugging after each MAL statement */
 		if ( pci->token != FACcall && ret== MAL_SUCCEED) {
 			for (i = 0; i < pci->retc; i++) {
@@ -1142,7 +1141,6 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 			if (stkpc == mb->stop) {
 				runtimeProfileExit(cntxt, mb, stk, pci, &runtimeProfile);
 				runtimeProfileExit(cntxt, mb, stk, getInstrPtr(mb,0), &runtimeProfileFunction);
-				runtimeProfileFinish(cntxt, mb);
 				break;
 			}
 			if (stkpc == mb->stop)
@@ -1150,6 +1148,8 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 					"Exception raised");
 			break;
 		case YIELDsymbol:     /* to be defined */
+			if( startedProfileQueue)
+				runtimeProfileFinish(cntxt, mb);
 			if ( backup != backups) GDKfree(backup);
 			if ( garbage != garbages) GDKfree(garbage);
 			return yieldFactory(mb, pci, stkpc);
@@ -1176,7 +1176,6 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 					/* reset the clock */
 					runtimeProfileExit(cntxt, mb, stk, pp, &runtimeProfile);
 					runtimeProfileExit(cntxt, mb, stk, getInstrPtr(mb,0), &runtimeProfileFunction);
-					runtimeProfileFinish(cntxt, mb);
 				} 
 			}
 			stkpc = mb->stop;
@@ -1210,6 +1209,8 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 		}
 		freeException(oldret);
 	}
+	if( startedProfileQueue)
+		runtimeProfileFinish(cntxt, mb);
 	if ( backup != backups) GDKfree(backup);
 	if ( garbage != garbages) GDKfree(garbage);
 	return ret;
