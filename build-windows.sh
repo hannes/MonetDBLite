@@ -79,7 +79,7 @@ rm config.status
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
 rm libmonetdb5.dll
 
-make -j
+make
 if [ $? -ne 0 ]
 then
 	echo "build failure"
@@ -101,8 +101,3 @@ mv libmonetdb5.dll ..
 
 cd ../
 cp src/embedded/windows/pcre-8.37/libs/$ARCH/pcre.dll .
-
-
-
-$CC -m64 test.c -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -L. -o test
-./test
