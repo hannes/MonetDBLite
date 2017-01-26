@@ -1,0 +1,10 @@
+apply plugin: 'java'	
+
+version = '1.0'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile files('libs/monetdb-jdbc-2.24.jar')
+    runtime files('libs/monetdb-jdbc-2.24.jar')
+}
