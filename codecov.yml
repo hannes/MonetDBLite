@@ -1,3 +1,0 @@
-codecov:
-  ci:
-    - !ci.appveyor.com
