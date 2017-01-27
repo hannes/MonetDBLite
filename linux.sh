@@ -40,15 +40,7 @@ mv ./build/libmonetdb5.so ./monetdb-java-lite/src/main/resources/libs/linux/libm
 
 cd ./monetdb-java-lite
 
-rm -rf build
-
-rm -rf output
-
-rm -rf libs
-
-mkdir -p libs
-
-mkdir -p output
+mkdir -p libs buildshadow builddocs
 
 hg clone https://dev.monetdb.org/hg/monetdb-java/ -r embedded
 
@@ -56,7 +48,7 @@ cd monetdb-java
 
 make -j
 
-mv jars/monetdb-jdbc-2.24.jar ../libs
+mv jars/monetdb-jdbc-2.24.jar ../libs/
 
 cd ..
 
@@ -64,19 +56,13 @@ rm -rf monetdb-java
 
 gradle shadowJar
 
-mv ./build/libs/monetdb-java-lite-2.24-all.jar ./output/
+gradle javadocJar
 
-rm -rf build
-
-gradle build
-
-mv ./build/libs/monetdb-java-lite-2.24.jar ./output/
-
-mv ./libs/monetdb-jdbc-2.24.jar ./output/
+#mv libs/monetdb-jdbc-2.24.jar output/jars/
 
 rm -rf libs
 
-rm -rf build
+gradle uploadArchives
 
 cd $PREVDIRECTORY
 

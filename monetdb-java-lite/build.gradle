@@ -1,28 +1,40 @@
+import org.gradle.api.XmlProvider
+import org.gradle.api.artifacts.maven.MavenDeployment
+
 buildscript {
   repositories {
-    jcenter {
-      url "http://jcenter.bintray.com/"
-    }
-    mavenCentral()
+    jcenter { url "http://jcenter.bintray.com/" }
   }
   dependencies {
     classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
-    classpath group: 'com.layer', name: 'gradle-git-repo-plugin', version: '2.0.2'
   }
 }
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'maven-publish'
-apply plugin: 'git-repo'
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'signing'
+apply plugin: 'idea'
 
+group = 'nl.cwi.monetdb'
+ext.packaging = 'jar'
 version = '2.24'
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+repositories {
+    maven { url "http://repo1.maven.org/maven2" }
+}
+
 dependencies {
+  compile gradleApi()
+  compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+  compile group: 'commons-io', name: 'commons-io', version: '2.4'
+  compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.10'
   compile fileTree(dir: 'libs', include: '*.jar')
-  runtime fileTree(dir: 'libs', include: '*.jar')
+  //runtime fileTree(dir: 'libs', include: '*.jar')
 }
 
 task testJar(type: Jar) {
@@ -35,43 +47,76 @@ shadowJar {
   manifest {
     inheritFrom project.tasks.testJar.manifest
   }
+  destinationDir = file("./buildshadow")
 }
 
-repositories {
-  github("hannesmuehleisen", "MonetDBLite", "Dec2016LiteJava", "releases")
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  classifier = 'javadoc'
+  from 'build/docs/javadoc'
 }
 
-gitPublishConfig {
-    org = "hannesmuehleisen"
-    repo = "MonetDBLite"
+//task groovydocJar(type: Jar, dependsOn: groovydoc) {
+//  classifier = 'javadoc'
+//  from 'build/docs/groovydoc'
+//  destinationDir = file("./builddocs")
+//}
+
+def monetdbJDBC = file('libs/monetdb-jdbc-2.24.jar')
+
+artifacts {
+  archives shadowJar
+  archives javadocJar
+  archives monetdbJDBC
+  //archives groovydocJar
 }
 
-gitRepoConfig {
-    org = "hannesmuehleisen"
-    repo = "MonetDBLite"
-    gitUrl = "git@github.com:hannesmuehleisen/MonetDBLite.git"
-    provider = "github.com"
-    publishAndPushTask = "publishToGithub"
-    publishTask = "publish"
-    offline = false
+task wrapper(type: Wrapper) {
+  group = 'Buildmaster'
+  description = 'Generates gradlew and gradlew.bat bootstrap scripts'
+  gradleVersion = '2.5'
 }
 
-def someFile = file('monetdb-java-lite-2.24-all.jar')
+signing {
+  sign configurations.archives
+}
 
-publishing {
-    publications {
-        all(MavenPublication) {
-            from components.java
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            artifact sourceJar {
-                archives someFile
-            }
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: TODO, password: TODO)
+      }
+
+      pom.project {
+        name 'MonetDBJavaLite'
+        packaging 'jar'
+        description 'MonetDB database embedded en a Java application'
+        url 'https://github.com/hannesmuehleisen/MonetDBLite'
+
+        scm {
+          url 'scm:git@github.com:hannesmuehleisen/MonetDBLite.git'
+          connection 'scm:git@github.com:hannesmuehleisen/MonetDBLite.git'
+          developerConnection 'scm:git@github.com:hannesmuehleisen/MonetDBLite.git'
         }
-    }
-    repositories {
-        maven {
-            url "file://${gitPublishConfig.home}/${gitPublishConfig.org}/${gitPublishConfig.repo}/releases"
+
+        licenses {
+          license {
+            name "Mozilla Public License, Version 2.0"
+            url "http://www.mozilla.org/MPL/2.0"
+            distribution 'repo'
+          }
         }
+
+        developers {
+          developer {
+            id 'pedroferreira'
+            name 'Pedro Ferreira'
+          }
+        }
+       }
     }
+  }
 }
 
