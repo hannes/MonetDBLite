@@ -3,16 +3,18 @@ buildscript {
     jcenter {
       url "http://jcenter.bintray.com/"
     }
+    mavenCentral()
   }
   dependencies {
     classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
-    classpath 'co.riiid:gradle-github-plugin:0.4.2'
+    classpath group: 'com.layer', name: 'gradle-git-repo-plugin', version: '2.0.2'
   }
 }
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'co.riiid.gradle'
+apply plugin: 'maven-publish'
+apply plugin: 'git-repo'
 
 version = '2.24'
 sourceCompatibility = 1.8
@@ -35,4 +37,41 @@ shadowJar {
   }
 }
 
+repositories {
+  github("hannesmuehleisen", "MonetDBLite", "Dec2016LiteJava", "releases")
+}
+
+gitPublishConfig {
+    org = "hannesmuehleisen"
+    repo = "MonetDBLite"
+}
+
+gitRepoConfig {
+    org = "hannesmuehleisen"
+    repo = "MonetDBLite"
+    gitUrl = "git@github.com:hannesmuehleisen/MonetDBLite.git"
+    provider = "github.com"
+    publishAndPushTask = "publishToGithub"
+    publishTask = "publish"
+    offline = false
+}
+
+def someFile = file('monetdb-java-lite-2.24-all.jar')
+
+publishing {
+    publications {
+        all(MavenPublication) {
+            from components.java
+
+            artifact sourceJar {
+                archives someFile
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "file://${gitPublishConfig.home}/${gitPublishConfig.org}/${gitPublishConfig.repo}/releases"
+        }
+    }
+}
 
