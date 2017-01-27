@@ -1,10 +1,38 @@
-apply plugin: 'java'	
+buildscript {
+  repositories {
+    jcenter {
+      url "http://jcenter.bintray.com/"
+    }
+  }
+  dependencies {
+    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+    classpath 'co.riiid:gradle-github-plugin:0.4.2'
+  }
+}
 
-version = '1.0'
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'co.riiid.gradle'
+
+version = '2.24'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile files('libs/monetdb-jdbc-2.24.jar')
-    runtime files('libs/monetdb-jdbc-2.24.jar')
+  compile fileTree(dir: 'libs', include: '*.jar')
+  runtime fileTree(dir: 'libs', include: '*.jar')
 }
+
+task testJar(type: Jar) {
+  manifest {
+    attributes 'Description': 'MonetDBJavaLite JAR with JDBC compability'
+  }
+}
+
+shadowJar {
+  manifest {
+    inheritFrom project.tasks.testJar.manifest
+  }
+}
+
+

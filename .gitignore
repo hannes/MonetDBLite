@@ -106,5 +106,6 @@ src/.idea/
 src/cmake-build-debug/
 
 build
-test
+monetdb-java-lite/output/
+
 

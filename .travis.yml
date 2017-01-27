@@ -1,0 +1,16 @@
+language: java
+sudo: false
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+
+jdk:
+  - oraclejdk8
+
+install:
+  - make get-deps
+  - ant deps
+
+script: ./linux.sh
+

@@ -42,9 +42,41 @@ cd ./monetdb-java-lite
 
 rm -rf build
 
+rm -rf output
+
+rm -rf libs
+
+mkdir -p libs
+
+mkdir -p output
+
+hg clone https://dev.monetdb.org/hg/monetdb-java/ -r embedded
+
+cd monetdb-java
+
+make -j
+
+mv jars/monetdb-jdbc-2.24.jar ../libs
+
+cd ..
+
+rm -rf monetdb-java
+
+gradle shadowJar
+
+mv ./build/libs/monetdb-java-lite-2.24-all.jar ./output/
+
+rm -rf build
+
 gradle build
 
-gradle javadoc
+mv ./build/libs/monetdb-java-lite-2.24.jar ./output/
+
+mv ./libs/monetdb-jdbc-2.24.jar ./output/
+
+rm -rf libs
+
+rm -rf build
 
 cd $PREVDIRECTORY
 
