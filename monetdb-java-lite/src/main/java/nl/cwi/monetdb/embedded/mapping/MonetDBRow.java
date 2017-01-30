@@ -73,7 +73,7 @@ public class MonetDBRow implements Iterable {
      * @param javaClass The Java class
      * @return The column value as a Java class
      */
-    public <T> T getColumnByIndex(int index, Class<T> javaClass) { return javaClass.cast(columns[index]); }
+    public <T> T getColumnByIndex(int index, Class<T> javaClass) { return javaClass.cast(columns[index - 1]); }
 
     /**
      * Gets a column value as a Java class using the default mapping.
@@ -83,8 +83,8 @@ public class MonetDBRow implements Iterable {
      * @return The column value as a Java class
      */
     public <T> T getColumnByIndex(int index) {
-        Class<T> javaClass = this.originalSet.mappings[index].getJavaClass();
-        return javaClass.cast(columns[index]);
+        Class<T> javaClass = this.originalSet.mappings[index - 1].getJavaClass();
+        return javaClass.cast(columns[index - 1]);
     }
 
     /**
@@ -97,7 +97,7 @@ public class MonetDBRow implements Iterable {
      */
     public <T> T getColumnByName(String columnName, Class<T> javaClass) {
         int index =  this.getRowSet().getColumnIndexByName(columnName);
-        return javaClass.cast(columns[index]);
+        return javaClass.cast(columns[index - 1]);
     }
 
     /**
@@ -109,8 +109,8 @@ public class MonetDBRow implements Iterable {
      */
     public <T> T getColumnByName(String columnName) {
         int index =  this.getRowSet().getColumnIndexByName(columnName);
-        Class<T> javaClass = this.originalSet.mappings[index].getJavaClass();
-        return javaClass.cast(columns[index]);
+        Class<T> javaClass = this.originalSet.mappings[index - 1].getJavaClass();
+        return javaClass.cast(columns[index - 1]);
     }
 
     /**
@@ -121,7 +121,7 @@ public class MonetDBRow implements Iterable {
      * @param value The value to set
      */
     public <T> void setColumnByIndex(int index, T value) {
-        this.columns[index] = this.originalSet.mappings[index].getJavaClass().cast(value);
+        this.columns[index - 1] = this.originalSet.mappings[index - 1].getJavaClass().cast(value);
     }
 
     /**
@@ -133,7 +133,7 @@ public class MonetDBRow implements Iterable {
      * @param value The value to set
      */
     public <T> void setColumnByIndex(int index, Class<T> javaClass, T value) {
-        this.columns[index] = javaClass.cast(value);
+        this.columns[index - 1] = javaClass.cast(value);
     }
 
     /**
@@ -145,7 +145,7 @@ public class MonetDBRow implements Iterable {
      */
     public <T> void setColumnByName(String columnName, T value) {
         int index =  this.getRowSet().getColumnIndexByName(columnName);
-        this.columns[index] = this.originalSet.mappings[index].getJavaClass().cast(value);
+        this.columns[index - 1] = this.originalSet.mappings[index - 1].getJavaClass().cast(value);
     }
 
     /**
@@ -158,7 +158,7 @@ public class MonetDBRow implements Iterable {
      */
     public <T> void setColumnByName(String columnName, Class<T> javaClass, T value) {
         int index =  this.getRowSet().getColumnIndexByName(columnName);
-        this.columns[index] = javaClass.cast(value);
+        this.columns[index - 1] = javaClass.cast(value);
     }
 
     @Override

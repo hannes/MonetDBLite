@@ -44,10 +44,10 @@ public class QueryResultRowSet extends AbstractRowSet implements Iterable {
     /**
      * Gets a single row in this set.
      *
-     * @param row The index of the row to retrieve
+     * @param row The index of the row to retrieve starting from 1
      * @return A single row in this set
      */
-    public MonetDBRow getSingleRow(int row) { return rows[row]; }
+    public MonetDBRow getSingleRow(int row) { return rows[row - 1]; }
 
     @Override
     public int getColumnIndexByName(String columnName) {
@@ -64,7 +64,7 @@ public class QueryResultRowSet extends AbstractRowSet implements Iterable {
      * @return The value mapped to a instance of the provided class
      */
     public <T> T getSingleValueByIndex(int row, int column, Class<T> javaClass) {
-        return javaClass.cast(this.rows[row].getColumnByIndex(column));
+        return javaClass.cast(this.rows[row - 1].getColumnByIndex(column));
     }
 
     /**
@@ -76,8 +76,8 @@ public class QueryResultRowSet extends AbstractRowSet implements Iterable {
      * @return The value mapped to a instance of the provided class
      */
     public <T> T getSingleValueByIndex(int row, int column) {
-        Class<T> javaClass = this.mappings[column].getJavaClass();
-        return javaClass.cast(this.rows[row].getColumnByIndex(column));
+        Class<T> javaClass = this.mappings[column - 1].getJavaClass();
+        return javaClass.cast(this.rows[row - 1].getColumnByIndex(column ));
     }
 
     /**
@@ -133,7 +133,7 @@ public class QueryResultRowSet extends AbstractRowSet implements Iterable {
      */
     @SuppressWarnings("unchecked")
     public <T> T[] getColumnByIndex(int column) {
-        T[] res = (T[]) Array.newInstance(this.mappings[column].getJavaClass(), this.rows.length);
+        T[] res = (T[]) Array.newInstance(this.mappings[column - 1].getJavaClass(), this.rows.length);
         for(int i = 0 ; i < this.rows.length ; i++) {
             res[i] = this.rows[i].getColumnByIndex(column);
         }

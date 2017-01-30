@@ -122,7 +122,7 @@ public class RowIterator extends AbstractRowSet {
      * @return The column value as a Java class
      */
     public <T> T getColumnByIndex(int index) {
-        Class<T> javaClass = this.mappings[index].getJavaClass();
+        Class<T> javaClass = this.mappings[index - 1].getJavaClass();
         return javaClass.cast(this.getCurrentRow().getColumnByIndex(index));
     }
 

@@ -181,7 +181,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getCo
 
     node *n;
     jobject res = NULL;
-    if(index > 0 && index < ncols) {
+    index--;
+    if(index > -1 && index < ncols) {
         for (n = tableData->columns.set->h; n; n = n->next) {
             sql_column *col = n->data;
             if(col->colnr == index) {

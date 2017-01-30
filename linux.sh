@@ -40,6 +40,8 @@ mv ./build/libmonetdb5.so ./monetdb-java-lite/src/main/resources/libs/linux/libm
 
 cd ./monetdb-java-lite
 
+rm -rf output
+
 mkdir -p output/jars
 
 hg clone https://dev.monetdb.org/hg/monetdb-java/ -r embedded

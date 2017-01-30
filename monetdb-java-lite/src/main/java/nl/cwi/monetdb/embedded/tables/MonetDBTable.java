@@ -55,7 +55,7 @@ public final class MonetDBTable extends AbstractConnectionResult implements Abst
         try {
             String query = "SELECT COUNT(*) FROM " + this.getTableSchema() + "." + this.getTableName() + ";";
             QueryResultSet eqr = this.getConnection().sendQuery(query);
-            res = (int) eqr.getLongColumnByIndex(0)[0];
+            res = (int) eqr.getLongColumnByIndex(1)[0];
             eqr.close();
         } catch (MonetDBEmbeddedException ex) {
             res = -1;
@@ -132,7 +132,7 @@ public final class MonetDBTable extends AbstractConnectionResult implements Abst
     /**
      * Gets a column metadata by index.
      *
-     * @param index The column index (starting from 0)
+     * @param index The column index (starting from 1)
      * @return The column metadata, {@code null} if index not in bounds
      */
     public native MonetDBTableColumn getColumnMetadataByIndex(int index);
@@ -161,12 +161,12 @@ public final class MonetDBTable extends AbstractConnectionResult implements Abst
     private int[] prepareIterator(IMonetDBTableBaseIterator iterator) {
         int[] res = {iterator.getFirstRowToIterate(), iterator.getLastRowToIterate()};
         if(res[1] < res[0]) {
-            int aux = res[0];
-            res[0] = res[1];
-            res[0] = aux;
+            res[0] ^= res[1];
+            res[1] ^= res[0];
+            res[0] ^= res[1];
         }
-        if (res[0] < 0) {
-            res[0] = 0;
+        if (res[0] < 1) {
+            res[0] = 1;
         }
         int numberOfRows = this.getNumberOfRows();
         if (res[1] >= numberOfRows) {
@@ -184,9 +184,9 @@ public final class MonetDBTable extends AbstractConnectionResult implements Abst
      */
     public int iterateTable(IMonetDBTableCursor cursor) throws MonetDBEmbeddedException {
         int[] limits = this.prepareIterator(cursor);
-        int res = 0, total = limits[1] - limits[0];
-        String query = "SELECT * FROM " + this.getTableSchema() + "." + this.getTableName() + " LIMIT " + total
-                + " OFFSET " + limits[0] + ";";
+        int res = 0;
+        String query = "SELECT * FROM " + this.getTableSchema() + "." + this.getTableName()
+                + " LIMIT " + (limits[1] - limits[0] + 1) + " OFFSET " + (limits[0] - 1) + ";";
 
         QueryResultSet eqr = this.getConnection().sendQuery(query);
         MonetDBRow[] array = eqr.fetchAllRowValues().getAllRows();
