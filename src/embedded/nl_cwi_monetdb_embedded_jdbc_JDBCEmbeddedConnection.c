@@ -32,9 +32,15 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     for (int i = 0; i < numberOfColumns; i++) {
         res_col col = output->cols[i];
         columnLengthsFound[i] = col.type.digits;
-        (*env)->SetObjectArrayElement(env, columnNames, i, (*env)->NewStringUTF(env, col.name));
-        (*env)->SetObjectArrayElement(env, types, i, (*env)->NewStringUTF(env, col.type.type->sqlname));
-        (*env)->SetObjectArrayElement(env, tableNames, i, (*env)->NewStringUTF(env, col.tn));
+        jstring colname = (*env)->NewStringUTF(env, col.name);
+        jstring sqlname = (*env)->NewStringUTF(env, col.type.type->sqlname);
+        jstring tablename = (*env)->NewStringUTF(env, col.tn);
+        (*env)->SetObjectArrayElement(env, columnNames, i, colname);
+        (*env)->SetObjectArrayElement(env, types, i, sqlname);
+        (*env)->SetObjectArrayElement(env, tableNames, i, tablename);
+        (*env)->DeleteLocalRef(env, colname);
+        (*env)->DeleteLocalRef(env, sqlname);
+        (*env)->DeleteLocalRef(env, tablename);
     }
     (*env)->SetIntArrayRegion(env, columnLengths, 0, numberOfColumns, columnLengthsFound);
     GDKfree(columnLengthsFound);
@@ -84,23 +90,10 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
                     getDecimalshtColumn(env, (jobjectArray) nextColumnValues, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
                 } else if(col.type.digits > 4 && col.type.digits <= 8) {
                     getDecimalintColumn(env, (jobjectArray) nextColumnValues, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
-                /*#ifdef HAVE_HGE
-                } else if(col.type.digits > 8 && col.type.digits <= 18) {
-                    getDecimallngColumn(env, (jobjectArray) nextColumnValues, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
-                } else {
-                    getDecimalhgeColumn(env, (jobjectArray) nextColumnValues, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
-                }
-                #else*/
                 } else {
                     getDecimallngColumn(env, (jobjectArray) nextColumnValues, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
                 }
-                //#endif
                 break;
-            /*#ifdef HAVE_HGE
-            case 2: //Types.NUMERIC:
-                getHugeintColumn(env, (jobjectArray) nextColumnValues, getBigIntegerClassID(), getBigIntegerConstructorID(), NULL, 0, numberOfRows, b);
-                break;
-            #endif*/
             case 1: //Types.CHAR:
             case 12: //Types.VARCHAR:
             case -1: //Types.LONGVARCHAR:
@@ -120,27 +113,10 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
             case -4: //Types.LONGVARBINARY:
                 getBlobColumn(env, (jobjectArray) nextColumnValues, NULL, NULL, 0, numberOfRows, b);
                 break;
-            /*case 2005: //Types.CLOB: (but it will be deactivated during the connection)
-                getStringColumn(env, (jobjectArray) nextColumnValues, getMonetCLOBClassID(), getMonetCLOBConstructorID(), 0, numberOfRows, b);
-                break;
-            case 2004: //Types.BLOB: (but it will be deactivated during the connection)
-                getBinaryColumn(env, (jobjectArray) nextColumnValues, getMonetBLOBClassID(), getMonetBLOBConstructorID(), 0, numberOfRows, b);
-                break;
-            case 1111: //Types.OTHER: - inet, uuid, geometry, geometrya, json, url, json
-                nextSQLName = col.type.type->sqlname;
-                if(strncmp(nextSQLName, "inet", 4) == 0) {
-                    getStringInetColumn(env, (jobjectArray) nextColumnValues, getStringClassID(), NULL, NULL, 0, numberOfRows, b);
-                } else if(strncmp(nextSQLName, "uuid", 4) == 0) {
-                    getStringUUIDColumn(env, (jobjectArray) nextColumnValues, getStringClassID(), NULL, NULL, 0, numberOfRows, b);
-                } else if(strncmp(nextSQLName, "url", 3) == 0) {
-                    getStringColumn(env, (jobjectArray) nextColumnValues, getStringClassID(), NULL, 0, numberOfRows, b);
-                } else { //geometry, geometrya and json
-                    getBinaryColumn(env, (jobjectArray) nextColumnValues, getStringClassID(), getStringByteArrayConstructorID(), 0, numberOfRows, b);
-                }
-                break;*/
             default:
                 (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "Unknown Java mapping type!");
         }
+        (*env)->DeleteLocalRef(env, nextColumnValues);
     }
 
     (*env)->ReleaseIntArrayElements(env, typesMap, typesMapConverted, 0);

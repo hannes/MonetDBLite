@@ -31,6 +31,11 @@ static char* loadTable(JNIEnv *env, jobject monetDBTable, sql_table** table, int
     }
     (*env)->ReleaseStringUTFChars(env, schemaName, schema);
     (*env)->ReleaseStringUTFChars(env, tableName, name);
+
+    (*env)->DeleteLocalRef(env, connection);
+    (*env)->DeleteLocalRef(env, schemaName);
+    (*env)->DeleteLocalRef(env, tableName);
+
     return err;
 }
 
@@ -59,7 +64,9 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_
     jobjectArray result = (*env)->NewObjectArray(env, ncols, getStringClassID(), NULL);
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
-        (*env)->SetObjectArrayElement(env, result, col->colnr, (*env)->NewStringUTF(env, col->base.name));
+        jstring colname = (*env)->NewStringUTF(env, col->base.name);
+        (*env)->SetObjectArrayElement(env, result, col->colnr, colname);
+        (*env)->DeleteLocalRef(env, colname);
     }
     return result;
 }
@@ -72,7 +79,9 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_
     jobjectArray result = (*env)->NewObjectArray(env, ncols, getStringClassID(), NULL);
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
-        (*env)->SetObjectArrayElement(env, result, col->colnr, (*env)->NewStringUTF(env, col->type.type->sqlname));
+        jstring coltype = (*env)->NewStringUTF(env, col->type.type->sqlname);
+        (*env)->SetObjectArrayElement(env, result, col->colnr, coltype);
+        (*env)->DeleteLocalRef(env, coltype);
     }
     return result;
 }
@@ -87,6 +96,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_
         sql_column *col = n->data;
         jobject next = (*env)->CallStaticObjectMethod(env, getMappingEnumID(), getGetEnumValueID(), (*env)->NewStringUTF(env, col->type.type->sqlname));
         (*env)->SetObjectArrayElement(env, result, col->colnr, next);
+        (*env)->DeleteLocalRef(env, next);
     }
     return result;
 }
@@ -147,9 +157,22 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_
     jobjectArray result = (*env)->NewObjectArray(env, ncols, getStringClassID(), NULL);
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
-        (*env)->SetObjectArrayElement(env, result, col->colnr, (*env)->NewStringUTF(env, col->def));
+        jstring defaultValue = (*env)->NewStringUTF(env, col->def); 
+        (*env)->SetObjectArrayElement(env, result, col->colnr, defaultValue);
+        (*env)->DeleteLocalRef(env, defaultValue);
     }
     return result;
+}
+
+static jobject getColumnData(JNIEnv *env, sql_column *col) {
+    jstring sqlname = (*env)->NewStringUTF(env, col->type.type->sqlname);
+    jstring colname = (*env)->NewStringUTF(env, col->base.name);
+    jstring defaultValue = (*env)->NewStringUTF(env, col->def);
+    jobject res = (*env)->NewObject(env, getMonetDBTableColumnClassID(), getMonetDBTableColumnConstructorID(), sqlname, colname, col->type.digits, col->type.scale, defaultValue, (jboolean) col->null);
+    (*env)->DeleteLocalRef(env, sqlname);
+    (*env)->DeleteLocalRef(env, colname);
+    (*env)->DeleteLocalRef(env, defaultValue);
+    return res;
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColumnMetadataByIndex
@@ -162,7 +185,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getCo
         for (n = tableData->columns.set->h; n; n = n->next) {
             sql_column *col = n->data;
             if(col->colnr == index) {
-                res = (*env)->NewObject(env, getMonetDBTableColumnClassID(), getMonetDBTableColumnConstructorID(), (*env)->NewStringUTF(env, col->type.type->sqlname), (*env)->NewStringUTF(env, col->base.name), col->type.digits, col->type.scale, (*env)->NewStringUTF(env, col->def), (jboolean) col->null);
+                res = getColumnData(env, col);
                 break;
             }
         }
@@ -180,7 +203,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getCo
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
         if(!strcmp(col_name_tmp, col->base.name)) {
-            res = (*env)->NewObject(env, getMonetDBTableColumnClassID(), getMonetDBTableColumnConstructorID(), (*env)->NewStringUTF(env, col->type.type->sqlname), (*env)->NewStringUTF(env, col->base.name), col->type.digits, col->type.scale, (*env)->NewStringUTF(env, col->def), (jboolean) col->null);
+            res = getColumnData(env, col);
             break;
         }
     }
@@ -196,19 +219,12 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_
     jobjectArray result = (*env)->NewObjectArray(env, ncols, getMonetDBTableColumnClassID(), NULL);
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
-        jobject newColumn = (*env)->NewObject(env, getMonetDBTableColumnClassID(), getMonetDBTableColumnConstructorID(), (*env)->NewStringUTF(env, col->type.type->sqlname), (*env)->NewStringUTF(env, col->base.name), col->type.digits, col->type.scale, (*env)->NewStringUTF(env, col->def), (jboolean) col->null);
+        jobject newColumn = getColumnData(env, col);
         (*env)->SetObjectArrayElement(env, result, col->colnr, newColumn);
+        (*env)->DeleteLocalRef(env, newColumn);
     }
     return result;
 }
-
-#define CHECK_NEXT_ARRAY(NEXT_ARRAY) \
-    NEXT_ARRAY = (*env)->GetObjectArrayElement(env, columnData, nextColumnIndex); \
-    nextSize = (*env)->GetArrayLength(env, NEXT_ARRAY); \
-    if(nextSize != numberOfRows) { \
-        err = "The row sizes are not consistent!"; \
-        break; \
-    }
 
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_appendColumnsInternal
     (JNIEnv *env, jobject monetDBTable, jobjectArray columnData, jintArray javaIndexes, jint roundingMode) {
@@ -219,7 +235,6 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_appendCo
     jint *jindexes = (*env)->GetIntArrayElements(env, javaIndexes, NULL);
     append_data* newdata = GDKmalloc(ncols * sizeof(append_data));
     jsize numberOfRows = (*env)->GetArrayLength(env, (*env)->GetObjectArrayElement(env, columnData, 0));
-    int toFree = 0;
 
     for (n = tableData->columns.set->h; n && !err; n = n->next) {
         sql_column *col = n->data;
@@ -229,117 +244,71 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_appendCo
         newdata[nextColumnIndex].colname = col->base.name;
 
         BAT* nextBAT = NULL;
-        jobjectArray nextObjectArray;
-        jbooleanArray nextBooleanArray;
-        jbyteArray nextByteArray;
-        jshortArray nextShortArray;
-        jintArray nextIntArray;
-        jlongArray nextLongArray;
-        jfloatArray nextFloatArray;
-        jdoubleArray nextDoubleArray;
-        jsize nextSize;
-
+        jobject nextArray = (*env)->GetObjectArrayElement(env, columnData, nextColumnIndex);
+        jsize nextSize = (*env)->GetArrayLength(env, nextArray);
+        if(nextSize != numberOfRows) {
+           err = GDKstrdup("The row sizes are not consistent!");
+           break;
+        }
+        
         switch(nextJavaIndex) {
             case 0: //boolean
-                CHECK_NEXT_ARRAY(nextBooleanArray)
-                storeBooleanColumn(env, &nextBAT, nextBooleanArray, numberOfRows, nextMonetDBIndex);
+                storeBooleanColumn(env, &nextBAT, (jbyteArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 1: //char
             case 2: //varchar
             case 3: //clob
-                CHECK_NEXT_ARRAY(nextObjectArray)
-                storeStringColumn(env, &nextBAT, nextObjectArray, NULL, numberOfRows, nextMonetDBIndex);
+                storeStringColumn(env, &nextBAT, (jobjectArray) nextArray, NULL, numberOfRows, nextMonetDBIndex);
                 break;
             case 4: //tinyint
-            CHECK_NEXT_ARRAY(nextByteArray)
-                storeTinyintColumn(env, &nextBAT, nextByteArray, numberOfRows, nextMonetDBIndex);
+                storeTinyintColumn(env, &nextBAT, (jbyteArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 5: //smallint
-            CHECK_NEXT_ARRAY(nextShortArray)
-                storeSmallintColumn(env, &nextBAT, nextShortArray, numberOfRows, nextMonetDBIndex);
+                storeSmallintColumn(env, &nextBAT, (jshortArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 6: //int
             case 11: //month_interval
-            CHECK_NEXT_ARRAY(nextIntArray)
-                storeIntColumn(env, &nextBAT, nextIntArray, numberOfRows, nextMonetDBIndex);
+                storeIntColumn(env, &nextBAT, (jintArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 7: //bigint
             case 12: //second_interval
-                CHECK_NEXT_ARRAY(nextLongArray)
-                storeBigintColumn(env, &nextBAT, nextLongArray, numberOfRows, nextMonetDBIndex);
+                storeBigintColumn(env, &nextBAT, (jlongArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
-            /*#ifdef HAVE_HGE
-            case ??: //hugeint
-                CHECK_NEXT_ARRAY(nextObjectArray)
-                storeHugeintColumn(env, &nextBAT, nextObjectArray, getBigIntegerToStringID(), numberOfRows, nextMonetDBIndex);
-                break;
-            #endif*/
             case 8: //decimal
-                CHECK_NEXT_ARRAY(nextObjectArray)
                 if(col->type.digits <= 2) {
-                    storeDecimalbteColumn(env, &nextBAT, nextObjectArray, getBigDecimalToStringID(), getSetBigDecimalScaleID(), numberOfRows, nextMonetDBIndex, col->type.scale, roundingMode);
+                    storeDecimalbteColumn(env, &nextBAT, (jobjectArray) nextArray, getBigDecimalToStringID(), getSetBigDecimalScaleID(), numberOfRows, nextMonetDBIndex, col->type.scale, roundingMode);
                 } else if(col->type.digits > 2 && col->type.digits <= 4) {
-                    storeDecimalshtColumn(env, &nextBAT, nextObjectArray, getBigDecimalToStringID(), getSetBigDecimalScaleID(), numberOfRows, nextMonetDBIndex, col->type.scale, roundingMode);
+                    storeDecimalshtColumn(env, &nextBAT, (jobjectArray) nextArray, getBigDecimalToStringID(), getSetBigDecimalScaleID(), numberOfRows, nextMonetDBIndex, col->type.scale, roundingMode);
                 } else if(col->type.digits > 4 && col->type.digits <= 8) {
-                    storeDecimalintColumn(env, &nextBAT, nextObjectArray, getBigDecimalToStringID(), getSetBigDecimalScaleID(), numberOfRows, nextMonetDBIndex, col->type.scale, roundingMode);
-                /*#ifdef HAVE_HGE
-                } else if(col->type.digits > 8 && col->type.digits <= 18) {
-                    storeDecimallngColumn(env, &nextBAT, nextObjectArray, getBigDecimalToStringID(), getSetBigDecimalScaleID(), numberOfRows, nextMonetDBIndex, col->type.scale, roundingMode);
+                    storeDecimalintColumn(env, &nextBAT, (jobjectArray) nextArray, getBigDecimalToStringID(), getSetBigDecimalScaleID(), numberOfRows, nextMonetDBIndex, col->type.scale, roundingMode);
                 } else {
-                    storeDecimalhgeColumn(env, &nextBAT, nextObjectArray, getBigDecimalToStringID(), getSetBigDecimalScaleID(), numberOfRows, nextMonetDBIndex, col->type.scale, roundingMode);
+                    storeDecimallngColumn(env, &nextBAT, (jobjectArray) nextArray, getBigDecimalToStringID(), getSetBigDecimalScaleID(), numberOfRows, nextMonetDBIndex, col->type.scale, roundingMode);
                 }
-                #else*/
-                } else {
-                    storeDecimallngColumn(env, &nextBAT, nextObjectArray, getBigDecimalToStringID(), getSetBigDecimalScaleID(), numberOfRows, nextMonetDBIndex, col->type.scale, roundingMode);
-                }
-                //#endif
                 break;
             case 9: //real
-                CHECK_NEXT_ARRAY(nextFloatArray)
-                storeRealColumn(env, &nextBAT, nextFloatArray, numberOfRows, nextMonetDBIndex);
+                storeRealColumn(env, &nextBAT, (jfloatArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 10: //double
-                CHECK_NEXT_ARRAY(nextDoubleArray)
-                storeDoubleColumn(env, &nextBAT, nextDoubleArray, numberOfRows, nextMonetDBIndex);
+                storeDoubleColumn(env, &nextBAT, (jdoubleArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 13: //time
             case 14: //timetz
-                CHECK_NEXT_ARRAY(nextObjectArray)
-                storeTimeColumn(env, &nextBAT, nextObjectArray, getTimeToLongID(), numberOfRows, nextMonetDBIndex);
+                storeTimeColumn(env, &nextBAT, (jobjectArray) nextArray, getTimeToLongID(), numberOfRows, nextMonetDBIndex);
                 break;
             case 15: //date
-                CHECK_NEXT_ARRAY(nextObjectArray)
-                storeDateColumn(env, &nextBAT, nextObjectArray, getDateToLongID(), numberOfRows, nextMonetDBIndex);
+                storeDateColumn(env, &nextBAT, (jobjectArray) nextArray, getDateToLongID(), numberOfRows, nextMonetDBIndex);
                 break;
             case 16: //timestamp
             case 17: //timestamptz
-                CHECK_NEXT_ARRAY(nextObjectArray)
-                storeTimestampColumn(env, &nextBAT, nextObjectArray, getTimestampToLongID(), numberOfRows, nextMonetDBIndex);
+                storeTimestampColumn(env, &nextBAT, (jobjectArray) nextArray, getTimestampToLongID(), numberOfRows, nextMonetDBIndex);
                 break;
             case 18: //blob
-                CHECK_NEXT_ARRAY(nextObjectArray)
-                storeBlobColumn(env, &nextBAT, nextObjectArray, NULL, numberOfRows, nextMonetDBIndex);
+                storeBlobColumn(env, &nextBAT, (jobjectArray) nextArray, NULL, numberOfRows, nextMonetDBIndex);
                 break;
-            /*case ??: //url
-                CHECK_NEXT_ARRAY(nextObjectArray)
-                storeURLColumn(env, &nextBAT, nextObjectArray, getUrlToStringID(), numberOfRows, nextMonetDBIndex);
-            case ??: //inet
-                CHECK_NEXT_ARRAY(nextObjectArray)
-                storeInetColumn(env, &nextBAT, nextObjectArray, getMonetINETToStringID(), numberOfRows, nextMonetDBIndex);
-                break;
-            case ??: //uuid
-                CHECK_NEXT_ARRAY(nextObjectArray)
-                storeUUIDColumn(env, &nextBAT, nextObjectArray, getUUIDToStringID(), numberOfRows, nextMonetDBIndex);
-                break;
-            case ??: //geometry
-            case ??: //geometrya
-            case ??: //json
-                CHECK_NEXT_ARRAY(nextObjectArray)
-                storeBinaryColumn(env, &nextBAT, nextObjectArray, NULL, numberOfRows, nextMonetDBIndex);
-                break;*/
             default:
-                err = "Unknown Java mapping class!";
+                err = GDKstrdup("Unknown Java mapping class!");
         }
+        (*env)->DeleteLocalRef(env, nextArray);
         if(!err) {
             newdata[nextColumnIndex].batid = nextBAT->batCacheid;
         } else {
@@ -349,16 +318,13 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_appendCo
 
     if(!err) {
         err = monetdb_append((void*) connectionPointer, tableData->s->base.name, tableData->base.name, newdata, ncols);
-        toFree = 1;
     }
     (*env)->ReleaseIntArrayElements(env, javaIndexes, jindexes, JNI_ABORT);
     GDKfree(newdata);
 
     if (err) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
-        if(toFree) {
-            GDKfree(err);
-        }
+        GDKfree(err);
         return 0;
     } else {
         return numberOfRows;

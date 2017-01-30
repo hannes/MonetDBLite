@@ -25,29 +25,18 @@ void getBigintColumn(JNIEnv *env, jlongArray result, int first, int last, BAT* b
 void getRealColumn(JNIEnv *env, jfloatArray result, int first, int last, BAT* b);
 void getDoubleColumn(JNIEnv *env, jdoubleArray result, int first, int last, BAT* b);
 
-/*#ifdef HAVE_HGE
-void getHugeintColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b);
-#endif*/
-
 void getDateColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b);
 void getTimeColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b);
 void getTimestampColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b);
-/*void getInetColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b);
-void getUUIDColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b);*/
 
 void getGregorianCalendarDateColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b);
 void getGregorianCalendarTimeColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b);
 void getGregorianCalendarTimestampColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b);
-/*void getStringInetColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b);
-void getStringUUIDColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b);*/
 
 void getDecimalbteColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, int first, int last, BAT* b, int scale);
 void getDecimalshtColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, int first, int last, BAT* b, int scale);
 void getDecimalintColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, int first, int last, BAT* b, int scale);
 void getDecimallngColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, int first, int last, BAT* b, int scale);
-/*#ifdef HAVE_HGE
-void getDecimalhgeColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, int first, int last, BAT* b, int scale);
-#endif*/
 
 void getStringColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, int first, int last, BAT* b);
 void getURLColumn(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, int first, int last, BAT* b);
@@ -64,23 +53,14 @@ void storeBigintColumn(JNIEnv *env, BAT** b, jlongArray data, size_t cnt, int lo
 void storeRealColumn(JNIEnv *env, BAT** b, jfloatArray data, size_t cnt, int localtype);
 void storeDoubleColumn(JNIEnv *env, BAT** b, jdoubleArray data, size_t cnt, int localtype);
 
-/*#ifdef HAVE_HGE
-void storeHugeintColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, size_t cnt, int localtype);
-#endif*/
-
 void storeDateColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, size_t cnt, int localtype);
 void storeTimeColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, size_t cnt, int localtype);
 void storeTimestampColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, size_t cnt, int localtype);
-/*void storeInetColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, size_t cnt, int localtype);
-void storeUUIDColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, size_t cnt, int localtype);*/
 
 void storeDecimalbteColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, jmethodID setScale, size_t cnt, int localtype, int scale, int roundingMode);
 void storeDecimalshtColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, jmethodID setScale, size_t cnt, int localtype, int scale, int roundingMode);
 void storeDecimalintColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, jmethodID setScale, size_t cnt, int localtype, int scale, int roundingMode);
 void storeDecimallngColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, jmethodID setScale, size_t cnt, int localtype, int scale, int roundingMode);
-/*#ifdef HAVE_HGE
-void storeDecimalhgeColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, jmethodID setScale, size_t cnt, int localtype, int scale, int roundingMode);
-#endif*/
 
 void storeStringColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, size_t cnt, int localtype);
 void storeURLColumn(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, size_t cnt, int localtype);

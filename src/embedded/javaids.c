@@ -31,8 +31,6 @@ static jfieldID connectionResultPointerID;
 
 static jclass javaObjectClassID;
 static jclass byteArrayClassID;
-/*static jclass bigIntegerClassID;
-static jmethodID bigIntegerConstructorID;*/
 static jclass bigDecimalClassID;
 static jmethodID bigDecimalConstructorID;
 
@@ -45,17 +43,6 @@ static jmethodID timestampConstructorID;
 static jclass gregorianCalendarClassID;
 static jmethodID gregorianCalendarConstructorID;
 static jmethodID gregorianCalendarSetterID;
-
-/*static jclass urlClassID;
-static jmethodID urlConstructorID;
-static jclass monetINETClassID;
-static jmethodID monetINETConstructorID;
-static jclass uuidClassID;
-static jmethodID uuidConstructorID;
-static jclass monetBLOBClassID;
-static jmethodID monetBLOBConstructorID;
-static jclass monetCLOBClassID;
-static jmethodID monetCLOBConstructorID;*/
 
 static jclass stringClassID;
 static jmethodID stringByteArrayConstructorID;
@@ -86,16 +73,11 @@ static jfieldID getConnectionLongID;
 static jfieldID getSchemaID;
 static jfieldID getTableID;
 
-//static jmethodID bigIntegerToStringID;
 static jmethodID bigDecimalToStringID;
 static jmethodID setBigDecimalScaleID;
 static jmethodID dateToLongID;
 static jmethodID timeToLongID;
 static jmethodID timestampToLongID;
-
-/*static jmethodID urlToStringID;
-static jmethodID monetINETToStringID;
-static jmethodID UUIDToStringID;*/
 
 void initializeIDS(JNIEnv *env) {
     /* Embedded database environment Classes */
@@ -154,12 +136,6 @@ void initializeIDS(JNIEnv *env) {
     byteArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
 
-    /*tempLocalRef = (jobject) (*env)->FindClass(env, "java/math/BigInteger");
-    bigIntegerClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
-    (*env)->DeleteLocalRef(env, tempLocalRef);
-
-    bigIntegerConstructorID = (*env)->GetMethodID(env, bigIntegerClassID, "<init>", "(Ljava/lang/String;)V");*/
-
     tempLocalRef = (jobject) (*env)->FindClass(env, "java/math/BigDecimal");
     bigDecimalClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
@@ -190,36 +166,6 @@ void initializeIDS(JNIEnv *env) {
 
     gregorianCalendarConstructorID = (*env)->GetMethodID(env, gregorianCalendarClassID, "<init>", "()V");
     gregorianCalendarSetterID = (*env)->GetMethodID(env, gregorianCalendarClassID, "setTimeInMillis", "(J)V");
-
-    /*tempLocalRef = (jobject) (*env)->FindClass(env, "java/net/URL");
-    urlClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
-    (*env)->DeleteLocalRef(env, tempLocalRef);
-
-    urlConstructorID = (*env)->GetMethodID(env, urlClassID, "<init>", "(Ljava/lang/String;)V");
-
-    tempLocalRef = (jobject) (*env)->FindClass(env, "nl/cwi/monetdb/jdbc/MonetINET");
-    monetINETClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
-    (*env)->DeleteLocalRef(env, tempLocalRef);
-
-    monetINETConstructorID = (*env)->GetMethodID(env, monetINETClassID, "<init>", "(Ljava/lang/String;)V");
-
-    tempLocalRef = (jobject) (*env)->FindClass(env, "java/util/UUID");
-    uuidClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
-    (*env)->DeleteLocalRef(env, tempLocalRef);
-
-    uuidConstructorID = (*env)->GetStaticMethodID(env, uuidClassID, "fromString", "(Ljava/lang/String;)Ljava/util/UUID;");
-
-    tempLocalRef = (jobject) (*env)->FindClass(env, "nl/cwi/monetdb/jdbc/MonetBlob");
-    monetBLOBClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
-    (*env)->DeleteLocalRef(env, tempLocalRef);
-
-    monetBLOBConstructorID = (*env)->GetMethodID(env, monetBLOBClassID, "<init>", "([B)V");
-
-    tempLocalRef = (jobject) (*env)->FindClass(env, "nl/cwi/monetdb/jdbc/MonetClob");
-    monetCLOBClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
-    (*env)->DeleteLocalRef(env, tempLocalRef);
-
-    monetCLOBConstructorID = (*env)->GetMethodID(env, monetCLOBClassID, "<init>", "(Ljava/lang/String;)V");*/
 
     tempLocalRef = (jobject) (*env)->FindClass(env, "java/lang/String");
     stringClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
@@ -267,16 +213,11 @@ void initializeIDS(JNIEnv *env) {
     getTableID = (*env)->GetFieldID(env, tableClass, "tableName", "Ljava/lang/String;");
     (*env)->DeleteLocalRef(env, tableClass);
 
-    //bigIntegerToStringID = (*env)->GetMethodID(env, bigIntegerClassID, "toString", "()Ljava/lang/String;");
     bigDecimalToStringID = (*env)->GetMethodID(env, bigDecimalClassID, "toPlainString", "()Ljava/lang/String;");
     setBigDecimalScaleID = (*env)->GetMethodID(env, bigDecimalClassID, "setScale", "(II)Ljava/math/BigDecimal;");
     dateToLongID = (*env)->GetMethodID(env, dateClassID, "getTime", "()J");
     timeToLongID = (*env)->GetMethodID(env, timeClassID, "getTime", "()J");
     timestampToLongID = (*env)->GetMethodID(env, timestampClassID, "getTime", "()J");
-
-    /*urlToStringID = (*env)->GetMethodID(env, urlClassID, "toString", "()Ljava/lang/String;");
-    monetINETToStringID = (*env)->GetMethodID(env, monetINETClassID, "toString", "()Ljava/lang/String;");
-    UUIDToStringID = (*env)->GetMethodID(env, uuidClassID, "toString", "()Ljava/lang/String;");*/
 }
 
 void releaseIDS(JNIEnv *env) {
@@ -292,17 +233,11 @@ void releaseIDS(JNIEnv *env) {
 
     (*env)->DeleteGlobalRef(env, javaObjectClassID);
     (*env)->DeleteGlobalRef(env, byteArrayClassID);
-    //(*env)->DeleteGlobalRef(env, bigIntegerClassID);
     (*env)->DeleteGlobalRef(env, bigDecimalClassID);
     (*env)->DeleteGlobalRef(env, dateClassID);
     (*env)->DeleteGlobalRef(env, timeClassID);
     (*env)->DeleteGlobalRef(env, timestampClassID);
     (*env)->DeleteGlobalRef(env, gregorianCalendarClassID);
-    /*(*env)->DeleteGlobalRef(env, urlClassID);
-    (*env)->DeleteGlobalRef(env, monetINETClassID);
-    (*env)->DeleteGlobalRef(env, uuidClassID);
-    (*env)->DeleteGlobalRef(env, monetBLOBClassID);
-    (*env)->DeleteGlobalRef(env, monetCLOBClassID);*/
     (*env)->DeleteGlobalRef(env, stringClassID);
 
     /* JDBC Embedded Connection */
@@ -376,14 +311,6 @@ jclass getByteArrayClassID() {
     return byteArrayClassID;
 }
 
-/*jclass getBigIntegerClassID() {
-    return bigIntegerClassID;
-}
-
-jmethodID getBigIntegerConstructorID() {
-    return bigIntegerConstructorID;
-}*/
-
 jclass getBigDecimalClassID() {
     return bigDecimalClassID;
 }
@@ -427,46 +354,6 @@ jmethodID getGregorianCalendarConstructorID() {
 jmethodID getGregorianCalendarSetterID() {
     return gregorianCalendarSetterID;
 }
-
-/*jclass getUrlClassID() {
-    return urlClassID;
-}
-
-jmethodID getUrlConstructorID() {
-    return urlConstructorID;
-}
-
-jclass getMonetINETClassID() {
-    return monetINETClassID;
-}
-
-jmethodID getMonetINETConstructorID() {
-    return monetINETConstructorID;
-}
-
-jclass getUuidClassID() {
-    return uuidClassID;
-}
-
-jmethodID getUuidConstructorID() {
-    return uuidConstructorID;
-}
-
-jclass getMonetBLOBClassID() {
-    return monetBLOBClassID;
-}
-
-jmethodID getMonetBLOBConstructorID() {
-    return monetBLOBConstructorID;
-}
-
-jclass getMonetCLOBClassID() {
-    return monetCLOBClassID;
-}
-
-jmethodID getMonetCLOBConstructorID() {
-    return monetCLOBConstructorID;
-}*/
 
 jclass getStringClassID() {
     return stringClassID;
@@ -552,10 +439,6 @@ jfieldID getGetTableID() {
     return getTableID;
 }
 
-/*jmethodID getBigIntegerToStringID() {
-    return bigIntegerToStringID;
-}*/
-
 jmethodID getBigDecimalToStringID() {
     return bigDecimalToStringID;
 }
@@ -575,15 +458,3 @@ jmethodID getTimeToLongID() {
 jmethodID getTimestampToLongID() {
     return timestampToLongID;
 }
-
-/*jmethodID getUrlToStringID() {
-    return urlToStringID;
-}
-
-jmethodID getMonetINETToStringID() {
-    return monetINETToStringID;
-}
-
-jmethodID getUUIDToStringID() {
-    return UUIDToStringID;
-}*/

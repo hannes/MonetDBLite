@@ -25,7 +25,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-    maven { url "http://repo1.maven.org/maven2" }
+  maven { url "http://repo1.maven.org/maven2" }
 }
 
 dependencies {
@@ -33,8 +33,8 @@ dependencies {
   compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
   compile group: 'commons-io', name: 'commons-io', version: '2.4'
   compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.10'
-  compile fileTree(dir: 'libs', include: '*.jar')
-  //runtime fileTree(dir: 'libs', include: '*.jar')
+  compile fileTree(dir: 'output/jars', include: '*.jar')
+  //runtime fileTree(dir: 'output/jars', include: '*.jar')
 }
 
 task testJar(type: Jar) {
@@ -55,11 +55,11 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
   from 'build/docs/javadoc'
 }
 
-//task groovydocJar(type: Jar, dependsOn: groovydoc) {
-//  classifier = 'javadoc'
-//  from 'build/docs/groovydoc'
-//  destinationDir = file("./builddocs")
-//}
+/*task groovydocJar(type: Jar, dependsOn: groovydoc) {
+  classifier = 'javadoc'
+  from 'build/docs/groovydoc'
+  destinationDir = file("./builddocs")
+}
 
 def monetdbJDBC = file('libs/monetdb-jdbc-2.24.jar')
 
@@ -67,7 +67,7 @@ artifacts {
   archives shadowJar
   archives javadocJar
   archives monetdbJDBC
-  //archives groovydocJar
+  archives groovydocJar
 }
 
 task wrapper(type: Wrapper) {
@@ -118,5 +118,5 @@ uploadArchives {
        }
     }
   }
-}
+}*/
 

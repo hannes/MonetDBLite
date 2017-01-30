@@ -33,8 +33,6 @@ jfieldID getConnectionResultPointerID();
 
 jclass getJavaObjectClassID();
 jclass getByteArrayClassID();
-/*jclass getBigIntegerClassID();
-jmethodID getBigIntegerConstructorID();*/
 jclass getBigDecimalClassID();
 jmethodID getBigDecimalConstructorID();
 jclass getDateClassID();
@@ -46,16 +44,6 @@ jmethodID getTimestampConstructorID();
 jclass getGregorianCalendarClassID();
 jmethodID getGregorianCalendarConstructorID();
 jmethodID getGregorianCalendarSetterID();
-/*jclass getUrlClassID();
-jmethodID getUrlConstructorID();
-jclass getMonetINETClassID();
-jmethodID getMonetINETConstructorID();
-jclass getUuidClassID();
-jmethodID getUuidConstructorID();
-jclass getMonetBLOBClassID();
-jmethodID getMonetBLOBConstructorID();
-jclass getMonetCLOBClassID();
-jmethodID getMonetCLOBConstructorID();*/
 jclass getStringClassID();
 jmethodID getStringByteArrayConstructorID();
 
@@ -83,14 +71,10 @@ jfieldID getGetConnectionLongID();
 jfieldID getGetSchemaID();
 jfieldID getGetTableID();
 
-//jmethodID getBigIntegerToStringID();
 jmethodID getBigDecimalToStringID();
 jmethodID getSetBigDecimalScaleID();
 jmethodID getDateToLongID();
 jmethodID getTimeToLongID();
 jmethodID getTimestampToLongID();
-/*jmethodID getUrlToStringID();
-jmethodID getMonetINETToStringID();
-jmethodID getUUIDToStringID();*/
 
 #endif //SRC_JAVAIDS_H

@@ -26,13 +26,8 @@ static jfloat jfloatMin;
 static jdouble jdoubleMin;
 static str str_nil_cast = (str) str_nil;
 
-#define NO_CONSTRUCTOR                    value
-#define JUST_A_STRING                     (jobject) (*env)->NewStringUTF(env, value)
 #define VOID_CONSTRUCTORS                 (*env)->NewObject(env, jClass, constructor)
 #define NATIVE_TYPE_CONSTRUCTORS          (*env)->NewObject(env, jClass, constructor, value)
-#define STRING_CONSTRUCTORS               (*env)->NewObject(env, jClass, constructor, (*env)->NewStringUTF(env, value))
-/*#define FACTORY_NATIVE_TYPE_CONSTRUCTORS  (*env)->CallStaticObjectMethod(env, jClass, constructor, value)
-#define FACTORY_STRING_CONSTRUCTORS       (*env)->CallStaticObjectMethod(env, jClass, constructor, (*env)->NewStringUTF(env, value))*/
 
 //this function is used to load the JVM minimum values of primitives so we will use them to map MonetDB's NULL values
 void initializeMinimums(jbyte m1, jshort m2, jint m3, jlong m4, jfloat m5, jdouble m6) {
@@ -90,37 +85,6 @@ DIRECT_MAPPING(Double, jdouble, Double, dbl_nil, jdoubleMin)
 
 #define GREGORIAN_EXTRA         (*env)->CallVoidMethod(env, next, setter, value);
 
-/*#ifdef HAVE_HGE
-#define GET_NEXT_JBIGINTEGER    char value[BIG_INTEGERS_ARRAY_SIZE]; \
-                                int len = BIG_INTEGERS_ARRAY_SIZE; \
-                                hgeToStr((char**) &value, &len, &nvalue);
-#define CHECK_NULL_BBIGINTEGER  nvalue != hge_nil
-#endif
-
-#define GET_NEXT_JINET          unsigned char core_values[4]; \
-                                core_values[0] = nvalue.q1;   \
-                                core_values[1] = nvalue.q2;   \
-                                core_values[2] = nvalue.q3;   \
-                                core_values[3] = nvalue.q4;   \
-                                jbyteArray value = (*env)->NewByteArray(env, 4); \
-                                (*env)->SetByteArrayRegion(env, value, 0, 4, core_values);
-#define CHECK_NULL_BINET        !in_isnil(&nvalue)
-
-#ifdef UUID_STRLEN
-#define UUID_PRINTLEN (UUID_STRLEN + 1)
-#else
-#define UUID_PRINTLEN 17
-#endif
-
-#define GET_NEXT_JUUID          char value[UUID_PRINTLEN]; \
-                                snprintf(value, UUID_PRINTLEN, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x", \
-                                   nvalue.u[0], nvalue.u[1], nvalue.u[2], nvalue.u[3], nvalue.u[4], nvalue.u[5], nvalue.u[6], nvalue.u[7], \
-                                   nvalue.u[8], nvalue.u[9], nvalue.u[10], nvalue.u[11], nvalue.u[12], nvalue.u[13], nvalue.u[14], nvalue.u[15]);
-#define CHECK_NULL_BUUID        !UUIDisnil(&nvalue)
-
-#define GET_NEXT_JINET_AS_STRING char value[32]; \
-                                 snprintf(value, 32, "%u.%u.%u.%u/%u", nvalue.q1, nvalue.q2, nvalue.q3, nvalue.q4, nvalue.mask);*/
-
 #define CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(NAME, BAT_CAST, CONVERT, NULL_CMP, CONSTRUCTOR, EXTRA_STEP) \
     void get##NAME##Column(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, jmethodID setter, int first, int last, BAT* b) { \
         BAT_CAST *array = (BAT_CAST *) Tloc(b, 0); \
@@ -131,6 +95,7 @@ DIRECT_MAPPING(Double, jdouble, Double, dbl_nil, jdoubleMin)
                 jobject next = CONSTRUCTOR; \
                 EXTRA_STEP \
                 (*env)->SetObjectArrayElement(env, result, j, next); \
+                (*env)->DeleteLocalRef(env, next); \
             } \
         } else { \
             for (int i = first, j = 0; i < last; i++, j++) { \
@@ -140,34 +105,23 @@ DIRECT_MAPPING(Double, jdouble, Double, dbl_nil, jdoubleMin)
                     jobject next = CONSTRUCTOR; \
                     EXTRA_STEP \
                     (*env)->SetObjectArrayElement(env, result, j, next); \
+                    (*env)->DeleteLocalRef(env, next); \
                 } \
             } \
         } \
     }
 
-/*#ifdef HAVE_HGE
-CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(Hugeint, hge, GET_NEXT_JBIGINTEGER, CHECK_NULL_BBIGINTEGER, STRING_CONSTRUCTORS, DO_NOTHING)
-#endif*/
 CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(Date, int, GET_NEXT_JDATE, CHECK_NULL_BDATE, NATIVE_TYPE_CONSTRUCTORS, DO_NOTHING)
 CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(Time, int, GET_NEXT_JTIME, CHECK_NULL_BTIME, NATIVE_TYPE_CONSTRUCTORS, DO_NOTHING)
 CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(Timestamp, timestamp, GET_NEXT_JTIMESTAMP, CHECK_NULL_BTIMESTAMP, NATIVE_TYPE_CONSTRUCTORS, DO_NOTHING)
-/*CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(Inet, inet, GET_NEXT_JINET_AS_STRING, CHECK_NULL_BINET, STRING_CONSTRUCTORS, DO_NOTHING)
-CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(UUID, uuid, GET_NEXT_JUUID, CHECK_NULL_BUUID, FACTORY_STRING_CONSTRUCTORS, DO_NOTHING)*/
-
 CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(GregorianCalendarDate, int, GET_NEXT_JDATE, CHECK_NULL_BDATE, VOID_CONSTRUCTORS, GREGORIAN_EXTRA)
 CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(GregorianCalendarTime, int, GET_NEXT_JTIME, CHECK_NULL_BTIME, VOID_CONSTRUCTORS, GREGORIAN_EXTRA)
 CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(GregorianCalendarTimestamp, timestamp, GET_NEXT_JTIMESTAMP, CHECK_NULL_BTIMESTAMP, VOID_CONSTRUCTORS, GREGORIAN_EXTRA)
-/*CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(StringInet, inet, GET_NEXT_JINET_AS_STRING, CHECK_NULL_BINET, JUST_A_STRING, DO_NOTHING)
-CONVERT_EASIER_BAT_TO_JCLASS_ARRAY(StringUUID, uuid, GET_NEXT_JUUID, CHECK_NULL_BUUID, JUST_A_STRING, DO_NOTHING)*/
 
 /* For decimals the conversion is harder!! */
 
 static void
-/*#ifdef HAVE_HGE
-decimal_to_str_java(char* value, hge v, int scale) 
-#else*/
 decimal_to_str_java(char* value, lng v, int scale) 
-//#endif
 {
 	char buf[BIG_INTEGERS_ARRAY_SIZE];
 	int cur = 63, neg = (v<0), i, done = 0;
@@ -203,51 +157,44 @@ decimal_to_str_java(char* value, lng v, int scale)
         if (b->tnonil && !b->tnil) { \
             for (int i = first, j = 0; i < last; i++, j++) { \
                 decimal_to_str_java(value, (CONVERSION_CAST) array[i], scale); \
-                jobject next = STRING_CONSTRUCTORS; \
+                jstring aux = (*env)->NewStringUTF(env, value); \
+                jobject next = (*env)->NewObject(env, jClass, constructor, aux); \
                 (*env)->SetObjectArrayElement(env, result, j, next); \
+                (*env)->DeleteLocalRef(env, aux); \
+                (*env)->DeleteLocalRef(env, next); \
             } \
         } else { \
             for (int i = first, j = 0; i < last; i++, j++) { \
                 BAT_CAST nvalue = array[i]; \
                 if(nvalue != BAT_CAST##_nil) { \
                     decimal_to_str_java(value, nvalue, scale); \
-                    jobject next = STRING_CONSTRUCTORS; \
+                    jstring aux = (*env)->NewStringUTF(env, value); \
+                    jobject next = (*env)->NewObject(env, jClass, constructor, aux); \
                     (*env)->SetObjectArrayElement(env, result, j, next); \
+                    (*env)->DeleteLocalRef(env, aux); \
+                    (*env)->DeleteLocalRef(env, next); \
                 } \
             } \
         } \
     }
 
-/*#ifdef HAVE_HGE
-CONVERT_BAT_TO_JDECIMAL_ARRAY(bte, hge)
-CONVERT_BAT_TO_JDECIMAL_ARRAY(sht, hge)
-CONVERT_BAT_TO_JDECIMAL_ARRAY(int, hge)
-CONVERT_BAT_TO_JDECIMAL_ARRAY(lng, hge)
-CONVERT_BAT_TO_JDECIMAL_ARRAY(hge, hge)
-#else*/
 CONVERT_BAT_TO_JDECIMAL_ARRAY(bte, lng)
 CONVERT_BAT_TO_JDECIMAL_ARRAY(sht, lng)
 CONVERT_BAT_TO_JDECIMAL_ARRAY(int, lng)
 CONVERT_BAT_TO_JDECIMAL_ARRAY(lng, lng)
-//#endif
 
 /* For the next ones, we must retrieve from the BAT's heap */
 
-#define BAT_TO_JSTRING           str value = BUNtail(li, p); /* For Char, Varchar, Clob and URLs */
-#define CHECK_NULL_BSTRING       strcmp(str_nil_cast, value) != 0
+#define BAT_TO_JSTRING_F         str nvalue = BUNtail(li, p); /* For Char, Varchar, Clob and URLs */
+#define BAT_TO_JSTRING_S         jstring value = (*env)->NewStringUTF(env, nvalue);
+#define CHECK_NULL_BSTRING       strcmp(str_nil_cast, nvalue) != 0
 
 #define BAT_TO_JBLOB_F           blob* nvalue = (blob*) BUNtail(li, p);
 #define BAT_TO_JBLOB_S           jbyteArray value = (*env)->NewByteArray(env, nvalue->nitems); \
                                  (*env)->SetByteArrayRegion(env, value, 0, nvalue->nitems, nvalue->data); /* For BLOBs */
 #define CHECK_NULL_BBLOB         nvalue->nitems != ~(size_t) 0
 
-/*#define BAT_TO_JBINARY_F         str representation = BUNtail(li, p);
-#define BAT_TO_JBINARY_S         int len = strlen(representation); \
-                                 jbyteArray value = (*env)->NewByteArray(env, len); \
-                                 (*env)->SetByteArrayRegion(env, value, 0, len, representation); // For JSON and Geometry
-#define CHECK_NULL_BBINARY       strcmp(str_nil_cast, representation) != 0*/
-
-#define CONVERT_HARDER_BAT_TO_JCLASS_ARRAY(NAME, RETRIEVE_BAT, CONVERT_BAT, NULL_CMP, CONSTRUCTOR) \
+#define CONVERT_HARDER_BAT_TO_JCLASS_ARRAY(NAME, RETRIEVE_BAT, CONVERT_BAT, NULL_CMP) \
     void get##NAME##Column(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, int first, int last, BAT* b) { \
        int j = 0; \
        BATiter li = bat_iterator(b); \
@@ -255,25 +202,25 @@ CONVERT_BAT_TO_JDECIMAL_ARRAY(lng, lng)
            for (BUN p = (BUN) first, q = (BUN) last; p < q; p++) { \
                RETRIEVE_BAT \
                CONVERT_BAT \
-               (*env)->SetObjectArrayElement(env, result, j, CONSTRUCTOR); \
+               (*env)->SetObjectArrayElement(env, result, j, value); \
                j++; \
+               (*env)->DeleteLocalRef(env, value); \
            } \
        } else { \
            for (BUN p = (BUN) first, q = (BUN) last; p < q; p++) { \
                RETRIEVE_BAT \
                if (NULL_CMP) { \
                    CONVERT_BAT \
-                   (*env)->SetObjectArrayElement(env, result, j, CONSTRUCTOR); \
+                   (*env)->SetObjectArrayElement(env, result, j, value); \
+                   (*env)->DeleteLocalRef(env, value); \
                } \
                j++; \
            } \
        } \
    }
 
-CONVERT_HARDER_BAT_TO_JCLASS_ARRAY(String, BAT_TO_JSTRING, DO_NOTHING, CHECK_NULL_BSTRING, JUST_A_STRING)
-CONVERT_HARDER_BAT_TO_JCLASS_ARRAY(Blob, BAT_TO_JBLOB_F, BAT_TO_JBLOB_S, CHECK_NULL_BBLOB, NO_CONSTRUCTOR)
-/*CONVERT_HARDER_BAT_TO_JCLASS_ARRAY(URL, BAT_TO_JSTRING, DO_NOTHING, CHECK_NULL_BSTRING, STRING_CONSTRUCTORS)
-CONVERT_HARDER_BAT_TO_JCLASS_ARRAY(Binary, BAT_TO_JBINARY_F, BAT_TO_JBINARY_S, CHECK_NULL_BBINARY, NATIVE_TYPE_CONSTRUCTORS)*/
+CONVERT_HARDER_BAT_TO_JCLASS_ARRAY(String, BAT_TO_JSTRING_F, BAT_TO_JSTRING_S, CHECK_NULL_BSTRING)
+CONVERT_HARDER_BAT_TO_JCLASS_ARRAY(Blob, BAT_TO_JBLOB_F, BAT_TO_JBLOB_S, CHECK_NULL_BBLOB)
 
 /* ------------------------------------------------------------------------------------  Converting Java Classes and primitives to BATs  ------------------------------------------------------------------ */
 
@@ -343,27 +290,6 @@ DIRECT_CONVERSION(Double, dbl, jdouble, Double)
                                  p->payload.p_msecs = (daytime) (aux1.rem + 3600000L);
 #define TIMESTAMP_CMP            p->payload.p_days + p->payload.p_msecs - prev.payload.p_days - prev.payload.p_msecs
 
-/*#ifdef HAVE_HGE
-#define JHUGEINT_TO_BAT          jstring nvalue = (*env)->CallObjectMethod(env, value, conversor);          \
-                                 const char *representation = (*env)->GetStringUTFChars(env, nvalue, NULL); \
-                                 int len = strlen(representation);                                          \
-                                 hgeFromStr(representation, &len, &p);                                      \
-                                 (*env)->ReleaseStringUTFChars(env, nvalue, representation);
-#endif
-
-#define JINET_TO_BAT             jstring nvalue = (*env)->CallObjectMethod(env, value, conversor);          \
-                                 const char *representation = (*env)->GetStringUTFChars(env, nvalue, NULL); \
-                                 INETnew(p, (str*)&representation);                                         \
-                                 (*env)->ReleaseStringUTFChars(env, nvalue, representation);
-#define INET_CMP                 INETcompare(p, &prev)
-
-#define JUUID_TO_BAT             jstring nvalue = (*env)->CallObjectMethod(env, value, conversor);          \
-                                 const char *representation = (*env)->GetStringUTFChars(env, nvalue, NULL); \
-                                 int len = strlen(representation);                                          \
-                                 UUIDfromString(representation, &len, (uuid **)&p);                         \
-                                 (*env)->ReleaseStringUTFChars(env, nvalue, representation);
-#define UUID_CMP                 UUIDcompare(p, &prev)*/
-
 #define CONVERT_EASY_JCLASS_ARRAY_TO_BAT(NAME, BAT_CAST, NULL_CONST, CONVERT_TO_BAT, ORDER_CMP) \
     void store##NAME##Column(JNIEnv *env, BAT** b, jobjectArray data, jmethodID conversor, size_t cnt, int localtype) { \
         BAT *aux = COLnew(0, localtype, cnt, TRANSIENT); \
@@ -388,6 +314,7 @@ DIRECT_CONVERSION(Double, dbl, jdouble, Double)
                 *p = NULL_CONST; \
             } else { \
                 CONVERT_TO_BAT \
+                (*env)->DeleteLocalRef(env, value); \
             } \
             if (i > 0) { \
                 if ((ORDER_CMP > 0) && aux->trevsorted) { \
@@ -404,31 +331,17 @@ DIRECT_CONVERSION(Double, dbl, jdouble, Double)
         *b = aux; \
     }
 
-/*#ifdef HAVE_HGE
-CONVERT_EASY_JCLASS_ARRAY_TO_BAT(Hugeint, hge, hge_nil, JHUGEINT_TO_BAT, EASY_CMP)
-#endif*/
 CONVERT_EASY_JCLASS_ARRAY_TO_BAT(Date, date, date_nil, JDATE_TO_BAT, EASY_CMP)
 CONVERT_EASY_JCLASS_ARRAY_TO_BAT(Time, daytime, daytime_nil, JTIME_TO_BAT, EASY_CMP)
 CONVERT_EASY_JCLASS_ARRAY_TO_BAT(Timestamp, timestamp, *timestamp_nil, JTIMESTAMP_TO_BAT, TIMESTAMP_CMP)
-/*CONVERT_EASY_JCLASS_ARRAY_TO_BAT(Inet, inet, *INETnull(), JINET_TO_BAT, INET_CMP)
-CONVERT_EASY_JCLASS_ARRAY_TO_BAT(UUID, uuid, *UUIDnull(), JUUID_TO_BAT, UUID_CMP)*/
 
 /* Decimals are harder :P */
 
-/*#ifdef HAVE_HGE
-static hge
-#else*/
 static lng
-//#endif
 decimal_from_str_java(const char *dec)
 {
-/*#ifdef HAVE_HGE
-    hge res = 0;
-	const hge max0 = GDK_hge_max / 10, max1 = GDK_hge_max % 10;
-#else*/
     lng res = 0;
     const lng max0 = GDK_lng_max / 10, max1 = GDK_lng_max % 10;
-//#endif
     int neg = 0;
 
     while(isspace(*dec))
@@ -477,12 +390,14 @@ decimal_from_str_java(const char *dec)
                 aux->tnonil = 0; \
                 *p = BAT_CAST##_nil; \
             } else { \
-                value = (*env)->CallObjectMethod(env, value, setScale, scale, roundingMode); \
-                jstring nvalue = (*env)->CallObjectMethod(env, value, conversor); \
+                jobject aux = (*env)->CallObjectMethod(env, value, setScale, scale, roundingMode); \
+                jstring nvalue = (*env)->CallObjectMethod(env, aux, conversor); \
                 const char *representation = (*env)->GetStringUTFChars(env, nvalue, NULL); \
                 *p = (BAT_CAST) decimal_from_str_java(representation); \
                 (*env)->ReleaseStringUTFChars(env, nvalue, representation); \
                 (*env)->DeleteLocalRef(env, nvalue); \
+                (*env)->DeleteLocalRef(env, aux); \
+                (*env)->DeleteLocalRef(env, value); \
             } \
             if (i > 0) { \
                 if (*p - prev > 0 && aux->trevsorted) { \
@@ -503,9 +418,6 @@ CONVERT_JDECIMAL_ARRAY_TO_BAT(bte)
 CONVERT_JDECIMAL_ARRAY_TO_BAT(sht)
 CONVERT_JDECIMAL_ARRAY_TO_BAT(int)
 CONVERT_JDECIMAL_ARRAY_TO_BAT(lng)
-/*#ifdef HAVE_HGE
-CONVERT_JDECIMAL_ARRAY_TO_BAT(hge)
-#endif*/
 
 static blob *
 my_blob_null(void) {
@@ -523,9 +435,6 @@ my_blob_null(void) {
 #define PUT_STR_IN_HEAP     BUNappend(aux, p, FALSE);
 
 #define STR_CMP             strcmp(p, prev)
-
-/*#define JURL_TO_BAT         value = (*env)->CallObjectMethod(env, value, conversor); \
-                            JSTRING_TO_BAT*/
 
 #define JBLOB_TO_BAT        jbyteArray nvalue = (jbyteArray) value;                   \
                             jsize len = (*env)->GetArrayLength(env, nvalue);          \
@@ -564,6 +473,7 @@ my_blob_null(void) {
                 p = NULL_CONST; \
             } else { \
                 CONVERT_TO_BAT \
+                (*env)->DeleteLocalRef(env, value); \
             } \
             PUT_IN_HEAP \
             if (i > 0) { \
@@ -590,5 +500,3 @@ my_blob_null(void) {
 
 CONVERT_HARDER_JCLASS_ARRAY_TO_BAT(String, str, str_nil_cast, DO_NOTHING, JSTRING_TO_BAT, STR_CMP, PUT_STR_IN_HEAP)
 CONVERT_HARDER_JCLASS_ARRAY_TO_BAT(Blob, blob*, my_blob_null(), BLOB_START, JBLOB_TO_BAT, BLOB_CMP, PUT_BLOB_IN_HEAP)
-/*CONVERT_HARDER_JCLASS_ARRAY_TO_BAT(URL, str, str_nil_cast, DO_NOTHING, JURL_TO_BAT, STR_CMP, PUT_STR_IN_HEAP)
-CONVERT_HARDER_JCLASS_ARRAY_TO_BAT(Binary, str, str_nil_cast, DO_NOTHING, JSTRING_TO_BAT, STR_CMP, PUT_STR_IN_HEAP)*/
