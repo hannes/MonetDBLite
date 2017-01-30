@@ -54,7 +54,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
      */
     public String getCurrentSchema() throws MonetDBEmbeddedException {
         QueryResultSet eqr = this.sendQuery("SELECT current_schema FROM sys.var();");
-        String res = eqr.getStringColumnByIndex(0)[0];
+        String res = eqr.getStringColumnByIndex(1)[0];
         eqr.close();
         return res;
     }
