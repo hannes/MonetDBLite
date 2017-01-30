@@ -41,7 +41,7 @@
 		b->tnil = 0; b->tnonil = 1; b->tkey = 0;						\
 		b->tsorted = 1; b->trevsorted = 1;b->tdense = 0;				\
 		p = (tpe*) Tloc(b, 0);								\
-		for( j = 0; j < cnt; j++, p++){								    \
+		for(j = 0; j < cnt; j++, p++){								    \
 			*p = (tpe) access_fun(s)[j];							    \
 			if (na_check){ b->tnil = 1; 	b->tnonil = 0; 	*p= tpe##_nil;} \
 			if (j > 0){													\
@@ -98,7 +98,7 @@ static SEXP bat_to_sexp(BAT* b) {
 			BAT_TO_REALSXP(b, lng, varvalue, 0);
 			break;
 		case TYPE_str: { // there is only one string type, thus no macro here
-			BUN p, q, j = 0;
+			BUN j = 0;
 			BATiter li = bat_iterator(b);
 			varvalue = PROTECT(NEW_STRING(BATcount(b)));
 			if (varvalue == NULL) {
@@ -111,8 +111,8 @@ static SEXP bat_to_sexp(BAT* b) {
 				if (!sexp_ptrs) {
 					return NULL;
 				}
-				BATloop(b, p, q) {
-					const char *t = (const char *) BUNtail(li, p);
+				for (j = 0; j < BATcount(b); j++) {
+					const char *t = (const char *) BUNtvar(li, j);
 					ptrdiff_t offset = t - b->tvheap->base;
 					if (!sexp_ptrs[offset]) {
 						if (strcmp(t, str_nil) == 0) {
@@ -123,25 +123,25 @@ static SEXP bat_to_sexp(BAT* b) {
 						}
 					}
 					assert(sexp_ptrs[offset]);
-					SET_STRING_ELT(varvalue, j++, sexp_ptrs[offset]);
+					SET_STRING_ELT(varvalue, j, sexp_ptrs[offset]);
 				}
 				UNPROTECT(n_protects);
 				GDKfree(sexp_ptrs);
 			}
 			else {
 				if (b->tnonil) {
-					BATloop(b, p, q) {
-						SET_STRING_ELT(varvalue, j++, RSTR(
-							(const char *) BUNtail(li, p)));
+					for (j = 0; j < BATcount(b); j++) {
+						SET_STRING_ELT(varvalue, j, RSTR(
+							(const char *) BUNtvar(li, j)));
 					}
 				}
 				else {
-					BATloop(b, p, q) {
-						const char *t = (const char *) BUNtail(li, p);
+					for (j = 0; j < BATcount(b); j++) {
+						const char *t = (const char *) BUNtvar(li, j);
 						if (strcmp(t, str_nil) == 0) {
-							SET_STRING_ELT(varvalue, j++, NA_STRING);
+							SET_STRING_ELT(varvalue, j, NA_STRING);
 						} else {
-							SET_STRING_ELT(varvalue, j++, RSTR(t));
+							SET_STRING_ELT(varvalue, j, RSTR(t));
 						}
 					}
 				}
