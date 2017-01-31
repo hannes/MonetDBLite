@@ -24,6 +24,8 @@ In the original MonetDBLite, some less important features of MonetDB were turned
 
 One important note is that all the following APIs are NOT thread-safe for performance reasons, and thread-safety not being part of the JDBC specification. If the user wants to use a multi-threading enviroment, we recommend to either create one connection for each thread or use proper synchronization primitives.
 
+Other note is that the `async` API, which is very common is database APIs is absent in this API, because as no IO operations are made in an embedded connection, their demand is less required. At the same time they are absent in the JDBC and MonetDB uses multiple threads in its query plans, making it very CPU core efficient. However if the user still wants to use `async` operations, this API can be embbeded easily with the `java.util.concurrent.CompletableFuture<T>` class in Java 8.
+
 ### Start the database and make connections
 
 The MonetDB embedded database has to be loaded in order to perform all the operations. Due to the one database process restriction, the `MonetDBEmbeddedDatabase` class is a singleton. The `MonetDBEmbeddedDatabase` will create the MonetDB's farm if it's inexistent in the directory, otherwise will load the existing farm. The `MonetDBEmbeddedDatabase` exceptionally is thread-safe to avoid to threads to start the database and corrupting the existing process. To start the database:
@@ -41,7 +43,7 @@ After the database is loaded, connections can be performed to the database.
 MonetDBEmbeddedConnection connection = MonetDBEmbeddedDatabase.CreateConnection();
 ```
 
-### MonetDB to Java Mappings
+### MonetDB to Java Mappings 
 
 Being a strong typed language, an explicit mapping between MonetDB data types and Java classes/primitives was made. We favored the usage of Java primitives for the most common MonetDB data types, hence making less allocations. However for the more complex ones, we mapped them to Java Classes, while matching the JDBC specification.
 
@@ -63,17 +65,17 @@ One important feature of MonetDB is that the SQL `NULL` values are mapped into t
 | timestamp (with or without timezone) | [java.sql.Timestamp](https://docs.oracle.com/javase/8/docs/api/java/sql/Timestamp.html)     | Null pointer          |
 | month interval                       | int                                                                                         | Minimum integer value |
 | second interval                      | long                                                                                        | Minimum long value    |
-| blob                                 | byte[]  (an object!)                                                                        | Null pointer          |
+| blob                                 | byte&#91;&#93;  &#40;an object&#33;&#41;                                                                        | Null pointer          |
 
 Notice that other more rare data types like `geometry`, `json` and `hugeint` are missing, because they were taken off the MonetDBLite to shrink the size of the library.
 
 ## Just the embbedded API
 
-After a connection is made, regular queries can be sent to the embedded server and get the results immediately. 
+After a connection is made, regular queries can be sent to the embedded server and get the results immediately. The methods `void startTransaction()`,  `void commit()`,  `void rollback()`, can be used for the transaction management.
 
-### Regular Queries
+### Update Queries
 
-For update queries (e.g. `INSERT`, `UPDATE` and `DELETE` queries), the method `sendUpdate` is used to send update queries to the server and get the number of rows affected.
+For update queries (e.g. `INSERT`, `UPDATE` and `DELETE` queries), the method `int sendUpdate(String query)` is used to send update queries to the server and get the number of rows affected.
 
 ```java
 connection.startTransaction();
@@ -82,9 +84,11 @@ int numberOfInsertions = connection.sendUpdate("INSERT INTO example VALUES ('tru
 connection.commit();
 ```
 
-For queries with result sets, the method `sendQuery` sends a query to the server and retrieves the results immediately in a `QueryResultSet` instance. The column values can be retrieved using the `get#TYPE#ColumnByIndex` methods, with the column numbers starting from 1, alike in JDBC, or by name with `get#TYPE#ColumnByName` methods. An important note is that the pointer to the array is retrieved when the fetch is made, to save memory allocations, except when the type does not match the method (e.g call `getIntColumnByIndex` in a `short` column). If the user wants to re-use values, he should clone the arrays. The entire result set can be fetched with the `getTheFullResultSet` method.
+### Queries with result sets
 
-For null values, the methods `getColumnNullMappingsByIndex` and `getColumnNullMappingsByName` can be used. The result set metada can be retrieved with the  `getNumberOfRows`, `getNumberOfColumns`, `getColumnNames` and `getColumnTypes` methods.
+For queries with result sets, the method `QueryResultSet sendQuery(String query)` sends a query to the server and retrieves the results immediately in a `QueryResultSet` instance. The column values can be retrieved using the `T[] get#TYPE#ColumnByIndex(int n)` methods, with the column numbers starting from 1, alike in JDBC, or by name with `T[] get#TYPE#ColumnByName(String name)` methods. An important note is that the pointer to the array is retrieved when the fetch is made, to save memory allocations, except when the type does not match the method (e.g call `getIntColumnByIndex` in a `short` column). If the user wants to re-use values, he should clone the arrays. The entire result set can be fetched with the `Object[] getTheFullResultSet()` method.
+
+For null values, the methods `boolean[] getColumnNullMappingsByIndex(int n)` and `boolean[] getColumnNullMappingsByName (String name)` can be used. The result set metada can be retrieved with the  `int getNumberOfRows()`, `int getNumberOfColumns()`, `String[] getColumnNames()` and `String[] getColumnTypes()` methods.
 
 ```java
 QueryResultSet qrs = connection.sendQuery("SELECT * FROM example");
@@ -104,10 +108,83 @@ int[] theSameCounterValues = qrs.getIntColumnByName("counter"); //got it by name
 boolean[] truthNullMappings = qrs.getColumnNullMappingsByIndex(1);
 //gets the pointer to the result set matrix, be carefull!!
 Object[] result set = qrs.getFullResultSet();
-qrs.close(); //don't forget to close in the end!!!
+qrs.close(); //don't forget to close in the end!!! ;)
+```
+A single value can be checked if it's null with the `NullMappings` class `boolean Check#Type#IsNull(T value)` static methods, except for `booleans`, where the `boolean checkBooleanIsNull(int column, int row)` in the `QueryResultSet` should be used instead.
+
+If it's desired to iterate row-wise, the methods `QueryResultRowSet fetchResultSetRows(int startIndex, int endIndex)`, `QueryResultRowSet fetchFirstNRowValues(int n)` and `QueryResultRowSet fetchAllRowValues()` can be used. However as of now, these methods convert all values including the primitives into Java Objects, which cause slightly more memory allocations.
+
+```java
+QueryResultSet qrs = connection.sendQuery("SELECT * FROM example");
+QueryResultRowSet rows = qrs.fetchAllRowValues();
+//TODO because I haven't tested it yet :)
+qrs.close(); //don't forget to close in the end!!! ;)
 ```
 
-### Appending to a Table
+### Utilities methods
+
+In the `MonetDBEmbeddedConnection` class there are other utility methods, that can used to manage the current connection.
+
+* `String getCurrentSchema()` - returns the current schema name.
+* `void setCurrentSchema(String newSchema)` - sets the current schema.
+* `QueryResultSet listTables(boolean listSystemTables)` - lists the existing tables details in the SQL catalog.
+* `boolean checkIfTableExists(String schemaName, String tableName)` - Self explanatory :)
+* `void removeTable(String schemaName, String tableName)` - Self explanatory :)
+* `boolean isConnectionClosed()` - Just a check :)
+
+## Interacting with Tables
+
+Another important feature of MonetDBLite is the ability to interact with database tables easily. This featured is also present in MonetDBJavaLite. A single table data can be retrieved using the methods `MonetDBTable getMonetDBTable(String schemaName, String tableName)` and `MonetDBTable getMonetDBTable(String tableName)` in a `MonetDBEmbeddedConnection` class instance.
+
+Much alike the `QueryResultSet` class, the tables' metadata information can be retrieved with the same methods of above.
+
+### Iterate a table
+
+To iterate a table, (e.g. for exporting), the method `int iterateTable(IMonetDBTableCursor cursor)` is used. The `IMonetDBTableCursor` instance must implement the methods `int getFirstRowToIterate()`, where the first row in the table is specified (starting from 1), `int getLastRowToIterate()` the last one, and `void processNextRow(RowIterator rowIterator)`, containing the business logic of the iteration. The `rowIterator` has information about the iteration itself, as well the current row.
+
+```java
+connection.sendUpdate("CREATE TABLE iterateMe (oneValue short, information char(10), justADate date)");
+connection.sendUpdate("INSERT INTO iterateMe VALUES (1, 'iterate', now()), (2, 'a', '2014-10-02'), (3, 'table', '1950-12-12')");
+
+MonetDBTable iterateMe = connection.getMonetDBTable("iterateMe");
+iterateMe.iterateTable(new IMonetDBTableCursor() {
+    @Override
+    public void processNextRow(RowIterator rowIterator) {
+        System.out.println(rowIterator.getColumnByIndex(1, Short.class) + " " + rowIterator.getColumnByIndex(2, String.class) + " " + rowIterator.getColumnByIndex(3, Date.class));
+    }
+
+    @Override
+    public int getFirstRowToIterate() {
+        return 1;
+    }
+
+    @Override
+    public int getLastRowToIterate() {
+        return iterateMe.getNumberOfRows();
+    }
+});
+```
+
+### Append data to a table
+
+To append new data to the table, the method `int appendColumns(Object[] data)` is used. The `data` is array of columns, where each column has the same amount of rows, and each array class corresponds to the mapping defined above. To insert null values, use the `T Get#Type#NullConstant()` constant in the `NullMappings` class. Due to the limitations of the representation of `booleans` in Java, to append to a `boolean` column, a `byte` array should be used instead, as shown in the example. For all the other types, there is no changes.
+
+For `decimals`, a rounding mode must be set before appending. The method `void setRoundingMode(int roundingMode)` has that purpose [click here for details](http://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html#setScale(int,%20int)).
+
+```java
+connection.sendUpdate("CREATE TABLE interactWithMe (dutchGoodies text, justNumbers int, truth boolean, huge blob)");
+MonetDBTable interactWithMe = connection.getMonetDBTable("interactWithMe");
+
+String[] goodies = new String[]{"eerlijk", "lekker", "smullen", "smaak", NullMappings.GetObjectNullConstant<String>() };
+int[] numbers = new int[]{2, 3, NullMappings.GetIntNullConstant(), -1122100, -23123};
+byte[] truths = new byte[]{NullMappings.GetBooleanNullConstant(), 1, 1, 0, 0};
+byte[][] justBlobs = new byte[][]{new byte[]{1,2,5,7}, NullMappings.GetObjectNullConstant<byte[]>(), new byte[]{-1,-2,-3,-4,-5,-6}, new byte[]{127}, new byte[]{0,0,0,0,0}};
+Object[] appends = new Object[]{goodies, numbers, truths, justBlobs};
+interactWithMe.appendColumns(appends);
+
+QueryResultSet qrs = connection.sendQuery("SELECT * FROM interactWithMe");
+//checking the values....
+```
 
 ## JDBC
 
@@ -120,6 +197,10 @@ qrs.close(); //don't forget to close in the end!!!
 ## Benchmarks
 
 ## FAQs
+
+scala
+thread safety
+asyncs
 
 ## License
 

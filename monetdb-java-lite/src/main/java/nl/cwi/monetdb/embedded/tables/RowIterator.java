@@ -46,7 +46,7 @@ public class RowIterator extends AbstractRowSet {
         int index = 0;
         for (String colName : columnNames) {
             if (columnName.equals(colName)) {
-                return this.getColumnByIndex(index);
+                return this.getColumnByIndex(index + 1);
             }
             index++;
         }

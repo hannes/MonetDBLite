@@ -142,6 +142,20 @@ public class MonetDBEmbeddedConnection implements Closeable {
     }
 
     /**
+     * Retrieves a MonetDB Table in the current schema for further operations
+     *
+     * @param tableName The name of the table
+     * @return A MonetDBTable instance with column details
+     * @throws MonetDBEmbeddedException If an error in the database occurred
+     */
+    public MonetDBTable getMonetDBTable(String tableName) throws MonetDBEmbeddedException {
+        String schemaName = this.getCurrentSchema();
+        MonetDBTable res = this.getMonetDBTableInternal(this.connectionPointer, schemaName, tableName);
+        results.put(res.getRandomIdentifier(), res);
+        return res;
+    }
+
+    /**
      * Performs a listing of the existing tables with schemas.
      *
      * @param listSystemTables List system's tables as well (default true)
