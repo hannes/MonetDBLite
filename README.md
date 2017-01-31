@@ -24,7 +24,7 @@ In the original MonetDBLite, some less important features of MonetDB were turned
 
 One important note is that all the following APIs are NOT thread-safe for performance reasons, and thread-safety not being part of the JDBC specification. If the user wants to use a multi-threading enviroment, we recommend to either create one connection for each thread or use proper synchronization primitives.
 
-Other note is that the `async` API, which is very common is database APIs is absent in this API, because as no IO operations are made in an embedded connection, their demand is less required. At the same time they are absent in the JDBC and MonetDB uses multiple threads in its query plans, making it very CPU core efficient. However if the user still wants to use `async` operations, this API can be embbeded easily with the `java.util.concurrent.CompletableFuture<T>` class in Java 8.
+Other note is that the `async` API, which is very common is database APIs is absent in this API, because as no IO operations are made in an embedded connection, their demand is less required. At the same time they are absent in the JDBC and MonetDB uses multiple threads in its query plans, making it very CPU core efficient. However if the user still wants to use `async` operations, this API can be embbeded easily with the [java.util.concurrent.CompletableFuture<T>](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html) class in Java 8.
 
 ### Start the database and make connections
 
@@ -41,7 +41,12 @@ After the database is loaded, connections can be performed to the database.
 
 ```java
 MonetDBEmbeddedConnection connection = MonetDBEmbeddedDatabase.CreateConnection();
+//the session goes...
+//Don't forget to close the connection at the end!!
+connection.close();
 ```
+
+Before exiting the program is VERY important to shutdown the database, otherwise the program will cause many memory leaks! The `void MonetDBEmbeddedDatabase.StopDatabase()` class method shuts down the embedded database and any pending connections if existing. The class method `boolean MonetDBEmbeddedDatabase.IsDatabaseRunning()` checks if the database is running and `int MonetDBEmbeddedDatabase.GetNumberOfConnections()` retrieves the number of connections in the database.
 
 ### MonetDB to Java Mappings 
 
@@ -163,6 +168,7 @@ iterateMe.iterateTable(new IMonetDBTableCursor() {
         return iterateMe.getNumberOfRows();
     }
 });
+//will print the values in the console...
 ```
 
 ### Append data to a table
@@ -188,11 +194,38 @@ QueryResultSet qrs = connection.sendQuery("SELECT * FROM interactWithMe");
 
 ## JDBC
 
-### Improved MAPI JDBC connection
+The existing MonetDB JDBC driver was extended to support both a MAPI and an Embedded connection! At the same time, the MAPI connection was improved with [java.nio.ByteBuffer](https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html) for memory saving, thus less garbage collection is now performed.
 
 ### JDBC embedded connection
 
-## Shutdown the database
+There are several tutorials about the JDBC in the Internet, hence here will be explained just how to start an embedded connection. In the JDBC specification, a set of [java.util.Properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html) can be provided with additional features for the connection. To start an embedded connection the boolean string `true` MUST be provided, otherwise a MAPI connection will start instead. The directory of the farm must be provided as well.
+
+```java
+Properties connectionProps = new Properties();
+/*There is no user authentication in MonetDBLite but the user and password properties must be provided because of the JDBC specification (just provide random strings :) )*/
+connectionProps.put("user", "monetdb");
+connectionProps.put("password", "monetdb");
+connectionProps.put("embedded", "true"); //IMPORTANT
+connectionProps.put("directory", "/home/user/myfarm"); //the farm directory
+Connection con = DriverManager.getConnection("jdbc:monetdb://localhost/db", connectionProps);
+
+//just a JDBC statement and result set
+Statement st = con.createStatement();
+st.executeUpdate("CREATE TABLE jdbcTest (justAnInteger int, justAString varchar(32))");
+st.executeUpdate("INSERT INTO jdbcTest VALUES (1, 'testing!')");
+ResultSet rs = st.executeQuery("SELECT * from test1;");
+while (rs.next()) {
+    int justAnInteger = rs.getInt(1);
+    String justAString = rs.getString(2);
+    System.out.println(justAnInteger + " " + justAString); //just showing!
+}
+rs.close(); //Don't forget!!
+con.close(); //Don't forget!!
+```
+
+As seen in the example, the `MonetDBEmbeddedDatabase` calls weren't required for better portability of the JDBC embedded connection. What really happens is when starting a JDBC embedded connection, it checks if there is a `MonetDBEmbeddedDatabase` instance running in the provided directory. If the `MonetDBEmbeddedDatabase` is not running on that directory, it starts there, otherwise an exception is thrown. While closing, if it's the last connection, the `MonetDBEmbeddedDatabase` will shut down.
+
+### Differences between the JDBC MAPI and Embedded connections
 
 ## Benchmarks
 
@@ -201,6 +234,8 @@ QueryResultSet qrs = connection.sendQuery("SELECT * FROM interactWithMe");
 scala
 thread safety
 asyncs
+mapi connection instead of embedded
+check if embedded
 
 ## License
 
