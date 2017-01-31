@@ -800,16 +800,19 @@ setMethod("dbFetch", signature(res="MonetDBEmbeddedResult", n="numeric"), def=fu
   if (res@env$delivered >= res@env$info$rows) {
     return(res@env$resp$tuples[F,, drop=F])
   }
+  # special case, return everything
+  if (n == -1 && res@env$delivered == 0) {
+    res@env$delivered <- res@env$info$rows
+    return(res@env$resp$tuples)
+  }
   if (n > -1) {
     n <- min(n, res@env$info$rows - res@env$delivered)
     res@env$delivered <- res@env$delivered + n
     return(res@env$resp$tuples[(res@env$delivered - n + 1):(res@env$delivered),, drop=F])
   }
-  else {
-    start <- res@env$delivered + 1
-    res@env$delivered <- res@env$info$rows
-    return(res@env$resp$tuples[start:res@env$info$rows,, drop=F])
-  }
+  start <- res@env$delivered + 1
+  res@env$delivered <- res@env$info$rows
+  return(res@env$resp$tuples[start:res@env$info$rows,, drop=F])
 })
 
 setMethod("dbClearResult", "MonetDBResult", def = function(res, ...) {

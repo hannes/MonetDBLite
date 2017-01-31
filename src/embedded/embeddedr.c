@@ -3,6 +3,7 @@
 #ifdef HAVE_EMBEDDED_R
 #include "embeddedr.h"
 #include "R_ext/Random.h"
+#include "R_ext/Rallocators.h"
 #include "monet_options.h"
 #include "mal.h"
 #include "mmath.h"
@@ -79,7 +80,8 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 			}
 			SET_VECTOR_ELT(retlist, i, varvalue);
 			SET_STRING_ELT(names, i, varname);
-			BBPunfix(b->batCacheid);
+			// FIXME: we can't unfix if we handed over the thang, but need to unfix later.
+			//BBPunfix(b->batCacheid);
 		}
 		SET_ATTR(retlist, install("__rows"), Rf_ScalarReal(nrows));
 		monetdb_cleanup_result(R_ExternalPtrAddr(connsexp), output);
