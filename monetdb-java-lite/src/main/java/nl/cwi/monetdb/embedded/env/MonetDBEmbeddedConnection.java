@@ -14,7 +14,7 @@ import nl.cwi.monetdb.embedded.utils.Randomizer;
 import nl.cwi.monetdb.embedded.utils.StringEscaper;
 
 import java.io.Closeable;
-import java.util.HashMap;
+import java.util.Hashtable;
 
 /**
  * A single connection to a MonetDB database instance. Communication between Java and native C is done via JNI.
@@ -32,7 +32,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
     private final long randomIdentifier;
 
     /** Hash table of query result sets. */
-    private final HashMap<Long, AbstractConnectionResult> results = new HashMap<>();
+    private final Hashtable<Long, AbstractConnectionResult> results = new Hashtable<>();
 
 	protected MonetDBEmbeddedConnection(long connectionPointer) {
 	    this.connectionPointer = connectionPointer;

@@ -1,17 +1,35 @@
 # MonetDBJavaLite
 
+**IMPORANT**
+
+> Before any further reading, rememeber that this software is still experimental, and it might crash sometimes, although some testing was already been made on it. :)
+
 After the MonetDBLite, MonetDBRLite and MonetDBPythonLite, MonetDBJavaLite is here! This project allows the integration of MonetDB, a column-wise and high-scale OLAP relational database integrated into the JVM! Unlike a traditional socket connection, in an embedded connection, both the client and the server share the same process, which means there is no necessity to serialize and deserialize data, making the connection much faster! :) (Soon enough we will integrate with Scala as well!!!)
 
 This integration was made as much as simple possible for performance reasons. At the same time, the existing JDBC driver for MonetDB was extended to accomodate both a MAPI (regular socket connetion) and an embedded connection with low overhead without breaking the JDBC specification.
 
 ## JNI C code
+
 The embedded Java version of MonetDB is heavily based and dependent on the generic one (or MonetDBLite). To interface Java with C it's used JNI. JNI code comes with two complementing parts - Java and native (C in our case) code. In the Java code it's declared a function `native`, which indicates that it is actually implemented in C. Later it's implementation is written the native library. This is where it's called the embedded C-level interface function from the Java code.
 
-## Installation
+## Delivery and Installation
 
-TBD
+There are two jars are distributed: The new MonetDB JDBC driver jar (`monetdb-jdbc-<version>.jar`), and the MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The first one can be used independently, if only MAPI JDBC connections are desired. For both the Embedded API and the Embedded JDBC connections, the second jar is also required in the `CLASSPATH`.
+
+The `monetdb-jdbc-<version>.jar` is platform independent and can be retrieved from .... - Soon!
+
+For the `monetdb-java-lite-<version>.jar`, depending on the platform
+
+* Linux - For Linux users, we recommend to compile the jar from the sources ... - Soon!
+
+* Windows - Soon!
+
+* MacOS - Soon!
+
+* Android and ARM - If we get a request, it can happen! :)
 
 ## Libraries
+
 Packed in the `src/main/resources/libs` directory of the `monetdb-java-lite-<version>.jar` there should be several directories, containing the C-library of MonetDB for each available operative system. The extension of the library should either be the default for a dynamic libraries on the user's OS or the generic (for JNI) `.jnilib`. For this reason the `monetdb-java-lite-<version>.jar` size is much larger than the average size of a `.jar` file. If the user wants to save space, he might delete the unwanted versions of the native library in the `src/main/resources/libs` directory, altough it's not recomended to do so.
 
 In an IDE or when Maven runs tests from command line, the application will use the unpacked library, already present in the `src/main/resources/libs` dir (since there isn't a `.jar` yet). When running "in production" - from a `.jar`, the application will stream copy the library to a temp dir, and load the library from there. This is needed, since one cannot use the packed libraries in a `.jar` directly.
@@ -70,7 +88,7 @@ One important feature of MonetDB is that the SQL `NULL` values are mapped into t
 | timestamp (with or without timezone) | [java.sql.Timestamp](https://docs.oracle.com/javase/8/docs/api/java/sql/Timestamp.html)     | Null pointer          |
 | month interval                       | int                                                                                         | Minimum integer value |
 | second interval                      | long                                                                                        | Minimum long value    |
-| blob                                 | byte&#91;&#93;  &#40;an object&#33;&#41;                                                                        | Null pointer          |
+| blob                                 | byte&#91;&#93; &#40;an object&#33;&#41;                                                     | Null pointer          |
 
 Notice that other more rare data types like `geometry`, `json` and `hugeint` are missing, because they were taken off the MonetDBLite to shrink the size of the library.
 
@@ -130,9 +148,9 @@ qrs.close(); //don't forget to close in the end!!! ;)
 
 In the `MonetDBEmbeddedConnection` class there are other utility methods, that can used to manage the current connection.
 
-* `String getCurrentSchema()` - returns the current schema name.
-* `void setCurrentSchema(String newSchema)` - sets the current schema.
-* `QueryResultSet listTables(boolean listSystemTables)` - lists the existing tables details in the SQL catalog.
+* `String getCurrentSchema()` - Returns the current schema name.
+* `void setCurrentSchema(String newSchema)` - Sets the current schema.
+* `QueryResultSet listTables(boolean listSystemTables)` - Lists the existing tables details in the SQL catalog.
 * `boolean checkIfTableExists(String schemaName, String tableName)` - Self explanatory :)
 * `void removeTable(String schemaName, String tableName)` - Self explanatory :)
 * `boolean isConnectionClosed()` - Just a check :)
@@ -281,6 +299,7 @@ The new MonetDB JDBC driver creates a MAPI connection by default, as the most co
 
 ### 5. Is there a way to know if a JDBC connection is MAPI or embedded after it has started?
 Yes there is! In JDBC specification you can call the [`String getClientInfo(String name)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getClientInfo-java.lang.String-) method to get  a provided property at the beginning of the connection. You can just do:
+
 ```java
 String embeddedString = connection.getClientInfo("embedded");
 boolean isEmbedded = (embeddedString != null && embeddedString.equals("true"));
@@ -295,3 +314,4 @@ Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
 ## Developer and support
 
 The MonetDBJavaLite is being supported by [Pedro Ferreira](mailto://pedro.ferreira@monetdbsolutions.com), a developer at [MonetDBSolutions](https://monetdbsolutions.com/)! Feel free to create an issue or a pull request! As you could see I like emoticons! :) Just one more :)
+
