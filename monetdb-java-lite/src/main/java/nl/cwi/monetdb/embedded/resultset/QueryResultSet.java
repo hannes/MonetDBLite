@@ -96,6 +96,15 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
     }
 
     /**
+     * Gets the pointer to the full result set, which is array of Object arrays, be careful!!
+     *
+     * @return The entire result set.
+     */
+    public Object[] getFullResultSet() {
+        return this.data;
+    }
+
+    /**
      * Gets a column index from the result set by name
      *
      * @param columnName AbstractQueryResultSetColumn name
