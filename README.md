@@ -1,6 +1,6 @@
 # MonetDBJavaLite
 
-After the C-lite, R-Lite and Python-Lite, MonetDBJavaLite is here! This project allows the integration of MonetDB, a column-wise and high-scale OLAP relational database integrated into the JVM! Unlike a traditional socket connection, in an embedded connection, both the client and the server share the same process, which means there is no necessity to serialize and deserialize data, making the connection much faster! :)
+After the MonetDBLite, MonetDBRLite and MonetDBPythonLite, MonetDBJavaLite is here! This project allows the integration of MonetDB, a column-wise and high-scale OLAP relational database integrated into the JVM! Unlike a traditional socket connection, in an embedded connection, both the client and the server share the same process, which means there is no necessity to serialize and deserialize data, making the connection much faster! :) (Soon enough we will integrate with Scala as well!!!)
 
 This integration was made as much as simple possible for performance reasons. At the same time, the existing JDBC driver for MonetDB was extended to accomodate both a MAPI (regular socket connetion) and an embedded connection with low overhead without breaking the JDBC specification.
 
@@ -46,7 +46,7 @@ MonetDBEmbeddedConnection connection = MonetDBEmbeddedDatabase.CreateConnection(
 connection.close();
 ```
 
-Before exiting the program is VERY important to shutdown the database, otherwise the program will cause many memory leaks! The `void MonetDBEmbeddedDatabase.StopDatabase()` class method shuts down the embedded database and any pending connections if existing. The class method `boolean MonetDBEmbeddedDatabase.IsDatabaseRunning()` checks if the database is running and `int MonetDBEmbeddedDatabase.GetNumberOfConnections()` retrieves the number of connections in the database.
+Before exiting the program is **VERY** important to shutdown the database, otherwise the program will cause many memory leaks! The `void MonetDBEmbeddedDatabase.StopDatabase()` class method shuts down the embedded database and any pending connections if existing. The class method `boolean MonetDBEmbeddedDatabase.IsDatabaseRunning()` checks if the database is running and `int MonetDBEmbeddedDatabase.GetNumberOfConnections()` retrieves the number of connections in the database.
 
 ### MonetDB to Java Mappings 
 
@@ -198,14 +198,14 @@ The existing MonetDB JDBC driver was extended to support both a MAPI and an Embe
 
 ### JDBC embedded connection
 
-There are several tutorials about the JDBC in the Internet, hence here will be explained just how to start an embedded connection. In the JDBC specification, a set of [java.util.Properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html) can be provided with additional features for the connection. To start an embedded connection the boolean string `true` MUST be provided, otherwise a MAPI connection will start instead. The directory of the farm must be provided as well.
+There are several tutorials about the JDBC in the Internet, hence here will be explained just how to start an embedded connection. In the JDBC specification, a set of [java.util.Properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html) can be provided with additional features for the connection. To start an embedded connection the boolean string `true` **MUST** be provided, otherwise a MAPI connection will start instead. The directory of the farm must be provided as well. The following shows how it can be done.
 
 ```java
 Properties connectionProps = new Properties();
 /*There is no user authentication in MonetDBLite but the user and password properties must be provided because of the JDBC specification (just provide random strings :) )*/
 connectionProps.put("user", "monetdb");
 connectionProps.put("password", "monetdb");
-connectionProps.put("embedded", "true"); //IMPORTANT
+connectionProps.put("embedded", "true"); //VERY IMPORTANT
 connectionProps.put("directory", "/home/user/myfarm"); //the farm directory
 Connection con = DriverManager.getConnection("jdbc:monetdb://localhost/db", connectionProps);
 
@@ -219,21 +219,21 @@ while (rs.next()) {
     String justAString = rs.getString(2);
     System.out.println(justAnInteger + " " + justAString); //just showing!
 }
-rs.close(); //Don't forget!!
-con.close(); //Don't forget!!
+rs.close(); //Don't forget! :)
+con.close(); //Don't forget! :)
 ```
 
 As seen in the example, the `MonetDBEmbeddedDatabase` calls weren't required for better portability of the JDBC embedded connection. What really happens is when starting a JDBC embedded connection, it checks if there is a `MonetDBEmbeddedDatabase` instance running in the provided directory. If the `MonetDBEmbeddedDatabase` is not running on that directory, it starts there, otherwise an exception is thrown. While closing, if it's the last connection, the `MonetDBEmbeddedDatabase` will shut down.
 
-It was made possible to use the the Embedded API in the JDBC embedded connection, although is completely apart from the JDBC specification. 
+It was made possible to use the the Embedded API in the JDBC embedded connection, although is completely apart from the JDBC specification.
 
 ```java
 //do the above steps....
 Connection con = DriverManager.getConnection("jdbc:monetdb://localhost/db", connectionProps);
 MonetDBEmbeddedConnection cast = ((EmbeddedConnection)con).getAsMonetDBEmbeddedConnection();
 connection.sendUpdate("SELECT * FROM somewhere WHERE field=1");
-//....
-con.close(); //Don't forget!!
+//do as a MonetDBEmbeddedConnection...
+con.close(); //Don't forget! ;)
 ```
 
 ### Differences between the JDBC MAPI and Embedded connections
@@ -241,10 +241,10 @@ con.close(); //Don't forget!!
 There are still some differences from the JDBC MAPI and Embedded connections, due to their nature:
 
 * The [java.sql.PreparedStatement](https://docs.oracle.com/javase/8/docs/api/java/sql/PreparedStatement.html) implementation is missing in the Embedded connections, because the [PREPARED STATEMENT](https://www.monetdb.org/Documentation/Manuals/SQLreference/PrepareExec) of MonetDB was removed in MonetDBLite. However if enough interest is made, this feature can be added to MonetDBLite.
-* In the JDBC specification a [Fetch Size](https://docs.oracle.com/cd/A87860_01/doc/java.817/a83724/resltse5.htm) attribute allows to fetch a result set in blocks. This feature is favorable in a socket connection (MAPI), where the client and the server might not be in the same machine, thus fetching the results incrementally in block. However in the Embedded connection, this feature is less favorable as both the client and the server are in the same machine. Therefore the result set is always retrieved with a single block, making the `void setFetchSize(int rows)` and `int getFetchSize()` methods depreciated in a Embedded connection (they do anything).
+* In the JDBC specification a [Fetch Size](https://docs.oracle.com/cd/A87860_01/doc/java.817/a83724/resltse5.htm) attribute allows to fetch a result set in blocks. This feature is favorable in a socket connection (MAPI), where the client and the server might not be in the same machine, thus fetching the results incrementally in block. However in the Embedded connection, this feature is less favorable as both the client and the server are in the same machine. Therefore the result set is always retrieved with a single block, making the [`void setFetchSize(int rows)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#getFetchSize) and [`int getFetchSize()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#setFetchSize-int-) methods depreciated in a Embedded connection (they do anything).
 * As mentioned before, some MonetDB data types aren't featured in MonetDBLite, so existing queries with those types in a MAPI connection can't be ported to the Embedded connection version of it.
 * Also mentioned that the authentication scheme is inexistent in the Embedded connection.
-* The methods `void setNetworkTimeout(Executor executor, int millis)` and `int getNetworkTimeout()` are insignificant as there is no network involved in the Embedded connection.
+* The methods [`void setNetworkTimeout(Executor executor, int millis)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#setNetworkTimeout-java.util.concurrent.Executor-int-) and [`int getNetworkTimeout()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getNetworkTimeout--) are insignificant as there is no network involved in the Embedded connection.
 * [Batch Processing](https://www.tutorialspoint.com/jdbc/jdbc-batch-processing.htm) is not possible in a Embedded connection, due to its removal from MonetDBLite.
 
 ## Benchmarks
@@ -253,12 +253,45 @@ Soon!
 
 ## FAQs
 
-scala
-thread safety
-asyncs
-mapi connection instead of embedded
-check if embedded
+### 1. I am having racing conditions, can you tell me why?
+As said before, this API is not thread-safe for performance reasons. If you want to keep the data's integraty, implement a synchronization mechanism, or a pool of connections much alike Java EE does with JDBC.
+
+### 2. If I modify a value in one array of QueryResultSet, it changes the value in the result set as well right?
+Yes, as I explained above the `QueryResultSet` `T[] get#TYPE#ColumnByIndex(int n)` and `T[] get#TYPE#ColumnByName(String name)` methods returns the pointer to the array of the column if the type matches with the one of the `QueryResultSet`. This was done to save memory allocations, which is usefull in some use case scenarios. If you to preserve the `QueryResultSet` data, use the [Arrays.copyOf](https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html#i19) family of methods.
+
+### 3. Despite no IO, I still want to run this API asynchronously, can you do that?
+That can be easily achieved with [java.util.concurrent.CompletableFuture<T>](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html) in Java 8. For older versions of Java you can use [java.util.concurrent.Future<T>](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html) instead. An example to run a query asynchronously:
+
+```java
+//create the connection beforehand..
+CompletableFuture<QueryResultSet> asyncFetch = CompletableFuture.supplyAsync(() -> {
+    try {
+        return connection.sendQuery("SELECT * FROM exampleTable");
+    } catch (MonetDBEmbeddedException ex) {
+        //log the exception
+        return null;
+    }
+});
+// later...
+QueryResultSet resultSet = asyncFetch.join();
+```
+
+### 4. While starting a JDBC connection, I always get the SQLException: "Unable to connect (localhost:50000): Connection refused"!
+The new MonetDB JDBC driver creates a MAPI connection by default, as the most common use case of it. To start an embedded connection you **MUST** provide the property `embedded` as `true`, otherwise it will start a MAPI connection instead! Check the example above how it can be done.
+
+### 5. Is there a way to know if a JDBC connection is MAPI or embedded after it has started?
+Yes there is! In JDBC specification you can call the [`String getClientInfo(String name)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getClientInfo-java.lang.String-) method to get  a provided property at the beginning of the connection. You can just do:
+```java
+String embeddedString = connection.getClientInfo("embedded");
+boolean isEmbedded = (embeddedString != null && embeddedString.equals("true"));
+```
 
 ## License
 
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.  If a copy of the MPL was not distributed with this file, You can obtain one at [https://mozilla.org/MPL/2.0/](https://mozilla.org/MPL/2.0/).
+
+Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+
 ## Developer and support
+
+The MonetDBJavaLite is being supported by [Pedro Ferreira](mailto://pedro.ferreira@monetdbsolutions.com), a developer at [MonetDBSolutions](https://monetdbsolutions.com/)! Feel free to create an issue or a pull request! As you could see I like emoticons! :) Just one more :)
