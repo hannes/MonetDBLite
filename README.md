@@ -1,20 +1,20 @@
 # MonetDBJavaLite
 
-After the C-lite, R-Lite and Python-Lite, MonetDBJavaLite is here! This allows the integration of MonetDB, a column-wise and high-scale OLAP relational database integrated into the JVM! Unlike a traditional socket connection, in an embedded connection, both the client and the server share the same process, which means there is no necessity to serialize and deserialize data, making the connection much faster! :)
+After the C-lite, R-Lite and Python-Lite, MonetDBJavaLite is here! This project allows the integration of MonetDB, a column-wise and high-scale OLAP relational database integrated into the JVM! Unlike a traditional socket connection, in an embedded connection, both the client and the server share the same process, which means there is no necessity to serialize and deserialize data, making the connection much faster! :)
 
 This integration was made as much as simple possible for performance reasons. At the same time, the existing JDBC driver for MonetDB was extended to accomodate both a MAPI (regular socket connetion) and an embedded connection with low overhead without breaking the JDBC specification.
 
 ## JNI C code
 The embedded Java version of MonetDB is heavily based and dependent on the generic one (or MonetDBLite). To interface Java with C it's used JNI. JNI code comes with two complementing parts - Java and native (C in our case) code. In the Java code it's declared a function `native`, which indicates that it is actually implemented in C. Later it's implementation is written the native library. This is where it's called the embedded C-level interface function from the Java code.
 
+## Installation
+
+TBD
+
 ## Libraries
 Packed in the `src/main/resources/libs` directory of the `monetdb-java-lite-<version>.jar` there should be several directories, containing the C-library of MonetDB for each available operative system. The extension of the library should either be the default for a dynamic libraries on the user's OS or the generic (for JNI) `.jnilib`. For this reason the `monetdb-java-lite-<version>.jar` size is much larger than the average size of a `.jar` file. If the user wants to save space, he might delete the unwanted versions of the native library in the `src/main/resources/libs` directory, altough it's not recomended to do so.
 
 In an IDE or when Maven runs tests from command line, the application will use the unpacked library, already present in the `src/main/resources/libs` dir (since there isn't a `.jar` yet). When running "in production" - from a `.jar`, the application will stream copy the library to a temp dir, and load the library from there. This is needed, since one cannot use the packed libraries in a `.jar` directly.
-
-## Installation
-
-TBD
 
 ## MonetDB database in the JVM
 
@@ -225,9 +225,31 @@ con.close(); //Don't forget!!
 
 As seen in the example, the `MonetDBEmbeddedDatabase` calls weren't required for better portability of the JDBC embedded connection. What really happens is when starting a JDBC embedded connection, it checks if there is a `MonetDBEmbeddedDatabase` instance running in the provided directory. If the `MonetDBEmbeddedDatabase` is not running on that directory, it starts there, otherwise an exception is thrown. While closing, if it's the last connection, the `MonetDBEmbeddedDatabase` will shut down.
 
+It was made possible to use the the Embedded API in the JDBC embedded connection, although is completely apart from the JDBC specification. 
+
+```java
+//do the above steps....
+Connection con = DriverManager.getConnection("jdbc:monetdb://localhost/db", connectionProps);
+MonetDBEmbeddedConnection cast = ((EmbeddedConnection)con).getAsMonetDBEmbeddedConnection();
+connection.sendUpdate("SELECT * FROM somewhere WHERE field=1");
+//....
+con.close(); //Don't forget!!
+```
+
 ### Differences between the JDBC MAPI and Embedded connections
 
+There are still some differences from the JDBC MAPI and Embedded connections, due to their nature:
+
+* The [java.sql.PreparedStatement](https://docs.oracle.com/javase/8/docs/api/java/sql/PreparedStatement.html) implementation is missing in the Embedded connections, because the [PREPARED STATEMENT](https://www.monetdb.org/Documentation/Manuals/SQLreference/PrepareExec) of MonetDB was removed in MonetDBLite. However if enough interest is made, this feature can be added to MonetDBLite.
+* In the JDBC specification a [Fetch Size](https://docs.oracle.com/cd/A87860_01/doc/java.817/a83724/resltse5.htm) attribute allows to fetch a result set in blocks. This feature is favorable in a socket connection (MAPI), where the client and the server might not be in the same machine, thus fetching the results incrementally in block. However in the Embedded connection, this feature is less favorable as both the client and the server are in the same machine. Therefore the result set is always retrieved with a single block, making the `void setFetchSize(int rows)` and `int getFetchSize()` methods depreciated in a Embedded connection (they do anything).
+* As mentioned before, some MonetDB data types aren't featured in MonetDBLite, so existing queries with those types in a MAPI connection can't be ported to the Embedded connection version of it.
+* Also mentioned that the authentication scheme is inexistent in the Embedded connection.
+* The methods `void setNetworkTimeout(Executor executor, int millis)` and `int getNetworkTimeout()` are insignificant as there is no network involved in the Embedded connection.
+* [Batch Processing](https://www.tutorialspoint.com/jdbc/jdbc-batch-processing.htm) is not possible in a Embedded connection, due to its removal from MonetDBLite.
+
 ## Benchmarks
+
+Soon!
 
 ## FAQs
 
