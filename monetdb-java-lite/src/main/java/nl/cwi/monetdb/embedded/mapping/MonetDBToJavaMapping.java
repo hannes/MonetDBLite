@@ -28,9 +28,6 @@ public enum MonetDBToJavaMapping {
     Double(Double.class), MonthInterval(Integer.class), SecondInterval(Long.class), Time(Time.class),
     TimeTz(Time.class), Date(Date.class), Timestamp(Timestamp.class), TimestampTz(Timestamp.class), Blob(byte[].class);
 
-    /*,Hugeint(BigDecimal.class), Oid(Long.class), Wrd(Long.class), Geometry(String.class),
-    GeometryA(String.class), URL(URL.class), Inet(MonetINET.class), JSON(String.class), UUID(UUID.class);*/
-
     /**
      * The mapping between MonetDB data types and enum values.
      */
@@ -63,16 +60,6 @@ public enum MonetDBToJavaMapping {
         MonetDBMappings.put("timestamptz", TimestampTz);
         MonetDBMappings.put("blob", Blob);
 
-        /*MonetDBMappings.put("oid", Oid);
-        MonetDBMappings.put("wrd", Wrd);
-        MonetDBMappings.put("hugeint", Hugeint);
-        MonetDBMappings.put("geometry", Geometry);
-        MonetDBMappings.put("geometrya", GeometryA);
-        MonetDBMappings.put("url", URL);
-        MonetDBMappings.put("inet", Inet);
-        MonetDBMappings.put("json", JSON);
-        MonetDBMappings.put("uuid", UUID);*/
-
         AppendMappings = new EnumMap<>(MonetDBToJavaMapping.class);
         AppendMappings.put(Boolean, byte[].class);
         AppendMappings.put(Char, String[].class);
@@ -93,16 +80,6 @@ public enum MonetDBToJavaMapping {
         AppendMappings.put(Timestamp, Timestamp[].class);
         AppendMappings.put(TimestampTz, Timestamp[].class);
         AppendMappings.put(Blob, byte[][].class);
-
-        /*AppendMappings.put(Hugeint, BigDecimal[].class);
-        AppendMappings.put(Wrd, long[].class);
-        AppendMappings.put(Oid, long[].class);
-        AppendMappings.put(Geometry, String[].class);
-        AppendMappings.put(GeometryA, String[].class);
-        AppendMappings.put(URL, URL[].class);
-        AppendMappings.put(Inet, MonetINET[].class);
-        AppendMappings.put(JSON, String[].class);
-        AppendMappings.put(UUID, UUID[].class);*/
     }
 
     /**

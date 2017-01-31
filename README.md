@@ -135,13 +135,18 @@ qrs.close(); //don't forget to close in the end!!! ;)
 ```
 A single value can be checked if it's null with the `NullMappings` class `boolean Check#Type#IsNull(T value)` static methods, except for `booleans`, where the `boolean checkBooleanIsNull(int column, int row)` in the `QueryResultSet` should be used instead.
 
-If it's desired to iterate row-wise, the methods `QueryResultRowSet fetchResultSetRows(int startIndex, int endIndex)`, `QueryResultRowSet fetchFirstNRowValues(int n)` and `QueryResultRowSet fetchAllRowValues()` can be used. However as of now, these methods convert all values including the primitives into Java Objects, which cause slightly more memory allocations.
+If it's desired to iterate row-wise, the methods `QueryResultRowSet fetchResultSetRows(int startIndex, int endIndex)`, `QueryResultRowSet fetchFirstNRowValues(int n)` and `QueryResultRowSet fetchAllRowValues()` can be used. However as of now, these methods convert all values including the primitives into Java Objects, which cause slightly more memory allocations. The `MonetDBRow` class instance holds the data of a single retrieved row.
 
 ```java
-QueryResultSet qrs = connection.sendQuery("SELECT * FROM example");
+QueryResultSet qrs = connection.sendQuery("SELECT truth, words, counter FROM example");
+
 QueryResultRowSet rows = qrs.fetchAllRowValues();
-//TODO because I haven't tested it yet :)
-qrs.close(); //don't forget to close in the end!!! ;)
+MonetDBRow[] arrayRep = rows.getAllRows();
+for (MonetDBRow singleRow : arrayRep) {
+   System.out.println(singleRow.getColumnByIndex(1).toString() + singleRow.getColumnByIndex(2) + singleRow.getColumnByIndex(3));
+}
+
+qrs.close(); //don't forget ;)
 ```
 
 ### Utilities methods

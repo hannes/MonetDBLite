@@ -81,6 +81,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
         MonetDBToJavaMapping[] result = new MonetDBToJavaMapping[this.getNumberOfColumns()];
         for(String col : this.columnTypes) {
             result[i] = MonetDBToJavaMapping.GetJavaMappingFromMonetDBString(col);
+            i++;
         }
         return result;
     }
