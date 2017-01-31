@@ -1,6 +1,6 @@
 # MonetDBJavaLite
 
-**IMPORANT**
+**IMPORTANT**
 
 > Before any further reading, rememeber that this software is still experimental, and it might crash sometimes, although some testing was already been made on it. :)
 
