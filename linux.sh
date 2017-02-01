@@ -2,6 +2,10 @@
 
 PREVDIRECTORY=`pwd`
 
+BASEDIR=$(dirname "$0")
+
+cd $BASEDIR
+
 OPTFLAG="--enable-optimize"
 LINKFLAG=""
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
@@ -10,9 +14,11 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	LINKFLAG="-g"
 fi
 
-mkdir -p build
+rm -rf ./build
+mkdir build
+mkdir -p monetdb-java-lite/src/main/resources/libs/linux
+sh ./src/bootstrap
 cd build
-rm -f Makefile
 
 CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6" \
 ../src/configure --enable-embedded  \
@@ -29,8 +35,6 @@ libmonetdb5.so:
 all: $(BUILT_SOURCES) monetdb_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive && $(MAKE) $(AM_MAKEFLAGS) libmonetdb5.so
 ' >> Makefile
-
-rm -f libmonetdb5.so
 
 make -j
 
