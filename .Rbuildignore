@@ -2,6 +2,7 @@
 ^src/buildtools/doc
 ^src/buildtools/doc
 ^src/autom4te\.cache
+^src/config\.cache
 ^Makefile\.ag
 ^Makefile\.msc
 ^\.hgeol

@@ -2,9 +2,9 @@
 
 #define BAT_TO_SXP(bat,tpe,retsxp,newfun,ptrfun,ctype,naval,memcopy)\
 	do {													\
-		tpe v; size_t j;									\
+		tpe v; BUN j, n = BATcount(bat);									\
 		ctype *valptr = NULL;                               \
-		tpe* p = (tpe*) Tloc(bat, 0);           \
+		tpe* p = (tpe*) Tloc(bat, 0);                       \
 		retsxp = PROTECT(newfun(BATcount(bat)));		    \
 		if (!retsxp) break;                                 \
 		valptr = ptrfun(retsxp);                            \
@@ -13,12 +13,12 @@
 				memcpy(valptr, p,                           \
 					BATcount(bat) * sizeof(tpe));           \
 			} else {                                        \
-				for (j = 0; j < BATcount(bat); j++) {       \
+				for (j = 0; j < n; j++) {\
 					valptr[j] = (ctype) p[j];               \
 				}                                           \
 			} 												\
 		} else {                                            \
-		for (j = 0; j < BATcount(bat); j++) {				\
+		for (j = 0; j < n; j++) {		                    \
 			v = p[j];                                       \
 			if (v == tpe##_nil)							\
 				valptr[j] = naval;	                        \
@@ -35,7 +35,7 @@
 
 #define SXP_TO_BAT(tpe,access_fun,na_check)								\
 	do {																\
-		tpe *p, prev = tpe##_nil; size_t j;								\
+		tpe *p, prev = tpe##_nil; BUN j;								\
 		b = COLnew(0, TYPE_##tpe, cnt, TRANSIENT);						\
 		if (!b) break;                                                  \
 		b->tnil = 0; b->tnonil = 1; b->tkey = 0;						\
@@ -85,7 +85,7 @@ static void* monetdb_r_alloc(R_allocator_t *allocator, size_t length) {
 	R_MASQ_BAT* masq = (R_MASQ_BAT*) allocator->data;
 
 	// double-check we computed the length correctly below
-	if (length != (size_t)((masq->data_map + masq->data_map_len) - masq->sexp_ptr)) {
+	if (length > (size_t)((masq->data_map + masq->data_map_len) - masq->sexp_ptr)) {
 		return NULL;
 	}
 
@@ -130,18 +130,20 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 			// special case: bulk memcpy/masquerade for int-to-int conversion without NULLs
 		 	// TODO: also do this for dbl/realsxp
 
-			if ((!b->tnonil || b->tnil) || b->T.heap.storage != STORE_MMAP ||
+			if (b->T.heap.storage != STORE_MMAP ||
 					BATcount(b) > R_SHORT_LEN_MAX || getenv("MONETDB_R_ENABLE_ZERO_COPY") == NULL) {
 				BAT_TO_INTSXP(b, int, varvalue, 1);
 			} else {
 				R_MASQ_BAT* masq = malloc(sizeof(R_MASQ_BAT));
+				char* filename = GDKfilepath(b->T.heap.farmid, BATDIR, b->T.heap.filename, NULL);
 				int fd = -1;
-				if (!masq) {
+				if (!masq || !filename) {
 					return NULL;
 				}
 				// secret mmap sauce follows
 				masq->data_map_len = b->T.heap.size;
-				fd = open(GDKfilepath(b->T.heap.farmid, BATDIR, b->T.heap.filename, NULL), O_RDONLY, NULL);
+				fd = open(filename, O_RDONLY, NULL);
+				GDKfree(filename);
 				masq->base_map = mmap(NULL,                           masq->data_map_len + MT_pagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 				masq->data_map = mmap(masq->base_map + MT_pagesize(), masq->data_map_len,                 PROT_READ,              MAP_PRIVATE | MAP_FIXED,     fd, 0);
 				masq->bat_cache_id = b->batCacheid;
@@ -153,14 +155,12 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 					warning("failed mmap tricks, falling back to copying");
 					BAT_TO_INTSXP(b, int, varvalue, 1);
 				} else {
-					size_t hdr_len = 72; // FIXME WHY 72? sizeof(SEXPREC_ALIGN) is 40?!
-
-					R_allocator_t *allocator = malloc(sizeof(R_allocator_t));
-					if (!allocator) {
-						return NULL;
-					}
-					allocator->mem_alloc = monetdb_r_alloc;
-					allocator->mem_free  = monetdb_r_free;
+					size_t hdr_len = 40 + sizeof(R_allocator_t); //sizeof(SEXPREC_ALIGN)
+					R_allocator_t allocator;
+					allocator.mem_alloc = monetdb_r_alloc;
+					allocator.mem_free  = monetdb_r_free;
+					allocator.res = NULL;
+					allocator.data = masq;
 
 					// TODO: verify this is correct
 //					if (BATcount(b) > R_SHORT_LEN_MAX) {
@@ -169,9 +169,8 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 
 					masq->sexp_ptr = masq->data_map - hdr_len;
 					// pointer fun, we know we are allowed to write there
-					allocator->data = (void*) masq;
 					// call R's own allocator to set up various structures for us
-					varvalue = PROTECT(allocVector3(INTSXP, BATcount(b), allocator));
+					varvalue = PROTECT(allocVector3(INTSXP, BATcount(b), &allocator));
 					SET_NAMED(varvalue, 1);
 					*unfix = 0;
 				}
@@ -197,9 +196,9 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 			BAT_TO_REALSXP(b, lng, varvalue, 0);
 			break;
 		case TYPE_str: { // there is only one string type, thus no macro here
-			BUN j = 0;
+			BUN j = 0, n = BATcount(b);
 			BATiter li = bat_iterator(b);
-			varvalue = PROTECT(NEW_STRING(BATcount(b)));
+			varvalue = PROTECT(NEW_STRING(n));
 			if (varvalue == NULL) {
 				return NULL;
 			}
@@ -210,7 +209,7 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 				if (!sexp_ptrs) {
 					return NULL;
 				}
-				for (j = 0; j < BATcount(b); j++) {
+				for (j = 0; j < n; j++) {
 					const char *t = (const char *) BUNtvar(li, j);
 					ptrdiff_t offset = t - b->tvheap->base;
 					if (!sexp_ptrs[offset]) {
@@ -229,13 +228,13 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 			}
 			else {
 				if (b->tnonil) {
-					for (j = 0; j < BATcount(b); j++) {
+					for (j = 0; j < n; j++) {
 						SET_STRING_ELT(varvalue, j, RSTR(
 							(const char *) BUNtvar(li, j)));
 					}
 				}
 				else {
-					for (j = 0; j < BATcount(b); j++) {
+					for (j = 0; j < n; j++) {
 						const char *t = (const char *) BUNtvar(li, j);
 						if (strcmp(t, str_nil) == 0) {
 							SET_STRING_ELT(varvalue, j, NA_STRING);
