@@ -302,7 +302,7 @@ CompletableFuture<QueryResultSet> asyncFetch = CompletableFuture.supplyAsync(() 
 QueryResultSet resultSet = asyncFetch.join();
 ```
 
-**Note** For better transparency of using Java Checked Exceptions with Functional Interfaces [check here](http://codingjunkie.net/functional-iterface-exceptions/). Then you can use the [`CompletableFuture<T> exceptionally(Function<Throwable,? extends T> fn)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html#exceptionally-java.util.function.Function-) methodto handle the exceptions.
+**Note** For better transparency of using Java Checked Exceptions with Functional Interfaces [check here](http://codingjunkie.net/functional-iterface-exceptions/). Then you can use the [`CompletableFuture<T> exceptionally(Function<Throwable,? extends T> fn)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html#exceptionally-java.util.function.Function-) method to handle the exceptions.
 
 ### 4. While starting a JDBC connection, I always get the SQLException: "Unable to connect (localhost:50000): Connection refused"!
 
