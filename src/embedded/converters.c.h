@@ -107,7 +107,7 @@ static void monetdb_r_free(R_allocator_t *allocator, void *ptr) {
 
 static SEXP bat_to_sexp(BAT* b, int *unfix) {
 	SEXP varvalue = NULL;
-	// TODO: deal with SQL types (DECIMAL/DATE)
+	// TODO: deal with SQL types (DECIMAL/DATE/LOGICAL)
 	switch (ATOMstorage(getBatType(b->ttype))) {
 		case TYPE_void: {
 			size_t i = 0;
@@ -130,7 +130,8 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 			// special case: bulk memcpy/masquerade for int-to-int conversion without NULLs
 		 	// TODO: also do this for dbl/realsxp
 
-			if ((!b->tnonil || b->tnil) || b->T.heap.storage != STORE_MMAP) {
+			if ((!b->tnonil || b->tnil) || b->T.heap.storage != STORE_MMAP ||
+					BATcount(b) > R_SHORT_LEN_MAX || getenv("MONETDB_R_DISABLE_ZERO_COPY") != NULL) {
 				BAT_TO_INTSXP(b, int, varvalue, 1);
 			} else {
 				R_MASQ_BAT* masq = malloc(sizeof(R_MASQ_BAT));
@@ -159,12 +160,13 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 						return NULL;
 					}
 					allocator->mem_alloc = monetdb_r_alloc;
-					allocator->mem_free = monetdb_r_free;
+					allocator->mem_free  = monetdb_r_free;
 
 					// TODO: verify this is correct
-					if (BATcount(b) > R_SHORT_LEN_MAX) {
-						hdr_len += sizeof(R_long_vec_hdr_t);
-					}
+//					if (BATcount(b) > R_SHORT_LEN_MAX) {
+//						hdr_len += sizeof(R_long_vec_hdr_t);
+//					}
+
 					masq->sexp_ptr = masq->data_map - hdr_len;
 					// pointer fun, we know we are allowed to write there
 					allocator->data = (void*) masq;
