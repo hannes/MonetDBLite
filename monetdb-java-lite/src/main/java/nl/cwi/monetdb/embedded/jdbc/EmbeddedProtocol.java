@@ -87,12 +87,13 @@ public class EmbeddedProtocol extends AbstractProtocol {
      * @param con The current MonetDB's JDBC connection
      * @param list The Response List this result set will belong to
      * @param seqnr The sequence number of this result set on the Response List
+     * @param maxrows A maxrows to set if so (not used)
      * @return The ResultSet instance
      * @throws ProtocolException If an error in the underlying connection happened.
      */
     @Override
-    public ResultSetResponse getNextResultSetResponse(MonetConnection con, MonetConnection.ResponseList list, int seqnr)
-            throws ProtocolException {
+    public ResultSetResponse getNextResultSetResponse(MonetConnection con, MonetConnection.ResponseList list, int seqnr,
+                                                      int maxrows) throws ProtocolException {
         int[] array = connection.getLastServerResponseParameters();
         int id = array[0]; //The order cannot be switched!!
         int rowcount = array[1];
