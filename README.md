@@ -4,7 +4,7 @@
 
 > Before any further reading, rememeber that this software is still experimental, and it might crash sometimes, although some testing was already been made on it. :)
 
-After the MonetDBLite, MonetDBRLite and MonetDBPythonLite, MonetDBJavaLite is here! This project allows the integration of MonetDB, a column-wise and high-scale OLAP relational database integrated into the JVM! Unlike a traditional socket connection, in an embedded connection, both the client and the server share the same process, which means there is no necessity to serialize and deserialize data, making the connection much faster! :) (Soon enough we will integrate with Scala as well!!!)
+After the MonetDBLite, MonetDBRLite and MonetDBPythonLite, MonetDBJavaLite is here! This project allows the integration of MonetDB, a column-wise and high-scale OLAP relational database integrated into the JVM! Unlike a traditional socket connection, in an embedded connection, both the client and the server share the same process, which means there is no necessity to serialize and deserialize data, making the connection much faster! :)
 
 This integration was made as much as simple possible for performance reasons. At the same time, the existing JDBC driver for MonetDB was extended to accomodate both a MAPI (regular socket connetion) and an embedded connection with low overhead without breaking the JDBC specification.
 
@@ -277,12 +277,15 @@ Soon!
 ## FAQs
 
 ### 1. I am having racing conditions, can you tell me why?
+
 As said before, this API is not thread-safe for performance reasons. If you want to keep the data's integraty, implement a synchronization mechanism, or a pool of connections much alike Java EE does with JDBC.
 
 ### 2. If I modify a value in one array of QueryResultSet, it changes the value in the result set as well right?
+
 Yes, as I explained above the `QueryResultSet` `T[] get#TYPE#ColumnByIndex(int n)` and `T[] get#TYPE#ColumnByName(String name)` methods returns the pointer to the array of the column if the type matches with the one of the `QueryResultSet`. This was done to save memory allocations, which is usefull in some use case scenarios. If you to preserve the `QueryResultSet` data, use the [Arrays.copyOf](https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html#i19) family of methods.
 
 ### 3. Despite no IO, I still want to run this API asynchronously, can you do that?
+
 That can be easily achieved with [java.util.concurrent.CompletableFuture<T>](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html) in Java 8. For older versions of Java you can use [java.util.concurrent.Future<T>](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html) instead. An example to run a query asynchronously:
 
 ```java
@@ -291,7 +294,7 @@ CompletableFuture<QueryResultSet> asyncFetch = CompletableFuture.supplyAsync(() 
     try {
         return connection.sendQuery("SELECT * FROM exampleTable");
     } catch (MonetDBEmbeddedException ex) {
-        //log the exception
+        //log the exception...
         return null;
     }
 });
@@ -299,10 +302,14 @@ CompletableFuture<QueryResultSet> asyncFetch = CompletableFuture.supplyAsync(() 
 QueryResultSet resultSet = asyncFetch.join();
 ```
 
+**Note** For better transparency of using Java Checked Exceptions with Functional Interfaces [check here](http://codingjunkie.net/functional-iterface-exceptions/). Then you can use the [`CompletableFuture<T> exceptionally(Function<Throwable,? extends T> fn)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html#exceptionally-java.util.function.Function-) methodto handle the exceptions.
+
 ### 4. While starting a JDBC connection, I always get the SQLException: "Unable to connect (localhost:50000): Connection refused"!
+
 The new MonetDB JDBC driver creates a MAPI connection by default, as the most common use case of it. To start an embedded connection you **MUST** provide the property `embedded` as `true`, otherwise it will start a MAPI connection instead! Check the example above how it can be done.
 
 ### 5. Is there a way to know if a JDBC connection is MAPI or embedded after it has started?
+
 Yes there is! In JDBC specification you can call the [`String getClientInfo(String name)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getClientInfo-java.lang.String-) method to get  a provided property at the beginning of the connection. You can just do:
 
 ```java
@@ -310,9 +317,43 @@ String embeddedString = connection.getClientInfo("embedded");
 boolean isEmbedded = (embeddedString != null && embeddedString.equals("true"));
 ```
 
+### 6. I don't like Java that much, can I use this for another programming languages for the JVM?
+
+Yes you can! You can easily import Java libraries for other JVM programming languages like Scala. The following example creates a JDBC embedded connection on Scala:
+
+```scala
+var connection:Connection = null
+try {
+    var properties: Properties = new Properties()
+    properties.put("user", "monetdb")
+    properties.put("password", "monetdb")
+    properties.put("embedded", "true")
+    properties.put("directory", "/home/ferreira/myfarm")
+    connection = DriverManager.getConnection("jdbc:monetdb://localhost/db", properties)
+
+    val statement = connection.createStatement()
+    statement.executeUpdate("CREATE TABLE example (counter int, justAString varchar(32), floatingPoint real)")
+    statement.executeUpdate("INSERT INTO example VALUES (1, 'Scala', 3.223)")
+    statement.executeUpdate("INSERT INTO example VALUES (2, 'is', -1000)")
+    statement.executeUpdate("INSERT INTO example VALUES (3, 'cool', -743.858)")
+    val resultSet = statement.executeQuery("SELECT * FROM example")
+    while (resultSet.next()) {
+        val counterValue = resultSet.getInt(1)
+        val stringValue = resultSet.getString(2)
+        val floatingPointValue = resultSet.getFloat(3)
+        //process the results...
+    }
+    resultSet.close() //Don't forget! ;)
+    statement.executeUpdate("DROP TABLE example")
+} catch {
+    case e: Throwable => e.printStackTrace()
+}
+connection.close() //Don't forget! ;)
+```
+
 ## License
 
-This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.  If a copy of the MPL was not distributed with this file, You can obtain one at [https://mozilla.org/MPL/2.0/](https://mozilla.org/MPL/2.0/).
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at [https://mozilla.org/MPL/2.0/](https://mozilla.org/MPL/2.0/).
 
 Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
 
