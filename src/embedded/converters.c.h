@@ -131,7 +131,7 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 		 	// TODO: also do this for dbl/realsxp
 
 			if ((!b->tnonil || b->tnil) || b->T.heap.storage != STORE_MMAP ||
-					BATcount(b) > R_SHORT_LEN_MAX || getenv("MONETDB_R_DISABLE_ZERO_COPY") != NULL) {
+					BATcount(b) > R_SHORT_LEN_MAX || getenv("MONETDB_R_ENABLE_ZERO_COPY") == NULL) {
 				BAT_TO_INTSXP(b, int, varvalue, 1);
 			} else {
 				R_MASQ_BAT* masq = malloc(sizeof(R_MASQ_BAT));
