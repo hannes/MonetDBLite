@@ -63,6 +63,7 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 			BAT* b = BATdescriptor(output->cols[i].b);
 			SEXP varvalue = NULL;
 			SEXP varname = PROTECT(RSTR(output->cols[i].name));
+			int unfix = 1;
 			if (!varname) {
 				UNPROTECT(i * 2 + 3);
 				return monetdb_error_R("Memory allocation failed");
@@ -73,15 +74,16 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 			if (!LOGICAL(resultconvertsexp)[0]) {
 				BATsetcount(b, 0); // hehe
 			}
-			if (!(varvalue = bat_to_sexp(b))) {
+			if (!(varvalue = bat_to_sexp(b, &unfix))) {
 				UNPROTECT(i * 2 + 4);
 				PutRNGstate();
 				return monetdb_error_R("Conversion error");
 			}
 			SET_VECTOR_ELT(retlist, i, varvalue);
 			SET_STRING_ELT(names, i, varname);
-			// FIXME: we can't unfix if we handed over the thang, but need to unfix later.
-			//BBPunfix(b->batCacheid);
+			if (unfix) {
+				BBPunfix(b->batCacheid);
+			}
 		}
 		SET_ATTR(retlist, install("__rows"), Rf_ScalarReal(nrows));
 		monetdb_cleanup_result(R_ExternalPtrAddr(connsexp), output);

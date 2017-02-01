@@ -58,17 +58,15 @@
 		BATsettrivprop(b);												\
 	} while (0)
 
+#ifndef NATIVE_WIN32
 
 typedef struct R_MASQ_BAT {
 	char* base_map;
 	char* data_map;
 	char* sexp_ptr;
 	size_t data_map_len;
+	bat bat_cache_id;
 } R_MASQ_BAT;
-
-static int monetdb_r_masq_valid(R_MASQ_BAT* masq) {
-	return (masq != NULL && masq->base_map != NULL && masq->data_map != NULL);
-}
 
 static void monetdb_r_masq_free(R_MASQ_BAT* masq) {
 	if (masq == NULL) {
@@ -83,31 +81,31 @@ static void monetdb_r_masq_free(R_MASQ_BAT* masq) {
 	free(masq);
 }
 
-
 static void* monetdb_r_alloc(R_allocator_t *allocator, size_t length) {
 	R_MASQ_BAT* masq = (R_MASQ_BAT*) allocator->data;
-	// TODO: remember mapping between returned pointer and BAT in some sort of lookup table to do BATdecref later
 
 	// double-check we computed the length correctly below
 	if (length != (size_t)((masq->data_map + masq->data_map_len) - masq->sexp_ptr)) {
 		return NULL;
 	}
 
-	allocator->data = NULL;
 	return masq->sexp_ptr;
 }
 
-static void monetdb_r_free(R_allocator_t *allocator, void * ptr) {
-	// FIXME: is this a nop? no, we can unprotect here :)
-	// TODO: munmap etc undo and BATDecref
-	// TODO: ptr might be offset for long vectors?!
-	(void) allocator;
-	(void) ptr;
+static void monetdb_r_free(R_allocator_t *allocator, void *ptr) {
+	// TODO: ptr might be offset for long vectors?! check this
+	R_MASQ_BAT* masq = (R_MASQ_BAT*) allocator->data;
+	if (ptr != masq->sexp_ptr) {
+		error("Pointer address mismatch");
+		return;
+	}
+	BBPunfix(masq->bat_cache_id);
+	monetdb_r_masq_free(masq);
 }
 
-static R_allocator_t allocator = {monetdb_r_alloc, monetdb_r_free, NULL, NULL};
+#endif
 
-static SEXP bat_to_sexp(BAT* b) {
+static SEXP bat_to_sexp(BAT* b, int *unfix) {
 	SEXP varvalue = NULL;
 	// TODO: deal with SQL types (DECIMAL/DATE)
 	switch (ATOMstorage(getBatType(b->ttype))) {
@@ -128,8 +126,11 @@ static SEXP bat_to_sexp(BAT* b) {
 			BAT_TO_INTSXP(b, sht, varvalue, 0);
 			break;
 		case TYPE_int:
+#ifndef NATIVE_WIN32
 			// special case: bulk memcpy/masquerade for int-to-int conversion without NULLs
-			if ((!b->tnonil || b->tnil) || b->T.heap.storage != STORE_MMAP || 1) {
+		 	// TODO: also do this for dbl/realsxp
+
+			if ((!b->tnonil || b->tnil) || b->T.heap.storage != STORE_MMAP) {
 				BAT_TO_INTSXP(b, int, varvalue, 1);
 			} else {
 				R_MASQ_BAT* masq = malloc(sizeof(R_MASQ_BAT));
@@ -142,29 +143,40 @@ static SEXP bat_to_sexp(BAT* b) {
 				fd = open(GDKfilepath(b->T.heap.farmid, BATDIR, b->T.heap.filename, NULL), O_RDONLY, NULL);
 				masq->base_map = mmap(NULL,                           masq->data_map_len + MT_pagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 				masq->data_map = mmap(masq->base_map + MT_pagesize(), masq->data_map_len,                 PROT_READ,              MAP_PRIVATE | MAP_FIXED,     fd, 0);
+				masq->bat_cache_id = b->batCacheid;
 				close(fd);
-				// TODO: windows?
-			 	// TODO: also do this for dbl/realsxp
-			 	// TODO: clean up memory maps and file descriptor when this guy gets free'd, lookup table with struct?
+
 			 	// check if the MAP_FIXED worked as expected
-				if (!monetdb_r_masq_valid(masq)) {
+				if (masq->base_map == NULL ||  masq->data_map == NULL || masq->base_map + MT_pagesize() != masq->data_map) {
 					monetdb_r_masq_free(masq);
 					warning("failed mmap tricks, falling back to copying");
 					BAT_TO_INTSXP(b, int, varvalue, 1);
 				} else {
 					size_t hdr_len = 72; // FIXME WHY 72? sizeof(SEXPREC_ALIGN) is 40?!
+
+					R_allocator_t *allocator = malloc(sizeof(R_allocator_t));
+					if (!allocator) {
+						return NULL;
+					}
+					allocator->mem_alloc = monetdb_r_alloc;
+					allocator->mem_free = monetdb_r_free;
+
 					// TODO: verify this is correct
 					if (BATcount(b) > R_SHORT_LEN_MAX) {
 						hdr_len += sizeof(R_long_vec_hdr_t);
 					}
 					masq->sexp_ptr = masq->data_map - hdr_len;
 					// pointer fun, we know we are allowed to write there
-					allocator.data = (void*) masq;
+					allocator->data = (void*) masq;
 					// call R's own allocator to set up various structures for us
-					varvalue = PROTECT(allocVector3(INTSXP, BATcount(b), &allocator));
+					varvalue = PROTECT(allocVector3(INTSXP, BATcount(b), allocator));
 					SET_NAMED(varvalue, 1);
+					*unfix = 0;
 				}
 			}
+#else
+			BAT_TO_INTSXP(b, int, varvalue, 1); // TODO: can we do something similar on windows?
+#endif
 
 			break;
 #ifdef HAVE_HGE
