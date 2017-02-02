@@ -14,19 +14,40 @@ The embedded Java version of MonetDB is heavily based and dependent on the gener
 
 ## Delivery and Installation
 
-There are two jars are distributed: The new MonetDB JDBC driver jar (`monetdb-jdbc-<version>.jar`), and the MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The first one can be used independently, if only MAPI JDBC connections are desired. For both the Embedded API and the Embedded JDBC connections, the second jar is also required in the `CLASSPATH`.
+> The current version of MonetDBJavaLite is 2.24
 
-The `monetdb-jdbc-<version>.jar` is platform independent and can be retrieved from .... - Soon!
+There are two jars are distributed: The new MonetDB JDBC driver jar (`monetdb-jdbc-new-<version>.jar`), and the MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The first one can be used independently, if only MAPI JDBC connections are desired. For both the Embedded API and the Embedded JDBC connections, the second jar is also required in the `CLASSPATH`. Both jars require OpenJDK 8 to be installed.
 
-For the `monetdb-java-lite-<version>.jar`, depending on the platform
+The `monetdb-jdbc-new-<version>.jar` is platform independent and can be retrieved from .... - Soon!
 
-* Linux - For Linux users, we recommend to compile the jar from the sources ... - Soon!
+The `monetdb-java-lite-<version>.jar`, can be obtained depending on the platform:
 
-* Windows - Soon!
+- Linux
 
-* MacOS - Soon!
+    - MonetDB uses different libraries for different Linux distributions, hence we recommend to build MonetDBJavaLite from the sources on Linux. To compile MonetDBJavaLite from sources, GNU Make and Gradle are required.
 
-* Android and ARM - If we get a request, it can happen! :)
+    -  To compile use the following procedure:
+    ```shell
+    git clone https://github.com/hannesmuehleisen/MonetDBLite.git -b Dec2016Lite-Java # takes a bit :)
+    cd MonetDBLite
+    ./linux.sh # Generates monetdb-java-lite-<version>.jar in the monetdb-java-lite/build/libs directory. In that directory the monetdb-jdbc-new-<version>.jar will be present as well as a compile dependency.
+    ```
+
+    - To generate the Javadocs, run `gradle javadoc` in `monetdb-java-lite` directory.
+
+    - If the user prefers to use only one jar, the task [`gradle shadow`](https://github.com/johnrengelman/shadow) generates the `monetdb-java-lite-<version>-all.jar` in `monetdb-java-lite/buildshadow` directory as a "fat jar" containing both `monetdb-jdbc-new-<version>.jar` and `monetdb-java-lite-<version>.jar`.
+
+- Windows
+
+    - Soon!
+
+- MacOS 
+
+    - Soon!
+
+- Android and ARM 
+
+    - If we get a request, it might happen! :)
 
 ## Libraries
 

@@ -1,6 +1,3 @@
-import org.gradle.api.XmlProvider
-import org.gradle.api.artifacts.maven.MavenDeployment
-
 buildscript {
   repositories {
     jcenter { url "http://jcenter.bintray.com/" }
@@ -12,10 +9,6 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'groovy'
-apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'idea'
 
 group = 'nl.cwi.monetdb'
 ext.packaging = 'jar'
@@ -24,17 +17,21 @@ version = '2.24'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-repositories {
-  maven { url "http://repo1.maven.org/maven2" }
+def urlFile = { url, name ->
+  File file = new File("$buildDir/libs/${name}.jar")
+  file.parentFile.mkdirs()
+  if (!file.exists()) {
+    new URL(url).withInputStream { downloadStream ->
+      file.withOutputStream { fileOut ->
+        fileOut << downloadStream
+      }
+    }
+  }
+  files(file.absolutePath)
 }
 
 dependencies {
-  compile gradleApi()
-  compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
-  compile group: 'commons-io', name: 'commons-io', version: '2.4'
-  compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.10'
-  compile fileTree(dir: 'output/jars', include: '*.jar')
-  //runtime fileTree(dir: 'output/jars', include: '*.jar')
+  compile urlFile('https://www.dropbox.com/s/vsyf7nikaj3ms31/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
 }
 
 task testJar(type: Jar) {
@@ -49,74 +46,4 @@ shadowJar {
   }
   destinationDir = file("./buildshadow")
 }
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-  classifier = 'javadoc'
-  from 'build/docs/javadoc'
-}
-
-/*task groovydocJar(type: Jar, dependsOn: groovydoc) {
-  classifier = 'javadoc'
-  from 'build/docs/groovydoc'
-  destinationDir = file("./builddocs")
-}
-
-def monetdbJDBC = file('libs/monetdb-jdbc-2.24.jar')
-
-artifacts {
-  archives shadowJar
-  archives javadocJar
-  archives monetdbJDBC
-  archives groovydocJar
-}
-
-task wrapper(type: Wrapper) {
-  group = 'Buildmaster'
-  description = 'Generates gradlew and gradlew.bat bootstrap scripts'
-  gradleVersion = '2.5'
-}
-
-signing {
-  sign configurations.archives
-}
-
-uploadArchives {
-  repositories {
-    mavenDeployer {
-      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-        authentication(userName: TODO, password: TODO)
-      }
-
-      pom.project {
-        name 'MonetDBJavaLite'
-        packaging 'jar'
-        description 'MonetDB database embedded en a Java application'
-        url 'https://github.com/hannesmuehleisen/MonetDBLite'
-
-        scm {
-          url 'scm:git@github.com:hannesmuehleisen/MonetDBLite.git'
-          connection 'scm:git@github.com:hannesmuehleisen/MonetDBLite.git'
-          developerConnection 'scm:git@github.com:hannesmuehleisen/MonetDBLite.git'
-        }
-
-        licenses {
-          license {
-            name "Mozilla Public License, Version 2.0"
-            url "http://www.mozilla.org/MPL/2.0"
-            distribution 'repo'
-          }
-        }
-
-        developers {
-          developer {
-            id 'pedroferreira'
-            name 'Pedro Ferreira'
-          }
-        }
-       }
-    }
-  }
-}*/
 

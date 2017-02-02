@@ -15,6 +15,7 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 fi
 
 rm -rf ./build
+rm -rf ./monetdb-java-lite/build
 mkdir build
 mkdir -p monetdb-java-lite/src/main/resources/libs/linux
 sh ./src/bootstrap
@@ -40,39 +41,11 @@ make -j
 
 cd ..
 
-mv ./build/libmonetdb5.so ./monetdb-java-lite/src/main/resources/libs/linux/libmonetdb5.so
+cp ./build/libmonetdb5.so ./monetdb-java-lite/src/main/resources/libs/linux/libmonetdb5.so
 
 cd ./monetdb-java-lite
 
-rm -rf output
-
-mkdir -p output/jars
-
-hg clone https://dev.monetdb.org/hg/monetdb-java/ -r embedded
-
-cd monetdb-java
-
-make -j
-
-mv jars/monetdb-jdbc-2.24.jar ../output/jars
-
-cd ..
-
-rm -rf monetdb-java
-
 gradle build
-
-mv build/libs/monetdb-java-lite-2.24.jar output/jars/
-
-rm -rf build
-
-gradle javadocJar
-
-mv build/docs/javadoc output/
-
-rm -rf build
-
-#gradle uploadArchives
 
 cd $PREVDIRECTORY
 
