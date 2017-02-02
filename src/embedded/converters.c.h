@@ -181,7 +181,6 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 				varvalue = monetdb_r_dressup(b, INTSXP);
 				*unfix = 0;
 			}
-
 #else
 			BAT_TO_INTSXP(b, int, varvalue, 1);
 #endif
