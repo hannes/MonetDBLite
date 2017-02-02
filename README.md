@@ -1,8 +1,6 @@
 # MonetDBJavaLite
 
-**IMPORTANT**
-
-> Before any further reading, rememeber that this software is still experimental, and it might crash sometimes, although some testing was already been made on it :) To be 100% safe you can run MonetDBJavaLite a subprocess in the JVM, so if it crashes, your application in the main process will still be up!
+> **IMPORTANT** Before any further reading, remember that this software is still experimental, and it might crash sometimes, although some testing was already been made on it :) To be 100% safe you can run MonetDBJavaLite a subprocess in the JVM, so if it crashes, your application in the main process will still be up!
 
 After the MonetDBLite, MonetDBRLite and MonetDBPythonLite, MonetDBJavaLite is here! This project allows the integration of MonetDB, a column-wise and high-scale OLAP relational database in the JVM! Unlike a traditional socket connection, in an embedded connection, both the client and the server share the same process, which means there is no necessity to serialize and deserialize data, making the connection much faster! :)
 
@@ -20,7 +18,7 @@ There are two jars are distributed: The new MonetDB JDBC driver jar (`monetdb-jd
 
 The `monetdb-jdbc-new-<version>.jar` is platform independent and can be retrieved from .... - Soon!
 
-The `monetdb-java-lite-<version>.jar`, can be obtained depending on the platform:
+The `monetdb-java-lite-<version>.jar` can be obtained depending of the OS:
 
 - **Linux**
 
@@ -115,7 +113,7 @@ Notice that other more rare data types like `geometry`, `json` and `hugeint` are
 
 ## Just the Embbedded API
 
-After a connection is made, regular queries can be sent to the embedded server, then retrieving the results. The methods `void startTransaction()`, `void commit()` and `void rollback()`, can be used for the transaction management.
+After a connection is made, regular queries can be sent to the embedded database, then retrieving the results. The methods `void startTransaction()`, `void commit()` and `void rollback()`, can be used for the transaction management.
 
 ### Update Queries
 
