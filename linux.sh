@@ -18,8 +18,10 @@ rm -rf ./build
 rm -rf ./monetdb-java-lite/build
 mkdir build
 mkdir -p monetdb-java-lite/src/main/resources/libs/linux
-sh ./src/bootstrap
-cd build
+
+cd src
+sh ./bootstrap
+cd ../build
 
 CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6" \
 ../src/configure --enable-embedded  \
