@@ -4,6 +4,7 @@
 #include "embeddedr.h"
 #include "R_ext/Random.h"
 #include "R_ext/Rallocators.h"
+#include "R_ext/Parse.h"
 #include "monet_options.h"
 #include "mal.h"
 #include "mmath.h"

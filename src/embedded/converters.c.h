@@ -103,7 +103,53 @@ static void monetdb_r_free(R_allocator_t *allocator, void *ptr) {
 	monetdb_r_masq_free(masq);
 }
 
+static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
+	R_MASQ_BAT* masq = malloc(sizeof(R_MASQ_BAT));
+	SEXP varvalue;
+	size_t hdr_len = 40 + sizeof(R_allocator_t); // sizeof(SEXPREC_ALIGNED) is 40 but not exported
+	R_allocator_t allocator;
+
+	char* filename = GDKfilepath(b->T.heap.farmid, BATDIR, b->T.heap.filename, NULL);
+	int fd = -1;
+	if (!masq || !filename) {
+		return NULL;
+	}
+
+	// secret mmap sauce follows
+	masq->data_map_len = b->T.heap.size;
+	fd = open(filename, O_RDONLY, NULL);
+	GDKfree(filename);
+	masq->base_map = mmap(NULL,                           masq->data_map_len + MT_pagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	masq->data_map = mmap(masq->base_map + MT_pagesize(), masq->data_map_len,                 PROT_READ,              MAP_PRIVATE | MAP_FIXED,     fd, 0);
+	masq->bat_cache_id = b->batCacheid;
+	close(fd);
+
+	// check if the MAP_FIXED worked as expected
+	if (masq->base_map == NULL ||  masq->data_map == NULL || masq->base_map + MT_pagesize() != masq->data_map) {
+		monetdb_r_masq_free(masq);
+		return NULL;
+	}
+
+	allocator.mem_alloc = monetdb_r_alloc;
+	allocator.mem_free  = monetdb_r_free;
+	allocator.res = NULL;
+	allocator.data = masq;
+
+	// TODO: verify this is correct
+//					if (BATcount(b) > R_SHORT_LEN_MAX) {
+//						hdr_len += sizeof(R_long_vec_hdr_t);
+//					}
+
+	masq->sexp_ptr = masq->data_map - hdr_len;
+	// pointer fun, we know we are allowed to write there
+	// call R's own allocator to set up various structures for us
+	varvalue = PROTECT(allocVector3(target_type, BATcount(b), &allocator));
+	SET_NAMED(varvalue, 1);
+	return varvalue;
+}
+
 #endif
+
 
 static SEXP bat_to_sexp(BAT* b, int *unfix) {
 	SEXP varvalue = NULL;
@@ -127,58 +173,18 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 			break;
 		case TYPE_int:
 #ifndef NATIVE_WIN32
-			// special case: bulk memcpy/masquerade for int-to-int conversion without NULLs
-		 	// TODO: also do this for dbl/realsxp
-
+			// special case: bulk memcpy/masquerade, for ints also with NULLs
 			if (b->T.heap.storage != STORE_MMAP ||
 					BATcount(b) > R_SHORT_LEN_MAX || getenv("MONETDB_R_ENABLE_ZERO_COPY") == NULL) {
 				BAT_TO_INTSXP(b, int, varvalue, 1);
 			} else {
-				R_MASQ_BAT* masq = malloc(sizeof(R_MASQ_BAT));
-				char* filename = GDKfilepath(b->T.heap.farmid, BATDIR, b->T.heap.filename, NULL);
-				int fd = -1;
-				if (!masq || !filename) {
-					return NULL;
-				}
-				// secret mmap sauce follows
-				masq->data_map_len = b->T.heap.size;
-				fd = open(filename, O_RDONLY, NULL);
-				GDKfree(filename);
-				masq->base_map = mmap(NULL,                           masq->data_map_len + MT_pagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-				masq->data_map = mmap(masq->base_map + MT_pagesize(), masq->data_map_len,                 PROT_READ,              MAP_PRIVATE | MAP_FIXED,     fd, 0);
-				masq->bat_cache_id = b->batCacheid;
-				close(fd);
-
-			 	// check if the MAP_FIXED worked as expected
-				if (masq->base_map == NULL ||  masq->data_map == NULL || masq->base_map + MT_pagesize() != masq->data_map) {
-					monetdb_r_masq_free(masq);
-					warning("failed mmap tricks, falling back to copying");
-					BAT_TO_INTSXP(b, int, varvalue, 1);
-				} else {
-					size_t hdr_len = 40 + sizeof(R_allocator_t); //sizeof(SEXPREC_ALIGN)
-					R_allocator_t allocator;
-					allocator.mem_alloc = monetdb_r_alloc;
-					allocator.mem_free  = monetdb_r_free;
-					allocator.res = NULL;
-					allocator.data = masq;
-
-					// TODO: verify this is correct
-//					if (BATcount(b) > R_SHORT_LEN_MAX) {
-//						hdr_len += sizeof(R_long_vec_hdr_t);
-//					}
-
-					masq->sexp_ptr = masq->data_map - hdr_len;
-					// pointer fun, we know we are allowed to write there
-					// call R's own allocator to set up various structures for us
-					varvalue = PROTECT(allocVector3(INTSXP, BATcount(b), &allocator));
-					SET_NAMED(varvalue, 1);
-					*unfix = 0;
-				}
+				varvalue = monetdb_r_dressup(b, INTSXP);
+				*unfix = 0;
 			}
-#else
-			BAT_TO_INTSXP(b, int, varvalue, 1); // TODO: can we do something similar on windows?
-#endif
 
+#else
+			BAT_TO_INTSXP(b, int, varvalue, 1);
+#endif
 			break;
 #ifdef HAVE_HGE
 		case TYPE_hge: /* R's integers are stored as int, so we cannot be sure hge will fit */
@@ -189,8 +195,18 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 			BAT_TO_REALSXP(b, flt, varvalue, 0);
 			break;
 		case TYPE_dbl:
-			// special case: memcpy for double-to-double conversion without NULLs
+#ifndef NATIVE_WIN32
+			// special case: bulk memcpy/masquerade, only if there are no NULLs
+			if (b->tnil || b->T.heap.storage != STORE_MMAP ||
+					BATcount(b) > R_SHORT_LEN_MAX || getenv("MONETDB_R_ENABLE_ZERO_COPY") == NULL) {
+				BAT_TO_REALSXP(b, dbl, varvalue, 1);
+			} else {
+				varvalue = monetdb_r_dressup(b, REALSXP);
+				*unfix = 0;
+			}
+#else
 			BAT_TO_REALSXP(b, dbl, varvalue, 1);
+#endif
 			break;
 		case TYPE_lng: /* R's integers are stored as int, so we cannot be sure long will fit */
 			BAT_TO_REALSXP(b, lng, varvalue, 0);
