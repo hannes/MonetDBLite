@@ -26,7 +26,7 @@ The `monetdb-java-lite-<version>.jar` can be obtained depending of the OS:
 
     - To compile use the following procedure:
     ```shell
-    git clone https://github.com/hannesmuehleisen/MonetDBLite.git -b Dec2016Lite-Java # takes a bit :)
+    git clone https://github.com/hannesmuehleisen/MonetDBLite.git -b Dec2016Lite-Java # takes a while... :/
     cd MonetDBLite
     ./linux.sh # Generates monetdb-java-lite-<version>.jar in the monetdb-java-lite/build/libs directory. In that directory the monetdb-jdbc-new-<version>.jar will be present as well as a compile dependency.
     ```
