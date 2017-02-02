@@ -2,21 +2,21 @@
 
 **IMPORTANT**
 
-> Before any further reading, rememeber that this software is still experimental, and it might crash sometimes, although some testing was already been made on it. :)
+> Before any further reading, rememeber that this software is still experimental, and it might crash sometimes, although some testing was already been made on it :) To be 100% safe you can run MonetDBJavaLite a subprocess in the JVM, so if it crashes, your application in the main process will still be up!
 
-After the MonetDBLite, MonetDBRLite and MonetDBPythonLite, MonetDBJavaLite is here! This project allows the integration of MonetDB, a column-wise and high-scale OLAP relational database integrated into the JVM! Unlike a traditional socket connection, in an embedded connection, both the client and the server share the same process, which means there is no necessity to serialize and deserialize data, making the connection much faster! :)
+After the MonetDBLite, MonetDBRLite and MonetDBPythonLite, MonetDBJavaLite is here! This project allows the integration of MonetDB, a column-wise and high-scale OLAP relational database in the JVM! Unlike a traditional socket connection, in an embedded connection, both the client and the server share the same process, which means there is no necessity to serialize and deserialize data, making the connection much faster! :)
 
-This integration was made as much as simple possible for performance reasons. At the same time, the existing JDBC driver for MonetDB was extended to accomodate both a MAPI (regular socket connetion) and an embedded connection with low overhead without breaking the JDBC specification.
+This integration was made as much as simple possible for performance reasons. At the same time, the existing JDBC driver for MonetDB was extended to accomodate both a MAPI (regular socket connetion) and an embedded connection without breaking the JDBC specification.
 
 ## JNI C code
 
-The embedded Java version of MonetDB is heavily based and dependent on the generic one (or MonetDBLite). To interface Java with C it's used JNI. JNI code comes with two complementing parts - Java and native (C in our case) code. In the Java code it's declared a function `native`, which indicates that it is actually implemented in C. Later it's implementation is written the native library. This is where it's called the embedded C-level interface function from the Java code.
+MonetDBJavaLite is heavily based and dependent on the generic one (or MonetDBLite). To interface Java with C it's used JNI. JNI code comes with two complementing parts - Java and native (C in our case) code. In the Java code it's declared a function `native`, which indicates that it is actually implemented in C. Later it's implementation is written the native library. This is where it's called the embedded C-level interface function from the Java code.
 
 ## Delivery and Installation
 
 > The current version of MonetDBJavaLite is 2.24
 
-There are two jars are distributed: The new MonetDB JDBC driver jar (`monetdb-jdbc-new-<version>.jar`), and the MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The first one can be used independently, if only MAPI JDBC connections are desired. For both the Embedded API and the Embedded JDBC connections, the second jar is also required in the `CLASSPATH`. Both jars require OpenJDK 8 to be installed.
+There are two jars are distributed: The new MonetDB JDBC driver jar (`monetdb-jdbc-new-<version>.jar`), and the MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The first one can be used independently, if only MAPI JDBC connections are desired. For both the Embedded API and the Embedded JDBC connections, the second jar is also required in the `CLASSPATH`. **Both jars require OpenJDK 8 to be installed.**
 
 The `monetdb-jdbc-new-<version>.jar` is platform independent and can be retrieved from .... - Soon!
 
@@ -26,7 +26,7 @@ The `monetdb-java-lite-<version>.jar`, can be obtained depending on the platform
 
     - MonetDB uses different libraries for different Linux distributions, hence we recommend to build MonetDBJavaLite from the sources on Linux. To compile MonetDBJavaLite from sources, GNU Make and Gradle are required.
 
-    -  To compile use the following procedure:
+    - To compile use the following procedure:
     ```shell
     git clone https://github.com/hannesmuehleisen/MonetDBLite.git -b Dec2016Lite-Java # takes a bit :)
     cd MonetDBLite
@@ -57,17 +57,17 @@ In an IDE or when Maven runs tests from command line, the application will use t
 
 ## MonetDB database in the JVM
 
-Due to the MonetDB internal implementation, we allow only one database per JVM process. If the user wants to use several databases, we recommend to create another processes of the JVM to do so. Due to this limitation, all the actions in MonetDBJavaLite turn around in a single database, which has to be loaded in order to perform operations.
+**Due to the MonetDB internal implementation, we allow only one database per JVM process.** If the user wants to use several databases, we recommend to create another processes of the JVM to do so. Due to this limitation, all the actions in MonetDBJavaLite turn around in a single database, which has to be loaded in order to perform operations.
 
-In the original MonetDBLite, some less important features of MonetDB were turned off in order to shrink it's size. This also means that some features of the MonetDB JDBC driver won't be available in an embedded connection at the moment.
+In the original MonetDBLite, some less important features of MonetDB were turned off in order to shrink its size. This also means that some features of the MonetDB JDBC driver won't be available in a JDBC Embedded connection at the moment.
 
-One important note is that all the following APIs are NOT thread-safe for performance reasons, and thread-safety not being part of the JDBC specification. If the user wants to use a multi-threading enviroment, we recommend to either create one connection for each thread or use proper synchronization primitives.
+**Note that all the following APIs are NOT thread-safe for performance reasons, and thread-safety not being part of the JDBC specification!** If the user wants to use a multi-threading enviroment, we recommend to either create one connection for each thread or use proper synchronization primitives.
 
-Other note is that the `async` API, which is very common is database APIs is absent in this API, because as no IO operations are made in an embedded connection, their demand is less required. At the same time they are absent in the JDBC and MonetDB uses multiple threads in its query plans, making it very CPU core efficient. However if the user still wants to use `async` operations, this API can be embbeded easily with the [java.util.concurrent.CompletableFuture<T>](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html) class in Java 8.
+Other note is that the `async` API, which is very common is database APIs is absent in this API, because as no IO operations are made in an embedded connection, their demand is less required. At the same time they are absent in the JDBC and MonetDB uses multiple threads in its query plans, making it very CPU core efficient. However if the user still wants to use `async` operations, this API can be embbeded easily with the [CompletableFuture<T>](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html) class in Java 8.
 
 ### Start the database and make connections
 
-The MonetDB embedded database has to be loaded in order to perform all the operations. Due to the one database process restriction, the `MonetDBEmbeddedDatabase` class is a singleton. The `MonetDBEmbeddedDatabase` will create the MonetDB's farm if it's inexistent in the directory, otherwise will load the existing farm. The `MonetDBEmbeddedDatabase` exceptionally is thread-safe to avoid to threads to start the database and corrupting the existing process. To start the database:
+**The MonetDB Embedded Dtabase has to be loaded in order to perform all the operations!** Due to the one database process restriction, the `MonetDBEmbeddedDatabase` class is a singleton. The `MonetDBEmbeddedDatabase` will create the MonetDB's farm if it's inexistent in the directory, otherwise will load the existing farm. The `MonetDBEmbeddedDatabase` exceptionally is thread-safe to avoid to threads to start the database and corrupting the existing process. To start the database:
 
 ```java
 Path directoryPath = Files.createTempDirectory("monetdbjavalite");
@@ -85,13 +85,13 @@ MonetDBEmbeddedConnection connection = MonetDBEmbeddedDatabase.CreateConnection(
 connection.close();
 ```
 
-Before exiting the program is **VERY** important to shutdown the database, otherwise the program will cause many memory leaks! The `void MonetDBEmbeddedDatabase.StopDatabase()` class method shuts down the embedded database and any pending connections if existing. The class method `boolean MonetDBEmbeddedDatabase.IsDatabaseRunning()` checks if the database is running and `int MonetDBEmbeddedDatabase.GetNumberOfConnections()` retrieves the number of connections in the database.
+**Before exiting the JVM is VERY important to shutdown the database, otherwise the program will cause many memory leaks!** The `void MonetDBEmbeddedDatabase.StopDatabase()` class method shuts down the embedded database and any pending connections if existing. The class method `boolean MonetDBEmbeddedDatabase.IsDatabaseRunning()` checks if the database is running and `int MonetDBEmbeddedDatabase.GetNumberOfConnections()` retrieves the number of connections in the database.
 
 ### MonetDB to Java Mappings 
 
-Being a strong typed language, an explicit mapping between MonetDB data types and Java classes/primitives was made. We favored the usage of Java primitives for the most common MonetDB data types, hence making less allocations. However for the more complex ones, we mapped them to Java Classes, while matching the JDBC specification.
+The Java programming language is a strong typed language, thus an explicit mapping between MonetDB SQL types and Java classes/primitives was made. We favored the usage of Java primitives for the most common MonetDB SQL types, hence making less allocations. However for the more complex SQL types, we mapped them to Java Classes, while matching the JDBC specification.
 
-One important feature of MonetDB is that the SQL `NULL` values are mapped into the system's minimum values (e.g. MonetDB Integer - 2^31 - 1 in a 64-bit machine). In MonetDBJavaLite, this feature is persisted, being converted into the JVM's minimum values for the primitives. However for the Java Classes mapping, `NULL` values are translated into null pointers, so be carefull!
+One important feature of MonetDB is that the SQL `NULL` values are mapped into the system's minimum values (e.g. MonetDB Integer - 2^31 - 1 in a 64-bit machine). In MonetDBJavaLite, this feature is persisted, being converted into the JVM's minimum values for the primitives. **However for the Java Classes mapping, SQL NULL values are translated into null objects, so be carefull!**
 
 | MonetDB Type                         | Java Primitive/Class                                                                        | Null Value            |
 | :----------------------------------- | :------------------------------------------------------------------------------------------ | :-------------------- |
@@ -113,9 +113,9 @@ One important feature of MonetDB is that the SQL `NULL` values are mapped into t
 
 Notice that other more rare data types like `geometry`, `json` and `hugeint` are missing, because they were taken off the MonetDBLite to shrink the size of the library.
 
-## Just the embbedded API
+## Just the Embbedded API
 
-After a connection is made, regular queries can be sent to the embedded server and get the results immediately. The methods `void startTransaction()`,  `void commit()`,  `void rollback()`, can be used for the transaction management.
+After a connection is made, regular queries can be sent to the embedded server, then retrieving the results. The methods `void startTransaction()`, `void commit()` and `void rollback()`, can be used for the transaction management.
 
 ### Update Queries
 
@@ -130,9 +130,9 @@ connection.commit();
 
 ### Queries with result sets
 
-For queries with result sets, the method `QueryResultSet sendQuery(String query)` sends a query to the server and retrieves the results immediately in a `QueryResultSet` instance. The column values can be retrieved using the `T[] get#TYPE#ColumnByIndex(int n)` methods, with the column numbers starting from 1, alike in JDBC, or by name with `T[] get#TYPE#ColumnByName(String name)` methods. An important note is that the pointer to the array is retrieved when the fetch is made, to save memory allocations, except when the type does not match the method (e.g call `getIntColumnByIndex` in a `short` column). If the user wants to re-use values, he should clone the arrays. The entire result set can be fetched with the `Object[] getTheFullResultSet()` method.
+For queries with result sets, the method `QueryResultSet sendQuery(String query)` sends a query to the server, and retrieves the results immediately in a `QueryResultSet` instance. The column values can be retrieved using the `T[] get#TYPE#ColumnByIndex(int n)` methods, with the column numbers starting from 1, alike in JDBC, or by name with `T[] get#TYPE#ColumnByName(String name)` methods. An important note is that the pointer to the array is retrieved when the fetch is made, to save memory allocations, except when the type does not match the method (e.g call `getIntColumnByIndex` in a `short` column). If the user wants to re-use values, he should clone the arrays. The entire result set can be fetched with the `Object[] getTheFullResultSet()` method.
 
-For null values, the methods `boolean[] getColumnNullMappingsByIndex(int n)` and `boolean[] getColumnNullMappingsByName (String name)` can be used. The result set metada can be retrieved with the  `int getNumberOfRows()`, `int getNumberOfColumns()`, `String[] getColumnNames()` and `String[] getColumnTypes()` methods.
+For `NULL` values, the methods `boolean[] getColumnNullMappingsByIndex(int n)` and `boolean[] getColumnNullMappingsByName (String name)` can be used. The result set metada can be retrieved with the  `int getNumberOfRows()`, `int getNumberOfColumns()`, `String[] getColumnNames()` and `String[] getColumnTypes()` methods.
 
 ```java
 QueryResultSet qrs = connection.sendQuery("SELECT * FROM example");
@@ -154,9 +154,9 @@ boolean[] truthNullMappings = qrs.getColumnNullMappingsByIndex(1);
 Object[] result set = qrs.getFullResultSet();
 qrs.close(); //don't forget to close in the end!!! ;)
 ```
-A single value can be checked if it's null with the `NullMappings` class `boolean Check#Type#IsNull(T value)` static methods, except for `booleans`, where the `boolean checkBooleanIsNull(int column, int row)` in the `QueryResultSet` should be used instead.
+A single value can be checked if it's `NULL` with the `NullMappings` class `boolean Check#Type#IsNull(T value)` static methods, except for `booleans`, in which the `boolean checkBooleanIsNull(int column, int row)` in the `QueryResultSet` should be used instead.
 
-If it's desired to iterate row-wise, the methods `QueryResultRowSet fetchResultSetRows(int startIndex, int endIndex)`, `QueryResultRowSet fetchFirstNRowValues(int n)` and `QueryResultRowSet fetchAllRowValues()` can be used. However as of now, these methods convert all values including the primitives into Java Objects, which cause slightly more memory allocations. The `MonetDBRow` class instance holds the data of a single retrieved row.
+If it's desired to iterate row-wise, the methods `QueryResultRowSet fetchResultSetRows(int startIndex, int endIndex)`, `QueryResultRowSet fetchFirstNRowValues(int n)` and `QueryResultRowSet fetchAllRowValues()` can be used. However as of now, these methods convert all the values including primitives into Java Objects, in which causes slightly more memory allocations. The `MonetDBRow` class instance holds the data of a single retrieved row.
 
 ```java
 QueryResultSet qrs = connection.sendQuery("SELECT truth, words, counter FROM example");
@@ -189,7 +189,7 @@ Much alike the `QueryResultSet` class, the tables' metadata information can be r
 
 ### Iterate a table
 
-To iterate a table, (e.g. for exporting), the method `int iterateTable(IMonetDBTableCursor cursor)` is used. The `IMonetDBTableCursor` instance must implement the methods `int getFirstRowToIterate()`, where the first row in the table is specified (starting from 1), `int getLastRowToIterate()` the last one, and `void processNextRow(RowIterator rowIterator)`, containing the business logic of the iteration. The `rowIterator` has information about the iteration itself, as well the current row.
+To iterate a table, (e.g. for exporting), the method `int iterateTable(IMonetDBTableCursor cursor)` can be used. The `IMonetDBTableCursor` interface instance must implement the methods `int getFirstRowToIterate()`, where the first row in the table is specified (starting from 1), `int getLastRowToIterate()` the last one, and `void processNextRow(RowIterator rowIterator)`, containing the business logic of the iteration. The `rowIterator` has information about the iteration itself, as well the current row.
 
 ```java
 connection.sendUpdate("CREATE TABLE iterateMe (oneValue short, information char(10), justADate date)");
@@ -217,7 +217,7 @@ iterateMe.iterateTable(new IMonetDBTableCursor() {
 
 ### Append data to a table
 
-To append new data to the table, the method `int appendColumns(Object[] data)` is used. The `data` is array of columns, where each column has the same amount of rows, and each array class corresponds to the mapping defined above. To insert null values, use the `T Get#Type#NullConstant()` constant in the `NullMappings` class. Due to the limitations of the representation of `booleans` in Java, to append to a `boolean` column, a `byte` array should be used instead, as shown in the example. For all the other types, there is no changes.
+To append new data to the table, the method `int appendColumns(Object[] data)` is used. The `data` is array of columns, where each column has the same amount of rows, and each array class corresponds to the mapping defined above. To insert null values, use the `T Get#Type#NullConstant()` constant in the `NullMappings` class. Due to the limitations of the representation of `booleans` in Java, to append to a `boolean` column, a `byte` array should be used instead, as shown in the example. For all the other types, there are no changes.
 
 For `decimals`, a rounding mode must be set before appending. The method `void setRoundingMode(int roundingMode)` has that purpose [click here for details](http://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html#setScale(int,%20int)).
 
@@ -238,15 +238,15 @@ QueryResultSet qrs = connection.sendQuery("SELECT * FROM interactWithMe");
 
 ## JDBC
 
-The existing MonetDB JDBC driver was extended to support both a MAPI and an Embedded connection! At the same time, the MAPI connection was improved with [java.nio.ByteBuffer](https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html) for memory saving, thus less garbage collection is now performed.
+The existing MonetDB JDBC driver was extended to support both a MAPI and an Embedded connection! At the same time, the MAPI connection was improved with [ByteBuffers](https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html) in the lower layers of the driver for memory saving, thus less garbage collection is now performed.
 
 ### JDBC embedded connection
 
-There are several tutorials about the JDBC in the Internet, hence here will be explained just how to start an embedded connection. In the JDBC specification, a set of [java.util.Properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html) can be provided with additional features for the connection. To start an embedded connection the boolean string `true` **MUST** be provided, otherwise a MAPI connection will start instead. The directory of the farm must be provided as well. The following shows how it can be done.
+There are several tutorials about the JDBC in the Internet, hence here will be explained just how to start an embedded connection. In the JDBC specification, a set of [Properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html) can be provided with additional features for the connection. **To start an JDBC Embedded connection the boolean string `true` MUST be provided, otherwise a JDBC MAPI connection will start!** The directory of the farm (database) must be provided as well. The following example shows how it can be done.
 
 ```java
 Properties connectionProps = new Properties();
-/*There is no user authentication in MonetDBLite but the user and password properties must be provided because of the JDBC specification (just provide random strings :) )*/
+/*There is no user authentication in MonetDBLite but the user and password properties must be provided because of the JDBC specification. Just provide random strings :)*/
 connectionProps.put("user", "monetdb");
 connectionProps.put("password", "monetdb");
 connectionProps.put("embedded", "true"); //VERY IMPORTANT
@@ -267,9 +267,9 @@ rs.close(); //Don't forget! :)
 con.close(); //Don't forget! :)
 ```
 
-As seen in the example, the `MonetDBEmbeddedDatabase` calls weren't required for better portability of the JDBC embedded connection. What really happens is when starting a JDBC embedded connection, it checks if there is a `MonetDBEmbeddedDatabase` instance running in the provided directory. If the `MonetDBEmbeddedDatabase` is not running on that directory, it starts there, otherwise an exception is thrown. While closing, if it's the last connection, the `MonetDBEmbeddedDatabase` will shut down.
+As seen in the example, the `MonetDBEmbeddedDatabase` calls weren't required for better portability of the JDBC Embedded connection. What really happens is when starting a JDBC embedded connection, it checks if there is a `MonetDBEmbeddedDatabase` instance running in the provided directory. If the `MonetDBEmbeddedDatabase` is not running int that directory, it starts there, otherwise an exception is thrown. While closing, if it's the last connection, the `MonetDBEmbeddedDatabase` will shut down.
 
-It was made possible to use the the Embedded API in the JDBC embedded connection, although is completely apart from the JDBC specification.
+It was made possible to use the the Embedded API in the JDBC embedded connection, although it is completely apart from the JDBC specification.
 
 ```java
 //do the above steps....
@@ -285,12 +285,12 @@ con.close(); //Don't forget! ;)
 There are still some differences from the JDBC MAPI and Embedded connections, due to their nature:
 
 * The [PreparedStatement](https://docs.oracle.com/javase/8/docs/api/java/sql/PreparedStatement.html) implementation is missing in the Embedded connections, because the [PREPARED STATEMENT](https://www.monetdb.org/Documentation/Manuals/SQLreference/PrepareExec) of MonetDB was removed in MonetDBLite. However if enough interest is made, this feature can be added to MonetDBLite.
-* In the JDBC specification a [Fetch Size](https://docs.oracle.com/cd/A87860_01/doc/java.817/a83724/resltse5.htm) attribute allows to fetch a result set in blocks. This feature is favorable in a socket connection (MAPI), where the client and the server might not be in the same machine, thus fetching the results incrementally in block. However in the Embedded connection, this feature is less favorable as both the client and the server are in the same machine. Therefore the result set is always retrieved with a single block, making the [`void setFetchSize(int rows)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#getFetchSize) and [`int getFetchSize()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#setFetchSize-int-) methods depreciated in a Embedded connection (they do anything).
+* In the JDBC specification a [Fetch Size](https://docs.oracle.com/cd/A87860_01/doc/java.817/a83724/resltse5.htm) attribute allows to fetch a result set in blocks. This feature is favorable in a socket connection (MAPI), where the client and the server might not be in the same machine, thus fetching the results incrementally in block. However in the Embedded connection, this feature is less favorable as both the client and the server are in the same machine. Therefore the result set is always retrieved with a single block, making the [`void setFetchSize(int rows)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#getFetchSize) and [`int getFetchSize()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#setFetchSize-int-) methods depreciated in a Embedded connection (they do nothing).
 * As mentioned before, some MonetDB data types aren't featured in MonetDBLite, so existing queries with those types in a MAPI connection can't be ported to the Embedded connection version of it.
-* Also mentioned that the authentication scheme is inexistent in the Embedded connection.
+* As mentioned before, the authentication scheme is inexistent in the Embedded connection.
 * The methods [`void setNetworkTimeout(Executor executor, int millis)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#setNetworkTimeout-java.util.concurrent.Executor-int-) and [`int getNetworkTimeout()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getNetworkTimeout--) are insignificant as there is no network involved in the Embedded connection.
 * [Batch Processing](https://www.tutorialspoint.com/jdbc/jdbc-batch-processing.htm) is not possible in a Embedded connection, due to its removal from MonetDBLite.
-* The [Savepoints](https://docs.oracle.com/javase/8/docs/api/java/sql/Savepoint.html) feature might not work properly the Embedded connection due to MonetDBLite. However if enough interest is made, this feature can be added to MonetDBLite.
+* The [Savepoints](https://docs.oracle.com/javase/8/docs/api/java/sql/Savepoint.html) is not working properly in the Embedded connection due to MonetDBLite. However if enough interest is made, this feature can be added to MonetDBLite.
 
 ## Benchmarks
 
@@ -298,17 +298,17 @@ Soon!
 
 ## FAQs
 
-### 1. I am having racing conditions, can you tell me why?
+### 1. I am getting the MonetDBEmbeddedException: "The MonetDB Embedded database is still running!"
 
-As said before, this API is not thread-safe for performance reasons. If you want to keep the data's integraty, implement a synchronization mechanism, or a pool of connections much alike Java EE does with JDBC.
+Due to the internal representation of MonetDB, we allow only **ONE** embedded database per process. Check if you are calling the class method `boolean StartDatabase(String dbDirectory, boolean silentFlag, boolean sequentialFlag)` more than once in your code without any `void StopDatabase()` call in between. If you still need more than one database in your program, we recommend to create a sub JVM process. It can be easily achieved with the [`exec family of methods in the Runtime class`](https://docs.oracle.com/javase/8/docs/api/java/lang/Runtime.html).
 
-### 2. If I modify a value in one array of QueryResultSet, it changes the value in the result set as well right?
+### 2. I am having racing conditions, can you tell me why?
 
-Yes, as I explained above the `QueryResultSet` `T[] get#TYPE#ColumnByIndex(int n)` and `T[] get#TYPE#ColumnByName(String name)` methods returns the pointer to the array of the column if the type matches with the one of the `QueryResultSet`. This was done to save memory allocations, which is usefull in some use case scenarios. If you to preserve the `QueryResultSet` data, use the [Arrays.copyOf](https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html#i19) family of methods.
+As said before, this API is not thread-safe for performance reasons. If you want to keep data integrity, implement a synchronization mechanism, or a pool of connections much alike Java EE does with JDBC.
 
 ### 3. Despite no IO, I still want to run this API asynchronously, can you do that?
 
-That can be easily achieved with [java.util.concurrent.CompletableFuture<T>](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html) in Java 8. For older versions of Java you can use [java.util.concurrent.Future<T>](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html) instead. An example to run a query asynchronously:
+That can be easily achieved with [CompletableFuture<T>](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html) in Java 8. For older versions of Java you can use [Future<T>](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html) instead. An example to run a query asynchronously:
 
 ```java
 //create the connection beforehand..
@@ -326,20 +326,28 @@ QueryResultSet resultSet = asyncFetch.join();
 
 **Note** For better transparency of using Java Checked Exceptions with Functional Interfaces [check here](http://codingjunkie.net/functional-iterface-exceptions/). Then you can use the [`CompletableFuture<T> exceptionally(Function<Throwable,? extends T> fn)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html#exceptionally-java.util.function.Function-) method to handle the exceptions.
 
-### 4. While starting a JDBC connection, I always get the SQLException: "Unable to connect (localhost:50000): Connection refused"!
+### 4. I am getting very low negative numbers and NullPointer exceptions in the QueryResultSet!
 
-The new MonetDB JDBC driver creates a MAPI connection by default, as the most common use case of it. To start an embedded connection you **MUST** provide the property `embedded` as `true`, otherwise it will start a MAPI connection instead! Check the example above how it can be done.
+You are getting SQL `NULL` values in your query result sets. As explained above, for the primitive MonetDB SQL types we map them to the JVM minimum values. For the more complex MonetDB SQL types like `CHAR` and `DATE` we map to Java Objects, and thus in SQL `NULL` values are represented with null Java Objects. The `NullMappings` class has class methods to check if a value is null or not. At the same time, the SQL standard has the [COALESCE](http://www.w3schools.com/sql/sql_isnull.asp) function to return a default value when a value is null in the result set.
 
-### 5. Is there a way to know if a JDBC connection is MAPI or embedded after it has started?
+### 5. If I modify a value in one array of QueryResultSet, it changes the value in the result set as well right?
 
-Yes there is! In JDBC specification you can call the [`String getClientInfo(String name)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getClientInfo-java.lang.String-) method to get  a provided property at the beginning of the connection. You can just do:
+Yes, as I explained above the `QueryResultSet` `T[] get#TYPE#ColumnByIndex(int n)` and `T[] get#TYPE#ColumnByName(String name)` methods returns the pointer to the array of the column if the type matches with the one of the `QueryResultSet`. This was done to save memory allocations, which is usefull in some use case scenarios. If you to preserve the `QueryResultSet` data, use the [Arrays.copyOf](https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html#i19) family of methods.
+
+### 6. While starting a JDBC connection, I am getting the SQLException: "Unable to connect (localhost:50000): Connection refused"!
+
+The new MonetDB JDBC driver creates a MAPI connection by default, as the most common use case of it. To start an embedded connection you **MUST** provide the property `embedded` as `true`, otherwise it will start a MAPI connection! Check the example above how it can be done.
+
+### 7. Is there a way to know if a JDBC connection is MAPI or embedded after it has started?
+
+Yes there is! In JDBC specification you can call the [`String getClientInfo(String name)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getClientInfo-java.lang.String-) method to get a provided property at the beginning of the connection. You can do:
 
 ```java
 String embeddedString = connection.getClientInfo("embedded");
 boolean isEmbedded = (embeddedString != null && embeddedString.equals("true"));
 ```
 
-### 6. I don't like Java that much, can I use this for another programming languages for the JVM?
+### 8. I don't like Java that much, can I use this for another programming languages for the JVM?
 
 Yes you can! You can easily import Java libraries for other JVM programming languages like Scala. The following example creates a JDBC embedded connection on Scala:
 
@@ -381,5 +389,5 @@ Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
 
 ## Developer and support
 
-The MonetDBJavaLite is being supported by [Pedro Ferreira](mailto://pedro.ferreira@monetdbsolutions.com), a developer at [MonetDBSolutions](https://monetdbsolutions.com/)! Feel free to create an issue or a pull request! As you could see I like emoticons! :) Just one more :)
+The MonetDBJavaLite is being supported by [Pedro Ferreira](mailto://pedro.ferreira@monetdbsolutions.com), a developer at [MonetDBSolutions](https://monetdbsolutions.com/)! Feel free to create an issue, a pull request or [just send an e-mail](mailto://pedro.ferreira@monetdbsolutions.com)! As you could see I like emoticons! :) Just one more :)
 
