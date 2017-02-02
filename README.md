@@ -22,7 +22,7 @@ The `monetdb-jdbc-new-<version>.jar` is platform independent and can be retrieve
 
 The `monetdb-java-lite-<version>.jar`, can be obtained depending on the platform:
 
-- Linux
+- **Linux**
 
     - MonetDB uses different libraries for different Linux distributions, hence we recommend to build MonetDBJavaLite from the sources on Linux. To compile MonetDBJavaLite from sources, GNU Make and Gradle are required.
 
@@ -37,15 +37,15 @@ The `monetdb-java-lite-<version>.jar`, can be obtained depending on the platform
 
     - If the user prefers to use only one jar, the task [`gradle shadow`](https://github.com/johnrengelman/shadow) generates the `monetdb-java-lite-<version>-all.jar` in `monetdb-java-lite/buildshadow` directory as a "fat jar" containing both `monetdb-jdbc-new-<version>.jar` and `monetdb-java-lite-<version>.jar`.
 
-- Windows
+- **Windows**
 
     - Soon!
 
-- MacOS 
+- **MacOS**
 
     - Soon!
 
-- Android and ARM 
+- **Android and ARM**
 
     - If we get a request, it might happen! :)
 
@@ -284,12 +284,13 @@ con.close(); //Don't forget! ;)
 
 There are still some differences from the JDBC MAPI and Embedded connections, due to their nature:
 
-* The [java.sql.PreparedStatement](https://docs.oracle.com/javase/8/docs/api/java/sql/PreparedStatement.html) implementation is missing in the Embedded connections, because the [PREPARED STATEMENT](https://www.monetdb.org/Documentation/Manuals/SQLreference/PrepareExec) of MonetDB was removed in MonetDBLite. However if enough interest is made, this feature can be added to MonetDBLite.
+* The [PreparedStatement](https://docs.oracle.com/javase/8/docs/api/java/sql/PreparedStatement.html) implementation is missing in the Embedded connections, because the [PREPARED STATEMENT](https://www.monetdb.org/Documentation/Manuals/SQLreference/PrepareExec) of MonetDB was removed in MonetDBLite. However if enough interest is made, this feature can be added to MonetDBLite.
 * In the JDBC specification a [Fetch Size](https://docs.oracle.com/cd/A87860_01/doc/java.817/a83724/resltse5.htm) attribute allows to fetch a result set in blocks. This feature is favorable in a socket connection (MAPI), where the client and the server might not be in the same machine, thus fetching the results incrementally in block. However in the Embedded connection, this feature is less favorable as both the client and the server are in the same machine. Therefore the result set is always retrieved with a single block, making the [`void setFetchSize(int rows)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#getFetchSize) and [`int getFetchSize()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#setFetchSize-int-) methods depreciated in a Embedded connection (they do anything).
 * As mentioned before, some MonetDB data types aren't featured in MonetDBLite, so existing queries with those types in a MAPI connection can't be ported to the Embedded connection version of it.
 * Also mentioned that the authentication scheme is inexistent in the Embedded connection.
 * The methods [`void setNetworkTimeout(Executor executor, int millis)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#setNetworkTimeout-java.util.concurrent.Executor-int-) and [`int getNetworkTimeout()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getNetworkTimeout--) are insignificant as there is no network involved in the Embedded connection.
 * [Batch Processing](https://www.tutorialspoint.com/jdbc/jdbc-batch-processing.htm) is not possible in a Embedded connection, due to its removal from MonetDBLite.
+* The [Savepoints](https://docs.oracle.com/javase/8/docs/api/java/sql/Savepoint.html) feature might not work properly the Embedded connection due to MonetDBLite. However if enough interest is made, this feature can be added to MonetDBLite.
 
 ## Benchmarks
 
