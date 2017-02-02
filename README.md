@@ -350,7 +350,7 @@ try {
     properties.put("user", "monetdb")
     properties.put("password", "monetdb")
     properties.put("embedded", "true")
-    properties.put("directory", "/home/ferreira/myfarm")
+    properties.put("directory", "/home/user/myfarm")
     connection = DriverManager.getConnection("jdbc:monetdb://localhost/db", properties)
 
     val statement = connection.createStatement()
