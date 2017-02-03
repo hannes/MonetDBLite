@@ -17,7 +17,7 @@
 
 gdk_export BAT *GDKkey;
 gdk_export BAT *GDKval;
-int GDKdebug;
+gdk_export int GDKdebug;
 
 gdk_export char *GDKgetenv(const char *name);
 

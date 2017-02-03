@@ -85,7 +85,7 @@ EXTRA_DIST = aggr.mal 00_aggr_hge.mal group.mal algebra.mal \
 	mal_init.mal mkey.mal manifold.mal pcre.mal \
 	tablet.mal tablet.h sample.mal orderidx.mal \
 	mat.mal \
-	batmtime.mal querylog.mal \
+	batmtime.mal \
 	01_calc.mal 01_batcalc.mal \
 	00_calc_hge.mal 00_batcalc_hge.mal \
 	00_iterator_hge.mal 00_language_hge.mal \
