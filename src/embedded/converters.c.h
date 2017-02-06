@@ -196,7 +196,7 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 		case TYPE_dbl:
 #ifndef NATIVE_WIN32
 			// special case: bulk memcpy/masquerade, only if there are no NULLs
-			if (b->tnil || b->T.heap.storage != STORE_MMAP ||
+			if (!b->tnonil || b->tnil || b->T.heap.storage != STORE_MMAP ||
 					BATcount(b) < 1000 || BATcount(b) > R_SHORT_LEN_MAX || getenv("MONETDB_R_ENABLE_ZERO_COPY") == NULL) {
 				BAT_TO_REALSXP(b, dbl, varvalue, 1);
 			} else {
