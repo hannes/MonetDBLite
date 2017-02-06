@@ -169,7 +169,7 @@ s|@PACKAGE_VERSION@||
 s|@PATHSEP@|;|
 s|@PATH_SEPARATOR@|;|
 s|@pcreversion@|8.3.7|
-s|@pcre_CFLAGS@|-I$(top_builddir)/embedded/windows/pcre-8.37/include|
+s|@pcre_CFLAGS@|-I$(top_builddir)/embedded/windows/pcre-8.37.win%BITS%-vs2014/include|
 s|@pcre_LIBS@||
 s|@pdfdir@||
 s|@PERL@||
@@ -249,7 +249,7 @@ s|@SOEXT@||
 s|@SOURCE@||
 s|@SPHINXCLIENT_CFLAGS@||
 s|@SPHINXCLIENT_LIBS@||
-s|@srcdir@|.|
+s|@srcdir@|%SRCDIR%|
 s|@STREAM_VERSION@||
 s|@STRIP@||
 s|@sysconfdir@||

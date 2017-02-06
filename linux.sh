@@ -14,8 +14,8 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	LINKFLAG="-g"
 fi
 
-rm -rf ./build
-rm -rf ./monetdb-java-lite/build
+rm -rf build
+rm -rf monetdb-java-lite/build
 mkdir build
 mkdir -p monetdb-java-lite/src/main/resources/libs/linux
 
@@ -41,13 +41,19 @@ all: $(BUILT_SOURCES) monetdb_config.h
 
 make -j
 
+if [ $? -ne 0 ]
+then
+	echo "build failure"
+	cd $PREVDIRECTORY
+	exit 1
+fi
+
 cd ..
 
-cp ./build/libmonetdb5.so ./monetdb-java-lite/src/main/resources/libs/linux/libmonetdb5.so
+cp build/libmonetdb5.so monetdb-java-lite/src/main/resources/libs/linux/libmonetdb5.so
 
-cd ./monetdb-java-lite
+cd monetdb-java-lite
 
 gradle build
 
 cd $PREVDIRECTORY
-
