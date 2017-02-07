@@ -14,7 +14,7 @@ make distclean
 ./bootstrap
 # buildtools/conf/lt~obsolete.m4 file name violates CRAN policies, rename and replace references
 mv "buildtools/conf/lt~obsolete.m4" buildtools/conf/lt-obsolete.m4
-find . \( -name "Makefile.in" -or -name "aclocal.m4" \) -exec sed -i "" -e "s/lt~obsolete\.m4/lt-obsolete\.m4/g" {} \;
+find `pwd` \( -name "Makefile.in" -or -name "aclocal.m4" \) -print | xargs -0 sed -i "" -e "s/lt~obsolete\.m4/lt-obsolete\.m4/g"
 )
 
 cd $PREFIX/build
