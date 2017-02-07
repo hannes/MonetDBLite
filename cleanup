@@ -9,7 +9,7 @@ find . -name "*.DS_Store" -type f -delete
 
 rm -r -f autom4te.cache
 rm -f libmonetdb5.so 
-rm -f config.status config.log libtool stamp-h1
+rm -f config.status config.log libtool stamp-h1 config.cache
 rm -f monetdb_config.h
 rm -f embedded/windows/monetdb_config.h
 

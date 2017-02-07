@@ -8,18 +8,18 @@ AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 CFLAGS += $(THREAD_SAVE_FLAGS)
 libstream_la_CFLAGS=-DLIBSTREAM $(AM_CFLAGS)
 streamdir = $(libdir)
-libstream_la_LIBADD = $(SOCKET_LIBS) $(zlib_LIBS) $(BZ_LIBS) $(liblzma_LIBS) $(LTLIBICONV)
+libstream_la_LIBADD = $(zlib_LIBS) $(BZ_LIBS) $(liblzma_LIBS) $(LTLIBICONV)
 $(do)install-streamLTLIBRARIES : 
-libstream_la-stream.lo: stream.c stream.h stream_socket.h
+libstream_la-stream.lo: stream.c stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstream_la_CFLAGS) $(CFLAGS) $(stream_CFLAGS) -c -o libstream_la-stream.lo `test -f 'stream.c' || echo '$(srcdir)/'`stream.c
 nodist_libstream_la_SOURCES =
-dist_libstream_la_SOURCES = stream.c stream.h stream_socket.h
+dist_libstream_la_SOURCES = stream.c stream.h
 libstream_la_LDFLAGS = -version-info $(STREAM_VERSION)
-stream.o stream.lo: stream.c stream.h stream_socket.h
+stream.o stream.lo: stream.c stream.h
 AM_CPPFLAGS = -I$(srcdir) $(zlib_CFLAGS) $(BZ_CFLAGS) $(liblzma_CFLAGS)
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
-EXTRA_DIST = Makefile.ag Makefile.msc stream.c stream.h stream_socket.h
+EXTRA_DIST = Makefile.ag Makefile.msc stream.c stream.h
 stream_LTLIBRARIES = libstream.la
 
   include $(top_srcdir)/buildtools/conf/rules.mk

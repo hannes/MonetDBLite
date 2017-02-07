@@ -107,6 +107,14 @@ install-exec-local-mal_type.h: mal_type.h
 uninstall-local-mal_type.h: 
 	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_type.h
 
+install-exec-local-mal_profiler.h: mal_profiler.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_profiler.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_profiler.h
+
+uninstall-local-mal_profiler.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_profiler.h
+
 install-exec-local-mal_errors.h: mal_errors.h
 	-mkdir -p $(DESTDIR)$(includedir)/monetdb
 	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_errors.h
@@ -115,6 +123,22 @@ install-exec-local-mal_errors.h: mal_errors.h
 uninstall-local-mal_errors.h: 
 	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_errors.h
 
+install-exec-local-mal_client.h: mal_client.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_client.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_client.h
+
+uninstall-local-mal_client.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_client.h
+
+install-exec-local-mal_resolve.h: mal_resolve.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_resolve.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_resolve.h
+
+uninstall-local-mal_resolve.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_resolve.h
+
 install-exec-local-mal_namespace.h: mal_namespace.h
 	-mkdir -p $(DESTDIR)$(includedir)/monetdb
 	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_namespace.h
@@ -122,6 +146,22 @@ install-exec-local-mal_namespace.h: mal_namespace.h
 
 uninstall-local-mal_namespace.h: 
 	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_namespace.h
+
+install-exec-local-mal_interpreter.h: mal_interpreter.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_interpreter.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_interpreter.h
+
+uninstall-local-mal_interpreter.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_interpreter.h
+
+install-exec-local-mal_module.h: mal_module.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_module.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_module.h
+
+uninstall-local-mal_module.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_module.h
 
 install-exec-local-mal_stack.h: mal_stack.h
 	-mkdir -p $(DESTDIR)$(includedir)/monetdb
@@ -139,6 +179,22 @@ install-exec-local-mal_instruction.h: mal_instruction.h
 uninstall-local-mal_instruction.h: 
 	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_instruction.h
 
+install-exec-local-mal_listing.h: mal_listing.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_listing.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_listing.h
+
+uninstall-local-mal_listing.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_listing.h
+
+install-exec-local-mal_function.h: mal_function.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_function.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_function.h
+
+uninstall-local-mal_function.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_function.h
+
 install-exec-local-mal.h: mal.h
 	-mkdir -p $(DESTDIR)$(includedir)/monetdb
 	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal.h
@@ -147,13 +203,21 @@ install-exec-local-mal.h: mal.h
 uninstall-local-mal.h: 
 	$(RM) $(DESTDIR)$(includedir)/monetdb/mal.h
 
+install-exec-local-mal_factory.h: mal_factory.h
+	-mkdir -p $(DESTDIR)$(includedir)/monetdb
+	-$(RM) $(DESTDIR)$(includedir)/monetdb/mal_factory.h
+	$(INSTALL_DATA) $< $(DESTDIR)$(includedir)/monetdb/mal_factory.h
+
+uninstall-local-mal_factory.h: 
+	$(RM) $(DESTDIR)$(includedir)/monetdb/mal_factory.h
+
 AM_CPPFLAGS = -I$(srcdir) -I../../common/options -I$(srcdir)/../../common/options -I../../common/stream -I$(srcdir)/../../common/stream -I../../common/utils -I$(srcdir)/../../common/utils -I../../gdk -I$(srcdir)/../../gdk -I../optimizer -I$(srcdir)/../optimizer
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
 EXTRA_DIST = Makefile.ag Makefile.msc mal.c mal.h mal_atom.c mal_atom.h mal_authorize.c mal_authorize.h mal_builder.c mal_builder.h mal_client.c mal_client.h mal_dataflow.c mal_dataflow.h mal_errors.h mal_exception.c mal_exception.h mal_factory.c mal_factory.h mal_function.c mal_function.h mal_import.c mal_import.h mal_instruction.c mal_instruction.h mal_interpreter.c mal_interpreter.h mal_linker.c mal_linker.h mal_listing.c mal_listing.h mal_module.c mal_module.h mal_namespace.c mal_namespace.h mal_parser.c mal_parser.h mal_private.h mal_profiler.c mal_profiler.h mal_resolve.c mal_resolve.h mal_resource.c mal_resource.h mal_runtime.c mal_runtime.h mal_scenario.c mal_scenario.h mal_session.c mal_session.h mal_stack.c mal_stack.h mal_type.c mal_type.h mal_utils.c mal_utils.h
 noinst_LTLIBRARIES = libmal.la
 install-malLTLIBRARIES:
-uninstall-local: uninstall-local-mal.h uninstall-local-mal_errors.h uninstall-local-mal_exception.h uninstall-local-mal_instruction.h uninstall-local-mal_namespace.h uninstall-local-mal_stack.h uninstall-local-mal_type.h
-install-exec-local: install-exec-local-mal.h install-exec-local-mal_errors.h install-exec-local-mal_exception.h install-exec-local-mal_instruction.h install-exec-local-mal_namespace.h install-exec-local-mal_stack.h install-exec-local-mal_type.h
+uninstall-local: uninstall-local-mal.h uninstall-local-mal_client.h uninstall-local-mal_errors.h uninstall-local-mal_exception.h uninstall-local-mal_factory.h uninstall-local-mal_function.h uninstall-local-mal_instruction.h uninstall-local-mal_interpreter.h uninstall-local-mal_listing.h uninstall-local-mal_module.h uninstall-local-mal_namespace.h uninstall-local-mal_profiler.h uninstall-local-mal_resolve.h uninstall-local-mal_stack.h uninstall-local-mal_type.h
+install-exec-local: install-exec-local-mal.h install-exec-local-mal_client.h install-exec-local-mal_errors.h install-exec-local-mal_exception.h install-exec-local-mal_factory.h install-exec-local-mal_function.h install-exec-local-mal_instruction.h install-exec-local-mal_interpreter.h install-exec-local-mal_listing.h install-exec-local-mal_module.h install-exec-local-mal_namespace.h install-exec-local-mal_profiler.h install-exec-local-mal_resolve.h install-exec-local-mal_stack.h install-exec-local-mal_type.h
 
   include $(top_srcdir)/buildtools/conf/rules.mk

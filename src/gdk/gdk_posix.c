@@ -349,17 +349,18 @@ MT_getrss(void)
 
 
 void *
-MT_mmap(const char *path, int mode, size_t len)
+MT_mmap_addr(const char *path, int mode, size_t len, void* addr)
 {
-	int fd;
+	int fd = -1;
 	void *ret;
-
-	fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY), MONETDB_MODE);
-	if (fd < 0) {
-		GDKsyserror("MT_mmap: open %s failed\n", path);
-		return MAP_FAILED;
+	if (path != NULL) {
+		fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY), MONETDB_MODE);
+		if (fd < 0) {
+			GDKsyserror("MT_mmap: open %s failed\n", path);
+			return MAP_FAILED;
+		}
 	}
-	ret = mmap(NULL,
+	ret = mmap(addr,
 		   len,
 		   ((mode & MMAP_WRITABLE) ? PROT_WRITE : 0) | PROT_READ,
 		   (mode & MMAP_COPY) ? (MAP_PRIVATE | MAP_NORESERVE) : MAP_SHARED,
@@ -372,6 +373,12 @@ MT_mmap(const char *path, int mode, size_t len)
 	close(fd);
 	VALGRIND_MALLOCLIKE_BLOCK(ret, len, 0, 1);
 	return ret;
+}
+
+void *
+MT_mmap(const char *path, int mode, size_t len)
+{
+	return MT_mmap_addr(path, mode, len, NULL);
 }
 
 int
