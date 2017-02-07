@@ -13,10 +13,9 @@ INCLUDES = $(zlib_CFLAGS) \
 		   $(liblzma_CFLAGS)
 
 lib_stream  =  {
-	SOURCES = stream.c stream.h stream_socket.h
+	SOURCES = stream.c stream.h
 	VERSION = $(STREAM_VERSION)
-	LIBS = $(SOCKET_LIBS) \
-		   $(zlib_LIBS) \
+	LIBS = $(zlib_LIBS) \
 		   $(BZ_LIBS) \
 		   $(liblzma_LIBS) \
 		   $(LTLIBICONV)

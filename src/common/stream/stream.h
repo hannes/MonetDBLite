@@ -167,11 +167,6 @@ stream_export stream *append_wastream(const char *filename);
 
 stream_export void close_stream(stream *s);
 
-stream_export stream *open_urlstream(const char *url);
-
-stream_export stream *udp_rastream(const char *hostname, int port, const char *name);
-stream_export stream *udp_wastream(const char *hostname, int port, const char *name);
-
 stream_export stream *file_rstream(FILE *fp, const char *name);
 stream_export stream *file_wstream(FILE *fp, const char *name);
 stream_export stream *file_rastream(FILE *fp, const char *name);
@@ -261,5 +256,6 @@ stream_export stream *callback_stream(
 stream_export stream* stream_blackhole_create(void);
 
 stream_export stream* stream_fwf_create(stream *s, size_t num_fields, size_t *widths, char filler);
+
 
 #endif /*_STREAM_H_*/
