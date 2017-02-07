@@ -321,8 +321,32 @@ SQLrun(Client c, backend *be, mvc *m){
 	}
 
 	if (m->emod & mod_explain) {
-		if (c->curprg->def)
-			printFunction(c->fdout, mb, 0, LIST_MAL_NAME | LIST_MAL_VALUE  |  LIST_MAL_MAPI);
+		if (c->curprg->def) {
+			stream *s;
+			buffer *b = buffer_create(16364); /* hopefully enough */
+			if (!b) {
+				return createException(PARSE, "SQLparser", "Memory allocation failed");
+			}
+			s = buffer_wastream(b, "SQL Explain");
+			if (!s) {
+				buffer_destroy(b);
+				return createException(PARSE, "SQLparser", "Memory allocation failed");
+			}
+
+			printFunction(s, mb, 0, LIST_MAL_NAME | LIST_MAL_VALUE  |  LIST_MAL_MAPI);
+			mnstr_writeBte(s, 0);
+
+			m->results = res_table_create(m->session->tr, m->result_id++, 1, 1, NULL, NULL);
+			if (!m->results) {
+				msg = createException(PARSE, "SQLparser", "Memory allocation failed");
+			} else {
+				res_col_create(m->session->tr, m->results, "explain", "explain", "varchar", 0, 0, TYPE_str, b->buf);
+			}
+			mnstr_close(s);
+			mnstr_destroy(s);
+			buffer_destroy(b);
+		}
+
 	} else if( m->emod & mod_trace){
 		SQLsetTrace(c,mb);
 		msg = runMAL(c, mb, 0, 0);
@@ -506,8 +530,6 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
 			goto endofcompile;
 		}
 
-
-
 		/* generate MAL code */
 #ifdef _SQL_COMPILE
 		mnstr_printf(c->fdout, "#SQLstatement:pre-compile\n");
@@ -541,6 +563,7 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
 
 		if (!output)
 			sql->out = NULL;	/* no output stream */
+
 		if (execute)
 			msg = SQLrun(c,be,m);
 

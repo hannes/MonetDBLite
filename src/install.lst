@@ -12,11 +12,19 @@ mal/
 mal/mal/
 	$(includedir)/monetdb/mal_exception.h
 	$(includedir)/monetdb/mal_type.h
+	$(includedir)/monetdb/mal_profiler.h
 	$(includedir)/monetdb/mal_errors.h
+	$(includedir)/monetdb/mal_client.h
+	$(includedir)/monetdb/mal_resolve.h
 	$(includedir)/monetdb/mal_namespace.h
+	$(includedir)/monetdb/mal_interpreter.h
+	$(includedir)/monetdb/mal_module.h
 	$(includedir)/monetdb/mal_stack.h
 	$(includedir)/monetdb/mal_instruction.h
+	$(includedir)/monetdb/mal_listing.h
+	$(includedir)/monetdb/mal_function.h
 	$(includedir)/monetdb/mal.h
+	$(includedir)/monetdb/mal_factory.h
 mal/modules/
 	$(libdir)/monetdb5/autoload/00_batcalc_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/autoload/00_calc_hge.mal#HAVE_HGE
