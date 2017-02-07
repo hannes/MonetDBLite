@@ -175,7 +175,7 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 #ifndef NATIVE_WIN32
 			// special case: bulk memcpy/masquerade, for ints also with NULLs
 			if (b->T.heap.storage != STORE_MMAP ||
-					BATcount(b) < 1000 || BATcount(b) > R_SHORT_LEN_MAX) {
+					BATcount(b) < 2000000 || BATcount(b) > R_SHORT_LEN_MAX) {
 				BAT_TO_INTSXP(b, int, varvalue, 1);
 			} else {
 				varvalue = monetdb_r_dressup(b, INTSXP);
@@ -197,7 +197,7 @@ static SEXP bat_to_sexp(BAT* b, int *unfix) {
 #ifndef NATIVE_WIN32
 			// special case: bulk memcpy/masquerade, only if there are no NULLs
 			if (!b->tnonil || b->tnil || b->T.heap.storage != STORE_MMAP ||
-					BATcount(b) < 1000 || BATcount(b) > R_SHORT_LEN_MAX) {
+					BATcount(b) < 1000000 || BATcount(b) > R_SHORT_LEN_MAX) {
 				BAT_TO_REALSXP(b, dbl, varvalue, 1);
 			} else {
 				varvalue = monetdb_r_dressup(b, REALSXP);
