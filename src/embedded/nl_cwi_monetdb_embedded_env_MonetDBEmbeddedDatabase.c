@@ -104,11 +104,11 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_createConnectionInternal
     (JNIEnv *env, jobject database) {
-    long conn;
+    jlong conn;
     (void) database;
 
     if(monetdb_is_initialized()) {
-        conn = (long) monetdb_connect();
+        conn = (jlong) monetdb_connect();
         if(conn == 0) {
             (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The connection could not be created!");
             return NULL;
@@ -124,11 +124,11 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDataba
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_createJDBCEmbeddedConnectionInternal
     (JNIEnv *env, jobject database) {
-    long conn;
+    jlong conn;
     (void) database;
 
     if(monetdb_is_initialized()) {
-        conn = (long) monetdb_connect();
+        conn = (jlong) monetdb_connect();
         if(conn == 0) {
             (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The connection could not be created!");
             return NULL;

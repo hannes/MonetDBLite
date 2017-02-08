@@ -39,11 +39,11 @@ s|@build_vendor@||
 s|@builtby@||
 s|@BZ_CFLAGS@||
 s|@BZ_LIBS@||
-s|@CC@|%CC%|
+s|@CC@|gcc|
 s|@CCDEPMODE@||
 s|@cfitsio_CFLAGS@||
 s|@cfitsio_LIBS@||
-s|@CFLAGS@| -DHAVE_EMBEDDED=1 %ADD_CFLAGS%|
+s|@CFLAGS@| -DHAVE_EMBEDDED=1 -O0 -g -m64|
 s|@CLASSPATH@||
 s|@compilercall@||
 s|@configure_input@||
@@ -169,7 +169,7 @@ s|@PACKAGE_VERSION@||
 s|@PATHSEP@|;|
 s|@PATH_SEPARATOR@|;|
 s|@pcreversion@|8.3.7|
-s|@pcre_CFLAGS@|-I$(top_builddir)/embedded/windows/pcre-8.37.win%BITS%-vs2014/include|
+s|@pcre_CFLAGS@|-I$(top_builddir)/embedded/windows/pcre-8.37.win64-vs2014/include|
 s|@pcre_LIBS@||
 s|@pdfdir@||
 s|@PERL@||
@@ -179,7 +179,7 @@ s|@PKG_CONFIG_LIBDIR@||
 s|@PKG_CONFIG_PATH@||
 s|@PKG_CURL@||
 s|@PKG_ZLIB@||
-s|@prefix@|%PREFIX%|
+s|@prefix@|/c/Users/pedro/Documents/MonetDBLite/src/../build|
 s|@program_transform_name@||
 s|@psdir@||
 s|@PTHREAD_INCS@||
@@ -249,7 +249,7 @@ s|@SOEXT@||
 s|@SOURCE@||
 s|@SPHINXCLIENT_CFLAGS@||
 s|@SPHINXCLIENT_LIBS@||
-s|@srcdir@|%SRCDIR%|
+s|@srcdir@|/c/Users/pedro/Documents/MonetDBLite/src|
 s|@STREAM_VERSION@||
 s|@STRIP@||
 s|@sysconfdir@||
@@ -262,7 +262,7 @@ s|@thread_safe_flag_spec@||
 s|@THREAD_SAVE_FLAGS@||
 s|@top_builddir@|$(top_srcdir)|
 s|@top_build_prefix@||
-s|@top_srcdir@|%SRCDIR%|
+s|@top_srcdir@|/c/Users/pedro/Documents/MonetDBLite/src|
 s|@translatepath@||
 s|@UUID_LIBS@||
 s|@valgrind_CFLAGS@||

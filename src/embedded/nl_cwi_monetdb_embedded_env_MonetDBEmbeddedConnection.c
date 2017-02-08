@@ -66,8 +66,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     jintArray digitsArray = (*env)->NewIntArray(env, numberOfColumns);
     jintArray scalesArray = (*env)->NewIntArray(env, numberOfColumns);
     jobjectArray dataArray = (*env)->NewObjectArray(env, numberOfColumns, getJavaObjectClassID(), NULL);
-    int* digitsAux = (*env)->GetIntArrayElements(env, digitsArray, NULL);
-    int* scalesAux = (*env)->GetIntArrayElements(env, scalesArray, NULL);
+    jint* digitsAux = (*env)->GetIntArrayElements(env, digitsArray, NULL);
+    jint* scalesAux = (*env)->GetIntArrayElements(env, scalesArray, NULL);
 
     for (i = 0; i < numberOfColumns; i++) {
         res_col col = output->cols[i];
@@ -163,7 +163,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
 
     (*env)->ReleaseIntArrayElements(env, digitsArray, digitsAux, 0);
     (*env)->ReleaseIntArrayElements(env, scalesArray, scalesAux, 0);
-    return (*env)->NewObject(env, getQueryResultSetID(), getQueryResultSetConstructorID(), jconnection, (long) output, columnNamesArray, columnTypesArray, digitsArray, scalesArray, dataArray, numberOfRows);
+    return (*env)->NewObject(env, getQueryResultSetID(), getQueryResultSetConstructorID(), jconnection, (jlong) output, columnNamesArray, columnTypesArray, digitsArray, scalesArray, dataArray, numberOfRows);
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_getMonetDBTableInternal

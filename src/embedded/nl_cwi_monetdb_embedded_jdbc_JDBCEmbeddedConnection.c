@@ -16,7 +16,7 @@
 
 static void setErrorResponse(JNIEnv *env, jobject jdbccon, char* errorMessage) {
     jintArray lineResponse = (jintArray) (*env)->GetObjectField(env, jdbccon, getServerResponsesID());
-    int response[2] = {1,4}; //ERROR AND PROMPT
+    jint response[2] = {1,4}; //ERROR AND PROMPT
     (*env)->SetIntArrayRegion(env, lineResponse, 0, 2, response);
     (*env)->SetObjectField(env, jdbccon, getLastErrorID(), (*env)->NewStringUTF(env, errorMessage));
     GDKfree(errorMessage);
@@ -26,7 +26,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     (JNIEnv *env, jobject jdbccon, jlong resultSetPointer, jobjectArray columnNames, jintArray columnLengths, jobjectArray types, jobjectArray tableNames) {
     res_table *output = (res_table *) resultSetPointer;
     int numberOfColumns = (*env)->GetArrayLength(env, columnNames);
-    int* columnLengthsFound = GDKmalloc(numberOfColumns * sizeof(int));
+    jint* columnLengthsFound = GDKmalloc(numberOfColumns * sizeof(jint));
     (void) jdbccon;
 
     for (int i = 0; i < numberOfColumns; i++) {
@@ -52,7 +52,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     res_table *output = (res_table *) resultSetPointer;
     int numberOfColumns = (*env)->GetArrayLength(env, values);
     int numberOfRows = (*env)->GetArrayLength(env, (*env)->GetObjectArrayElement(env, values, 0));
-    int* typesMapConverted = (int*) (*env)->GetIntArrayElements(env, typesMap, NULL);
+    jint* typesMapConverted = (*env)->GetIntArrayElements(env, typesMap, NULL);
     char* nextSQLName;
     (void) jdbccon;
 
@@ -127,7 +127,8 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendQueryInternal
     (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jstring query, jboolean execute) {
     long tablePointer, lastId, rowCount;
-    int lineResponseCounter = 0, query_type, autoCommitStatus, numberOfRows, nextResponses[4], responseParameters[3];
+    int lineResponseCounter = 0, query_type, autoCommitStatus, numberOfRows;
+	jint nextResponses[4], responseParameters[3];
     const char *query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
     char *err = NULL;
     res_table *output = NULL;
