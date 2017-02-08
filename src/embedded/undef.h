@@ -23,3 +23,5 @@ extern int embedded_r_rand(void);
 #define PTRFMTCAST (void *)
 
 #define _Printf_format_string_ /* NOTE Added to compile MonetDBJavaLite on MinGW64 */
+
+#define HAVE_GETTIMEOFDAY 1

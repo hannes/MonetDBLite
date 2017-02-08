@@ -84,12 +84,12 @@
 #define EXEC_PREFIX PREFIX
 
 /* Define to 1 if you have the `asctime_r' function. */
-#define HAVE_ASCTIME_R 1
+/* #undef HAVE_ASCTIME_R */
 
 /* Define if you have asctime_r(struct tm*,char *buf,size_t s) */
-#define HAVE_ASCTIME_R3 1
+/* #undef HAVE_ASCTIME_R3 */
 /* there is something very similar to asctime_r on Windows: */
-//#define asctime_r(t,b,s)	asctime_s(b,s,t)
+/* #define asctime_r(t,b,s)	asctime_s(b,s,t) */
 
 /* Define to nothing if C supports flexible array members, and to 1 if it does
    not. That way, with a declaration like `struct s { int n; double
@@ -110,11 +110,11 @@
 /* #undef HAVE_CRYPT_H */
 
 /* Define to 1 if you have the `ctime_r' function. */
-#define HAVE_CTIME_R 1
+/* #undef HAVE_CTIME_R */
 
 #ifdef _MSC_VER
 /* Define if you have ctime_r(time_t*,char *buf,size_t s) */
-#define HAVE_CTIME_R3 1
+/* #undef HAVE_CTIME_R3 */
 /* there is something very similar to ctime_r on Windows: */
 //#define ctime_r(t,b,s)	(ctime_s(b,s,t) ? NULL : (b))
 #endif
@@ -188,9 +188,9 @@
 #define HAVE_GETADDRINFO 1
 
 /* Define to 1 if you have the `GetDynamicTimeZoneInformation' function. */
-#ifdef _MSC_VER
+/*#ifdef _MSC_VER
 #define HAVE_GETDYNAMICTIMEZONEINFORMATION 1
-#endif
+#endif*/
 
 /* Define to 1 if you have the `getexecname' function. */
 /* #undef HAVE_GETEXECNAME */
@@ -307,7 +307,7 @@
 #define HAVE_LOCALE_H 1
 #ifdef _MSC_VER
 /* Define to 1 if you have the `localtime_r' function. */
-#define HAVE_LOCALTIME_R 1
+/* #undef HAVE_LOCALTIME_R */
 /* there is something very similar to localtime_r on Windows: */
 //#define localtime_r(tp,tm)	localtime_s(tm,tp)
 #endif
@@ -582,7 +582,7 @@
 /* #undef HAVE_SYS_DIR_H */
 
 /* Define to 1 if you have the <sys/file.h> header file. */
-/* #undef HAVE_SYS_FILE_H */
+#define HAVE_SYS_FILE_H 1
 
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 /* #undef HAVE_SYS_IOCTL_H */
@@ -595,7 +595,7 @@
 /* #undef HAVE_SYS_NDIR_H */
 
 /* Define to 1 if you have the <sys/param.h> header file. */
-/* #undef HAVE_SYS_PARAM_H */
+#define HAVE_SYS_PARAM_H 1
 
 /* Define to 1 if you have the <sys/resource.h> header file. */
 /* #undef HAVE_SYS_RESOURCE_H */
@@ -613,7 +613,7 @@
 /* #undef HAVE_SYS_TIMES_H */
 
 /* Define to 1 if you have the <sys/time.h> header file. */
-/* #undef HAVE_SYS_TIME_H */
+#define HAVE_SYS_TIME_H 1
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #define HAVE_SYS_TYPES_H 1
@@ -852,7 +852,7 @@
 #define SYSCONFDIR PREFIX "\\etc"
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-/* #undef TIME_WITH_SYS_TIME */
+#undef TIME_WITH_SYS_TIME
 
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE
@@ -1078,7 +1078,7 @@ typedef __uint128_t uhge;
 
 #ifdef HAVE_EMBEDDED
 #define _MSC_EXTENSIONS 1
-#undef HAVE_CTIME_R
+/* #undef HAVE_CTIME_R */
 #include "embedded/undef.h"
 #else
 #define HAVE_MAPI 1
