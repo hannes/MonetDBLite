@@ -779,7 +779,7 @@ MT_global_exit(int s)
 MT_Id
 MT_getpid(void)
 {
-#if !defined(HAVE_PTHREAD_H) && defined(_MSC_VER)
+#if !defined(HAVE_PTHREAD_H) /*&& defined(_MSC_VER) NOTE: Commented to compile MonetDBJavaLite on Windows */
 	return (MT_Id) GetCurrentThreadId();
 #elif defined(PTW32)
 	return (MT_Id) (((size_t) pthread_self().p) + 1);

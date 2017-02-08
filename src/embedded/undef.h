@@ -22,6 +22,4 @@ extern int embedded_r_rand(void);
 #define PTRFMT "%p"
 #define PTRFMTCAST (void *)
 
-//#define _In_z_
-#define _Printf_format_string_
-//#define __declspec(x)
+#define _Printf_format_string_ /* NOTE Added to compile MonetDBJavaLite on MinGW64 */
