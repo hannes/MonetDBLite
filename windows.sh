@@ -4,12 +4,12 @@ SRC=`pwd | sed -e 's|/cygdrive/||'`"/src"
 # figure out bitness
 BITS=64
 #ARCH=i386
-MONETDBLITE_DEBUG=YES #TODO change this!
+#MONETDBLITE_DEBUG=YES #TODO change this!
 CC=gcc
-ADD_CFLAGS="-O3 -m64"
+ADD_CFLAGS="-O3 -m64 -Wl,--add-stdcall-alias"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
-	ADD_CFLAGS="-O0 -g -m64"
+	ADD_CFLAGS="-O0 -g -m64 -Wl,--add-stdcall-alias"
 fi
 
 rm -rf monetdb-java-lite/build
@@ -31,15 +31,13 @@ cp src/embedded/windows/monetdb_config.h.in src/
 sh src/embedded/windows/pmc.sh
 
 # download/unpack some dependencies
-cp src/embedded/windows/msvcr100-$BITS.dll msvcr100.dll
+#cp src/embedded/windows/msvcr100-$BITS.dll src/msvcr100.dll
 
 cd src
 
 rm -f config.status
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
 rm -f libmonetdb5.dll
-
-#sh ./bootstrap
 
 make -j
 
@@ -61,7 +59,9 @@ fi
 
 cd ..
 
-cp src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
+cp src/embedded/windows/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
+cp src/embedded/windows/pcre-8.37.win$BITS-vs2014/bin/pcre.dll monetdb-java-lite/src/main/resources/libs/windows/pcre.dll
+mv src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
 
 cd monetdb-java-lite
 
