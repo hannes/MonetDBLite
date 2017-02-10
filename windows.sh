@@ -1,10 +1,17 @@
+#!/bin/bash
+
+PREVDIRECTORY=`pwd`
+
+BASEDIR=$(dirname "$0")
+
+cd $BASEDIR
+
 # figure out where the sourcetree is
 SRC=`pwd | sed -e 's|/cygdrive/||'`"/src"
 
 # figure out bitness
-BITS=64
-#ARCH=i386
-#MONETDBLITE_DEBUG=YES #TODO change this!
+BITS=64 # we compile for 64 bits only for now
+
 CC=gcc
 ADD_CFLAGS="-O3 -m64 -Wl,--add-stdcall-alias"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
@@ -15,6 +22,7 @@ fi
 rm -rf monetdb-java-lite/build
 mkdir -p monetdb-java-lite/src/main/resources/libs/windows
 
+# a bit of cheating hehehe
 cp src/embedded/incwindows/* src/embedded/inclinux/
 
 # patch sedscript for build/install/library paths
@@ -29,9 +37,6 @@ cp src/embedded/windows/monetdb_config.h.in src/
 
 # pmc stands for "poor man's configure", it does something similar using the sedscript
 sh src/embedded/windows/pmc.sh
-
-# download/unpack some dependencies
-#cp src/embedded/windows/msvcr100-$BITS.dll src/msvcr100.dll
 
 cd src
 
@@ -49,7 +54,7 @@ fi
 
 OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
 
-$CC $ADD_CFLAGS -shared -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37.win$BITS-vs2014/lib/ -lpcre 
+$CC $ADD_CFLAGS -shared -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37.win$BITS-vs2014/lib/ -lpcre
 
 if [ ! -s libmonetdb5.dll ]
 then
@@ -66,3 +71,5 @@ mv src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmone
 cd monetdb-java-lite
 
 gradle build
+
+cd $PREVDIRECTORY
