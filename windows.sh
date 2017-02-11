@@ -13,10 +13,10 @@ SRC=`pwd | sed -e 's|/cygdrive/||'`"/src"
 BITS=64 # we compile for 64 bits only for now
 
 CC=gcc
-ADD_CFLAGS="-O3 -m64 -Wl,--add-stdcall-alias"
+ADD_CFLAGS="-O3 -m64"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
-	ADD_CFLAGS="-O0 -g -m64 -Wl,--add-stdcall-alias"
+	ADD_CFLAGS="-O0 -g -m64"
 fi
 
 rm -rf monetdb-java-lite/build
@@ -64,7 +64,7 @@ fi
 
 cd ..
 
-cp src/embedded/windows/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
+#cp src/embedded/windows/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
 cp src/embedded/windows/pcre-8.37.win$BITS-vs2014/bin/pcre.dll monetdb-java-lite/src/main/resources/libs/windows/pcre.dll
 mv src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
 

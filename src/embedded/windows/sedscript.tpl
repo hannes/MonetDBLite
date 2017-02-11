@@ -1,37 +1,37 @@
-s|@abs_builddir@||
-s|@abs_srcdir@||
-s|@abs_top_builddir@||
-s|@abs_top_srcdir@||
-s|@ACLOCAL@||
-s|@ac_ct_AR@||
-s|@ac_ct_CC@||
+s|@abs_builddir@|$(builddir)|
+s|@abs_srcdir@|$(srcdir)|
+s|@abs_top_builddir@|$(top_builddir)|
+s|@abs_top_srcdir@|$(srcdir)|
+s|@ACLOCAL@|${SHELL} $(top_builddir)/buildtools/conf/missing aclocal-1.15|
+s|@ac_ct_AR@|ar|
+s|@ac_ct_CC@|gcc|
 s|@ac_ct_DUMPBIN@||
-s|@AMTAR@||
+s|@AMTAR@|$${TAR-tar}|
 s|@AM_DEFAULT_V@|V|
 s|@AM_DEFAULT_VERBOSITY@|AM_DEFAULT_VERBOSITY|
 s|@AM_V@||
-s|@am__include@||
+s|@am__include@|include|
 s|@am__isrc@||
-s|@am__leading_dot@||
+s|@am__leading_dot@|$(pwd)|
 s|@am__quote@||
 s|@am__tar@||
-s|@am__untar@||
+s|@am__untar@|tar -xf -|
 s|@ANT@||
-s|@anttranslatepath@||
-s|@AR@||
-s|@AS@||
+s|@anttranslatepath@|readlink -f|
+s|@AR@|ar|
+s|@AS@|as|
 s|@atomic_ops_CFLAGS@||
-s|@atomic_ops_LIBS@||
+s|@atomic_ops_LIBS@|-latomic_ops|
 s|@AUTOCONF@|${SHELL} $(top_builddir)/buildtools/conf/missing autoconf|
 s|@AUTOHEADER@|${SHELL} $(top_builddir)/buildtools/conf/missing autoheader|
 s|@AUTOMAKE@|${SHELL} $(top_builddir)/buildtools/conf/missing automake-1.15|
 s|@AWK@|gawk|
 s|@BASH@|sh|
 s|@bindir@|${exec_prefix}/bin|
-s|@bits@||
-s|@BUILD@||
+s|@bits@|%BITS%|
+s|@BUILD@|%PREFIX%|
 s|@build@||
-s|@builddir@||
+s|@builddir@|$(top_builddir)|
 s|@build_alias@||
 s|@build_cpu@||
 s|@build_os@||
@@ -40,7 +40,7 @@ s|@builtby@||
 s|@BZ_CFLAGS@||
 s|@BZ_LIBS@||
 s|@CC@|%CC%|
-s|@CCDEPMODE@||
+s|@CCDEPMODE@|depmode=none|
 s|@cfitsio_CFLAGS@||
 s|@cfitsio_LIBS@||
 s|@CFLAGS@| -DHAVE_EMBEDDED=1 %ADD_CFLAGS%|
@@ -48,39 +48,39 @@ s|@CLASSPATH@||
 s|@compilercall@||
 s|@configure_input@||
 s|@CONFIG_H@|monetdb_config.h|
-s|@CPP@||
+s|@CPP@|gcc -E|
 s|@CPPFLAGS@||
 s|@curl_CFLAGS@||
 s|@curl_LIBS@||
-s|@CYGPATH_W@||
-s|@CYGPATH_WP@||
+s|@CYGPATH_W@|echo|
+s|@CYGPATH_WP@|echo|
 s|@datadir@|${prefix}/share|
 s|@datarootdir@|${prefix}/share|
-s|@DEFS@||
-s|@DEPDIR@||
-s|@DIFF@||
-s|@DIRSEP@||
-s|@DLLTOOL@||
-s|@DL_LIBS@||
+s|@DEFS@|-DHAVE_CONFIG_H|
+s|@DEPDIR@|.deps|
+s|@DIFF@|diff|
+s|@DIRSEP@|/|
+s|@DLLTOOL@|dlltool|
+s|@DL_LIBS@|-ldl|
 s|@docdir@||
 s|@DSYMUTIL@||
 s|@DUMPBIN@||
 s|@dvidir@||
 s|@ECHO_C@||
-s|@ECHO_N@||
+s|@ECHO_N@|-n|
 s|@ECHO_T@||
-s|@EGREP@||
+s|@EGREP@|grep -E|
 s|@Elocalstatedir@||
 s|@Elogdir@||
 s|@Erundir@||
 s|@exec_prefix@|${prefix}|
 s|@EXEEXT@||
-s|@FGREP@||
+s|@FGREP@|grep -F|
 s|@GDK_VERSION@||
 s|@GEOS_CONFIG@||
 s|@GEOS_INCS@||
 s|@GEOS_LIBS@||
-s|@GREP@||
+s|@GREP@|grep|
 s|@gsl_CFLAGS@||
 s|@gsl_LIBS@||
 s|@host@||
@@ -106,7 +106,7 @@ s|@JAVADOC@||
 s|@JAVA_HOME@||
 s|@JAVA_VERSION@||
 s|@KVM_LIBS@||
-s|@LD@||
+s|@LD@|ld -m elf x86_64|
 s|@LDFLAGS@||
 s|@libdir@|${exec_prefix}/lib|
 s|@libexecdir@|${exec_prefix}/libexec|
@@ -124,36 +124,36 @@ s|@libxml2_LIBS@||
 s|@linkercall@||
 s|@LINUX_DIST@||
 s|@LIPO@||
-s|@LN_S@||
+s|@LN_S@|ln -s|
 s|@localedir@||
 s|@localstatedir@|${prefix}/var|
 s|@logdir@|${prefix}/log/monetdb|
 s|@LTLIBICONV@||
 s|@LTLIBOBJS@||
 s|@LT_SYS_LIBRARY_PATH@||
-s|@MAKEINFO@||
+s|@MAKEINFO@|${SHELL} $(top_builddir)/buildtools/conf/missing makeinfo|
 s|@MALLOC_LIBS@||
 s|@mandir@||
 s|@MANIFEST_TOOL@||
 s|@MAPI_VERSION@||
-s|@MATH_LIBS@||
+s|@MATH_LIBS@|-lm|
 s|@MKDIR_P@|mkdir -p|
 s|@mkdir_p@|mkdir -p|
-s|@MONETDB5_PASSWDHASH@||
+s|@MONETDB5_PASSWDHASH@|SHA512|
 s|@MONETDB5_VERSION@||
 s|@MSGCONTROL_FLAGS@||
-s|@MV@||
+s|@MV@|mv -f|
 s|@netcdf_CFLAGS@||
 s|@netcdf_LIBS@||
-s|@NM@||
+s|@NM@|nm -B|
 s|@NMEDIT@||
-s|@OBJDUMP@||
+s|@OBJDUMP@|objdump|
 s|@OBJEXT@|o|
 s|@ODBCINST_LIBS@||
 s|@ODBC_INCS@||
 s|@ODBC_LIBS@||
 s|@oids@||
-s|@oldincludedir@||
+s|@oldincludedir@|/usr/include|
 s|@opensslversion@||
 s|@openssl_CFLAGS@||
 s|@openssl_LIBS@||
@@ -166,31 +166,31 @@ s|@PACKAGE_STRING@||
 s|@PACKAGE_TARNAME@||
 s|@PACKAGE_URL@||
 s|@PACKAGE_VERSION@||
-s|@PATHSEP@|;|
-s|@PATH_SEPARATOR@|;|
+s|@PATHSEP@|:|
+s|@PATH_SEPARATOR@|:|
 s|@pcreversion@|8.3.7|
 s|@pcre_CFLAGS@|-I$(top_builddir)/embedded/windows/pcre-8.37.win%BITS%-vs2014/include|
-s|@pcre_LIBS@||
+s|@pcre_LIBS@|-lpcre|
 s|@pdfdir@||
 s|@PERL@||
 s|@PERL_LIBDIR@||
-s|@PKG_CONFIG@||
+s|@PKG_CONFIG@|pkg-config|
 s|@PKG_CONFIG_LIBDIR@||
 s|@PKG_CONFIG_PATH@||
 s|@PKG_CURL@||
-s|@PKG_ZLIB@||
+s|@PKG_ZLIB@|zlib|
 s|@prefix@|%PREFIX%|
 s|@program_transform_name@||
 s|@psdir@||
-s|@PTHREAD_INCS@||
-s|@PTHREAD_LIBS@||
-s|@PYTHON2@||
+s|@PTHREAD_INCS@|-pthread|
+s|@PTHREAD_LIBS@|-pthread|
+s|@PYTHON2@|false|
 s|@PYTHON2_LIBDIR@||
-s|@PYTHON3@||
+s|@PYTHON3@|false|
 s|@PYTHON3_LIBDIR@||
-s|@PYTHON@||
+s|@PYTHON@|python|
 s|@Qbindir@||
-s|@QBUILD@||
+s|@QBUILD@|$(top_builddir)|
 s|@Qdatadir@||
 s|@Qdatarootdir@||
 s|@QDIRSEP@||
@@ -201,12 +201,12 @@ s|@Qlibdir@||
 s|@Qlibexecdir@||
 s|@Qlocalstatedir@||
 s|@Qmandir@||
-s|@Qprefix@||
-s|@QSOURCE@||
+s|@Qprefix@|NONE|
+s|@QSOURCE@|%SRCDIR%|
 s|@Qsrcdir@||
 s|@Qsysconfdir@||
 s|@QXbindir@||
-s|@QXBUILD@||
+s|@QXBUILD@|$(top_builddir)|
 s|@QXdatadir@||
 s|@QXdatarootdir@||
 s|@QXexec_prefix@||
@@ -217,19 +217,19 @@ s|@QXlibexecdir@||
 s|@QXlocalstatedir@||
 s|@QXmandir@||
 s|@QXPERL_LIBDIR@||
-s|@QXprefix@||
-s|@QXPYTHON2@||
+s|@QXprefix@|NONE|
+s|@QXPYTHON2@|false|
 s|@QXPYTHON2_LIBDIR@||
-s|@QXPYTHON3@||
+s|@QXPYTHON3@|false|
 s|@QXPYTHON3_LIBDIR@||
-s|@QXSOURCE@||
+s|@QXSOURCE@|%SRCDIR%|
 s|@QXsrcdir@||
 s|@QXsysconfdir@||
-s|@RANLIB@||
+s|@RANLIB@|ranlib|
 s|@RCMD@||
 s|@READLINE_INCS@||
 s|@READLINE_LIBS@||
-s|@READLINK@||
+s|@READLINK@|readlink -f|
 s|@RHOME@||
 s|@RM@|rm -f|
 s|@RPMBUILD@||
@@ -240,18 +240,18 @@ s|@rundir@||
 s|@SAMTOOLS_CFLAGS@||
 s|@SAMTOOLS_LIBS@||
 s|@sbindir@|${exec_prefix}/sbin|
-s|@SED@||
+s|@SED@|sed|
 s|@SET_MAKE@||
 s|@sharedstatedir@||
 s|@SHELL@|sh|
 s|@SOCKET_LIBS@||
 s|@SOEXT@||
-s|@SOURCE@||
+s|@SOURCE@|%SRCDIR%|
 s|@SPHINXCLIENT_CFLAGS@||
 s|@SPHINXCLIENT_LIBS@||
 s|@srcdir@|%SRCDIR%|
 s|@STREAM_VERSION@||
-s|@STRIP@||
+s|@STRIP@|strip|
 s|@sysconfdir@||
 s|@target@||
 s|@target_alias@||
@@ -259,7 +259,7 @@ s|@target_cpu@||
 s|@target_os@||
 s|@target_vendor@||
 s|@thread_safe_flag_spec@||
-s|@THREAD_SAVE_FLAGS@||
+s|@THREAD_SAVE_FLAGS@|$(thread_safe_flag_spec) -D_REENTRANT|
 s|@top_builddir@|$(top_srcdir)|
 s|@top_build_prefix@||
 s|@top_srcdir@|%SRCDIR%|
@@ -279,12 +279,12 @@ s|@Xlibdir@||
 s|@Xlibexecdir@||
 s|@Xlocalstatedir@||
 s|@Xmandir@||
-s|@Xprefix@||
+s|@Xprefix@|NONE|
 s|@XSOURCE@||
 s|@Xsrcdir@||
 s|@Xsysconfdir@||
-s|@X_CFLAGS@||
-s|@YACC@||
+s|@X_CFLAGS@|-D_FORTIFY_SOURCE=2|
+s|@YACC@|bison -y|
 s|@YFLAGS@||
 s|@zlib_CFLAGS@||
 s|@zlib_LIBS@||

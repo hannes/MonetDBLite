@@ -952,22 +952,19 @@
 
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
-/*#ifndef __cplusplus
+#ifndef __cplusplus
 #ifndef inline
 #define inline __inline
 #endif
-#endif*/
-
-#define __forceinline inline
-#define __CRT__NO_INLINE
+#endif
 
 /* Define to `__restrict__' or `__restrict' if that's what the C compiler
    calls it, or to nothing if 'restrict' is not supported under any name.  */
-/*#ifndef __cplusplus
+#ifndef __cplusplus
 #ifndef restrict
 #define restrict __restrict
 #endif
-#endif*/
+#endif
 
 /* Define to `long int' if <sys/types.h> does not define. */
 /* #undef off_t */
