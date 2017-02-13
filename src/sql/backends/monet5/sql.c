@@ -1187,6 +1187,8 @@ alter_table_add_table(mvc *sql, char *msname, char *mtname, char *psname, char *
 		mt = mvc_bind_table(sql, ms, mtname);
 	if (ps)
 		pt = mvc_bind_table(sql, ps, ptname);
+	if (mt && (mt->type != tt_merge_table && mt->type != tt_replica_table))
+		return sql_message("42S02!ALTER TABLE: cannot add table '%s.%s' to table '%s.%s'", psname, ptname, msname, mtname);
 	if (mt && pt) {
 		char *msg;
 		node *n = cs_find_id(&mt->tables, pt->base.id);
@@ -3604,7 +3606,7 @@ mvc_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if (fname && s == NULL)
 		throw(IO, "bstreams.create", "Failed to create block stream");
 	if (b == NULL)
-		throw(SQL, "importTable", "Failed to import table %s", be->mvc->errstr);
+		throw(SQL, "importTable", "Failed to import table '%s', %s", t->base.name, be->mvc->errstr);
 	bat2return(stk, pci, b);
 	GDKfree(b);
 	return msg;
