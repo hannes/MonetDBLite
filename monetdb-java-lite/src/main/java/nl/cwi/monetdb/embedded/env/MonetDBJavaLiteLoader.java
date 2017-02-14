@@ -225,7 +225,6 @@ public final class MonetDBJavaLiteLoader {
 
         // Extract the libraries from jar
         if(toLoad.ordinal() == 0) { //Windows dammit!!
-            //LoadLibraryIntoDirectory(nativeLibraryPath, "", "msvcr100.dll", TempDirectory);
             LoadLibraryIntoDirectory(nativeLibraryPath, "", "pcre.dll", TempDirectory);
         }
         String prefix = "MonetDBJavaLite-" + MonetDBJDBCDriverString + "-"; //the prefix will be this

@@ -13,7 +13,7 @@ SRC=`pwd | sed -e 's|/cygdrive/||'`"/src"
 BITS=64 # we compile for 64 bits only for now
 
 CC=gcc
-ADD_CFLAGS="-O3 -m64"
+ADD_CFLAGS="-O3 -m64 -fPIC -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
 	ADD_CFLAGS="-O0 -g -m64"
@@ -21,6 +21,7 @@ fi
 
 rm -rf monetdb-java-lite/build
 mkdir -p monetdb-java-lite/src/main/resources/libs/windows
+rm -f monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
 
 # a bit of cheating hehehe
 cp src/embedded/incwindows/* src/embedded/inclinux/
@@ -42,7 +43,6 @@ cd src
 
 rm -f config.status
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
-rm -f libmonetdb5.dll
 
 make -j
 
@@ -54,7 +54,7 @@ fi
 
 OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
 
-$CC $ADD_CFLAGS -shared -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37.win$BITS-vs2014/lib/ -lpcre
+$CC $ADD_CFLAGS -shared -fPIC -Wl,--export-all-symbols -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37.win$BITS-vs2014/bin -lpcre
 
 if [ ! -s libmonetdb5.dll ]
 then
@@ -64,7 +64,7 @@ fi
 
 cd ..
 
-#cp src/embedded/windows/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
+#cp src/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100-$BITS.dll
 cp src/embedded/windows/pcre-8.37.win$BITS-vs2014/bin/pcre.dll monetdb-java-lite/src/main/resources/libs/windows/pcre.dll
 mv src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
 

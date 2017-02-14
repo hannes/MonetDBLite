@@ -19,7 +19,7 @@ MonetDBLite_*
 monetdb-java-lite/.idea/
 monetdb-java-lite/hs_err_*
 monetdb-java-lite/monetdb-java-lite.iml
-monetdb-java-lite/src/main/resources/
+monetdb-java-lite/src/main/resources/libs/linux
 monetdb-java-lite/target/
 monetdb-java-lite/.gradle/
 monetdb-java-lite/build/

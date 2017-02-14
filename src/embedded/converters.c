@@ -151,7 +151,6 @@ decimal_to_str_java(char* value, lng v, int scale)
 
 #define CONVERT_BAT_TO_JDECIMAL_ARRAY(BAT_CAST, CONVERSION_CAST) \
     void getDecimal##BAT_CAST##Column(JNIEnv *env, jobjectArray result, jclass jClass, jmethodID constructor, int first, int last, BAT* b, int scale) { \
-        int j = 0; \
         char value[BIG_INTEGERS_ARRAY_SIZE]; \
         const BAT_CAST *array = (const BAT_CAST *) Tloc(b, 0); \
         if (b->tnonil && !b->tnil) { \
@@ -191,7 +190,7 @@ CONVERT_BAT_TO_JDECIMAL_ARRAY(lng, lng)
 
 #define BAT_TO_JBLOB_F           blob* nvalue = (blob*) BUNtail(li, p);
 #define BAT_TO_JBLOB_S           jbyteArray value = (*env)->NewByteArray(env, nvalue->nitems); \
-                                 (*env)->SetByteArrayRegion(env, value, 0, nvalue->nitems, nvalue->data); /* For BLOBs */
+                                 (*env)->SetByteArrayRegion(env, value, 0, nvalue->nitems, (jbyte*)nvalue->data); /* For BLOBs */
 #define CHECK_NULL_BBLOB         nvalue->nitems != ~(size_t) 0
 
 #define CONVERT_HARDER_BAT_TO_JCLASS_ARRAY(NAME, RETRIEVE_BAT, CONVERT_BAT, NULL_CMP) \
@@ -440,7 +439,7 @@ my_blob_null(void) {
                             jsize len = (*env)->GetArrayLength(env, nvalue);          \
                             p = GDKmalloc(blobsize(len));                             \
                             p->nitems = len;                                          \
-                            (*env)->GetByteArrayRegion(env, nvalue, 0, len, p->data);
+                            (*env)->GetByteArrayRegion(env, nvalue, 0, len, (jbyte*)p->data);
 
 #define BLOB_START          var_t bun_offset = 0;
 

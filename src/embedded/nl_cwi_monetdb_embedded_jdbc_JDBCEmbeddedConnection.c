@@ -53,7 +53,6 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     int numberOfColumns = (*env)->GetArrayLength(env, values);
     int numberOfRows = (*env)->GetArrayLength(env, (*env)->GetObjectArrayElement(env, values, 0));
     jint* typesMapConverted = (*env)->GetIntArrayElements(env, typesMap, NULL);
-    char* nextSQLName;
     (void) jdbccon;
 
     for (int i = 0; i < numberOfColumns; i++) {
@@ -126,7 +125,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendQueryInternal
     (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jstring query, jboolean execute) {
-    long tablePointer, lastId, rowCount;
+    long lastId, rowCount;
     int lineResponseCounter = 0, query_type, autoCommitStatus, numberOfRows;
 	jint nextResponses[4], responseParameters[3];
     const char *query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
