@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# We compiled the MACOS library on our MACOS testing machine
+export PKG_CONFIG_PATH=/usr/local/opt/zlib/lib/pkgconfig
+export M4DIRS=-I/usr/local/opt/gettext/share/aclocal
+
 PREVDIRECTORY=`pwd`
 
 BASEDIR=$(dirname "$0")
@@ -21,7 +25,7 @@ mkdir -p monetdb-java-lite/src/main/resources/libs/macos
 
 cd src
 # a bit of cheating hehehe
-cp src/embedded/incmacos/* src/embedded/inclinux/
+cp embedded/incmacos/* embedded/inclinux/
 
 sh ./bootstrap
 cd ../build
@@ -36,10 +40,10 @@ CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6" \
 $OPTFLAG --enable-silent-rules --disable-int128
 
 echo '
-libmonetdb5.so:
-	$(CC) -shared -o libmonetdb5.so $(pthread_LIBS) $(pcre_LIBS) $(zlib_LIBS) $(LIBICONV) $(MATH_LIBS) $(DL_LIBS) `find $(SUBDIRS) -name "*.o" | xargs echo` 
+libmonetdb5.jnilib:
+	$(CC) -shared -o libmonetdb5.jnilib $(pthread_LIBS) $(pcre_LIBS) $(zlib_LIBS) $(LIBICONV) $(MATH_LIBS) $(DL_LIBS) `find $(SUBDIRS) -name "*.o" | xargs echo` 
 all: $(BUILT_SOURCES) monetdb_config.h
-	$(MAKE) $(AM_MAKEFLAGS) all-recursive && $(MAKE) $(AM_MAKEFLAGS) libmonetdb5.so
+	$(MAKE) $(AM_MAKEFLAGS) all-recursive && $(MAKE) $(AM_MAKEFLAGS) libmonetdb5.jnilib
 ' >> Makefile
 
 make -j
@@ -53,7 +57,7 @@ fi
 
 cd ..
 
-cp build/libmonetdb5.so monetdb-java-lite/src/main/resources/libs/macos/libmonetdb5.so
+cp build/libmonetdb5.jnilib monetdb-java-lite/src/main/resources/libs/macos/libmonetdb5.jnilib
 
 cd monetdb-java-lite
 

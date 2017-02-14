@@ -44,7 +44,7 @@ The `monetdb-java-lite-<version>.jar` can be obtained depending on the operating
 
     - The JNI library for Windows is already bundled in the `monetdb-java-lite-<version>.jar`, hence no further installation is required.
 
-- **MacOS (Soon!)**
+- **MacOS**
 
     - The JNI library for MacOS is also bundled in the `monetdb-java-lite-<version>.jar`, hence no further installation is required.
 

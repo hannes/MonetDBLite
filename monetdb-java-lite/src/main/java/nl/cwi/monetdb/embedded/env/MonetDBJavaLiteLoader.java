@@ -32,7 +32,7 @@ public final class MonetDBJavaLiteLoader {
      */
     public enum OSLibraries {
         /* Please don't change the order!!! */
-        Windows("/libs/windows", "libmonetdb5.dll"), MacOS("/libs/macos", "libmonetdb5.so"),
+        Windows("/libs/windows", "libmonetdb5.dll"), MacOS("/libs/macos", "libmonetdb5.jnilib"),
         Linux("/libs/linux", "libmonetdb5.so");
 
         OSLibraries(String libraryFilePath, String libraryFileName) {
