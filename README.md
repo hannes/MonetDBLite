@@ -14,38 +14,41 @@ MonetDBJavaLite is heavily based and dependent on the generic one (or MonetDBLit
 
 > The current version of MonetDBJavaLite is 2.24
 
-There are two jars are distributed: The new MonetDB JDBC driver jar (`monetdb-jdbc-new-<version>.jar`), and the MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The first one can be used independently, if only MAPI JDBC connections are desired. For both the Embedded API and the Embedded JDBC connections, the second jar is also required in the `CLASSPATH`. **Both jars require OpenJDK 8 to be installed.**
+There are two jars are distributed: The new MonetDB JDBC driver jar (`monetdb-jdbc-new-<version>.jar`), and the MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The first one can be used independently, if only MAPI JDBC connections are desired. For both the Embedded API and the Embedded JDBC connections, the second jar is also required in the `CLASSPATH`.
 
-The `monetdb-jdbc-new-<version>.jar` is platform independent and can be retrieved from .... - Soon!
+**Both jars require OpenJDK 8 to be installed.** However we can still make it possible to run on OpenJDK 7 JVMs.
 
-The `monetdb-java-lite-<version>.jar` can be obtained depending of the OS:
+For now we **only support x64 architectures on every OS but Linux**, as x86 architectures are getting depreciated. However if we get a request, we can make it support x86. The same happens for ARM architectures :)
+
+The `monetdb-jdbc-new-<version>.jar` is platform independent and can be obtained from .... - Soon!
+
+The `monetdb-java-lite-<version>.jar` can be obtained depending on the operating system. For Linux it must be installed from the sources. For the other operating systems, it can be obtained from .... - Soon! Some installation details are explained below for each OS:
 
 - **Linux**
 
-    - MonetDB uses different libraries for different Linux distributions, hence we recommend to build MonetDBJavaLite from the sources on Linux. To compile MonetDBJavaLite from sources, GNU Make and Gradle are required.
+    - MonetDB uses different libraries for different Linux distributions, hence the user must build MonetDBJavaLite from the sources. To compile MonetDBJavaLite from the sources, [Git](https://git-scm.com/), [GNU Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html) (comes with most Linux distributions) and [Gradle](https://gradle.org/) are required.
 
     - To compile use the following procedure:
     ```shell
     git clone https://github.com/hannesmuehleisen/MonetDBLite.git -b Dec2016Lite-Java # takes a while... :/
     cd MonetDBLite
-    ./linux.sh # Generates monetdb-java-lite-<version>.jar in the monetdb-java-lite/build/libs directory. In that directory the monetdb-jdbc-new-<version>.jar will be present as well as a compile dependency.
+    ./linux.sh # Generates monetdb-java-lite-<version>.jar in the monetdb-java-lite/build/libs directory.
+    # In that directory, the monetdb-jdbc-new-<version>.jar will be present as well as a compile dependency.
     ```
 
-    - To generate the Javadocs, run `gradle javadoc` in `monetdb-java-lite` directory.
+    - To generate the Javadocs, run `gradle javadoc` in the `monetdb-java-lite` directory.
 
     - If the user prefers to use only one jar, the task [`gradle shadow`](https://github.com/johnrengelman/shadow) generates the `monetdb-java-lite-<version>-all.jar` in `monetdb-java-lite/buildshadow` directory as a "fat jar" containing both `monetdb-jdbc-new-<version>.jar` and `monetdb-java-lite-<version>.jar`.
 
 - **Windows**
 
-    - Soon!
+    - For Windows, the `Visual C++ Redistributable x64` package must be installed on the system. The latest one (Visual Studio 2015), can be obtained from [here](https://www.microsoft.com/en-us/download/details.aspx?id=48145).
 
-- **MacOS**
+    - The JNI library for Windows is already bundled in the `monetdb-java-lite-<version>.jar`, hence no further installation is required.
 
-    - Soon!
+- **MacOS (Soon!)**
 
-- **Android and ARM**
-
-    - If we get a request, it might happen! :)
+    - The JNI library for MacOS is also bundled in the `monetdb-java-lite-<version>.jar`, hence no further installation is required.
 
 ## Libraries
 
@@ -378,6 +381,10 @@ try {
 }
 connection.close() //Don't forget! ;)
 ```
+
+### 9. Any tips for additional perfomance of MonetDBJavaLite regarding the JVM?
+
+We haven't dug into the settings of the JVM with MonetDBJavaLite yet, although we can do that in JNI. However we must remember that the best setting may vary with the underlying JVM, and MonetDBJavaLite will be just a part of the running application. One possible optimization is to run the JVM in `server` mode instead of `client` mode, although it should be benchmarked as it might not provide better performance results in some applications. You can check the stack overflow question [here](http://stackoverflow.com/questions/198577/real-differences-between-java-server-and-java-client).
 
 ## License
 

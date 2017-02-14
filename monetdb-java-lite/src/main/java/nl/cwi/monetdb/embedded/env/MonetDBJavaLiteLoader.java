@@ -33,7 +33,7 @@ public final class MonetDBJavaLiteLoader {
     public enum OSLibraries {
         /* Please don't change the order!!! */
         Windows("/libs/windows", "libmonetdb5.dll"), MacOS("/libs/macos", "libmonetdb5.so"),
-        Linux("/libs/linux", "libmonetdb5.so")/*, Solaris("/libs/solaris", "monetdb5.jnilib"), Unknown("", "")*/;
+        Linux("/libs/linux", "libmonetdb5.so");
 
         OSLibraries(String libraryFilePath, String libraryFileName) {
             this.libraryFilePath = libraryFilePath;
@@ -115,7 +115,7 @@ public final class MonetDBJavaLiteLoader {
         /*} else if (OS.contains("sunos")) {
             return OSLibraries.Solaris;*/
         } else {
-            throw new MonetDBEmbeddedException("Operative system not detected!");
+            throw new MonetDBEmbeddedException("Operating system not detected!");
         }
     }
 
