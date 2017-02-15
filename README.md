@@ -42,8 +42,6 @@ The `monetdb-java-lite-<version>.jar` can be obtained depending on the operating
 
 - **Windows**
 
-    - For Windows, the `Visual C++ Redistributable x64` package must be installed on the system. The latest one (Visual Studio 2015), can be obtained from [here](https://www.microsoft.com/en-us/download/details.aspx?id=48145).
-
     - The JNI library for Windows is already bundled in the `monetdb-java-lite-<version>.jar`, hence no further installation is required.
 
 - **MacOS (Soon!)**

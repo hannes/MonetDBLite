@@ -21,7 +21,7 @@ fi
 
 rm -rf monetdb-java-lite/build
 mkdir -p monetdb-java-lite/src/main/resources/libs/windows
-rm -f monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
+rm -f monetdb-java-lite/src/main/resources/libs/windows/*
 
 # a bit of cheating hehehe
 cp src/embedded/incwindows/* src/embedded/inclinux/
@@ -64,7 +64,7 @@ fi
 
 cd ..
 
-#cp src/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100-$BITS.dll
+cp src/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
 cp src/embedded/windows/pcre-8.37.win$BITS-vs2014/bin/pcre.dll monetdb-java-lite/src/main/resources/libs/windows/pcre.dll
 mv src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
 
