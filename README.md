@@ -18,7 +18,7 @@ There are two jars are distributed: The new MonetDB JDBC driver jar (`monetdb-jd
 
 **Both jars require OpenJDK 8 to be installed.** However we can still make it possible to run on OpenJDK 7 JVMs.
 
-For now we **only support x64 architectures on every OS but Linux**, as x86 architectures are getting depreciated. However if we get a request, we can make it support x86. The same happens for ARM architectures :)
+For now we **only support x64 architectures on every OS but Linux** as x86 architectures are getting depreciated. However if we get a request, we can make it support x86. The same happens for ARM architectures :)
 
 The `monetdb-jdbc-new-<version>.jar` is platform independent and can be obtained from .... - Soon!
 
@@ -66,7 +66,7 @@ Other note is that the `async` API, which is very common is database APIs is abs
 
 ### Start the database and make connections
 
-**The MonetDB Embedded Dtabase has to be loaded in order to perform all the operations!** Due to the one database process restriction, the `MonetDBEmbeddedDatabase` class is a singleton. The `MonetDBEmbeddedDatabase` will create the MonetDB's farm if it's inexistent in the directory, otherwise will load the existing farm. The `MonetDBEmbeddedDatabase` exceptionally is thread-safe to avoid to threads to start the database and corrupting the existing process. To start the database:
+**The MonetDB Embedded Database has to be loaded in order to perform all the operations!** Due to the one database process restriction, the `MonetDBEmbeddedDatabase` class is a singleton. The `MonetDBEmbeddedDatabase` will create the MonetDB's farm if it's inexistent in the directory, otherwise will load the existing farm. The `MonetDBEmbeddedDatabase` exceptionally is thread-safe to avoid to threads to start the database and corrupting the existing process. To start the database:
 
 ```java
 Path directoryPath = Files.createTempDirectory("monetdbjavalite");
