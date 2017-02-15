@@ -65,6 +65,7 @@ fi
 
 # Move the shared library to the resources directory, as well as the other dependent DLLs
 cd ..
+cp src/embedded/windows/vcruntime140.win$BITS/vcruntime140.dll monetdb-java-lite/src/main/resources/libs/windows/vcruntime140.dll
 cp src/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
 cp src/embedded/windows/pcre-8.37.win$BITS-vs2014/bin/pcre.dll monetdb-java-lite/src/main/resources/libs/windows/pcre.dll
 mv src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll

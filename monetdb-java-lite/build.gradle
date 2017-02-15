@@ -31,7 +31,7 @@ def urlFile = { url, name ->
 }
 
 dependencies {
-  compile urlFile('https://www.dropbox.com/s/vsyf7nikaj3ms31/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
+  compile urlFile('https://www.dropbox.com/s/edmvsvn6anmmxhs/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
 }
 
 task testJar(type: Jar) {

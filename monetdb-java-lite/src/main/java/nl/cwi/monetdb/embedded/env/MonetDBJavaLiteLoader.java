@@ -224,7 +224,8 @@ public final class MonetDBJavaLiteLoader {
         }
 
         // Extract the libraries from jar
-        if(toLoad.ordinal() == 0) { //Windows dammit!!
+        if(toLoad.ordinal() == 0) { //Windows dammit!! -- The problem of dependencies!
+            LoadLibraryIntoDirectory(nativeLibraryPath, "", "vcruntime140.dll", TempDirectory);
             LoadLibraryIntoDirectory(nativeLibraryPath, "", "msvcr100.dll", TempDirectory);
             LoadLibraryIntoDirectory(nativeLibraryPath, "", "pcre.dll", TempDirectory);
         }
