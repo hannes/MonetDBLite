@@ -30,7 +30,7 @@ INCLUDES = ../mal/mal \
 		   ../sql/storage \
 		   ../sql/storage/bat \
 		   ../sql/backends/monet5 \
-			./inclinux \
+			./incjni \
 			$(pcre_CFLAGS)
 
 lib_embedded  = {

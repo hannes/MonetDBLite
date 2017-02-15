@@ -1,17 +1,16 @@
 #!/bin/bash
 
 PREVDIRECTORY=`pwd`
-
 BASEDIR=$(dirname "$0")
-
 cd $BASEDIR
 
-# figure out where the sourcetree is
+# Figure out where the sourcetree is
 SRC=`pwd | sed -e 's|/cygdrive/||'`"/src"
 
-# figure out bitness
-BITS=64 # we compile for 64 bits only for now
+# We compile only for 64 bits for now
+BITS=64 
 
+# Prepare the compilation flags
 CC=gcc
 ADD_CFLAGS="-O3 -m64 -fPIC -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
@@ -19,28 +18,30 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	ADD_CFLAGS="-O0 -g -m64"
 fi
 
+# Remove previous instalations data
 rm -rf monetdb-java-lite/build
-mkdir -p monetdb-java-lite/src/main/resources/libs/windows
 rm -f monetdb-java-lite/src/main/resources/libs/windows/*
 
-# a bit of cheating hehehe
-cp src/embedded/incwindows/* src/embedded/inclinux/
+# Recreate the directories
+mkdir -p monetdb-java-lite/src/main/resources/libs/windows
+mkdir -p src/embedded/incjni/
 
-# patch sedscript for build/install/library paths
+# Copy the Windows JNI headers
+cp src/embedded/incwindows/* src/embedded/incjni/
+
+# Patch sedscript for build/install/library paths
 sed -e "s|%CC%|$CC|" -e "s|%ADD_CFLAGS%|$ADD_CFLAGS|" -e "s|%BITS%|$BITS|" -e "s|%PREFIX%|$SRC/../build|" -e "s|%SRCDIR%|$SRC|" src/embedded/windows/sedscript.tpl > src/embedded/windows/sedscript
 
+# Re-update the monetdb_config.h file
 rm -f src/monetdb_config.h
-
 find src/ -name "Makefile" -delete
-
-# this is copied from NT/monetdb_config.h.in in the packaging script
+# This is copied from NT/monetdb_config.h.in in the packaging script
 cp src/embedded/windows/monetdb_config.h.in src/
-
-# pmc stands for "poor man's configure", it does something similar using the sedscript
+# PMC stands for "poor man's configure", it does something similar using the sedscript
 sh src/embedded/windows/pmc.sh
 
+# Compile the shared library
 cd src
-
 rm -f config.status
 touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
 
@@ -62,14 +63,15 @@ then
 	exit 1
 fi
 
+# Move the shared library to the resources directory, as well as the other dependent DLLs
 cd ..
-
 cp src/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
 cp src/embedded/windows/pcre-8.37.win$BITS-vs2014/bin/pcre.dll monetdb-java-lite/src/main/resources/libs/windows/pcre.dll
 mv src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
 
+# Build the jar with gradle
 cd monetdb-java-lite
-
 gradle build
 
 cd $PREVDIRECTORY
+

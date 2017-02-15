@@ -1,15 +1,14 @@
 #!/bin/bash
 
-# We compiled the MACOS library on our MACOS testing machine
+# We compiled the MacOS library on our MacOS testing machine
 export PKG_CONFIG_PATH=/usr/local/opt/zlib/lib/pkgconfig
 export M4DIRS=-I/usr/local/opt/gettext/share/aclocal
 
 PREVDIRECTORY=`pwd`
-
 BASEDIR=$(dirname "$0")
-
 cd $BASEDIR
 
+# Prepare the compilation flags
 OPTFLAG="--enable-optimize"
 LINKFLAG=""
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
@@ -18,18 +17,24 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	LINKFLAG="-g"
 fi
 
+# Remove previous instalations data
 rm -rf build
 rm -rf monetdb-java-lite/build
+
+# Recreate the directories
 mkdir build
 mkdir -p monetdb-java-lite/src/main/resources/libs/macos
+mkdir -p src/embedded/incjni/
 
+# Copy the MacOS JNI headers
+cp src/embedded/incmacos/* src/embedded/incjni/
+
+# Compile the shared library
 cd src
-# a bit of cheating hehehe
-cp embedded/incmacos/* embedded/inclinux/
-
 sh ./bootstrap
 cd ../build
 
+# Prepare the compilation flags
 CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6" \
 ../src/configure --enable-embedded  \
 --disable-fits --disable-geom --disable-rintegration --disable-pyintegration --disable-gsl --disable-netcdf \
@@ -55,12 +60,13 @@ then
 	exit 1
 fi
 
+# Move the shared library to the resources directory
 cd ..
-
 cp build/libmonetdb5.jnilib monetdb-java-lite/src/main/resources/libs/macos/libmonetdb5.jnilib
 
+# Build the jar with gradle
 cd monetdb-java-lite
-
 gradle build
 
 cd $PREVDIRECTORY
+

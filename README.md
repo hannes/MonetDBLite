@@ -218,7 +218,7 @@ iterateMe.iterateTable(new IMonetDBTableCursor() {
 
 To append new data to the table, the method `int appendColumns(Object[] data)` is used. The `data` is array of columns, where each column has the same amount of rows, and each array class corresponds to the mapping defined above. To insert null values, use the `T Get#Type#NullConstant()` constant in the `NullMappings` class. Due to the limitations of the representation of `booleans` in Java, to append to a `boolean` column, a `byte` array should be used instead, as shown in the example. For all the other types, there are no changes.
 
-For `decimals`, a rounding mode must be set before appending. The method `void setRoundingMode(int roundingMode)` has that purpose [click here for details](http://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html#setScale(int,%20int)).
+For `decimals`, a rounding mode must be set before appending. The method `void setRoundingMode(int roundingMode)` has that purpose [click here for details](https://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html#setScale(int,%20int)).
 
 ```java
 connection.sendUpdate("CREATE TABLE interactWithMe (dutchGoodies text, justNumbers int, truth boolean, huge blob)");
@@ -327,7 +327,7 @@ QueryResultSet resultSet = asyncFetch.join();
 
 ### 4. I am getting very low negative numbers and NullPointer exceptions in the QueryResultSet!
 
-You are getting SQL `NULL` values in your query result sets. As explained above, for the primitive MonetDB SQL types we map them to the JVM minimum values. For the more complex MonetDB SQL types like `CHAR` and `DATE` we map to Java Objects, and thus in SQL `NULL` values are represented with null Java Objects. The `NullMappings` class has class methods to check if a value is null or not. At the same time, the SQL standard has the [COALESCE](http://www.w3schools.com/sql/sql_isnull.asp) function to return a default value when a value is null in the result set.
+You are getting SQL `NULL` values in your query result sets. As explained above, for the primitive MonetDB SQL types we map them to the JVM minimum values. For the more complex MonetDB SQL types like `CHAR` and `DATE` we map to Java Objects, and thus in SQL `NULL` values are represented with null Java Objects. The `NullMappings` class has class methods to check if a value is null or not. At the same time, the SQL standard has the [COALESCE](https://www.w3schools.com/sql/sql_isnull.asp) function to return a default value when a value is null in the result set.
 
 ### 5. If I modify a value in one array of QueryResultSet, it changes the value in the result set as well right?
 
@@ -382,7 +382,7 @@ connection.close() //Don't forget! ;)
 
 ### 9. Any tips for additional perfomance of MonetDBJavaLite regarding the JVM?
 
-We haven't dug into the settings of the JVM with MonetDBJavaLite yet, although we can do that in JNI. However we must remember that the best setting may vary with the underlying JVM, and MonetDBJavaLite will be just a part of the running application. One possible optimization is to run the JVM in `server` mode instead of `client` mode, although it should be benchmarked as it might not provide better performance results in some applications. You can check the stack overflow question [here](http://stackoverflow.com/questions/198577/real-differences-between-java-server-and-java-client).
+We haven't dug into the settings of the JVM with MonetDBJavaLite yet, although we can do that in JNI. However we must remember that the best setting may vary with the underlying JVM, and MonetDBJavaLite will be just a part of the running application. One possible optimization is to run the JVM in `server` mode instead of `client` mode, although it should be benchmarked as it might not provide better performance results in some applications. You can check the stack overflow question [here](https://stackoverflow.com/questions/198577/real-differences-between-java-server-and-java-client).
 
 ## License
 
@@ -392,5 +392,7 @@ Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
 
 ## Developer and support
 
-The MonetDBJavaLite is being supported by [Pedro Ferreira](mailto://pedro.ferreira@monetdbsolutions.com), a developer at [MonetDBSolutions](https://monetdbsolutions.com/)! Feel free to create an issue, a pull request or [just send an e-mail](mailto://pedro.ferreira@monetdbsolutions.com)! As you could see I like emoticons! :) Just one more :)
+The MonetDBJavaLite is being supported by [Pedro Ferreira](mailto://pedro.ferreira@monetdbsolutions.com), a developer at [MonetDBSolutions](https://monetdbsolutions.com/)! Feel free to create an issue, a pull request or [just send an e-mail](mailto://pedro.ferreira@monetdbsolutions.com)! You can also create a question on [Stack Overflow](https://stackoverflow.com/) with the tag `monetdblite`.
+
+As you could see I like emoticons! :) Just one more :)
 
