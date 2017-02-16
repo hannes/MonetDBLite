@@ -19,13 +19,13 @@
 //! Initializes MonetDB with the specified directory
 pyapi_export PyObject* python_monetdb_init(char* directory, int silent);
 //! Performs a SQL query, monetdb_init must be called first
-pyapi_export PyObject* python_monetdb_sql(PyObject* client, char* query);
+pyapi_export PyObject* python_monetdb_sql(void* client, char* query);
 //! Inserts values into a SQL table, monetdb_init must be called first and "args" must be either (table_name, dictionary) or (table_name, list(column_names), list(values))
-pyapi_export PyObject* python_monetdb_insert(PyObject* client, char* schema, char* table_name, PyObject* values);
+pyapi_export PyObject* python_monetdb_insert(void* client, char* schema, char* table_name, PyObject* values);
 //! Creates a new MonetDB client context and returns it as a PyClientObject
-pyapi_export PyObject* python_monetdb_client(void);
+pyapi_export void* python_monetdb_client(void);
 //! Disconnect a MonetDB client context
-pyapi_export PyObject* python_monetdb_disconnect(PyObject* client);
+pyapi_export PyObject* python_monetdb_disconnect(void* client);
 //! Shuts down the database in-process so python_monetdb_init can be called again
 pyapi_export PyObject* python_monetdb_shutdown(void);
 

@@ -37,20 +37,27 @@ dll.python_monetdblite_init()
 dll.python_monetdb_init.argtypes = [ctypes.c_char_p, ctypes.c_int]
 dll.python_monetdb_init.restype = ctypes.py_object
 
-dll.python_monetdb_sql.argtypes = [ctypes.py_object, ctypes.c_char_p]
+dll.python_monetdb_sql.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
 dll.python_monetdb_sql.restype = ctypes.py_object
 
-dll.python_monetdb_insert.argtypes = [ctypes.py_object, ctypes.c_char_p, ctypes.c_char_p, ctypes.py_object]
+dll.python_monetdb_insert.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.py_object]
 dll.python_monetdb_insert.restype = ctypes.py_object
 
 dll.python_monetdb_client.argtypes = []
-dll.python_monetdb_client.restype = ctypes.py_object
+dll.python_monetdb_client.restype = ctypes.c_void_p
 
-dll.python_monetdb_disconnect.argtypes = [ctypes.py_object]
+dll.python_monetdb_disconnect.argtypes = [ctypes.c_void_p]
 dll.python_monetdb_disconnect.restype = None
 
 dll.python_monetdb_shutdown.argtypes = []
 dll.python_monetdb_shutdown.restype = None
+
+class PyClient:
+    def __init__(self):
+        self.client = dll.python_monetdb_client()
+
+    def get_client(self):
+        return self.client
 
 if PY3:
     def utf8_encode(str):
@@ -77,7 +84,13 @@ def sql(query, client=None):
        has been initialized. If no client context is provided,
        the default client context is used. Otherwise the specified
        client context is used to execute the query."""
-    retval = dll.python_monetdb_sql(client, utf8_encode(query))
+    if client != None and not isinstance(client, PyClient):
+        raise __throw_exception("client must be of type PyClient")
+    client_object = None
+    if client != None:
+        client_object = client.get_client()
+
+    retval = dll.python_monetdb_sql(client_object, utf8_encode(query))
     if type(retval) == type(''):
         raise __throw_exception(str(retval))
     else:
@@ -97,6 +110,12 @@ def insert(table, values, schema=None, client=None):
        be either a pandas dataframe or a dictionary of values. If no schema
        is specified, the "sys" schema is used. If no client context is 
        provided, the default client context is used. """
+    if client != None and not isinstance(client, PyClient):
+        raise __throw_exception("client must be of type PyClient")
+    client_object = None
+    if client != None:
+        client_object = client.get_client()
+
     if type(values) != type({}):
         values = __convert_pandas_to_numpy_dict__(values)
     else:
@@ -104,7 +123,7 @@ def insert(table, values, schema=None, client=None):
         for tpl in values.items():
             vals[tpl[0]] = numpy.array(tpl[1])
         values = vals
-    retval = dll.python_monetdb_insert(client, utf8_encode(schema), utf8_encode(table), values)
+    retval = dll.python_monetdb_insert(client_object, utf8_encode(schema), utf8_encode(table), values)
     if type(retval) == type(''):
         raise __throw_exception(str(retval))
     else:
@@ -156,14 +175,12 @@ def create(table, values, schema=None, client=None):
     insert(table, values, schema=schema, client=client)
 
 def connect():
-    retval = dll.python_monetdb_client()
-    if type(retval) == type(''):
-        raise __throw_exception(str(retval))
-    else:
-        return retval
+    return PyClient()
 
 def disconnect(client):
-    dll.python_monetdb_disconnect(client)
+    if not isinstance(client, PyClient):
+        raise __throw_exception("client must be of type PyClient")
+    dll.python_monetdb_disconnect(client.get_client())
 
 def shutdown():
     retval = dll.python_monetdb_shutdown()

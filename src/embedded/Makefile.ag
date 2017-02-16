@@ -42,7 +42,7 @@ lib_embedded  = {
 
 lib_embeddedpy  = {
 	COND = HAVE_EMBEDDED_PY
-	SOURCES = conversion.c embeddedpy.c pyclient.c pytypes.c type_conversion.c unicode.c
+	SOURCES = conversion.c embeddedpy.c pytypes.c type_conversion.c unicode.c
 	VERSION = 1
 	LIBS =  libembedded \
 		../gdk/libbat \

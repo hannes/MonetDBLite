@@ -20,9 +20,8 @@
 #include "sql_scenario.h"
 #include "mal.h"
 #include "embedded.h"
-#include "pyclient.h"
 
-static str monetdblite_insert(PyObject *client, char *schema, char *table, PyObject *values, char **column_names, int *column_types, sql_subtype **sql_subtypes, int columns);
+static str monetdblite_insert(void *client, char *schema, char *table, PyObject *values, char **column_names, int *column_types, sql_subtype **sql_subtypes, int columns);
 
 static Client monetdb_default_client;
 static MT_Lock monetdb_default_query_lock;
@@ -46,20 +45,18 @@ PyObject* python_monetdb_init(char* directory, int silent) {
 	Py_RETURN_NONE;
 }
 
-static str PyClientObject_GetClient(PyObject *client, Client *c, MT_Lock** query_lock) {
+static str PyClientObject_GetClient(void *client, Client *c, MT_Lock** query_lock) {
 	*c = monetdb_default_client;
 	*query_lock = &monetdb_default_query_lock;
 	if (client != NULL && client != Py_None) {
-		if (!PyClient_CheckExact(client)) {
-			return GDKstrdup("conn must be a connection object created by monetdblite.connect().");
-		}
-		*c =((PyClientObject*)client)->cntxt;
-		*query_lock = &((PyClientObject*)client)->query_lock;
+		*c = (Client) client;
+		// FIXME: query lock per client
+		//*query_lock = &((PyClientObject*)client)->query_lock;
 	}
 	return MAL_SUCCEED;
 }
 
-PyObject* python_monetdb_sql(PyObject* client, char* query) {
+PyObject* python_monetdb_sql(void* client, char* query) {
 	Client c = monetdb_default_client;
 	MT_Lock* query_lock = &monetdb_default_query_lock;
 	if (!monetdb_is_initialized()) {
@@ -128,7 +125,7 @@ Py_END_ALLOW_THREADS
 	}
 }
 
-static str monetdblite_insert(PyObject *client, char *schema_name, char *table_name, PyObject *values, char **column_names, int *column_types, sql_subtype **sql_subtypes, int columns) {
+static str monetdblite_insert(void *client, char *schema_name, char *table_name, PyObject *values, char **column_names, int *column_types, sql_subtype **sql_subtypes, int columns) {
 	Client c;
 	MT_Lock* query_lock;
 	PyReturn *pyreturn_values = NULL;
@@ -214,7 +211,7 @@ cleanup:
 	return msg;
 }
 
-PyObject* python_monetdb_insert(PyObject* client, char* schema, char* table_name, PyObject* values) {
+PyObject* python_monetdb_insert(void* client, char* schema, char* table_name, PyObject* values) {
 	char *schema_name = "sys";
 	char *msg = NULL;
 	int columns;
@@ -250,15 +247,15 @@ cleanup:
 	Py_RETURN_NONE;
 }
 
-PyObject* python_monetdb_client(void) {
+void* python_monetdb_client(void) {
 	Client c = monetdb_connect();
 	if (c == NULL) {
 		return PyString_FromString("Failed to create client context.");
 	}
-	return PyClient_Create(c);
+	return c;
 }
 
-PyObject* python_monetdb_disconnect(PyObject* client) {
+PyObject* python_monetdb_disconnect(void* client) {
 	str msg;
 	Client c;
 	MT_Lock* query_lock;
@@ -270,7 +267,10 @@ PyObject* python_monetdb_disconnect(PyObject* client) {
 	if (c == monetdb_default_client) {
 		return PyString_FromString("The default client should not be disconnected.");
 	}
-	PyClientType.tp_dealloc(client);
+	monetdb_disconnect(c);
+	if (query_lock != &monetdb_default_query_lock) {
+		MT_lock_unset(query_lock);
+	}
 	Py_RETURN_NONE;
 }
 
@@ -286,8 +286,6 @@ void python_monetdblite_init(void) {
 	monetdb_numpy_initialized = 1;
 	//import numpy stuff
 	_import_array();
-	//init monetdb client
-	monetdbclient_init();
 	_conversion_init();
 	_pytypes_init();
 	_typeconversion_init();
