@@ -170,6 +170,9 @@ test_that("transactions are on ACID", {
 	dbRemoveTable(con, tname)
 })
 
+test_that("LIKE queries work", {
+	expect_equal(1, NROW(dbGetQuery(con, "select id from tables where name like '%sche_as%' limit 1")))
+})
 
 test_that("strings can have exotic characters", {
 	skip_on_os("windows")
