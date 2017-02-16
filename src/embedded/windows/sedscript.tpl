@@ -169,8 +169,8 @@ s|@PACKAGE_VERSION@||
 s|@PATHSEP@|:|
 s|@PATH_SEPARATOR@|:|
 s|@pcreversion@|8.3.7|
-s|@pcre_CFLAGS@|-I$(top_builddir)/embedded/windows/pcre-8.37.win%BITS%-vs2014/include|
-s|@pcre_LIBS@|-lpcre|
+s|@pcre_CFLAGS@||
+s|@pcre_LIBS@||
 s|@pdfdir@||
 s|@PERL@||
 s|@PERL_LIBDIR@||

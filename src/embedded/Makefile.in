@@ -137,7 +137,7 @@ LTLIBRARIES = $(embedded_LTLIBRARIES) $(embeddedjava_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libembedded_la_DEPENDENCIES = ../gdk/libbat.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 dist_libembedded_la_OBJECTS = libembedded_la-embedded.lo
 nodist_libembedded_la_OBJECTS =
 libembedded_la_OBJECTS = $(dist_libembedded_la_OBJECTS) \
@@ -152,8 +152,7 @@ libembedded_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(LDFLAGS) -o $@
 libembeddedjava_la_DEPENDENCIES = libembedded.la ../gdk/libbat.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 dist_libembeddedjava_la_OBJECTS = libembeddedjava_la-javaids.lo \
 	libembeddedjava_la-converters.lo \
 	libembeddedjava_la-nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase.lo \
@@ -494,8 +493,6 @@ oldincludedir = @oldincludedir@
 openssl_CFLAGS = @openssl_CFLAGS@
 openssl_LIBS = @openssl_LIBS@
 opensslversion = @opensslversion@
-pcre_CFLAGS = @pcre_CFLAGS@
-pcre_LIBS = @pcre_LIBS@
 pcreversion = @pcreversion@
 pdfdir = @pdfdir@
 prefix = @prefix@

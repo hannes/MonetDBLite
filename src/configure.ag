@@ -1683,33 +1683,34 @@ AS_CASE([$host],
 
 # PCRE library
 # required for MonetDB5 (and SQL), optional otherwise
-req_pcre_ver='4.5'
-PKG_CHECK_MODULES([pcre], [libpcre >= $req_pcre_ver],
-	[have_pcre=yes], [have_pcre=no; why_have_pcre="(libpcre >= $req_pcre_ver not found)"])
-AS_VAR_IF([have_pcre], [yes], [
-	AC_MSG_CHECKING([whether pcre comes with UTF-8 support])
-	save_LIBS="$LIBS"
-	LIBS="$LIBS $pcre_LIBS"
-	save_CFLAGS="$CFLAGS"
-	CFLAGS="$CFLAGS $pcre_CFLAGS"
-	AC_RUN_IFELSE([AC_LANG_PROGRAM(
-		[[@%:@include <pcre.h>]],
-		[[int rc; pcre_config(PCRE_CONFIG_UTF8, &rc); exit(!rc);]])],
-		[AC_MSG_RESULT([yes])],
-		[have_pcre=no; why_have_pcre="(libpcre found but no UTF-8 support)"; AC_MSG_RESULT([no])],
-		[AC_MSG_RESULT([assuming yes])])
-	LIBS="$save_LIBS"
-	CFLAGS="$save_CFLAGS"])
-AS_VAR_IF([have_pcre], [yes], [
-	AC_DEFINE([HAVE_LIBPCRE], 1, [Define if you have the pcre library])])
-AM_CONDITIONAL([HAVE_PCRE], [test x"$have_pcre" != xno])
-AS_CASE([$enable_monetdb5-$have_pcre],
-[yes-no], [
-	AC_MSG_ERROR([PCRE library not found but required for MonetDB5])],
-[auto-no], [
-	enable_monetdb5=no
-	AS_VAR_IF([disable_monetdb5], [], [
-		disable_monetdb5="(PCRE library not found but required for MonetDB5)"])])
+# req_pcre_ver='4.5'
+have_pcre=no
+# PKG_CHECK_MODULES([pcre], [libpcre >= $req_pcre_ver],
+#	[have_pcre=yes], [have_pcre=no; why_have_pcre="(libpcre >= $req_pcre_ver not found)"])
+# AS_VAR_IF([have_pcre], [yes], [
+# 	AC_MSG_CHECKING([whether pcre comes with UTF-8 support])
+# 	save_LIBS="$LIBS"
+# 	LIBS="$LIBS $pcre_LIBS"
+# 	save_CFLAGS="$CFLAGS"
+# 	CFLAGS="$CFLAGS $pcre_CFLAGS"
+# 	AC_RUN_IFELSE([AC_LANG_PROGRAM(
+# 		[[@%:@include <pcre.h>]],
+# 		[[int rc; pcre_config(PCRE_CONFIG_UTF8, &rc); exit(!rc);]])],
+# 		[AC_MSG_RESULT([yes])],
+# 		[have_pcre=no; why_have_pcre="(libpcre found but no UTF-8 support)"; AC_MSG_RESULT([no])],
+# 		[AC_MSG_RESULT([assuming yes])])
+# 	LIBS="$save_LIBS"
+# 	CFLAGS="$save_CFLAGS"])
+# AS_VAR_IF([have_pcre], [yes], [
+# 	AC_DEFINE([HAVE_LIBPCRE], 1, [Define if you have the pcre library])])
+# AM_CONDITIONAL([HAVE_PCRE], [test x"$have_pcre" != xno])
+# AS_CASE([$enable_monetdb5-$have_pcre],
+# [yes-no], [
+# 	AC_MSG_ERROR([PCRE library not found but required for MonetDB5])],
+# [auto-no], [
+# 	enable_monetdb5=no
+# 	AS_VAR_IF([disable_monetdb5], [], [
+# 		disable_monetdb5="(PCRE library not found but required for MonetDB5)"])])
 
 org_have_libxml2=yes
 have_libxml2=$org_have_libxml2

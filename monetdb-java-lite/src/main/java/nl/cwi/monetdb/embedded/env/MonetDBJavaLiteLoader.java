@@ -226,12 +226,8 @@ public final class MonetDBJavaLiteLoader {
         int OSORdinal = toLoad.ordinal();
         // Extract the libraries from the jar
         if(OSORdinal == 0) { //Windows dammit!! -- The problem of dependencies!
-            LoadLibraryIntoDirectory(nativeLibraryPath, "", "vcruntime140.dll", TempDirectory);
             LoadLibraryIntoDirectory(nativeLibraryPath, "", "msvcr100.dll", TempDirectory);
-            LoadLibraryIntoDirectory(nativeLibraryPath, "", "pcre.dll", TempDirectory);
-        } /*else if(OSORdinal == 1) { //MACOS dammit!! -- The problem of dependencies!
-            LoadLibraryIntoDirectory(nativeLibraryPath, "", "libpcre.1.dylib", TempDirectory);
-        }*/
+        }
         String prefix = "MonetDBJavaLite-" + MonetDBJDBCDriverString + "-"; //the prefix will be this
         LoadedLibraryFullPath = LoadLibraryIntoDirectory(nativeLibraryPath, prefix, nativeLibraryName, TempDirectory);
     }

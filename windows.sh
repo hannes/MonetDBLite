@@ -55,7 +55,7 @@ fi
 
 OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
 
-$CC $ADD_CFLAGS -shared -fPIC -Wl,--export-all-symbols -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37.win$BITS-vs2014/bin -lpcre
+$CC $ADD_CFLAGS -shared -fPIC -Wl,--export-all-symbols -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi
 
 if [ ! -s libmonetdb5.dll ]
 then
@@ -65,9 +65,7 @@ fi
 
 # Move the shared library to the resources directory, as well as the other dependent libraries
 cd ..
-cp src/embedded/windows/vcruntime140.win$BITS/vcruntime140.dll monetdb-java-lite/src/main/resources/libs/windows/vcruntime140.dll
 cp src/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
-cp src/embedded/windows/pcre-8.37.win$BITS-vs2014/bin/pcre.dll monetdb-java-lite/src/main/resources/libs/windows/pcre.dll
 mv src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
 
 # Build the jar with gradle
