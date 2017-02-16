@@ -13,7 +13,7 @@ OPTFLAG="--enable-optimize"
 LINKFLAG=""
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
-	OPTFLAG="--enable-debug --enable-assert"
+	OPTFLAG="--enable-debug --enable-assert --enable-strict"
 	LINKFLAG="-g"
 fi
 
@@ -36,7 +36,7 @@ cd ../build
 
 # Prepare the compilation flags
 CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6" \
-../src/configure --config-cache --enable-embedded --enable-embedded-r \
+../src/configure --config-cache --enable-embedded \
 $OPTFLAG --enable-silent-rules --disable-int128
 
 echo '
