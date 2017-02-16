@@ -26,7 +26,13 @@ The `monetdb-java-lite-<version>.jar` can be obtained depending on the operating
 
 - **Linux**
 
-    - MonetDB uses different libraries for different Linux distributions, hence the user must build MonetDBJavaLite from the sources. To compile MonetDBJavaLite from the sources, [Git](https://git-scm.com/), [GNU Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html) (comes with most Linux distributions) and [Gradle](https://gradle.org/) are required.
+    - MonetDB uses different libraries for different Linux distributions, hence the user must build MonetDBJavaLite from the sources. To compile MonetDBJavaLite from the sources, [Git](https://git-scm.com/), [GNU Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html) (comes with most Linux distributions) and [Gradle](https://gradle.org/) are required. 
+
+    - MonetDBLite has a dependency on [PCRE](http://pcre.org/) that must be installed beforehand:
+        * `apt-get install libpcre3 libpcre3-dev` on Debian/Ubuntu.
+        * `dnf install pcre pcre-devel` on Fedora.
+        * `yum install pcre pcre-devel` on CentOS.
+        * `pacman -S pcre pcre-devel` on Arch Linux.
 
     - To compile use the following procedure:
     ```shell
@@ -42,11 +48,11 @@ The `monetdb-java-lite-<version>.jar` can be obtained depending on the operating
 
 - **Windows**
 
-    - The JNI library for Windows is already bundled in the `monetdb-java-lite-<version>.jar`, hence no further installation is required.
+    - The JNI library for Windows is already bundled in the `monetdb-java-lite-<version>.jar`, hence no further installation is required (the [PCRE](http://pcre.org/) dependency is bundled in the jar).
 
-- **MacOS**
+- **MacOS X**
 
-    - The JNI library for MacOS is also bundled in the `monetdb-java-lite-<version>.jar`, hence no further installation is required.
+    - The JNI library for MacOS X is also bundled in the `monetdb-java-lite-<version>.jar`. **However** due to the nature of loading shared libraries in Mac OS X, the [PCRE](http://pcre.org/) dependency must be installed beforehand. The user can install it easily with the [brew](https://brew.sh/) package manager from the terminal: `brew install pcre`.
 
 ## Libraries
 

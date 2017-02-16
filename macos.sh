@@ -60,8 +60,9 @@ then
 	exit 1
 fi
 
-# Move the shared library to the resources directory
+# Move the shared library to the resources directory, as well as the other dependent libraries
 cd ..
+# cp src/embedded/macos/libpcre/libpcre.1.dylib monetdb-java-lite/src/main/resources/libs/macos/libpcre.1.dylib
 cp build/libmonetdb5.jnilib monetdb-java-lite/src/main/resources/libs/macos/libmonetdb5.jnilib
 
 # Build the jar with gradle
