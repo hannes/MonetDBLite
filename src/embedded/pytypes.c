@@ -186,9 +186,9 @@ bool Python_ReleaseGIL(bool state)
 bool PyType_IsPyScalar(PyObject *object)
 {
     if (object == NULL) return false;
-    return (PyArray_CheckScalar(object) || PyInt_Check(object) || PyFloat_Check(object) || PyLong_Check(object) || PyString_Check(object) || PyBool_Check(object) || PyUnicode_Check(object) || PyByteArray_Check(object)
+    return (PyArray_CheckScalar(object) || PyInt_CheckExact(object) || PyFloat_CheckExact(object) || PyLong_CheckExact(object) || PyString_CheckExact(object) || PyBool_CheckExact(object) || PyUnicode_CheckExact(object) || PyByteArray_CheckExact(object)
 #ifdef IS_PY3K
-        || PyBytes_Check(object)
+        || PyBytes_CheckExact(object)
 #endif
         );
 }

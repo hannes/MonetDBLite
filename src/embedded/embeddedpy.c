@@ -139,7 +139,7 @@ static str monetdblite_insert(void *client, char *schema_name, char *table_name,
 	msg = PyClientObject_GetClient(client, &c, &query_lock);
 	if (msg != NULL) goto cleanup;
 
-	if (PyDict_Check(values)) {
+	if (PyDict_CheckExact(values)) {
 		int key_cnt; 
 		keys = PyDict_Keys(values);
 		key_cnt = PyList_Size(keys);
@@ -153,7 +153,7 @@ static str monetdblite_insert(void *client, char *schema_name, char *table_name,
 			}
 			key_map[i] = -1;
 			for(j = 0; j < columns; j++) {
-				if (strcasecmp(PyString_AS_STRING(key), column_names[j]) == 0)
+				if (strcasecmp(PyString_AsString(key), column_names[j]) == 0)
 					key_map[i] = j;
 			}
 		}
@@ -199,9 +199,12 @@ Py_BEGIN_ALLOW_THREADS
 Py_END_ALLOW_THREADS
 cleanup:
 	if (pyreturn_values) GDKfree(pyreturn_values);
+#ifndef WIN32
+	// fuck you windows users
 	if (dict_vals) Py_DECREF(dict_vals);
-	if (key_map) GDKfree(key_map);
 	if (keys) Py_DECREF(keys);
+#endif
+	if (key_map) GDKfree(key_map);
 	if (append_bats) {
 		for(i = 0; i < columns; i++) {
 			if (append_bats[i].batid != int_nil) BBPunfix(append_bats[i].batid);

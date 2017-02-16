@@ -115,8 +115,10 @@ PyObject *PyMaskedArray_FromBAT(PyInput *inp, size_t t_start, size_t t_end, char
 			msg = createException(MAL, "pyapi.eval", "Failed to create mask");
 			goto wrapup;
 		}
+#ifndef WIN32
 		Py_DECREF(maargs);
 		Py_DECREF(mafunc);
+#endif
 
 		vararray = mask;
 	}
@@ -459,22 +461,6 @@ PyObject *PyObject_CheckForConversion(PyObject *pResult, int expected_columns, i
 	int columns = 0;
 	if (pResult) {
 		PyObject * pColO = NULL;
-		if (PyType_IsPandasDataFrame(pResult)) {
-			//the result object is a Pandas data frame
-			//we can convert the pandas data frame to a numpy array by simply accessing the "values" field (as pandas dataframes are numpy arrays internally)
-			pResult = PyObject_GetAttrString(pResult, "values");
-			if (pResult == NULL) {
-				msg = createException(MAL, "pyapi.eval", "Invalid Pandas data frame.");
-				goto wrapup;
-			}
-			//we transpose the values field so it's aligned correctly for our purposes
-			pResult = PyObject_GetAttrString(pResult, "T");
-			if (pResult == NULL) {
-				msg = createException(MAL, "pyapi.eval", "Invalid Pandas data frame.");
-				goto wrapup;
-			}
-		}
-
 		if (PyType_IsPyScalar(pResult)) { //check if the return object is a scalar
 			if (expected_columns == 1 || expected_columns <= 0)  {
 				//if we only expect a single return value, we can accept scalars by converting it into an array holding an array holding the element (i.e. [[pResult]])
@@ -514,7 +500,7 @@ PyObject *PyObject_CheckForConversion(PyObject *pResult, int expected_columns, i
 					IsSingleArray = PyType_IsPyScalar(pColO);
 				}
 			}
-			else if (PyList_Check(data)) {
+			else if (PyList_CheckExact(data)) {
 				pColO = PyList_GetItem(data, 0);
 				IsSingleArray = PyType_IsPyScalar(pColO);
 			} else if (!PyType_IsNumpyMaskedArray(data)) {
@@ -541,7 +527,7 @@ PyObject *PyObject_CheckForConversion(PyObject *pResult, int expected_columns, i
 			else {
 				//the return value is an array of arrays, all we need to do is check if it is the correct size
 				int results = 0;
-				if (PyList_Check(data)) results = (int)PyList_Size(data);
+				if (PyList_CheckExact(data)) results = (int)PyList_Size(data);
 				else results = (int)PyArray_DIMS((PyArrayObject*)data)[0];
 				columns = results;
 				if (results != expected_columns && expected_columns > 0) {
@@ -615,7 +601,7 @@ bool PyObject_PreprocessObject(PyObject *pResult, PyReturn *pyreturn_values, int
 		// 1: The top level result object is a PyList or Numpy Array containing pci->retc Numpy Arrays
 		// 2: The top level result object is a (pci->retc x N) dimensional Numpy Array [Multidimensional]
 		// 3: The top level result object is a (pci->retc x N) dimensional Numpy Masked Array [Multidimensional]
-		if (PyList_Check(pResult)) {
+		if (PyList_CheckExact(pResult)) {
 			// If it is a PyList, we simply get the i'th Numpy array from the PyList
 			pColO = PyList_GetItem(pResult, i);
 		}
@@ -947,10 +933,10 @@ ssize_t PyType_Size(PyObject *obj) {
 	if (PyType_IsPyScalar(obj)) {
 		return 1;
 	}
-	if (PyArray_Check(obj)) {
+	if (PyArray_CheckExact(obj)) {
 		return PyArray_Size(obj);
 	}
-	if (PyList_Check(obj)) {
+	if (PyList_CheckExact(obj)) {
 		return Py_SIZE(obj);
 	}
 	return -1;
