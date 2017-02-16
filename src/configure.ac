@@ -1930,7 +1930,29 @@ CFLAGS="$CFLAGS \$(X_CFLAGS)"
 
 # bootstrap adds a (long) list of file names inside the
 # AC_CONFIG_FILES command
-AC_CONFIG_FILES
+AC_CONFIG_FILES([
+Makefile
+common/Makefile
+gdk/Makefile
+mal/Makefile
+sql/Makefile
+embedded/Makefile
+mapisplit/Makefile
+common/stream/Makefile
+common/options/Makefile
+common/utils/Makefile
+mal/mal/Makefile
+mal/modules/Makefile
+mal/optimizer/Makefile
+sql/include/Makefile
+sql/common/Makefile
+sql/storage/Makefile
+sql/server/Makefile
+sql/backends/Makefile
+sql/scripts/Makefile
+sql/storage/bat/Makefile
+sql/backends/monet5/Makefile
+])
 AC_OUTPUT
 
 echo

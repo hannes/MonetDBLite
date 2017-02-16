@@ -9,7 +9,7 @@ OPTFLAG="--enable-optimize"
 LINKFLAG=""
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
-	OPTFLAG="--enable-debug --enable-assert"
+	OPTFLAG="--enable-debug --enable-assert --enable-strict"
 	LINKFLAG="-g"
 fi
 
@@ -32,17 +32,12 @@ cd ../build
 
 # Prepare the compilation flags
 CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6" \
-../src/configure --enable-embedded  \
---disable-fits --disable-geom --disable-rintegration --disable-pyintegration --disable-gsl --disable-netcdf \
---disable-odbc --disable-console  \
---without-openssl --without-uuid --without-curl --without-bz2 --without-lzma --without-libxml2 \
---without-python2 --without-python3 --without-unixodbc --disable-mapi \
---without-samtools --without-sphinxclient --without-geos --without-samtools --without-readline \
+../src/configure --config-cache --enable-embedded \
 $OPTFLAG --enable-silent-rules --disable-int128
 
 echo '
 libmonetdb5.so:
-	$(CC) -shared -o libmonetdb5.so $(pthread_LIBS) $(pcre_LIBS) $(zlib_LIBS) $(LIBICONV) $(MATH_LIBS) $(DL_LIBS) `find $(SUBDIRS) -name "*.o" | xargs echo` 
+	$(CC) -shared -o libmonetdb5.so $(pthread_LIBS) $(zlib_LIBS) $(LIBICONV) $(MATH_LIBS) $(DL_LIBS) `find $(SUBDIRS) -name "*.o" | xargs echo` 
 all: $(BUILT_SOURCES) monetdb_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive && $(MAKE) $(AM_MAKEFLAGS) libmonetdb5.so
 ' >> Makefile
