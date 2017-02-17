@@ -16,37 +16,13 @@ MonetDBJavaLite is heavily based and dependent on the generic one (or MonetDBLit
 
 There are two jars are distributed: The new MonetDB JDBC driver jar (`monetdb-jdbc-new-<version>.jar`), and the MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The first one can be used independently, if only MAPI JDBC connections are desired. For both the Embedded API and the Embedded JDBC connections, the second jar is also required in the `CLASSPATH`.
 
-**Both jars require OpenJDK 8 to be installed.** However we can still make it possible to run on OpenJDK 7 JVMs.
+**Both jars require JDK 8 to be installed.** However we can still make it possible to run on JDK 7 JVMs.
 
-For now we **only support x64 architectures on every OS but Linux** as x86 architectures are getting depreciated. However if we get a request, we can make it support x86. The same happens for ARM architectures :)
+Currently the `monetdb-java-lite-<version>.jar` **only supports x64 architectures** as x86 architectures are getting depreciated. However if we get a request, we can make it support x86. We can also make it to support other architectures such as ARM as well :)
 
-The `monetdb-jdbc-new-<version>.jar` is platform independent and can be obtained from .... - Soon!
+The `monetdb-jdbc-new-<version>.jar` is both CPU and Operating System independent and can be obtained from .... - Soon!
 
-The `monetdb-java-lite-<version>.jar` can be obtained depending on the operating system. For Linux it must be installed from the sources. For the other operating systems, it can be obtained from .... - Soon! Some installation details are explained below for each OS:
-
-- **Linux**
-
-    - MonetDB uses different libraries for different Linux distributions, hence the user must build MonetDBJavaLite from the sources. To compile MonetDBJavaLite from the sources, [Git](https://git-scm.com/), [GNU Autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html) (comes with most Linux distributions) and [Gradle](https://gradle.org/) are required. 
-
-    - To compile use the following procedure:
-    ```shell
-    git clone https://github.com/hannesmuehleisen/MonetDBLite.git -b Dec2016Lite-Java # takes a while... :/
-    cd MonetDBLite
-    ./linux.sh # Generates monetdb-java-lite-<version>.jar in the monetdb-java-lite/build/libs directory.
-    # In that directory, the monetdb-jdbc-new-<version>.jar will be present as well as a compile dependency.
-    ```
-
-    - To generate the Javadocs, run `gradle javadoc` in the `monetdb-java-lite` directory.
-
-    - If the user prefers to use only one jar, the task [`gradle shadow`](https://github.com/johnrengelman/shadow) generates the `monetdb-java-lite-<version>-all.jar` in `monetdb-java-lite/buildshadow` directory as a "fat jar" containing both `monetdb-jdbc-new-<version>.jar` and `monetdb-java-lite-<version>.jar`.
-
-- **Windows**
-
-    - The JNI library for Windows is already bundled in the `monetdb-java-lite-<version>.jar`, hence no further installation is required.
-
-- **MacOS X**
-
-    - The JNI library for MacOS X is also bundled in the `monetdb-java-lite-<version>.jar`, hence no further installation is required.
+The `monetdb-java-lite-<version>.jar` contains the JNI code for 64-bit Linux, Windows and Mac OS X and can be obtained from .... - Soon!
 
 ## Libraries
 
@@ -290,10 +266,6 @@ There are still some differences from the JDBC MAPI and Embedded connections, du
 * The methods [`void setNetworkTimeout(Executor executor, int millis)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#setNetworkTimeout-java.util.concurrent.Executor-int-) and [`int getNetworkTimeout()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getNetworkTimeout--) are insignificant as there is no network involved in the Embedded connection.
 * [Batch Processing](https://www.tutorialspoint.com/jdbc/jdbc-batch-processing.htm) is not possible in a Embedded connection, due to its removal from MonetDBLite.
 * The [Savepoints](https://docs.oracle.com/javase/8/docs/api/java/sql/Savepoint.html) is not working properly in the Embedded connection due to MonetDBLite. However if enough interest is made, this feature can be added to MonetDBLite.
-
-## Benchmarks
-
-Soon!
 
 ## FAQs
 
