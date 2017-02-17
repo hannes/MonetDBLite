@@ -188,7 +188,7 @@ str pyobject_to_##type(PyObject **pyobj, size_t maxsize, type *value)           
             }                                                                                                     \
         }                                                                                                         \
         *value = (type)(h * sign);                                                                                \
-    } else if (PyInt_CheckExact(ptr) || PyBool_Check(ptr)) {                                                      \
+    } else if (PyInt_Check(ptr) || PyBool_Check(ptr)) {                                                      \
         *value = (type)((PyIntObject*)ptr)->ob_ival;                                                              \
     } else if (PyFloat_CheckExact(ptr)) {                                                                         \
         *value = (type) ((PyFloatObject*)ptr)->ob_fval;                                                           \
