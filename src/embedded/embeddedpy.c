@@ -199,11 +199,8 @@ Py_BEGIN_ALLOW_THREADS
 Py_END_ALLOW_THREADS
 cleanup:
 	if (pyreturn_values) GDKfree(pyreturn_values);
-#ifndef WIN32
-	// fuck you windows users
 	if (dict_vals) Py_DECREF(dict_vals);
 	if (keys) Py_DECREF(keys);
-#endif
 	if (key_map) GDKfree(key_map);
 	if (append_bats) {
 		for(i = 0; i < columns; i++) {

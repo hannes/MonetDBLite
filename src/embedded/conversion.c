@@ -115,10 +115,8 @@ PyObject *PyMaskedArray_FromBAT(PyInput *inp, size_t t_start, size_t t_end, char
 			msg = createException(MAL, "pyapi.eval", "Failed to create mask");
 			goto wrapup;
 		}
-#ifndef WIN32
 		Py_DECREF(maargs);
 		Py_DECREF(mafunc);
-#endif
 
 		vararray = mask;
 	}

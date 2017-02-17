@@ -26,10 +26,11 @@
 #undef snprintf
 #undef vsnprintf
 
-#undef ssize_t
+#define HAVE_SSIZE_T
 
 #ifndef bool
 #define bool unsigned char
 #endif
 
 #endif
+
