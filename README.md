@@ -29,11 +29,11 @@ connections are desired. The latter contains the server code. For both the Embed
 connections, the second jar is also required in the `CLASSPATH`.
 
 **Both jars require JDK 8 to be installed.** However we can still make it possible to run in the JDK 7 environment if
-someone requests it. Currently, the `monetdb-java-lite-<version>.jar` **only supports x64 architectures**.
+someone requests it. Currently, the `monetdb-java-lite-<version>.jar` **only supports 64-bit architectures**.
 
-The `monetdb-jdbc-new-<version>.jar` is both CPU and Operating System independent and can be obtained from .... - Soon!
+The `monetdb-jdbc-new-<version>.jar` is both CPU and Operating System independent. It can be obtained from .... - Soon!
 
-The `monetdb-java-lite-<version>.jar` contains the JNI code for 64-bit Linux, Windows and Mac OS X and can be obtained
+The `monetdb-java-lite-<version>.jar` contains the JNI code for 64-bit Linux, Windows and Mac OS X. It can be obtained
 from .... - Soon!
 
 ## Libraries
@@ -291,23 +291,22 @@ The existing MonetDB JDBC driver was extended to support both a MAPI and an Embe
 MAPI connection was improved with [ByteBuffers](https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html) in
 the lower layers of the driver for memory saving, thus less garbage collection is now performed.
 
-### JDBC embedded connection
+### JDBC Embedded connection
 
 There are several tutorials about the JDBC in the Internet, hence here will be explained just how to start an embedded
-connection. In the JDBC specification, a set of [Properties](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html)
-can be provided with additional features for the connection. **To start an JDBC Embedded connection the boolean string
-`true` MUST be provided, otherwise a JDBC MAPI connection will start!** The directory of the farm (database) must be
-provided as well. The following example shows how it can be done.
+connection. In the JDBC specification, an URL is provided to the
+[DriverManager](https://docs.oracle.com/javase/8/docs/api/java/sql/DriverManager.html) identifying the driver's vendor
+and the most important properties of the connection.
+
+**To start an JDBC Embedded connection the JDBC URL must provided in the format	`jdbc:monetdb:embedded:<directory>`,
+where directory is the location of the database.** The following example shows how it can be done. In contrast the 
+JDBC MAPI connection URL has the format `jdbc:monetdb://<host>[:<port>]/<database>[query]`.
 
 ```java
-Properties connectionProps = new Properties();
-/*There is no user authentication in MonetDBLite but the user and password properties must be
+/*There is no user authentication in MonetDBLite but the user and password must be
 provided because of the JDBC specification. Just provide random strings :)*/
-connectionProps.put("user", "monetdb");
-connectionProps.put("password", "monetdb");
-connectionProps.put("embedded", "true"); //VERY IMPORTANT
-connectionProps.put("directory", "/home/user/myfarm"); //the farm directory
-Connection con = DriverManager.getConnection("jdbc:monetdb://localhost/db", connectionProps);
+Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm", "monetdb", "monetdb") //Unix
+//Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:C:\\user\\myfarm", "monetdb", "monetdb") //Windows
 
 //just a JDBC statement and result set
 Statement st = con.createStatement();
@@ -324,16 +323,16 @@ con.close(); //Don't forget! :)
 ```
 
 As seen in the example, the `MonetDBEmbeddedDatabase` calls weren't required for better portability of the JDBC Embedded
-connection. What really happens is when starting a JDBC embedded connection, it checks if there is a
+connection. What really happens is when starting a JDBC Embedded connection, it checks if there is a
 `MonetDBEmbeddedDatabase` instance running in the provided directory, otherwise an exception is thrown. While closing,
 if it's the last connection, the `MonetDBEmbeddedDatabase` will shut down.
 
-It is made possible to use the the Embedded API in the JDBC embedded connection, although it is completely separated
+It is made possible to use the the Embedded API in the JDBC Embedded connection, although it is completely separated
 from the JDBC specification.
 
 ```java
 //do the above steps....
-Connection con = DriverManager.getConnection("jdbc:monetdb://localhost/db", connectionProps);
+Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm", "monetdb", "monetdb")
 MonetDBEmbeddedConnection cast = ((EmbeddedConnection)con).getAsMonetDBEmbeddedConnection();
 connection.sendUpdate("SELECT * FROM somewhere WHERE field=1");
 //do as a MonetDBEmbeddedConnection...
@@ -346,27 +345,28 @@ In the original MonetDBLite, some less important features of MonetDB were turned
 also means that some features of the MonetDB JDBC driver won't be available in a JDBC Embedded connection at the moment.
 
 * The [PreparedStatement](https://docs.oracle.com/javase/8/docs/api/java/sql/PreparedStatement.html) implementation is
-missing in the Embedded connections, because the
+missing in the Embedded connection, because the
 [PREPARED STATEMENT](https://www.monetdb.org/Documentation/Manuals/SQLreference/PrepareExec) of MonetDB was removed in
 MonetDBLite. However if enough interest is made, this feature can be added to MonetDBLite.
 * In the JDBC specification a [Fetch Size](https://docs.oracle.com/cd/A87860_01/doc/java.817/a83724/resltse5.htm)
-attribute allows to fetch a result set in blocks. This feature is favorable in a socket connection (MAPI), where the
-client and the server might not be in the same machine, thus fetching the results incrementally in block. However in
+attribute allows to fetch a result set in blocks. This feature is favorable in a socket connection (MAPI) where the
+client and the server might not be in the same machine, thus fetching the results incrementally in blocks. However in
 the Embedded connection, this feature is less favorable as both the client and the server are in the same machine.
 Therefore the result set is always retrieved with a single block, making the
 [`void setFetchSize(int rows)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#getFetchSize) and
 [`int getFetchSize()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#setFetchSize-int-) methods
 depreciated in a Embedded connection (they do nothing).
-* As mentioned before, some MonetDB data types are not featured in MonetDBLite, so existing queries with those types in a
-MAPI connection can't be ported to the Embedded connection version of it.
+* As mentioned before, some MonetDB data types are not featured in MonetDBLite, so existing queries with those types in
+a MAPI connection can't be ported to the Embedded connection version of it.
 * As mentioned before, the authentication scheme is nonexistent in the Embedded connection.
 * The methods [`void setNetworkTimeout(Executor executor, int millis)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#setNetworkTimeout-java.util.concurrent.Executor-int-)
 and [`int getNetworkTimeout()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getNetworkTimeout--)
 are insignificant as there is no network involved in the Embedded connection.
 * [Batch Processing](https://www.tutorialspoint.com/jdbc/jdbc-batch-processing.htm) is not possible in a Embedded
 connection, due to its removal from MonetDBLite.
-* The [Savepoints](https://docs.oracle.com/javase/8/docs/api/java/sql/Savepoint.html) is not working properly in the
-Embedded connection due to MonetDBLite. However if enough interest is made, this feature can be fixed on MonetDBLite.
+* The [Savepoints](https://docs.oracle.com/javase/8/docs/api/java/sql/Savepoint.html) feature is not working properly in
+the Embedded connection due to MonetDBLite's architecture. However if enough interest is made, this feature can be fixed
+in MonetDBLite.
 
 ## FAQs
 
@@ -409,7 +409,7 @@ QueryResultSet resultSet = asyncFetch.join();
 [`CompletableFuture<T> exceptionally(Function<Throwable,? extends T> fn)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html#exceptionally-java.util.function.Function-)
 method to handle the exceptions.
 
-### 4. I am getting very low negative numbers and NullPointer exceptions in the QueryResultSet!
+### 4. I am getting very low negative numbers and/or NullPointer exceptions in the QueryResultSet!
 
 You are getting SQL `NULL` values in your query result sets. As explained above, for the primitive MonetDB SQL types we
 map them to the JVM minimum values. For the more complex MonetDB SQL types like `CHAR` and `DATE` we map to Java
@@ -429,10 +429,10 @@ If you to preserve the `QueryResultSet` data, use the
 ### 6. While starting a JDBC connection, I am getting the SQLException: "Unable to connect (localhost:50000): Connection refused"!
 
 The new MonetDB JDBC driver creates a MAPI connection by default, as the most common use case of it. To start an
-embedded connection you **MUST** provide the property `embedded` as `true`, otherwise it will start a MAPI connection!
-Check the example above how it can be done.
+embedded connection you **MUST** provide JDBC URL specifying the embedded connection and the directory. Check the
+example above how it can be done.
 
-### 7. Is there a way to know if a JDBC connection is MAPI or embedded after it has started?
+### 7. Is there a way to know if a JDBC connection is MAPI or Embedded after it has started?
 
 Yes there is! In JDBC specification you can call the
 [`String getClientInfo(String name)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getClientInfo-java.lang.String-)
@@ -446,18 +446,12 @@ boolean isEmbedded = (embeddedString != null && embeddedString.equals("true"));
 ### 8. I don't like Java that much, can I use this for another programming languages for the JVM?
 
 Yes you can! You can easily import Java libraries for other JVM programming languages like Scala. The following example
-creates a JDBC embedded connection on Scala:
+creates a JDBC Embedded connection in Scala:
 
 ```scala
 var connection:Connection = null
 try {
-    var properties: Properties = new Properties()
-    properties.put("user", "monetdb")
-    properties.put("password", "monetdb")
-    properties.put("embedded", "true")
-    properties.put("directory", "/home/user/myfarm")
-    connection = DriverManager.getConnection("jdbc:monetdb://localhost/db", properties)
-
+    connection = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm", "monetdb", "monetdb")
     val statement = connection.createStatement()
     statement.executeUpdate("CREATE TABLE example (counter int, justAString varchar(32), floatingPoint real)")
     statement.executeUpdate("INSERT INTO example VALUES (1, 'Scala', 3.223)")
@@ -478,12 +472,12 @@ try {
 connection.close() //Don't forget! ;)
 ```
 
-### 9. Any tips for additional perfomance of MonetDBJavaLite regarding the JVM?
+### 9. Any tips for additional performance of MonetDBJavaLite regarding the JVM?
 
 We haven't dug into the settings of the JVM with MonetDBJavaLite yet, although we can do that in JNI. However we must
 remember that the best setting may vary with the underlying JVM, and MonetDBJavaLite will be just a part of the running
 application. One possible optimization is to run the JVM in `server` mode instead of `client` mode, although it should
-be benchmarked as it might not provide better performance results in some applications. You can check the stack overflow
+be benchmarked as it might not provide better performance results in some applications. You can check the Stack Overflow
 question [here](https://stackoverflow.com/questions/198577/real-differences-between-java-server-and-java-client).
 
 ## License

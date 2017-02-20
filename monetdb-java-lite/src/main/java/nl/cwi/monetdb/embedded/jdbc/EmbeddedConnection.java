@@ -88,7 +88,7 @@ public final class EmbeddedConnection extends MonetConnection {
      */
     @Override
     public String getJDBCURL() {
-        return "jdbc:monetdb://localhost:" + this.directory;
+        return "jdbc:monetdb:embedded:" + this.directory;
     }
 
     /**
