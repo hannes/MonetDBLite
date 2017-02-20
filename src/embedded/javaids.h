@@ -32,19 +32,30 @@ jfieldID getConnectionResultPointerID();
 /* Java MonetDB mappings constructors */
 
 jclass getJavaObjectClassID();
+jclass getShortArrayClassID();
+jclass getIntegerArrayClassID();
+jclass getLongArrayClassID();
+jclass getFloatArrayClassID();
+jclass getDoubleArrayClassID();
 jclass getByteArrayClassID();
+jclass getByteMatrixClassID();
 jclass getBigDecimalClassID();
+jclass getBigDecimalArrayClassID();
 jmethodID getBigDecimalConstructorID();
 jclass getDateClassID();
+jclass getDateClassArrayID();
 jmethodID getDateConstructorID();
 jclass getTimeClassID();
+jclass getTimeArrayClassID();
 jmethodID getTimeConstructorID();
 jclass getTimestampClassID();
+jclass getTimestampArrayClassID();
 jmethodID getTimestampConstructorID();
 jclass getGregorianCalendarClassID();
 jmethodID getGregorianCalendarConstructorID();
 jmethodID getGregorianCalendarSetterID();
 jclass getStringClassID();
+jclass getStringArrayClassID();
 jmethodID getStringByteArrayConstructorID();
 
 /* JDBC Embedded Connection */

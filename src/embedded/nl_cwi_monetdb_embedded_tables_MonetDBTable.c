@@ -227,17 +227,28 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_
     return result;
 }
 
+static char* generateWrongArrayErrorMessage(int index, const char* arrayClass) {
+    char errorBuffer[64];
+    snprintf(errorBuffer, 64, "The array at column %d must be a %s array!", index, arrayClass);
+    return GDKstrdup(errorBuffer);
+}
+
+#define CHECK_ARRAY_CLASS(METHOD, ARRAY_CLASS) \
+    if((*env)->IsInstanceOf(env, nextArray, METHOD) == JNI_FALSE) { \
+        err = generateWrongArrayErrorMessage(nextColumnIndex + 1, ARRAY_CLASS); \
+        break; \
+    }
+
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_appendColumnsInternal
     (JNIEnv *env, jobject monetDBTable, jobjectArray columnData, jintArray javaIndexes, jint roundingMode) {
     LOADTABLEDATA(0)
 
-    //preparing data to insert
     node *n;
     jint *jindexes = (*env)->GetIntArrayElements(env, javaIndexes, NULL);
     append_data* newdata = GDKmalloc(ncols * sizeof(append_data));
     jsize numberOfRows = (*env)->GetArrayLength(env, (*env)->GetObjectArrayElement(env, columnData, 0));
 
-    for (n = tableData->columns.set->h; n && !err; n = n->next) {
+    for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
         int nextMonetDBIndex = col->type.type->localtype;
         int nextColumnIndex = col->colnr;
@@ -248,34 +259,41 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_appendCo
         jobject nextArray = (*env)->GetObjectArrayElement(env, columnData, nextColumnIndex);
         jsize nextSize = (*env)->GetArrayLength(env, nextArray);
         if(nextSize != numberOfRows) {
-           err = GDKstrdup("The row sizes are not consistent!");
+           err = GDKstrdup("The row sizes are not consistent between the columns!");
            break;
         }
-        
+
         switch(nextJavaIndex) {
             case 0: //boolean
+                CHECK_ARRAY_CLASS(getByteArrayClassID(), "byte")
                 storeBooleanColumn(env, &nextBAT, (jbyteArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 1: //char
             case 2: //varchar
             case 3: //clob
+                CHECK_ARRAY_CLASS(getStringArrayClassID(), "java.lang.String")
                 storeStringColumn(env, &nextBAT, (jobjectArray) nextArray, NULL, numberOfRows, nextMonetDBIndex);
                 break;
             case 4: //tinyint
+                CHECK_ARRAY_CLASS(getByteArrayClassID(), "byte")
                 storeTinyintColumn(env, &nextBAT, (jbyteArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 5: //smallint
+                CHECK_ARRAY_CLASS(getShortArrayClassID(), "short")
                 storeSmallintColumn(env, &nextBAT, (jshortArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 6: //int
             case 11: //month_interval
+                CHECK_ARRAY_CLASS(getIntegerArrayClassID(), "int")
                 storeIntColumn(env, &nextBAT, (jintArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 7: //bigint
             case 12: //second_interval
+                CHECK_ARRAY_CLASS(getLongArrayClassID(), "long")
                 storeBigintColumn(env, &nextBAT, (jlongArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 8: //decimal
+                CHECK_ARRAY_CLASS(getBigDecimalArrayClassID(), "java.math.BigDecimal")
                 if(col->type.digits <= 2) {
                     storeDecimalbteColumn(env, &nextBAT, (jobjectArray) nextArray, getBigDecimalToStringID(), getSetBigDecimalScaleID(), numberOfRows, nextMonetDBIndex, col->type.scale, roundingMode);
                 } else if(col->type.digits > 2 && col->type.digits <= 4) {
@@ -287,23 +305,29 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_appendCo
                 }
                 break;
             case 9: //real
+                CHECK_ARRAY_CLASS(getFloatArrayClassID(), "float")
                 storeRealColumn(env, &nextBAT, (jfloatArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 10: //double
+                CHECK_ARRAY_CLASS(getDoubleArrayClassID(), "double")
                 storeDoubleColumn(env, &nextBAT, (jdoubleArray) nextArray, numberOfRows, nextMonetDBIndex);
                 break;
             case 13: //time
             case 14: //timetz
+                CHECK_ARRAY_CLASS(getTimeArrayClassID(), "java.sql.Time")
                 storeTimeColumn(env, &nextBAT, (jobjectArray) nextArray, getTimeToLongID(), numberOfRows, nextMonetDBIndex);
                 break;
             case 15: //date
+                CHECK_ARRAY_CLASS(getDateClassArrayID(), "java.sql.Date")
                 storeDateColumn(env, &nextBAT, (jobjectArray) nextArray, getDateToLongID(), numberOfRows, nextMonetDBIndex);
                 break;
             case 16: //timestamp
             case 17: //timestamptz
+                CHECK_ARRAY_CLASS(getTimestampArrayClassID(), "java.sql.Timestamp")
                 storeTimestampColumn(env, &nextBAT, (jobjectArray) nextArray, getTimestampToLongID(), numberOfRows, nextMonetDBIndex);
                 break;
             case 18: //blob
+                CHECK_ARRAY_CLASS(getByteMatrixClassID(), "byte[]")
                 storeBlobColumn(env, &nextBAT, (jobjectArray) nextArray, NULL, numberOfRows, nextMonetDBIndex);
                 break;
             default:

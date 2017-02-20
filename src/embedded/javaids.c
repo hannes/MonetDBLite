@@ -31,20 +31,31 @@ static jfieldID connectionResultPointerID;
 
 static jclass javaObjectClassID;
 static jclass byteArrayClassID;
+static jclass shortArrayClassID;
+static jclass integerArrayClassID;
+static jclass longArrayClassID;
+static jclass floatArrayClassID;
+static jclass doubleArrayClassID;
+static jclass byteMatrixClassID;
 static jclass bigDecimalClassID;
+static jclass bigDecimalArrayClassID;
 static jmethodID bigDecimalConstructorID;
 
 static jclass dateClassID;
+static jclass dateClassArrayID;
 static jmethodID dateConstructorID;
 static jclass timeClassID;
+static jclass timeArrayClassID;
 static jmethodID timeConstructorID;
 static jclass timestampClassID;
+static jclass timestampArrayClassID;
 static jmethodID timestampConstructorID;
 static jclass gregorianCalendarClassID;
 static jmethodID gregorianCalendarConstructorID;
 static jmethodID gregorianCalendarSetterID;
 
 static jclass stringClassID;
+static jclass stringArrayClassID;
 static jmethodID stringByteArrayConstructorID;
 
 /* JDBC Embedded Connection */
@@ -136,8 +147,36 @@ void initializeIDS(JNIEnv *env) {
     byteArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
 
+    tempLocalRef = (jobject) (*env)->FindClass(env, "[S");
+    shortArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "[I");
+    integerArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "[J");
+    longArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "[F");
+    floatArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "[D");
+    doubleArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "[[B");
+    byteMatrixClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
     tempLocalRef = (jobject) (*env)->FindClass(env, "java/math/BigDecimal");
     bigDecimalClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "[Ljava/math/BigDecimal;");
+    bigDecimalArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
 
     bigDecimalConstructorID = (*env)->GetMethodID(env, bigDecimalClassID, "<init>", "(Ljava/lang/String;)V");
@@ -146,16 +185,28 @@ void initializeIDS(JNIEnv *env) {
     dateClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
 
+    tempLocalRef = (jobject) (*env)->FindClass(env, "[Ljava/sql/Date;");
+    dateClassArrayID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
     dateConstructorID = (*env)->GetMethodID(env, dateClassID, "<init>", "(J)V");
 
     tempLocalRef = (jobject) (*env)->FindClass(env, "java/sql/Time");
     timeClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
 
+    tempLocalRef = (jobject) (*env)->FindClass(env, "[Ljava/sql/Time;");
+    timeArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
     timeConstructorID = (*env)->GetMethodID(env, timeClassID, "<init>", "(J)V");
 
     tempLocalRef = (jobject) (*env)->FindClass(env, "java/sql/Timestamp");
     timestampClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "[Ljava/sql/Timestamp;");
+    timestampArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
 
     timestampConstructorID = (*env)->GetMethodID(env, timestampClassID, "<init>", "(J)V");
@@ -169,6 +220,10 @@ void initializeIDS(JNIEnv *env) {
 
     tempLocalRef = (jobject) (*env)->FindClass(env, "java/lang/String");
     stringClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "[Ljava/lang/String;");
+    stringArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
 
     stringByteArrayConstructorID = (*env)->GetMethodID(env, stringClassID, "<init>", "([B)V");
@@ -229,16 +284,27 @@ void releaseIDS(JNIEnv *env) {
     (*env)->DeleteGlobalRef(env, queryResultSetID);
     (*env)->DeleteGlobalRef(env, monetDBTableClassID);
 
-    /* Java MonetDB mappings constructors */
+    /* Java MonetDB mappings classes */
 
     (*env)->DeleteGlobalRef(env, javaObjectClassID);
     (*env)->DeleteGlobalRef(env, byteArrayClassID);
+    (*env)->DeleteGlobalRef(env, shortArrayClassID);
+    (*env)->DeleteGlobalRef(env, integerArrayClassID);
+    (*env)->DeleteGlobalRef(env, longArrayClassID);
+    (*env)->DeleteGlobalRef(env, floatArrayClassID);
+    (*env)->DeleteGlobalRef(env, doubleArrayClassID);
+    (*env)->DeleteGlobalRef(env, byteMatrixClassID);
     (*env)->DeleteGlobalRef(env, bigDecimalClassID);
+    (*env)->DeleteGlobalRef(env, bigDecimalArrayClassID);
     (*env)->DeleteGlobalRef(env, dateClassID);
+    (*env)->DeleteGlobalRef(env, dateClassArrayID);
     (*env)->DeleteGlobalRef(env, timeClassID);
+    (*env)->DeleteGlobalRef(env, timeArrayClassID);
     (*env)->DeleteGlobalRef(env, timestampClassID);
+    (*env)->DeleteGlobalRef(env, timestampArrayClassID);
     (*env)->DeleteGlobalRef(env, gregorianCalendarClassID);
     (*env)->DeleteGlobalRef(env, stringClassID);
+    (*env)->DeleteGlobalRef(env, stringArrayClassID);
 
     /* JDBC Embedded Connection */
 
@@ -311,8 +377,36 @@ jclass getByteArrayClassID() {
     return byteArrayClassID;
 }
 
+jclass getShortArrayClassID() {
+    return shortArrayClassID;
+}
+
+jclass getIntegerArrayClassID() {
+    return integerArrayClassID;
+}
+
+jclass getLongArrayClassID() {
+    return longArrayClassID;
+}
+
+jclass getFloatArrayClassID() {
+    return floatArrayClassID;
+}
+
+jclass getDoubleArrayClassID() {
+    return doubleArrayClassID;
+}
+
+jclass getByteMatrixClassID() {
+    return byteMatrixClassID;
+}
+
 jclass getBigDecimalClassID() {
     return bigDecimalClassID;
+}
+
+jclass getBigDecimalArrayClassID() {
+    return bigDecimalArrayClassID;
 }
 
 jmethodID getBigDecimalConstructorID() {
@@ -323,6 +417,10 @@ jclass getDateClassID() {
     return dateClassID;
 }
 
+jclass getDateClassArrayID() {
+    return dateClassArrayID;
+}
+
 jmethodID getDateConstructorID() {
     return dateConstructorID;
 }
@@ -331,12 +429,20 @@ jclass getTimeClassID() {
     return timeClassID;
 }
 
+jclass getTimeArrayClassID() {
+    return timeArrayClassID;
+}
+
 jmethodID getTimeConstructorID() {
     return timeConstructorID;
 }
 
 jclass getTimestampClassID() {
     return timestampClassID;
+}
+
+jclass getTimestampArrayClassID() {
+    return timestampArrayClassID;
 }
 
 jmethodID getTimestampConstructorID() {
@@ -357,6 +463,10 @@ jmethodID getGregorianCalendarSetterID() {
 
 jclass getStringClassID() {
     return stringClassID;
+}
+
+jclass getStringArrayClassID() {
+    return stringArrayClassID;
 }
 
 jmethodID getStringByteArrayConstructorID() {
