@@ -76,12 +76,12 @@ To start the database:
 
 ```java
 Path directoryPath = Files.createTempDirectory("monetdbjavalite");
-boolean silentFlag = true;
-boolean sequentialFlag = true;
+boolean silentFlag = true, sequentialFlag = false;
 MonetDBEmbeddedDatabase.StartDatabase(directoryPath.toString(), silentFlag, sequentialFlag);
 ```
 
-After the database is loaded, connections can be performed to the database.
+The `silent` and `sequential` flags are left for debugging purposes. They should be left as `true` and `false`
+respectively. After the database is loaded, connections can be performed to the database.
 
 ```java
 MonetDBEmbeddedConnection connection = MonetDBEmbeddedDatabase.CreateConnection();
@@ -255,7 +255,6 @@ iterateMe.iterateTable(new IMonetDBTableCursor() {
         return iterateMe.getNumberOfRows();
     }
 });
-//will print the values in the console...
 ```
 
 ### Append data to a table
@@ -303,10 +302,8 @@ where directory is the location of the database.** The following example shows h
 JDBC MAPI connection URL has the format `jdbc:monetdb://<host>[:<port>]/<database>[query]`.
 
 ```java
-/*There is no user authentication in MonetDBLite but the user and password must be
-provided because of the JDBC specification. Just provide random strings :)*/
-Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm", "monetdb", "monetdb") //Unix
-//Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:C:\\user\\myfarm", "monetdb", "monetdb") //Windows
+Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm") //Unix
+//Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:C:\\user\\myfarm") //Windows
 
 //just a JDBC statement and result set
 Statement st = con.createStatement();
@@ -322,8 +319,8 @@ rs.close(); //Don't forget! :)
 con.close(); //Don't forget! :)
 ```
 
-As seen in the example, the `MonetDBEmbeddedDatabase` calls weren't required for better portability of the JDBC Embedded
-connection. What really happens is when starting a JDBC Embedded connection, it checks if there is a
+As seen in the example, the `MonetDBEmbeddedDatabase` calls were not required for better portability of the JDBC
+Embedded connection. What really happens is when starting a JDBC Embedded connection, it checks if there is a
 `MonetDBEmbeddedDatabase` instance running in the provided directory, otherwise an exception is thrown. While closing,
 if it's the last connection, the `MonetDBEmbeddedDatabase` will shut down.
 
@@ -331,8 +328,7 @@ It is made possible to use the the Embedded API in the JDBC Embedded connection,
 from the JDBC specification.
 
 ```java
-//do the above steps....
-Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm", "monetdb", "monetdb")
+Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm")
 MonetDBEmbeddedConnection cast = ((EmbeddedConnection)con).getAsMonetDBEmbeddedConnection();
 connection.sendUpdate("SELECT * FROM somewhere WHERE field=1");
 //do as a MonetDBEmbeddedConnection...
@@ -391,7 +387,6 @@ For older versions of Java you can use [Future<T>](https://docs.oracle.com/javas
 instead. An example to run a query asynchronously:
 
 ```java
-//create the connection beforehand..
 CompletableFuture<QueryResultSet> asyncFetch = CompletableFuture.supplyAsync(() -> {
     try {
         return connection.sendQuery("SELECT * FROM exampleTable");
@@ -451,7 +446,7 @@ creates a JDBC Embedded connection in Scala:
 ```scala
 var connection:Connection = null
 try {
-    connection = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm", "monetdb", "monetdb")
+    connection = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm")
     val statement = connection.createStatement()
     statement.executeUpdate("CREATE TABLE example (counter int, justAString varchar(32), floatingPoint real)")
     statement.executeUpdate("INSERT INTO example VALUES (1, 'Scala', 3.223)")
