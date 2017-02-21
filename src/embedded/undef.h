@@ -5,10 +5,10 @@ extern FILE* embedded_stderr;
 #undef assert
 #define NDEBUG 1
 #define assert(ignore) ((void) 0)
-/*#undef stdout
+#undef stdout
 #define stdout embedded_stdout
 #undef stderr
-#define stderr embedded_stderr*/
+#define stderr embedded_stderr
 
 #ifdef HAVE_EMBEDDED_R
 #define srand(seed) ((void) (seed))
@@ -24,7 +24,10 @@ extern int embedded_r_rand(void);
 
 /* NOTE Added to compile MonetDBJavaLite on MinGW64 */
 #define __CRT__NO_INLINE /* MinGW64 */
-
-#define _Printf_format_string_ /* MonetDB */
+#define _Printf_format_string_
 #define _In_z_
 #define HAVE_GETTIMEOFDAY
+
+#ifdef WIN32
+#define HAVE_LIBPCRE 1
+#endif
