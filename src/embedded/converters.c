@@ -74,7 +74,7 @@ DIRECT_MAPPING(Double, jdouble, Double, dbl_nil, jdoubleMin)
 
 /* For these we have to create Java objects :( */
 
-#define GET_NEXT_JDATE          long value = ((long) nvalue - 719528L) * 86400000L; //number of days since jan first (year 0) to number of milliseconds since 1 jan 1970
+#define GET_NEXT_JDATE          long value = ((long) nvalue - 719528L) * 86400000L - 3600000L; //number of days since jan first (year 0) to number of milliseconds since 1 jan 1970
 #define CHECK_NULL_BDATE        nvalue != date_nil
 
 #define GET_NEXT_JTIME          long value = (long) nvalue - 3600000L; //convert number of milliseconds since start of the day to to number of milliseconds since 1 jan 1970

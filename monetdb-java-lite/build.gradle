@@ -1,49 +1,77 @@
 buildscript {
-  repositories {
-    jcenter { url "http://jcenter.bintray.com/" }
-  }
-  dependencies {
-    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
-  }
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0-M3'
+    }
+}
+
+repositories {
+    mavenCentral()
 }
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'org.junit.platform.gradle.plugin'
 
-group = 'nl.cwi.monetdb'
+ext.group = 'nl.cwi.monetdb'
 ext.packaging = 'jar'
+ext.sourceCompatibility = 1.8
+ext.targetCompatibility = 1.8
+ext.junitPlatformVersion = '1.0.0-M3'
+ext.junitJupiterVersion  = '5.0.0-M3'
+//ext.junit4Version        = '4.12'
+//ext.junitVintageVersion  = '4.12.0-M3'
+ext.log4jVersion         = '2.7'
 version = '2.24'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
 def urlFile = { url, name ->
-  File file = new File("$buildDir/libs/${name}.jar")
-  file.parentFile.mkdirs()
-  if (!file.exists()) {
-    new URL(url).withInputStream { downloadStream ->
-      file.withOutputStream { fileOut ->
-        fileOut << downloadStream
-      }
+    File file = new File("$buildDir/libs/${name}.jar")
+    file.parentFile.mkdirs()
+    if (!file.exists()) {
+        new URL(url).withInputStream { downloadStream ->
+            file.withOutputStream { fileOut ->
+                fileOut << downloadStream
+            }
+        }
     }
-  }
-  files(file.absolutePath)
+    files(file.absolutePath)
 }
 
 dependencies {
-  compile urlFile('https://www.dropbox.com/s/jihyyd6knu7lkx4/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
+    compile urlFile('https://www.dropbox.com/s/jihyyd6knu7lkx4/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
+
+    // JUnit Jupiter API and TestEngine implementation
+    testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+
+    //not using JUnit4 for now
+    //testCompile("junit:junit:${junit4Version}")
+    //testRuntime("org.junit.vintage:junit-vintage-engine:${junitVintageVersion}")
+
+    //Log using log4j
+    testRuntime("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+    testRuntime("org.apache.logging.log4j:log4j-jul:${log4jVersion}")
 }
 
-task testJar(type: Jar) {
-  manifest {
-    attributes 'Description': 'MonetDBJavaLite JAR with JDBC compability'
-  }
+jar {
+    manifest {
+        attributes 'Description': 'MonetDBJavaLite JAR with JDBC compatibility'
+    }
 }
 
-shadowJar {
-  manifest {
-    inheritFrom project.tasks.testJar.manifest
-  }
-  destinationDir = file("./buildshadow")
+shadowJar { //Build instruction to the shadowJar
+    manifest {
+        inheritFrom project.jar.manifest
+    }
+    destinationDir = file("./build/shadowJar")
 }
 
+junitPlatform { //configurations for JUnit5 tests
+    // platformVersion '1.0.0-M3'
+    // reportsDir file('build/test-results/junit-platform') default
+    logManager 'org.apache.logging.log4j.jul.LogManager'
+}
