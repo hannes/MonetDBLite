@@ -15,7 +15,7 @@ import nl.cwi.monetdb.embedded.mapping.AbstractColumn;
  *
  * @author <a href="mailto:pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>
  */
-public class MonetDBTableColumn extends AbstractColumn {
+public final class MonetDBTableColumn extends AbstractColumn {
 
     /**
      * If the column has a default value.

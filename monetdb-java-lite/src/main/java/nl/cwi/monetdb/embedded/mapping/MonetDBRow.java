@@ -16,7 +16,7 @@ import java.util.ListIterator;
  *
  * @author <a href="mailto:pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>
  */
-public class MonetDBRow implements Iterable {
+public final class MonetDBRow implements Iterable {
 
     /**
      * The original row result set from this row.

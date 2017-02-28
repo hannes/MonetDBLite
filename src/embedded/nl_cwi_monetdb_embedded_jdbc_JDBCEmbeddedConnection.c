@@ -9,10 +9,12 @@
 #include "nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection.h"
 
 #include "javaids.h"
+#include "jresulset.h"
 #include "converters.h"
 #include "embedded.h"
 #include "monetdb_config.h"
 #include "res_table.h"
+#include "gdk.h"
 
 static void setErrorResponse(JNIEnv *env, jobject jdbccon, char* errorMessage) {
     jintArray lineResponse = (jintArray) (*env)->GetObjectField(env, jdbccon, getServerResponsesID());
@@ -47,90 +49,23 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     //Important! Don't free the result table yet!
 }
 
-JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_parseTupleLinesInternal
-    (JNIEnv *env, jobject jdbccon, jlong resultSetPointer, jintArray typesMap, jobjectArray values) {
-    res_table *output = (res_table *) resultSetPointer;
-    int numberOfColumns = (*env)->GetArrayLength(env, values);
-    int numberOfRows = (*env)->GetArrayLength(env, (*env)->GetObjectArrayElement(env, values, 0));
-    jint* typesMapConverted = (*env)->GetIntArrayElements(env, typesMap, NULL);
+JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_initializePointersInternal
+    (JNIEnv *env, jobject jdbccon, jlong lastResultSetPointer, jobject embeddedDataBlockResponse) {
     (void) jdbccon;
-
-    for (int i = 0; i < numberOfColumns; i++) {
-        res_col col = output->cols[i];
-        BAT* b = BATdescriptor(col.b);
-        jobject nextColumnValues = (*env)->GetObjectArrayElement(env, values, i);
-
-        switch(typesMapConverted[i]) {
-            case 16: //Types.BOOLEAN:
-                getBooleanColumn(env, (jbyteArray) nextColumnValues, 0, numberOfRows, b);
-                break;
-            case -6: //Types.TINYINT:
-                getTinyintColumn(env, (jbyteArray) nextColumnValues, 0, numberOfRows, b);
-                break;
-            case 5: //Types.SMALLINT:
-                getSmallintColumn(env, (jshortArray) nextColumnValues, 0, numberOfRows, b);
-                break;
-            case 4: //Types.INTEGER:
-                getIntColumn(env, (jintArray) nextColumnValues, 0, numberOfRows, b);
-                break;
-            case -5: //Types.BIGINT:
-                getBigintColumn(env, (jlongArray) nextColumnValues, 0, numberOfRows, b);
-                break;
-            case 7: //Types.REAL:
-                getRealColumn(env, (jfloatArray) nextColumnValues, 0, numberOfRows, b);
-                break;
-            case 8: //Types.DOUBLE:
-                getDoubleColumn(env, (jdoubleArray) nextColumnValues, 0, numberOfRows, b);
-                break;
-            case 3: //Types.DECIMAL:
-                if(col.type.digits <= 2) {
-                    getDecimalbteColumn(env, (jobjectArray) nextColumnValues, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
-                } else if(col.type.digits > 2 && col.type.digits <= 4) {
-                    getDecimalshtColumn(env, (jobjectArray) nextColumnValues, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
-                } else if(col.type.digits > 4 && col.type.digits <= 8) {
-                    getDecimalintColumn(env, (jobjectArray) nextColumnValues, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
-                } else {
-                    getDecimallngColumn(env, (jobjectArray) nextColumnValues, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
-                }
-                break;
-            case 1: //Types.CHAR:
-            case 12: //Types.VARCHAR:
-            case -1: //Types.LONGVARCHAR:
-                getStringColumn(env, (jobjectArray) nextColumnValues, getStringClassID(), NULL, 0, numberOfRows, b);
-                break;
-            case 91: //Types.DATE:
-                getGregorianCalendarDateColumn(env, (jobjectArray) nextColumnValues, getGregorianCalendarClassID(), getGregorianCalendarConstructorID(), getGregorianCalendarSetterID(), 0, numberOfRows, b);
-                break;
-            case 92: //Types.TIME:
-            case 2013: //Types.TIME_WITH_TIMEZONE:
-                getGregorianCalendarTimeColumn(env, (jobjectArray) nextColumnValues, getGregorianCalendarClassID(), getGregorianCalendarConstructorID(), getGregorianCalendarSetterID(), 0, numberOfRows, b);
-                break;
-            case 93: //Types.TIMESTAMP:
-            case 2014: //Types.TIMESTAMP_WITH_TIMEZONE
-                getGregorianCalendarTimestampColumn(env, (jobjectArray) nextColumnValues, getGregorianCalendarClassID(), getGregorianCalendarConstructorID(), getGregorianCalendarSetterID(), 0, numberOfRows, b);
-                break;
-            case -4: //Types.LONGVARBINARY:
-                getBlobColumn(env, (jobjectArray) nextColumnValues, NULL, NULL, 0, numberOfRows, b);
-                break;
-            default:
-                (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "Unknown Java mapping type!");
-        }
-        (*env)->DeleteLocalRef(env, nextColumnValues);
-    }
-
-    (*env)->ReleaseIntArrayElements(env, typesMap, typesMapConverted, 0);
-    monetdb_cleanup_result(NULL, output); //it's safe to delete the table now as we don't have any extra blocks to fetch
-    return numberOfRows;
+    res_table* output = (res_table*) lastResultSetPointer;
+    JResultSet* thisResultSet = createResultSet(output);
+    (*env)->SetLongField(env, embeddedDataBlockResponse, getStructPointerID(), (jlong) thisResultSet);
 }
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendQueryInternal
     (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jstring query, jboolean execute) {
     long lastId, rowCount;
     int lineResponseCounter = 0, query_type, autoCommitStatus, numberOfRows;
-	jint nextResponses[4], responseParameters[3];
+    jint nextResponses[4], responseParameters[3];
     const char *query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
     char *err = NULL;
     res_table *output = NULL;
+    BAT* dearBat;
 
     // Execute the query
     err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
@@ -153,11 +88,13 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
 
     // The SCHEMA responses (query_type == 3), don't need anything from the server
     switch(query_type) {
-        case 1: //PREPARE
-        case 5: //TABLE
+        case 1: //TABLE
+        case 5: //PREPARE
         case 6: //BLOCK
             //set the Table Headers values
-            numberOfRows = BATcount(BATdescriptor(output->cols[0].b));
+            dearBat = BATdescriptor(output->cols[0].b);
+            numberOfRows = BATcount(dearBat);
+            BBPunfix(dearBat->batCacheid);
             responseParameters[0] = output->id;
             responseParameters[1] = numberOfRows; //number of rows
             if(query_type == 1 || query_type == 5) {
@@ -165,9 +102,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
             }
             //set the other headers
             nextResponses[lineResponseCounter++] = 2; //HEADER
-            if(numberOfRows > 0) {
-                nextResponses[lineResponseCounter++] = 3; //RESULT
-            }
+            //IMPORTANT Due to the Embedded architecture, we can skip the RESULT header in the response
             jintArray lastServerResponseParameters = (jintArray) (*env)->GetObjectField(env, jdbccon, getLastServerResponseParametersID());
             (*env)->SetIntArrayRegion(env, lastServerResponseParameters, 0, 3, responseParameters);
             break;
@@ -197,9 +132,16 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     char *err = sendAutoCommitCommand((void*) connectionPointer, flag, &autoCommitStatus);
     if (err) { //if there is an error set it and return
         setErrorResponse(env, jdbccon, err);
-        return;
+    } else {
+        (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env, getAutoCommitResponseClassID(), getAutoCommitResponseConstructorID(), (autoCommitStatus) ? JNI_TRUE : JNI_FALSE));
     }
-    (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env, getAutoCommitResponseClassID(), getAutoCommitResponseConstructorID(), (autoCommitStatus) ? JNI_TRUE : JNI_FALSE));
+}
+
+JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendReplySizeCommandInternal
+    (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jint size) {
+    (void) env;
+    (void) jdbccon;
+    sendReplySizeCommand((void*) connectionPointer, (long) size);
 }
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendReleaseCommandInternal
@@ -214,11 +156,4 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     (void) env;
     (void) jdbccon;
     sendCloseCommand((void*) connectionPointer, commandId);
-}
-
-JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendReplySizeCommandInternal
-    (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jint size) {
-    (void) env;
-    (void) jdbccon;
-    sendReplySizeCommand((void*) connectionPointer, (long) size);
 }

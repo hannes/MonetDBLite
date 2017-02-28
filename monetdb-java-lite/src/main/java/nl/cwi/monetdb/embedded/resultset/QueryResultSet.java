@@ -9,12 +9,13 @@
 package nl.cwi.monetdb.embedded.resultset;
 
 import nl.cwi.monetdb.embedded.env.AbstractConnectionResult;
-import nl.cwi.monetdb.embedded.mapping.AbstractResultTable;
 import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedConnection;
 import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
 import nl.cwi.monetdb.embedded.mapping.MonetDBRow;
 import nl.cwi.monetdb.embedded.mapping.MonetDBToJavaMapping;
+import nl.cwi.monetdb.embedded.mapping.NullMappings;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
@@ -27,82 +28,116 @@ import java.util.ListIterator;
  *
  * @author <a href="mailto:pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>
  */
-public final class QueryResultSet extends AbstractConnectionResult implements Iterable, AbstractResultTable {
+public final class QueryResultSet extends AbstractConnectionResult implements Iterable {
 
-    /** The column names. */
-    private final String columnNames[];
+    /**
+     * Get the string representation of a typesID
+     *
+     * @param typeID - The typeID to convert
+     * @return The String representation of it
+     */
+    private static String TypeIDToString(int typeID) {
+        switch (typeID) {
+            case 1:
+                return "boolean";
+            case 2:
+                return "tinyint";
+            case 3:
+                return "smallint";
+            case 4:
+                return "int";
+            case 5:
+                return "bigint";
+            case 6:
+                return "real";
+            case 7:
+                return "double";
+            case 8:
+                return "char";
+            case 9:
+                return "date";
+            case 10:
+                return "timestamp";
+            case 11:
+                return "time";
+            case 12:
+                return "blob";
+            case 13:
+                return "decimal";
+            default:
+                return "unknown";
+        }
+    }
 
-    /** The column types. */
-    private final String columnTypes[];
+    /** The C structPointer */
+    private long structPointer;
 
-    /** The column digits. */
-    private final int columnDigits[];
-
-    /** The column scales. */
-    private final int columnScales[];
-
-    /** The array to keep the data in */
-    private final Object[] data;
+    /** The number of columns in the query result. */
+    private final int numberOfColumns;
 
     /** The number of rows in the query result. */
     private final int numberOfRows;
 
-    private QueryResultSet(MonetDBEmbeddedConnection connection, long tablePointer, String[] columnNames,
-                          String[] columnTypes, int[] columnDigits, int[] columnScales, Object[] data,
-                          int numberOfRows) {
-        super(connection, tablePointer);
-        this.columnNames = columnNames;
-        this.columnTypes = columnTypes;
-        this.columnDigits = columnDigits;
-        this.columnScales = columnScales;
-        this.data = data;
+    /** The column names. */
+    private String[] columnNames;
+
+    /** For debugging only */
+    private int[] typesIDs;
+
+    private QueryResultSet(MonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns,
+                           int numberOfRows, int[] typesIDs) {
+        super(connection);
+        this.structPointer = structPointer;
+        this.numberOfColumns = numberOfColumns;
         this.numberOfRows = numberOfRows;
+        this.typesIDs = typesIDs;
+        this.columnNames = null;
     }
 
     @Override
     public int getNumberOfRows() { return this.numberOfRows; }
 
     @Override
-    public int getNumberOfColumns() { return this.columnNames.length; }
+    public int getNumberOfColumns() { return this.numberOfColumns; }
+
+    private native void getColumnNamesInternal(long tablePointer, String[] input);
+
+    private native void getColumnTypesInternal(long tablePointer, String[] input);
+
+    private native void getMappingsInternal(long tablePointer,  MonetDBToJavaMapping[] input);
+
+    private native void getColumnDigitsInternal(long tablePointer, int[] input);
+
+    private native void getColumnScalesInternal(long tablePointer, int[] input);
 
     @Override
-    public String[] getColumnNames() {
-        return columnNames;
+    public void getColumnNames(String[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getColumnNamesInternal(this.structPointer, input);
     }
 
     @Override
-    public String[] getColumnTypes() {
-        return columnTypes;
+    public void getColumnTypes(String[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getColumnTypesInternal(this.structPointer, input);
     }
 
     @Override
-    public MonetDBToJavaMapping[] getMappings() {
-        int i = 0;
-        MonetDBToJavaMapping[] result = new MonetDBToJavaMapping[this.getNumberOfColumns()];
-        for(String col : this.columnTypes) {
-            result[i] = MonetDBToJavaMapping.GetJavaMappingFromMonetDBString(col);
-            i++;
-        }
-        return result;
+    public void getMappings(MonetDBToJavaMapping[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getMappingsInternal(this.structPointer, input);
     }
 
     @Override
-    public int[] getColumnDigits() {
-        return columnDigits;
+    public void getColumnDigits(int[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getColumnDigitsInternal(this.structPointer, input);
     }
 
     @Override
-    public int[] getColumnScales() {
-        return columnScales;
-    }
-
-    /**
-     * Gets the pointer to the full result set, which is array of Object arrays, be careful!!
-     *
-     * @return The entire result set.
-     */
-    public Object[] getFullResultSet() {
-        return this.data;
+    public void getColumnScales(int[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getColumnScalesInternal(this.structPointer, input);
     }
 
     /**
@@ -112,6 +147,10 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @return The index number
      */
     public int getColumnIndexByName(String columnName) {
+        if(this.columnNames == null) { //instantiate if it not exists yet
+            this.columnNames = new String[this.numberOfColumns];
+            this.getColumnNamesInternal(this.structPointer, this.columnNames);
+        }
         int index = 0;
         for (String col : this.columnNames) {
             if (col.equals(columnName)) {
@@ -119,895 +158,1941 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
             }
             index++;
         }
-        throw new ArrayIndexOutOfBoundsException("The column is not present in the result set!");
+        throw new ArrayIndexOutOfBoundsException("The column with the name " + columnName + " is not present in the result set!");
+    }
+
+    private native byte getByteByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private native short getShortByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private native int getIntegerByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private native long getLongByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private native float getFloatByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private native double getDoubleByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private native String getStringByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private native Date getDateByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private native Timestamp getTimestampByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private native Time getTimeByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private native BigDecimal getDecimalByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private native byte[] getBlobByColumnAndRowInternal(long structPointer, int column, int row);
+
+    private void checkRangesScalars(int column, int row) {
+        if(column < 1) {
+            throw new ArrayIndexOutOfBoundsException("The column index is smaller than 1?");
+        } else if(column > this.numberOfColumns) {
+            throw new ArrayIndexOutOfBoundsException("The column index is larger than the number of columns? "
+                    + column + " > " + this.numberOfColumns);
+        } else if(row < 1) {
+            throw new ArrayIndexOutOfBoundsException("The row index is smaller than 1?");
+        } else if(row > this.numberOfRows) {
+            throw new ArrayIndexOutOfBoundsException("The row index is larger than the number of rows?"
+                    + row + " > " + this.numberOfRows);
+        }
     }
 
     /**
-     * Gets the current row value as a Java Boolean.
+     * Retrieves a single boolean value in the result set.
      *
      * @param column The column index starting from 1
-     * @return A Java Boolean column
+     * @param row The row index starting from 1
+     * @return The boolean value
      */
-    public boolean[] getBooleanColumnByIndex(int column) {
+    public boolean getBooleanByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
         column--;
-        boolean[] res = new boolean[this.numberOfRows];
-        switch (this.columnTypes[column]) {
-            case "boolean":
-            case "tinyint":
-                byte[] aux0 = (byte[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows; i++) {
-                    res[i] = aux0[i] != 0 && aux0[i] != Byte.MIN_VALUE;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                return this.getByteByColumnAndRowInternal(this.structPointer, column, row) != 0;
+            case 3:
+                return this.getShortByColumnAndRowInternal(this.structPointer, column, row) != 0;
+            case 4:
+                return this.getIntegerByColumnAndRowInternal(this.structPointer, column, row) != 0;
+            case 5:
+                return this.getLongByColumnAndRowInternal(this.structPointer, column, row) != 0;
+            case 6:
+                return this.getFloatByColumnAndRowInternal(this.structPointer, column, row) != 0.0f;
+            case 7:
+                return this.getDoubleByColumnAndRowInternal(this.structPointer, column, row) != 0.0d;
+            case 8:
+                String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
+                return Boolean.parseBoolean(aux6);
+            case 13:
+                BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux7 != null) && !aux7.equals(BigDecimal.ZERO);
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to boolean!");
+        }
+    }
+
+    /**
+     * Retrieves a single byte value in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The byte value
+     */
+    public byte getByteByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                return this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+            case 3:
+                short aux1 = this.getShortByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux1 == NullMappings.GetShortNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux1;
+            case 4:
+                int aux2 = this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux2 == NullMappings.GetIntNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux2;
+            case 5:
+                long aux3 = this.getLongByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux3 == NullMappings.GetLongNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux3;
+            case 6:
+                float aux4 = this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux4 == NullMappings.GetFloatNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) Math.round(aux4);
+            case 7:
+                double aux5 = this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux5 == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) Math.round(aux5);
+            case 8:
+                String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
+                return aux6 == null ? NullMappings.GetByteNullConstant() : Byte.parseByte(aux6);
+            case 13:
+                BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
+                return aux7 == null ? NullMappings.GetByteNullConstant() : aux7.byteValue();
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to byte!");
+        }
+    }
+
+    /**
+     * Retrieves a single short value in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The short value
+     */
+    public short getShortByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux1 == NullMappings.GetByteNullConstant()) ? NullMappings.GetShortNullConstant() : aux1;
+            case 3:
+                return this.getShortByColumnAndRowInternal(this.structPointer, column, row);
+            case 4:
+                int aux2 = this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux2 == NullMappings.GetIntNullConstant()) ? NullMappings.GetShortNullConstant() : (short) aux2;
+            case 5:
+                long aux3 = this.getLongByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux3 == NullMappings.GetLongNullConstant()) ? NullMappings.GetShortNullConstant() : (short) aux3;
+            case 6:
+                float aux4 = this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux4 == NullMappings.GetFloatNullConstant()) ? NullMappings.GetShortNullConstant() : (short) Math.round(aux4);
+            case 7:
+                double aux5 = this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux5 == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetShortNullConstant() : (short) Math.round(aux5);
+            case 8:
+                String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
+                return aux6 == null ? NullMappings.GetShortNullConstant() : Short.parseShort(aux6);
+            case 13:
+                BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
+                return aux7 == null ? NullMappings.GetShortNullConstant() : aux7.shortValue();
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to short!");
+        }
+    }
+
+    /**
+     * Retrieves a single integer value in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The integer value
+     */
+    public int getIntegerByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux1 == NullMappings.GetByteNullConstant()) ? NullMappings.GetIntNullConstant() : aux1;
+            case 3:
+                short aux2 = this.getShortByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux2 == NullMappings.GetShortNullConstant()) ? NullMappings.GetIntNullConstant() : aux2;
+            case 4:
+                return this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
+            case 5:
+                long aux3 = this.getLongByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux3 == NullMappings.GetLongNullConstant()) ? NullMappings.GetIntNullConstant() : (int) aux3;
+            case 6:
+                float aux4 = this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux4 == NullMappings.GetFloatNullConstant()) ? NullMappings.GetIntNullConstant() : Math.round(aux4);
+            case 7:
+                double aux5 = this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux5 == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetIntNullConstant() : (int) Math.round(aux5);
+            case 8:
+                String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
+                return aux6 == null ? NullMappings.GetIntNullConstant() : Integer.parseInt(aux6);
+            case 13:
+                BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
+                return aux7 == null ? NullMappings.GetIntNullConstant() : aux7.intValue();
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to int!");
+        }
+    }
+
+    /**
+     * Retrieves a single long value in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The long value
+     */
+    public long getLongByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux1 == NullMappings.GetByteNullConstant()) ? NullMappings.GetLongNullConstant() : aux1;
+            case 3:
+                short aux2 = this.getShortByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux2 == NullMappings.GetShortNullConstant()) ? NullMappings.GetLongNullConstant() : aux2;
+            case 4:
+                int aux3 = this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux3 == NullMappings.GetIntNullConstant()) ? NullMappings.GetLongNullConstant() : aux3;
+            case 5:
+                return this.getLongByColumnAndRowInternal(this.structPointer, column, row);
+            case 6:
+                float aux4 = this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux4 == NullMappings.GetFloatNullConstant()) ? NullMappings.GetLongNullConstant() : Math.round(aux4);
+            case 7:
+                double aux5 = this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux5 == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetLongNullConstant() : Math.round(aux5);
+            case 8:
+                String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
+                return aux6 == null ? NullMappings.GetLongNullConstant() : Long.parseLong(aux6);
+            case 13:
+                BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
+                return aux7 == null ? NullMappings.GetLongNullConstant() : aux7.longValue();
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to long!");
+        }
+    }
+
+    /**
+     * Retrieves a single float value in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The float value
+     */
+    public float getFloatByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux1 == NullMappings.GetByteNullConstant()) ? NullMappings.GetFloatNullConstant() : aux1;
+            case 3:
+                short aux2 = this.getShortByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux2 == NullMappings.GetShortNullConstant()) ? NullMappings.GetFloatNullConstant() : aux2;
+            case 4:
+                int aux3 = this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux3 == NullMappings.GetIntNullConstant()) ? NullMappings.GetFloatNullConstant() : aux3;
+            case 5:
+                long aux4 = this.getLongByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux4 == NullMappings.GetLongNullConstant()) ? NullMappings.GetFloatNullConstant() : aux4;
+            case 6:
+                return this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
+            case 7:
+                double aux5 = this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux5 == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetFloatNullConstant() : (float) aux5;
+            case 8:
+                String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
+                return aux6 == null ? NullMappings.GetFloatNullConstant() : Float.parseFloat(aux6);
+            case 13:
+                BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
+                return aux7 == null ? NullMappings.GetFloatNullConstant() : aux7.floatValue();
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to float!");
+        }
+    }
+
+    /**
+     * Retrieves a single double value in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The double value
+     */
+    public double getDoubleByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux1 == NullMappings.GetByteNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux1;
+            case 3:
+                short aux2 = this.getShortByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux2 == NullMappings.GetShortNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux2;
+            case 4:
+                int aux3 = this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux3 == NullMappings.GetIntNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux3;
+            case 5:
+                long aux4 = this.getLongByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux4 == NullMappings.GetLongNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux4;
+            case 6:
+                double aux5 = this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux5 == NullMappings.GetFloatNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux5;
+            case 7:
+                return this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
+            case 8:
+                String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
+                return aux6 == null ? NullMappings.GetDoubleNullConstant() : Double.parseDouble(aux6);
+            case 13:
+                BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
+                return aux7 == null ? NullMappings.GetDoubleNullConstant() : aux7.doubleValue();
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to double!");
+        }
+    }
+
+    /**
+     * Retrieves a single String value in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The String value
+     */
+    public String getStringByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        Object aux;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux1 == NullMappings.GetByteNullConstant()) ? null : Byte.toString(aux1);
+            case 3:
+                short aux2 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux2 == NullMappings.GetShortNullConstant()) ? null : Short.toString(aux2);
+            case 4:
+                int aux3 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux3 == NullMappings.GetIntNullConstant()) ? null : Integer.toString(aux3);
+            case 5:
+                long aux4 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux4 == NullMappings.GetLongNullConstant()) ? null : Long.toString(aux4);
+            case 6:
+                float aux5 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux5 == NullMappings.GetFloatNullConstant()) ? null : Float.toString(aux5);
+            case 7:
+                double aux6 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
+                return (aux6 == NullMappings.GetDoubleNullConstant()) ? null : Double.toString(aux6);
+            case 8:
+                return this.getStringByColumnAndRowInternal(this.structPointer, column, row);
+            case 12:
+                byte[] array = this.getBlobByColumnAndRowInternal(this.structPointer, column, row);
+                return  array == null ? null : Arrays.toString(array);
+            case 9:
+                aux = this.getDateByColumnAndRowInternal(this.structPointer, column, row);
+                break;
+            case 10:
+                aux = this.getTimestampByColumnAndRowInternal(this.structPointer, column, row);
+                break;
+            case 11:
+                aux = this.getTimeByColumnAndRowInternal(this.structPointer, column, row);
+                break;
+            case 13:
+                aux = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to string!");
+        }
+        return aux == null ? null : aux.toString();
+    }
+
+    /**
+     * Retrieves a single Date value in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The Date value
+     */
+    public Date getDateByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 9:
+                return this.getDateByColumnAndRowInternal(this.structPointer, column, row);
+            case 10:
+                Timestamp aux1 = this.getTimestampByColumnAndRowInternal(this.structPointer, column, row);
+                return aux1 == null ? null : new Date(aux1.getTime());
+            case 11:
+                Time aux2 = this.getTimeByColumnAndRowInternal(this.structPointer, column, row);
+                return aux2 == null ? null : new Date(aux2.getTime());
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to date!");
+        }
+    }
+
+    /**
+     * Retrieves a single Timestamp value in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The Timestamp value
+     */
+    public Timestamp getTimestampByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 9:
+                Date aux1 = this.getDateByColumnAndRowInternal(this.structPointer, column, row);
+                return aux1 == null ? null : new Timestamp(aux1.getTime());
+            case 10:
+                return this.getTimestampByColumnAndRowInternal(this.structPointer, column, row);
+            case 11:
+                Time aux2 = this.getTimeByColumnAndRowInternal(this.structPointer, column, row);
+                return aux2 == null ? null : new Timestamp(aux2.getTime());
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to timestamp!");
+        }
+    }
+
+    /**
+     * Retrieves a single Time value in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The Time value
+     */
+    public Time getTimeByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 9:
+                Date aux1 = this.getDateByColumnAndRowInternal(this.structPointer, column, row);
+                return aux1 == null ? null : new Time(aux1.getTime());
+            case 10:
+                Timestamp aux2 = this.getTimestampByColumnAndRowInternal(this.structPointer, column, row);
+                return aux2 == null ? null : new Time(aux2.getTime());
+            case 11:
+                return this.getTimeByColumnAndRowInternal(this.structPointer, column, row);
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to time!");
+        }
+    }
+
+    /**
+     * Retrieves a single byte[] value (BLOB) in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The byte[] value (BLOB)
+     */
+    public byte[] getBlobByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 8:
+                String aux1 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
+                return aux1 == null ? null : aux1.getBytes();
+            case 12:
+                return this.getBlobByColumnAndRowInternal(this.structPointer, column, row);
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to blob!");
+        }
+    }
+
+    /**
+     * Retrieves a single BigDecimal value in the result set.
+     *
+     * @param column The column index starting from 1
+     * @param row The row index starting from 1
+     * @return The BigDecimal value
+     */
+    public BigDecimal getDecimalByColumnIndexAndRow(int column, int row) {
+        this.checkRangesScalars(column, row);
+        column--;
+        row--;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                return new BigDecimal(this.getByteByColumnAndRowInternal(this.structPointer, column, row));
+            case 3:
+                return new BigDecimal(this.getShortByColumnAndRowInternal(this.structPointer, column, row));
+            case 4:
+                return new BigDecimal(this.getIntegerByColumnAndRowInternal(this.structPointer, column, row));
+            case 5:
+                return new BigDecimal(this.getLongByColumnAndRowInternal(this.structPointer, column, row));
+            case 6:
+                return new BigDecimal(this.getFloatByColumnAndRowInternal(this.structPointer, column, row));
+            case 7:
+                return new BigDecimal(this.getDoubleByColumnAndRowInternal(this.structPointer, column, row));
+            case 8:
+                String aux1 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
+                return aux1 == null ? null : new BigDecimal(aux1);
+            case 13:
+                return this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to decimal!");
+        }
+    }
+
+    /**
+     * Retrieves a single boolean value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The boolean value
+     */
+    public boolean getBooleanByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getBooleanByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single byte value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The byte value
+     */
+    public byte getByteByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getByteByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single short value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The short value
+     */
+    public short getShortByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getShortByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single integer value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The integer value
+     */
+    public int getIntegerByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getIntegerByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single long value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The long value
+     */
+    public long getLongByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getLongByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single float value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The float value
+     */
+    public float getFloatByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getFloatByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single double value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The double value
+     */
+    public double getDoubleByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getDoubleByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single String value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The String value
+     */
+    public String getStringByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getStringByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single Date value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The Date value
+     */
+    public Date getDateByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getDateByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single Timestamp value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The Timestamp value
+     */
+    public Timestamp getTimestampByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getTimestampByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single Time value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The Time value
+     */
+    public Time getTimeByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getTimeByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single byte[] (BLOB) value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The byte[] (BLOB) value
+     */
+    public byte[] getBlobByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getBlobByColumnIndexAndRow(index, row);
+    }
+
+    /**
+     * Retrieves a single decimal value in the result set by name.
+     *
+     * @param columnName The column name
+     * @param row The row index starting from 1
+     * @return The decimal value
+     */
+    public BigDecimal getDecimalByColumnNameAndRow(String columnName, int row) {
+        int index = this.getColumnIndexByName(columnName);
+        return this.getDecimalByColumnIndexAndRow(index, row);
+    }
+
+    private native void getBooleanColumnByIndexInternal(long structPointer, int column, boolean[] input, int offset, int length);
+
+    private native void getByteColumnByIndexInternal(long structPointer, int column, byte[] input, int offset, int length);
+
+    private native void getShortColumnByIndexInternal(long structPointer, int column, short[] input, int offset, int length);
+
+    private native void getIntColumnByIndexInternal(long structPointer, int column, int[] input, int offset, int length);
+
+    private native void getLongColumnByIndexInternal(long structPointer, int column, long[] input, int offset, int length);
+
+    private native void getFloatColumnByIndexInternal(long structPointer, int column, float[] input, int offset, int length);
+
+    private native void getDoubleColumnByIndexInternal(long structPointer, int column, double[] input, int offset, int length);
+
+    private native void getStringColumnByIndexInternal(long structPointer, int column, String[] input, int offset, int length);
+
+    private native void getDateColumnByIndexInternal(long structPointer, int column, Date[] input, int offset, int length);
+
+    private native void getTimestampColumnByIndexInternal(long structPointer, int column, Timestamp[] input, int offset, int length);
+
+    private native void getTimeColumnByIndexInternal(long structPointer, int column, Time[] input, int offset, int length);
+
+    private native void getBlobColumnByIndexInternal(long structPointer, int column, byte[][] input, int offset, int length);
+
+    private native void getDecimalColumnByIndexInternal(long structPointer, int column, BigDecimal[] input, int offset, int length);
+
+    private void checkRangesArrays(int column, Object input, int offset, int length) {
+        int sum = offset + length;
+        if(column < 1) {
+            throw new ArrayIndexOutOfBoundsException("The column index is smaller than 1?");
+        } else if(column > this.numberOfColumns) {
+            throw new ArrayIndexOutOfBoundsException("The column index is larger than the number of columns? "
+                    + column + " > " + this.numberOfColumns);
+        } else if (length < 1) {
+            throw new ArrayIndexOutOfBoundsException("Retrieving 0 rows?");
+        } else if (sum > this.numberOfRows) {
+            throw new ArrayIndexOutOfBoundsException("The end index is larger than the number of rows! "
+                    + (sum) + " > " + this.numberOfRows);
+        }
+        int arrayLength = Array.getLength(input);
+        if (sum > arrayLength) {
+            throw new ArrayIndexOutOfBoundsException("The end index is larger than the length of the provided array! "
+                    + (sum) + " > " + arrayLength);
+        }
+    }
+
+    /**
+     * Retrieves a boolean column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input boolean array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
+     */
+    public void getBooleanColumnByIndex(int column, boolean[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
+        column--;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                this.getBooleanColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            case 3:
+                short[] aux2 = new short[length];
+                this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = aux2[i] != 0 && aux2[i] != NullMappings.GetShortNullConstant();
                 }
                 break;
-            case "smallint":
-                short[] aux1 = (short[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = aux1[i] != 0 && aux1[i] != Short.MIN_VALUE;
+            case 4:
+                int[] aux3 = new int[length];
+                this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = aux3[i] != 0 && aux3[i] != NullMappings.GetIntNullConstant();
                 }
                 break;
-            case "int":
-            case "month_interval":
-                int[] aux2 = (int[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = aux2[i] != 0 && aux2[i] != Integer.MIN_VALUE;
+            case 5:
+                long[] aux4 = new long[length];
+                this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = aux4[i] != 0 && aux4[i] != NullMappings.GetLongNullConstant();
                 }
                 break;
-            case "bigint":
-            case "sec_interval":
-                long[] aux3 = (long[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = aux3[i] != 0 && aux3[i] != Long.MIN_VALUE;
+            case 6:
+                float[] aux5 = new float[length];
+                this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = aux5[i] != 0.0f && aux5[i] != NullMappings.GetFloatNullConstant();
                 }
                 break;
-            case "real":
-                float[] aux4 = (float[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = aux4[i] != 0.0f && aux4[i] != Float.MIN_VALUE;
+            case 7:
+                double[] aux6 = new double[length];
+                this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = aux6[i] != 0.0d && aux6[i] != NullMappings.GetDoubleNullConstant();
                 }
                 break;
-            case "double":
-                double[] aux5 = (double[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = aux5[i] != 0.0d && aux5[i] != Double.MIN_VALUE;
+            case 8:
+                String[] aux7 = new String[length];
+                this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux7[i] != null) && Boolean.parseBoolean(aux7[i]);
                 }
                 break;
-            case "char":
-            case "varchar":
-            case "clob":
-                String[] aux6 = (String[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = (aux6[i] != null) && Boolean.parseBoolean(aux6[i]);
-                }
-                break;
-            case "decimal":
-                BigDecimal[] aux7 = (BigDecimal[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] =  (aux7[i] != null) && !aux7[i].equals(BigDecimal.ZERO);
+            case 13:
+                BigDecimal[] aux8 = new BigDecimal[length];
+                this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
+                for(int i = 0 ; i < length ; i++) {
+                    input[i] =  (aux8[i] != null) && !aux8[i].equals(BigDecimal.ZERO);
                 }
                 break;
             default:
-                throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to boolean!");
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to boolean[]!");
         }
-        return res;
     }
 
     /**
-     * Gets a column as a Java Byte.
+     * Retrieves a byte column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java Byte column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input byte array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public byte[] getByteColumnByIndex(int column) {
+    public void getByteColumnByIndex(int column, byte[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("boolean") || columnType.equals("tinyint")) {
-            return (byte[]) this.data[column];
-        } else {
-            byte[] res = new byte[this.numberOfRows];
-            switch (this.columnTypes[column]) {
-                case "smallint":
-                    short[] aux1 = (short[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux1[i] == Short.MIN_VALUE) ? Byte.MIN_VALUE : (byte) aux1[i];
-                    }
-                    break;
-                case "int":
-                case "month_interval":
-                    int[] aux2 = (int[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux2[i] == Integer.MIN_VALUE) ? Byte.MIN_VALUE : (byte) aux2[i];
-                    }
-                    break;
-                case "bigint":
-                case "sec_interval":
-                    long[] aux3 = (long[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux3[i] == Long.MIN_VALUE) ? Byte.MIN_VALUE : (byte) aux3[i];
-                    }
-                    break;
-                case "real":
-                    float[] aux4 = (float[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux4[i] == Float.MIN_VALUE) ? Byte.MIN_VALUE : (byte) Math.round(aux4[i]);
-                    }
-                    break;
-                case "double":
-                    double[] aux5 = (double[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux5[i] == Double.MIN_VALUE) ? Byte.MIN_VALUE : (byte) Math.round(aux5[i]);
-                    }
-                    break;
-                case "char":
-                case "varchar":
-                case "clob":
-                    String[] aux6 = (String[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux6[i] != null) ? Byte.parseByte(aux6[i]) : Byte.MIN_VALUE;
-                    }
-                    break;
-                case "decimal":
-                    BigDecimal[] aux7 = (BigDecimal[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux7[i] != null) ? (byte) aux7[i].intValue() : Byte.MIN_VALUE;
-                    }
-                    break;
-                default:
-                    throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to byte!");
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                this.getByteColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            case 3:
+                short[] aux2 = new short[length];
+                this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux2[i];
+                }
+                break;
+            case 4:
+                int[] aux3 = new int[length];
+                this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux3[i];
+                }
+                break;
+            case 5:
+                long[] aux4 = new long[length];
+                this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux4[i];
+                }
+                break;
+            case 6:
+                float[] aux5 = new float[length];
+                this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) Math.round(aux5[i]);
+                }
+                break;
+            case 7:
+                double[] aux6 = new double[length];
+                this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) Math.round(aux6[i]);
+                }
+                break;
+            case 8:
+                String[] aux7 = new String[length];
+                this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux7[i] != null) ? Byte.parseByte(aux7[i]) : NullMappings.GetByteNullConstant();
+                }
+                break;
+            case 13:
+                BigDecimal[] aux8 = new BigDecimal[length];
+                this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
+                for(int i = 0 ; i < length ; i++) {
+                    input[i] = (aux8[i] != null) ? aux8[i].byteValue() : NullMappings.GetByteNullConstant();
+                }
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to byte[]!");
         }
     }
 
     /**
-     * Gets a column as a Java Short.
+     * Retrieves a short column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java Short column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input short array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public short[] getShortColumnByIndex(int column) {
+    public void getShortColumnByIndex(int column, short[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("smallint")) {
-            return (short[]) this.data[column];
-        } else {
-            short[] res = new short[this.numberOfRows];
-            switch (this.columnTypes[column]) {
-                case "boolean":
-                case "tinyint":
-                    byte[] aux1 = (byte[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows; i++) {
-                        res[i] = (aux1[i] == Byte.MIN_VALUE) ? Short.MIN_VALUE : aux1[i];
-                    }
-                    break;
-                case "int":
-                case "month_interval":
-                    int[] aux2 = (int[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux2[i] == Integer.MIN_VALUE) ? Short.MIN_VALUE : (short) aux2[i];
-                    }
-                    break;
-                case "bigint":
-                case "sec_interval":
-                    long[] aux3 = (long[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux3[i] == Long.MIN_VALUE) ? Short.MIN_VALUE : (short) aux3[i];
-                    }
-                    break;
-                case "real":
-                    float[] aux4 = (float[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux4[i] == Float.MIN_VALUE) ? Short.MIN_VALUE : (short) Math.round(aux4[i]);
-                    }
-                    break;
-                case "double":
-                    double[] aux5 = (double[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux5[i] == Double.MIN_VALUE) ? Short.MIN_VALUE : (short) Math.round(aux5[i]);
-                    }
-                    break;
-                case "char":
-                case "varchar":
-                case "clob":
-                    String[] aux6 = (String[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux6[i] != null) ? Short.parseShort(aux6[i]) : Short.MIN_VALUE;
-                    }
-                    break;
-                case "decimal":
-                    BigDecimal[] aux7 = (BigDecimal[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux7[i] != null) ? (short) aux7[i].intValue() : Short.MIN_VALUE;
-                    }
-                    break;
-                default:
-                    throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to short!");
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte[] aux1 = new byte[length];
+                this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? NullMappings.GetShortNullConstant() : aux1[i];
+                }
+                break;
+            case 3:
+                this.getShortColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            case 4:
+                int[] aux3 = new int[length];
+                this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? NullMappings.GetShortNullConstant() : (short) aux3[i];
+                }
+                break;
+            case 5:
+                long[] aux4 = new long[length];
+                this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? NullMappings.GetShortNullConstant() : (short) aux4[i];
+                }
+                break;
+            case 6:
+                float[] aux5 = new float[length];
+                this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? NullMappings.GetShortNullConstant() : (short) Math.round(aux5[i]);
+                }
+                break;
+            case 7:
+                double[] aux6 = new double[length];
+                this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetShortNullConstant() : (short) Math.round(aux6[i]);
+                }
+                break;
+            case 8:
+                String[] aux7 = new String[length];
+                this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux7[i] != null) ? Short.parseShort(aux7[i]) : NullMappings.GetShortNullConstant();
+                }
+                break;
+            case 13:
+                BigDecimal[] aux8 = new BigDecimal[length];
+                this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
+                for(int i = 0 ; i < length ; i++) {
+                    input[i] = (aux8[i] != null) ? aux8[i].shortValue() : NullMappings.GetShortNullConstant();
+                }
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to short[]!");
         }
     }
 
     /**
-     * Gets a column as a Java Integer.
+     * Retrieves an integer column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java Integer column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input integer array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public int[] getIntColumnByIndex(int column) {
+    public void getIntColumnByIndex(int column, int[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("int") || columnType.equals("month_interval")) {
-            return (int[]) this.data[column];
-        } else {
-            int[] res = new int[this.numberOfRows];
-            switch (this.columnTypes[column]) {
-                case "boolean":
-                case "tinyint":
-                    byte[] aux0 = (byte[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows; i++) {
-                        res[i] = (aux0[i] == Byte.MIN_VALUE) ? Integer.MIN_VALUE : aux0[i];
-                    }
-                    break;
-                case "smallint":
-                    short[] aux1 = (short[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux1[i] == Short.MIN_VALUE) ? Integer.MIN_VALUE : aux1[i];
-                    }
-                    break;
-                case "bigint":
-                case "sec_interval":
-                    long[] aux3 = (long[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux3[i] == Long.MIN_VALUE) ? Integer.MIN_VALUE : (int) aux3[i];
-                    }
-                    break;
-                case "real":
-                    float[] aux4 = (float[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux4[i] == Float.MIN_VALUE) ? Integer.MIN_VALUE : Math.round(aux4[i]);
-                    }
-                    break;
-                case "double":
-                    double[] aux5 = (double[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux5[i] == Double.MIN_VALUE) ? Integer.MIN_VALUE : (int) Math.round(aux5[i]);
-                    }
-                    break;
-                case "char":
-                case "varchar":
-                case "clob":
-                    String[] aux6 = (String[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux6[i] != null) ? Integer.parseInt(aux6[i]) : Integer.MIN_VALUE;
-                    }
-                    break;
-                case "decimal":
-                    BigDecimal[] aux7 = (BigDecimal[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux7[i] != null) ? aux7[i].intValue() : Integer.MIN_VALUE;
-                    }
-                    break;
-                default:
-                    throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to integer!");
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte[] aux1 = new byte[length];
+                this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? NullMappings.GetIntNullConstant() : aux1[i];
+                }
+                break;
+            case 3:
+                short[] aux2 = new short[length];
+                this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? NullMappings.GetIntNullConstant() : aux2[i];
+                }
+                break;
+            case 4:
+                this.getIntColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            case 5:
+                long[] aux4 = new long[length];
+                this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? NullMappings.GetIntNullConstant() : (int) aux4[i];
+                }
+                break;
+            case 6:
+                float[] aux5 = new float[length];
+                this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? NullMappings.GetIntNullConstant() : Math.round(aux5[i]);
+                }
+                break;
+            case 7:
+                double[] aux6 = new double[length];
+                this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetIntNullConstant() : (int) Math.round(aux6[i]);
+                }
+                break;
+            case 8:
+                String[] aux7 = new String[length];
+                this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux7[i] != null) ? Integer.parseInt(aux7[i]) : NullMappings.GetIntNullConstant();
+                }
+                break;
+            case 13:
+                BigDecimal[] aux8 = new BigDecimal[length];
+                this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
+                for(int i = 0 ; i < length ; i++) {
+                    input[i] = (aux8[i] != null) ? aux8[i].intValue() : NullMappings.GetIntNullConstant();
+                }
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to int[]!");
         }
     }
 
     /**
-     * Gets a column as a Java Long.
+     * Retrieves a long column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java Long column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input long array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public long[] getLongColumnByIndex(int column) {
+    public void getLongColumnByIndex(int column, long[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("bigint") || columnType.equals("sec_interval")) {
-            return (long[]) this.data[column];
-        } else {
-            long[] res = new long[this.numberOfRows];
-            switch (this.columnTypes[column]) {
-                case "boolean":
-                case "tinyint":
-                    byte[] aux0 = (byte[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows; i++) {
-                        res[i] = (aux0[i] == Byte.MIN_VALUE) ? Long.MIN_VALUE : aux0[i];
-                    }
-                    break;
-                case "smallint":
-                    short[] aux1 = (short[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux1[i] == Short.MIN_VALUE) ? Long.MIN_VALUE : aux1[i];
-                    }
-                    break;
-                case "int":
-                case "month_interval":
-                    int[] aux2 = (int[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux2[i] == Integer.MIN_VALUE) ? Long.MIN_VALUE : aux2[i];
-                    }
-                    break;
-                case "real":
-                    float[] aux4 = (float[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux4[i] == Float.MIN_VALUE) ? Long.MIN_VALUE : Math.round(aux4[i]);
-                    }
-                    break;
-                case "double":
-                    double[] aux5 = (double[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux5[i] == Double.MIN_VALUE) ? Long.MIN_VALUE : Math.round(aux5[i]);
-                    }
-                    break;
-                case "char":
-                case "varchar":
-                case "clob":
-                    String[] aux6 = (String[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux6[i] != null) ? Long.parseLong(aux6[i]) : Long.MIN_VALUE;
-                    }
-                    break;
-                case "decimal":
-                    BigDecimal[] aux7 = (BigDecimal[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux7[i] != null) ? aux7[i].longValue() : Long.MIN_VALUE;
-                    }
-                    break;
-                default:
-                    throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to long!");
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte[] aux1 = new byte[length];
+                this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? NullMappings.GetLongNullConstant() : aux1[i];
+                }
+                break;
+            case 3:
+                short[] aux2 = new short[length];
+                this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? NullMappings.GetLongNullConstant() : aux2[i];
+                }
+                break;
+            case 4:
+                int[] aux3 = new int[length];
+                this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? NullMappings.GetLongNullConstant() : aux3[i];
+                }
+                break;
+            case 5:
+                this.getLongColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            case 6:
+                float[] aux5 = new float[length];
+                this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? NullMappings.GetLongNullConstant() : Math.round(aux5[i]);
+                }
+                break;
+            case 7:
+                double[] aux6 = new double[length];
+                this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetLongNullConstant() : Math.round(aux6[i]);
+                }
+                break;
+            case 8:
+                String[] aux7 = new String[length];
+                this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux7[i] != null) ? Long.parseLong(aux7[i]) : NullMappings.GetLongNullConstant();
+                }
+                break;
+            case 13:
+                BigDecimal[] aux8 = new BigDecimal[length];
+                this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
+                for(int i = 0 ; i < length ; i++) {
+                    input[i] = (aux8[i] != null) ? aux8[i].longValue() : NullMappings.GetLongNullConstant();
+                }
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to long[]!");
         }
     }
 
     /**
-     * Gets a column as a Java Float.
+     * Retrieves a float column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java Float column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input float array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public float[] getFloatColumnByIndex(int column) {
+    public void getFloatColumnByIndex(int column, float[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("real")) {
-            return (float[]) this.data[column];
-        } else {
-            float[] res = new float[this.numberOfRows];
-            switch (this.columnTypes[column]) {
-                case "boolean":
-                case "tinyint":
-                    byte[] aux0 = (byte[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows; i++) {
-                        res[i] = (aux0[i] == Byte.MIN_VALUE) ? Float.MIN_VALUE : aux0[i];
-                    }
-                    break;
-                case "smallint":
-                    short[] aux1 = (short[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux1[i] == Short.MIN_VALUE) ? Float.MIN_VALUE : aux1[i];
-                    }
-                    break;
-                case "int":
-                case "month_interval":
-                    int[] aux2 = (int[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux2[i] == Integer.MIN_VALUE) ? Float.MIN_VALUE : aux2[i];
-                    }
-                    break;
-                case "bigint":
-                case "sec_interval":
-                    long[] aux3 = (long[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux3[i] == Long.MIN_VALUE) ? Float.MIN_VALUE : aux3[i];
-                    }
-                    break;
-                case "double":
-                    double[] aux5 = (double[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux5[i] == Double.MIN_VALUE) ? Float.MIN_VALUE : (float) aux5[i];
-                    }
-                    break;
-                case "char":
-                case "varchar":
-                case "clob":
-                    String[] aux6 = (String[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux6[i] != null) ? Float.parseFloat(aux6[i]) : Float.MIN_VALUE;
-                    }
-                    break;
-                case "decimal":
-                    BigDecimal[] aux7 = (BigDecimal[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux7[i] != null) ? aux7[i].floatValue() : Float.MIN_VALUE;
-                    }
-                    break;
-                default:
-                    throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to float!");
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte[] aux1 = new byte[length];
+                this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? NullMappings.GetFloatNullConstant() : aux1[i];
+                }
+                break;
+            case 3:
+                short[] aux2 = new short[length];
+                this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? NullMappings.GetFloatNullConstant() : aux2[i];
+                }
+                break;
+            case 4:
+                int[] aux3 = new int[length];
+                this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? NullMappings.GetFloatNullConstant() : aux3[i];
+                }
+                break;
+            case 5:
+                long[] aux4 = new long[length];
+                this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? NullMappings.GetFloatNullConstant() : aux4[i];
+                }
+                break;
+            case 6:
+                this.getFloatColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            case 7:
+                double[] aux6 = new double[length];
+                this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetFloatNullConstant() : (float) aux6[i];
+                }
+                break;
+            case 8:
+                String[] aux7 = new String[length];
+                this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux7[i] != null) ? Float.parseFloat(aux7[i]) : NullMappings.GetFloatNullConstant();
+                }
+                break;
+            case 13:
+                BigDecimal[] aux8 = new BigDecimal[length];
+                this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
+                for(int i = 0 ; i < length ; i++) {
+                    input[i] = (aux8[i] != null) ? aux8[i].floatValue() : NullMappings.GetFloatNullConstant();
+                }
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to float[]!");
         }
     }
 
     /**
-     * Gets a column as a Java Double.
+     * Retrieves a double column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java Double column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input double array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public double[] getDoubleColumnByIndex(int column) {
+    public void getDoubleColumnByIndex(int column, double[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("double")) {
-            return (double[]) this.data[column];
-        } else {
-            double[] res = new double[this.numberOfRows];
-            switch (this.columnTypes[column]) {
-                case "boolean":
-                case "tinyint":
-                    byte[] aux0 = (byte[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows; i++) {
-                        res[i] = (aux0[i] == Byte.MIN_VALUE) ? Double.MIN_VALUE : aux0[i];
-                    }
-                    break;
-                case "smallint":
-                    short[] aux1 = (short[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux1[i] == Short.MIN_VALUE) ? Double.MIN_VALUE : aux1[i];
-                    }
-                    break;
-                case "int":
-                case "month_interval":
-                    int[] aux2 = (int[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux2[i] == Integer.MIN_VALUE) ? Double.MIN_VALUE : aux2[i];
-                    }
-                    break;
-                case "bigint":
-                case "sec_interval":
-                    long[] aux3 = (long[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux3[i] == Long.MIN_VALUE) ? Double.MIN_VALUE : aux3[i];
-                    }
-                    break;
-                case "real":
-                    float[] aux4 = (float[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux4[i] == Float.MIN_VALUE) ? Double.MIN_VALUE : aux4[i];
-                    }
-                    break;
-                case "char":
-                case "varchar":
-                case "clob":
-                    String[] aux6 = (String[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux6[i] != null) ? Double.parseDouble(aux6[i]) : Double.MIN_VALUE;
-                    }
-                    break;
-                case "decimal":
-                    BigDecimal[] aux7 = (BigDecimal[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux7[i] != null) ? aux7[i].doubleValue() : Double.MIN_VALUE;
-                    }
-                    break;
-                default:
-                    throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to double!");
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte[] aux1 = new byte[length];
+                this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux1[i];
+                }
+                break;
+            case 3:
+                short[] aux2 = new short[length];
+                this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? NullMappings.GetFloatNullConstant() : aux2[i];
+                }
+                break;
+            case 4:
+                int[] aux3 = new int[length];
+                this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux3[i];
+                }
+                break;
+            case 5:
+                long[] aux4 = new long[length];
+                this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux4[i];
+                }
+                break;
+            case 6:
+                float[] aux5 = new float[length];
+                this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux5[i];
+                }
+                break;
+            case 7:
+                this.getDoubleColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            case 8:
+                String[] aux7 = new String[length];
+                this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux7[i] != null) ? Double.parseDouble(aux7[i]) : NullMappings.GetDoubleNullConstant();
+                }
+                break;
+            case 13:
+                BigDecimal[] aux8 = new BigDecimal[length];
+                this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
+                for(int i = 0 ; i < length ; i++) {
+                    input[i] = (aux8[i] != null) ? aux8[i].doubleValue() : NullMappings.GetDoubleNullConstant();
+                }
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to double[]!");
         }
     }
 
     /**
-     * Gets a column as a Java String.
+     * Retrieves a String column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java String column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input String array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public String[] getStringColumnByIndex(int column) {
+    public void getStringColumnByIndex(int column, String[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("char") || columnType.equals("varchar") || columnType.equals("clob")) {
-            return (String[]) this.data[column];
-        } else {
-            String[] res = new String[this.numberOfRows];
-            switch (this.columnTypes[column]) {
-                case "boolean":
-                case "tinyint":
-                    byte[] aux0 = (byte[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows; i++) {
-                        res[i] = (aux0[i] == Byte.MIN_VALUE) ? null : Byte.toString(aux0[i]);
-                    }
-                    break;
-                case "smallint":
-                    short[] aux1 = (short[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux1[i] == Short.MIN_VALUE) ? null : Short.toString(aux1[i]);
-                    }
-                    break;
-                case "int":
-                case "month_interval":
-                    int[] aux2 = (int[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux2[i] == Integer.MIN_VALUE) ? null : Integer.toString(aux2[i]);
-                    }
-                    break;
-                case "bigint":
-                case "sec_interval":
-                    long[] aux3 = (long[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux3[i] == Long.MIN_VALUE) ? null : Long.toString(aux3[i]);
-                    }
-                    break;
-                case "real":
-                    float[] aux4 = (float[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux4[i] == Float.MIN_VALUE) ? null : Float.toString(aux4[i]);
-                    }
-                    break;
-                case "double":
-                    double[] aux5 = (double[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux5[i] == Double.MIN_VALUE) ? null : Double.toString(aux5[i]);
-                    }
-                    break;
-                case "blob":
-                    byte[][] aux6 = (byte[][]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux6[i] == null) ? null : Arrays.toString(aux6);
-                    }
-                    break;
-                default:
-                    Object[] aux7 = (Object[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux7[i] == null) ? null : aux7[i].toString();
-                    }
-                    break;
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte[] aux1 = new byte[length];
+                this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? null : Byte.toString(aux1[i]);
+                }
+                break;
+            case 3:
+                short[] aux2 = new short[length];
+                this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? null : Short.toString(aux2[i]);
+                }
+                break;
+            case 4:
+                int[] aux3 = new int[length];
+                this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? null : Integer.toString(aux3[i]);
+                }
+                break;
+            case 5:
+                long[] aux4 = new long[length];
+                this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? null : Long.toString(aux4[i]);
+                }
+                break;
+            case 6:
+                float[] aux5 = new float[length];
+                this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? null : Float.toString(aux5[i]);
+                }
+                break;
+            case 7:
+                double[] aux6 = new double[length];
+                this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? null : Double.toString(aux6[i]);
+                }
+                break;
+            case 8:
+                this.getStringColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            case 9:
+                Date[] aux7 = new Date[length];
+                this.getDateColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux7[i] == null) ? null : aux7[i].toString();
+                }
+                break;
+            case 10:
+                Timestamp[] aux8 = new Timestamp[length];
+                this.getTimestampColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux8[i] == null) ? null : aux8[i].toString();
+                }
+                break;
+            case 11:
+                Time[] aux9 = new Time[length];
+                this.getTimeColumnByIndexInternal(this.structPointer, column, aux9, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux9[i] == null) ? null : aux9[i].toString();
+                }
+                break;
+            case 12:
+                byte[][] aux10 = new byte[length][];
+                this.getBlobColumnByIndexInternal(this.structPointer, column, aux10, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux10[i] == null) ? null : Arrays.toString(aux10[i]);
+                }
+                break;
+            case 13:
+                BigDecimal[] aux11 = new BigDecimal[length];
+                this.getDecimalColumnByIndexInternal(this.structPointer, column, aux11, offset, length);
+                for(int i = 0 ; i < length ; i++) {
+                    input[i] = (aux11[i] == null) ? null : aux11[i].toString();
+                }
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to String[]!");
         }
     }
 
     /**
-     * Gets a column as a Java byte[] (BLOBs).
+     * Retrieves a Date column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java byte[] column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input Date array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public byte[][] getBlobColumnByIndex(int column) {
+    public void getDateColumnByIndex(int column, Date[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("blob")) {
-            return (byte[][]) this.data[column];
-        } else {
-            byte[][] res = new byte[this.numberOfRows][];
-            switch (this.columnTypes[column]) {
-                case "char":
-                case "varchar":
-                case "clob":
-                    String[] aux6 = (String[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux6[i] != null) ? aux6[i].getBytes() : null;
-                    }
-                    break;
-                default:
-                    throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to BLOB!");
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 9:
+                this.getDateColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            case 10:
+                Timestamp[] aux8 = new Timestamp[length];
+                this.getTimestampColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux8[i] == null) ? null : new Date(aux8[i].getTime());
+                }
+                break;
+            case 11:
+                Time[] aux9 = new Time[length];
+                this.getTimeColumnByIndexInternal(this.structPointer, column, aux9, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux9[i] == null) ? null : new Date(aux9[i].getTime());
+                }
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to Date[]!");
         }
     }
 
     /**
-     * Gets a column as a Java SQL Date.
+     * Retrieves a Timestamp column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java SQL Date column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input Timestamp array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public Date[] getDateColumnByIndex(int column) {
+    public void getTimestampColumnByIndex(int column, Timestamp[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("date")) {
-            return (Date[]) this.data[column];
-        } else {
-            Date[] res = new Date[this.numberOfRows];
-            switch (this.columnTypes[column]) {
-                case "time":
-                case "timetz":
-                    Time[] aux2 = (Time[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux2[i] != null) ? new Date(aux2[i].getTime()) : null;
-                    }
-                    break;
-                case "timestamp":
-                case "timestamptz":
-                    Timestamp[] aux3 = (Timestamp[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux3[i] != null) ? new Date(aux3[i].getTime()) : null;
-                    }
-                    break;
-                default:
-                    throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to Date!");
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 9:
+                Date[] aux7 = new Date[length];
+                this.getDateColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux7[i] == null) ? null : new Timestamp(aux7[i].getTime());
+                }
+                break;
+            case 10:
+                this.getTimestampColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            case 11:
+                Time[] aux9 = new Time[length];
+                this.getTimeColumnByIndexInternal(this.structPointer, column, aux9, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux9[i] == null) ? null : new Timestamp(aux9[i].getTime());
+                }
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to Timestamp[]!");
         }
     }
 
     /**
-     * Gets a column as a Java SQL Time.
+     * Retrieves a Time column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java SQL Time column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input Time array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public Time[] getTimeColumnByIndex(int column) {
+    public void getTimeColumnByIndex(int column, Time[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("time") || columnType.equals("timetz")) {
-            return (Time[]) this.data[column];
-        } else {
-            Time[] res = new Time[this.numberOfRows];
-            switch (this.columnTypes[column]) {
-                case "date":
-                    Date[] aux2 = (Date[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux2[i] != null) ? new Time(aux2[i].getTime()) : null;
-                    }
-                    break;
-                case "timestamp":
-                case "timestamptz":
-                    Timestamp[] aux3 = (Timestamp[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux3[i] != null) ? new Time(aux3[i].getTime()) : null;
-                    }
-                    break;
-                default:
-                    throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to Time!");
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 9:
+                Date[] aux7 = new Date[length];
+                this.getDateColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux7[i] == null) ? null : new Time(aux7[i].getTime());
+                }
+                break;
+            case 10:
+                Timestamp[] aux8 = new Timestamp[length];
+                this.getTimestampColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux8[i] == null) ? null : new Time(aux8[i].getTime());
+                }
+                break;
+            case 11:
+                this.getTimeColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to Time[]!");
         }
     }
 
     /**
-     * Gets a column as a Java SQL Timestamp.
+     * Retrieves a byte[] (BLOB) column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java SQL Timestamp column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input byte[] (BLOB) array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public Timestamp[] getTimestampColumnByIndex(int column) {
+    public void getBlobColumnByIndex(int column, byte[][] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("timestamp") || columnType.equals("timestamptz")) {
-            return (Timestamp[]) this.data[column];
-        } else {
-            Timestamp[] res = new Timestamp[this.numberOfRows];
-            switch (this.columnTypes[column]) {
-                case "date":
-                    Date[] aux2 = (Date[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux2[i] != null) ? new Timestamp(aux2[i].getTime()) : null;
-                    }
-                    break;
-                case "time":
-                case "timetz":
-                    Time[] aux3 = (Time[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux3[i] != null) ? new Timestamp(aux3[i].getTime()) : null;
-                    }
-                    break;
-                default:
-                    throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to Timestamp!");
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 8:
+                String[] aux7 = new String[length];
+                this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux7[i] == null) ? null : aux7[i].getBytes();
+                }
+                break;
+            case 12:
+                this.getBlobColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to byte[][]!");
         }
     }
 
     /**
-     * Gets a column as a Java BigDecimal
+     * Retrieves a BigDecimal column by index.
      *
-     * @param column The column index starting from 1
-     * @return A Java BigDecimal column
+     * @param column - The index of the column starting from 1.
+     * @param input - The input BigDecimal array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public BigDecimal[] getDecimalColumnByIndex(int column) {
+    public void getDecimalColumnByIndex(int column, BigDecimal[] input, int offset, int length) {
+        this.checkRangesArrays(column, input, offset, length);
         column--;
-        String columnType = this.columnTypes[column];
-        if(columnType.equals("decimal")) {
-            return (BigDecimal[]) this.data[column];
-        } else {
-            BigDecimal[] res = new BigDecimal[this.numberOfRows];
-            switch (this.columnTypes[column]) {
-                case "boolean":
-                case "tinyint":
-                    byte[] aux0 = (byte[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows; i++) {
-                        res[i] = (aux0[i] != Byte.MIN_VALUE) ? new BigDecimal((int)aux0[i]) : null;
-                    }
-                    break;
-                case "smallint":
-                    short[] aux1 = (short[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux1[i] != Short.MIN_VALUE) ? new BigDecimal((int)aux1[i]) : null;
-                    }
-                    break;
-                case "int":
-                case "month_interval":
-                    int[] aux2 = (int[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux2[i] != Integer.MIN_VALUE) ? new BigDecimal(aux2[i]) : null;
-                    }
-                    break;
-                case "bigint":
-                case "sec_interval":
-                    long[] aux3 = (long[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux3[i] != Long.MIN_VALUE) ? new BigDecimal(aux3[i]) : null;
-                    }
-                    break;
-                case "real":
-                    float[] aux4 = (float[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux4[i] != Float.MIN_VALUE) ? new BigDecimal(aux4[i]) : null;
-                    }
-                    break;
-                case "double":
-                    double[] aux5 = (double[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux5[i] != Double.MIN_VALUE) ? new BigDecimal(aux5[i]) : null;
-                    }
-                    break;
-                case "char":
-                case "varchar":
-                case "clob":
-                    String[] aux6 = (String[]) this.data[column];
-                    for(int i = 0 ; i < this.numberOfRows ; i++) {
-                        res[i] = (aux6[i] != null) ? new BigDecimal(aux6[i]) : null;
-                    }
-                    break;
-                default:
-                    throw new ClassCastException("Cannot convert " + this.columnTypes[column] + " to BigDecimal!");
-            }
-            return res;
+        switch (this.typesIDs[column]) {
+            case 1:
+            case 2:
+                byte[] aux1 = new byte[length];
+                this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? null : new BigDecimal(aux1[i]);
+                }
+                break;
+            case 3:
+                short[] aux2 = new short[length];
+                this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? null : new BigDecimal(aux2[i]);
+                }
+                break;
+            case 4:
+                int[] aux3 = new int[length];
+                this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? null : new BigDecimal(aux3[i]);
+                }
+                break;
+            case 5:
+                long[] aux4 = new long[length];
+                this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? null : new BigDecimal(aux4[i]);
+                }
+                break;
+            case 6:
+                float[] aux5 = new float[length];
+                this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? null : new BigDecimal(aux5[i]);
+                }
+                break;
+            case 7:
+                double[] aux6 = new double[length];
+                this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
+                for(int i = 0 ; i < length; i++) {
+                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? null : new BigDecimal(aux6[i]);
+                }
+                break;
+            case 13:
+                this.getDecimalColumnByIndexInternal(this.structPointer, column, input, offset, length);
+                break;
+            default:
+                throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to BigDecimal[]!");
         }
     }
 
     /**
-     * Gets a Java Boolean column from the result set by name.
+     * Retrieves a boolean column by name.
      *
-     * @param columnName The column name
-     * @return A Java Boolean
+     * @param columnName - The name of the column.
+     * @param input - The input boolean array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public boolean[] getBooleanColumnByName(String columnName) {
+    public void getBooleanColumnByName(String columnName, boolean[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getBooleanColumnByIndex(index);
+        this.getBooleanColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a Java Byte column from the result set by name.
+     * Retrieves a byte column by name.
      *
-     * @param columnName The column name
-     * @return A Java Byte column
+     * @param columnName - The name of the column.
+     * @param input - The input byte array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public byte[] getByteColumnByName(String columnName) {
+    public void getByteColumnByName(String columnName, byte[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getByteColumnByIndex(index);
+        this.getByteColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a Java Short column from the result set by name.
+     * Retrieves a short column by name.
      *
-     * @param columnName The column name
-     * @return A Java Short column
+     * @param columnName - The name of the column.
+     * @param input - The input short array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public short[] getShortColumnByName(String columnName) {
+    public void getShortColumnByName(String columnName, short[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getShortColumnByIndex(index);
+        this.getShortColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a Java Int column from the result set by name.
+     * Retrieves an integer column by name.
      *
-     * @param columnName The column name
-     * @return A Java Integer column
+     * @param columnName - The name of the column.
+     * @param input - The input integer array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public int[] getIntColumnByName(String columnName) {
+    public void getIntColumnByName(String columnName, int[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getIntColumnByIndex(index);
+        this.getIntColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a long column from the result set by name.
+     * Retrieves a long column by name.
      *
-     * @param columnName The column name
-     * @return A Java Long column
+     * @param columnName - The name of the column.
+     * @param input - The input long array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public long[] getLongColumnByName(String columnName) {
+    public void getLongColumnByName(String columnName, long[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getLongColumnByIndex(index);
+        this.getLongColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a float column from the result set by name.
+     * Retrieves a float column by name.
      *
-     * @param columnName The column name
-     * @return A Java Float column
+     * @param columnName - The name of the column.
+     * @param input - The input float array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public float[] getFloatColumnByName(String columnName) {
+    public void getFloatColumnByName(String columnName, float[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getFloatColumnByIndex(index);
+        this.getFloatColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a double column from the result set by name.
+     * Retrieves a double column by name.
      *
-     * @param columnName The column name
-     * @return A Java Double column
+     * @param columnName - The name of the column.
+     * @param input - The input double array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public double[] getDoubleColumnByName(String columnName) {
+    public void getDoubleColumnByName(String columnName, double[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getDoubleColumnByIndex(index);
+        this.getDoubleColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a String column from the result set by name.
+     * Retrieves a String column by name.
      *
-     * @param columnName The column name
-     * @return A Java String column
+     * @param columnName - The name of the column.
+     * @param input - The input String array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public String[] getStringColumnByName(String columnName) {
+    public void getStringColumnByName(String columnName, String[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getStringColumnByIndex(index);
+        this.getStringColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a byte[] column (BLOB) from the result set by name.
+     * Retrieves a Date column by name.
      *
-     * @param columnName The column name
-     * @return A Java byte[] column
+     * @param columnName - The name of the column.
+     * @param input - The input Date array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public byte[][] getBlobColumnByName(String columnName) {
+    public void getDateColumnByName(String columnName, Date[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getBlobColumnByIndex(index);
+        this.getDateColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a Date column from the result set by name.
+     * Retrieves a Timestamp column by name.
      *
-     * @param columnName The column name
-     * @return A Java SQL Date column
+     * @param columnName - The name of the column.
+     * @param input - The input Timestamp array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public Date[] getDateColumnByIndex(String columnName) {
+    public void getTimestampColumnByName(String columnName, Timestamp[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getDateColumnByIndex(index);
+        this.getTimestampColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a Time column from the result set by name.
+     * Retrieves a Time column by name.
      *
-     * @param columnName The column name
-     * @return  A Java SQL Time column
+     * @param columnName - The name of the column.
+     * @param input - The input Time array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public Time[] getTimeColumnByName(String columnName) {
+    public void getTimeColumnByName(String columnName, Time[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getTimeColumnByIndex(index);
+        this.getTimeColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a Timestamp column from the result set by name.
+     * Retrieves a byte[] (BLOB) column by name.
      *
-     * @param columnName The column name
-     * @return A Java SQL Timestamp column
+     * @param columnName - The name of the column.
+     * @param input - The input byte[] (BLOB) array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public Timestamp[] getTimestampColumnByName(String columnName) {
+    public void getBlobColumnByName(String columnName, byte[][] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getTimestampColumnByIndex(index);
+        this.getBlobColumnByIndex(index, input, offset, length);
     }
 
     /**
-     * Gets a BigDecimal column from the result set by name.
+     * Retrieves a BigDecimal column by name.
      *
-     * @param columnName The column name
-     * @return A Java BigDecimal column
+     * @param columnName - The name of the column.
+     * @param input - The input BigDecimal array where the result will be copied to.
+     * @param offset - The starting offset of the array
+     * @param length - The number of elements to copy.
      */
-    public BigDecimal[] getDecimalColumnByIndex(String columnName) {
+    public void getDecimalColumnByName(String columnName, BigDecimal[] input, int offset, int length) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getDecimalColumnByIndex(index);
+        this.getDecimalColumnByIndex(index, input, offset, length);
     }
+
+    /**
+     * Retrieves a boolean column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input boolean array where the result will be copied to.
+     */
+    public void getBooleanColumnByIndex(int column, boolean[] input) {
+        this.getBooleanColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a byte column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input byte array where the result will be copied to.
+     */
+    public void getByteColumnByIndex(int column, byte[] input) {
+        this.getByteColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a short column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input short array where the result will be copied to.
+     */
+    public void getShortColumnByIndex(int column, short[] input) {
+        this.getShortColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves an integer column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input integer array where the result will be copied to.
+     */
+    public void getIntColumnByIndex(int column, int[] input) {
+        this.getIntColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a long column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input long array where the result will be copied to.
+     */
+    public void getLongColumnByIndex(int column, long[] input) {
+        this.getLongColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a float column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input float array where the result will be copied to.
+     */
+    public void getFloatColumnByIndex(int column, float[] input) {
+        this.getFloatColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a double column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input double array where the result will be copied to.
+     */
+    public void getDoubleColumnByIndex(int column, double[] input) {
+        this.getDoubleColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a String column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input String array where the result will be copied to.
+     */
+    public void getStringColumnByIndex(int column, String[] input) {
+        this.getStringColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a Date column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input Date array where the result will be copied to.
+     */
+    public void getDateColumnByIndex(int column, Date[] input) {
+        this.getDateColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a Timestamp column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input Timestamp array where the result will be copied to.
+     */
+    public void getTimestampColumnByIndex(int column, Timestamp[] input) {
+        this.getTimestampColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a Time column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input Time array where the result will be copied to.
+     */
+    public void getTimeColumnByIndex(int column, Time[] input) {
+        this.getTimeColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a byte[] (BLOB) column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input byte[] (BLOB) array where the result will be copied to.
+     */
+    public void getBlobColumnByIndex(int column, byte[][] input) {
+        this.getBlobColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a BigDecimal column by index.
+     *
+     * @param column - The index of the column starting from 1.
+     * @param input - The input BigDecimal array where the result will be copied to.
+     */
+    public void getDecimalColumnByIndex(int column, BigDecimal[] input) {
+        this.getDecimalColumnByIndex(column, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a boolean column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input boolean array where the result will be copied to.
+     */
+    public void getBooleanColumnByName(String columnName, boolean[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getBooleanColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a byte column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input byte array where the result will be copied to.
+     */
+    public void getByteColumnByName(String columnName, byte[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getByteColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a short column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input short array where the result will be copied to.
+     */
+    public void getShortColumnByName(String columnName, short[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getShortColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves an integer column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input integer array where the result will be copied to.
+     */
+    public void getIntColumnByName(String columnName, int[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getIntColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a long column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input long array where the result will be copied to.
+     */
+    public void getLongColumnByName(String columnName, long[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getLongColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a float column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input float array where the result will be copied to.
+     */
+    public void getFloatColumnByName(String columnName, float[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getFloatColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a double column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input double array where the result will be copied to.
+     */
+    public void getDoubleColumnByName(String columnName, double[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getDoubleColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a String column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input String array where the result will be copied to.
+     */
+    public void getStringColumnByName(String columnName, String[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getStringColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a Date column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input Date array where the result will be copied to.
+     */
+    public void getDateColumnByName(String columnName, Date[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getDateColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a Timestamp column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input Timestamp array where the result will be copied to.
+     */
+    public void getTimestampColumnByName(String columnName, Timestamp[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getTimestampColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a Time column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input Time array where the result will be copied to.
+     */
+    public void getTimeColumnByName(String columnName, Time[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getTimeColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves a byte[] (BLOB) column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input byte[] (BLOB) array where the result will be copied to.
+     */
+    public void getBlobColumnByName(String columnName, byte[][] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getBlobColumnByIndex(index, input, 0, input.length);
+    }
+
+    /**
+     * Retrieves an BigDecimal column by name.
+     *
+     * @param columnName - The name of the column.
+     * @param input - The input BigDecimal array where the result will be copied to.
+     */
+    public void getDecimalColumnByName(String columnName, BigDecimal[] input) {
+        int index = this.getColumnIndexByName(columnName);
+        this.getDecimalColumnByIndex(index, input, 0, input.length);
+    }
+
+    //TODO check if it will be worth it to use direct ByteBuffers (but I am pretty sure that it's not)
 
     /**
      * Tests if a boolean in the result set is a null value.
@@ -1017,84 +2102,64 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @return A boolean indicating if the value is null
      */
     public boolean checkBooleanIsNull(int column, int row) {
-        column--;
-        row--;
-        if (row < 0) {
+        if (row < 1) {
             throw new ArrayIndexOutOfBoundsException("A row smaller than 1?");
         } else if (row > this.numberOfRows) {
             throw new ArrayIndexOutOfBoundsException("The row is larger than the number of rows!");
+        } else if(column < 1) {
+            throw new ArrayIndexOutOfBoundsException("The column index is smaller than 1?");
+        } else if(column > this.numberOfColumns) {
+            throw new ArrayIndexOutOfBoundsException("The column index is larger than the number of columns? "
+                    + column + " > " + this.numberOfColumns);
+        } else if(this.typesIDs[column - 1] != 1) {
+            throw new ClassCastException("The column is not a boolean!");
         }
-        return ((byte[])this.data[column])[row] == Byte.MIN_VALUE;
+        return this.getByteByColumnAndRowInternal(this.structPointer, column - 1, row - 1)
+                == NullMappings.GetByteNullConstant();
     }
+
+    private void checkRowArray(int column, Object input) {
+        int arrayLength = Array.getLength(input);
+        if(column < 1) {
+            throw new ArrayIndexOutOfBoundsException("The column index is smaller than 1?");
+        } else if(column > this.numberOfColumns) {
+            throw new ArrayIndexOutOfBoundsException("The column index is larger than the number of columns? "
+                    + column + " > " + this.numberOfColumns);
+        } else if (arrayLength != this.numberOfRows) {
+            throw new ArrayIndexOutOfBoundsException("The array length is different from the number of rows! "
+                    + this.numberOfRows + " != " + arrayLength);
+        }
+    }
+
+    //TODO check for java.util.BitSet instead of a boolean[]... it might be worth it or not
+
+    private native void getColumnNullMappingsByIndexInternal(long structPointer, int column, int typeID, boolean[] input);
 
     /**
      * Gets the null mapping of a column by index.
      *
      * @param column The column index starting from 1
-     * @return An array of booleans, indicating if the values of the column are null or not.
+     * @param input  An array of booleans, indicating if the values of the column are null or not.
      */
-    public boolean[] getColumnNullMappingsByIndex(int column) {
+    public void getColumnNullMappingsByIndex(int column, boolean[] input) {
+        this.checkRowArray(column, input);
         column--;
-        boolean[] res = new boolean[this.numberOfRows];
-        switch (this.columnTypes[column]) {
-            case "boolean":
-            case "tinyint":
-                byte[] data1 = (byte[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data1[i] == Byte.MIN_VALUE;
-                }
-                break;
-            case "smallint":
-                short[] data2 = (short[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data2[i] == Short.MIN_VALUE;
-                }
-                break;
-            case "int":
-            case "month_interval":
-                int[] data3 = (int[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data3[i] == Integer.MIN_VALUE;
-                }
-                break;
-            case "bigint":
-            case "sec_interval":
-                long[] data4 = (long[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data4[i] == Long.MIN_VALUE;
-                }
-                break;
-            case "real":
-                float[] data5 = (float[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data5[i] == Float.MIN_VALUE;
-                }
-                break;
-            case "double":
-                double[] data6 = (double[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data6[i] == Double.MIN_VALUE;
-                }
-                break;
-            default:
-                Object[] data7 = (Object[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data7[i] == null;
-                }
-        }
-        return res;
+        this.getColumnNullMappingsByIndexInternal(this.structPointer, column, this.typesIDs[column], input);
     }
 
     /**
      * Gets the null mapping of a column by name
      *
      * @param columnName The column name
-     * @return An array of booleans, indicating if the values of the column are null or not.
+     * @param input An array of booleans, indicating if the values of the column are null or not.
      */
-    public boolean[] getNullMappingByName(String columnName) {
+    public void getNullMappingByName(String columnName, boolean[] input) {
         int index = this.getColumnIndexByName(columnName);
-        return this.getColumnNullMappingsByIndex(index);
+        this.getColumnNullMappingsByIndex(index, input);
     }
+
+    private native void mapColumnToObjectByIndexInternal(long structPointer, int column, int typeID, Object[] input)
+            throws MonetDBEmbeddedException;
 
     /**
      * Maps a column to a Java Object representation of the array by index. This is method is used by the
@@ -1102,78 +2167,23 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * for each value which is inefficient for te number of memory allocations it has to make.
      *
      * @param column The column index starting from 1
-     * @return An Object array representation of the column.
+     * @param input An Object array representation of the column.
      */
-    public Object[] mapColumnToObjectByIndex(int column) {
+    public void mapColumnToObjectByIndex(int column, Object[] input) throws MonetDBEmbeddedException {
+        this.checkRowArray(column, input);
         column--;
-        Object[] res;
-        switch (this.columnTypes[column]) {
-            case "boolean":
-                res = new Object[this.numberOfRows];
-                byte[] data0 = (byte[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data0[i] != 0 && data0[i] != Byte.MIN_VALUE;
-                }
-                break;
-            case "tinyint":
-                res = new Object[this.numberOfRows];
-                byte[] data1 = (byte[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data1[i];
-                }
-                break;
-            case "smallint":
-                res = new Object[this.numberOfRows];
-                short[] data2 = (short[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data2[i];
-                }
-                break;
-            case "int":
-            case "month_interval":
-                res = new Object[this.numberOfRows];
-                int[] data3 = (int[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data3[i];
-                }
-                break;
-            case "bigint":
-            case "sec_interval":
-                res = new Object[this.numberOfRows];
-                long[] data4 = (long[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data4[i];
-                }
-                break;
-            case "real":
-                res = new Object[this.numberOfRows];
-                float[] data5 = (float[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data5[i];
-                }
-                break;
-            case "double":
-                res = new Object[this.numberOfRows];
-                double[] data6 = (double[]) this.data[column];
-                for(int i = 0 ; i < this.numberOfRows ; i++) {
-                    res[i] = data6[i];
-                }
-                break;
-            default:
-                res = (Object[]) this.data[column];
-        }
-        return res;
+        this.mapColumnToObjectByIndexInternal(this.structPointer, column, this.typesIDs[column], input);
     }
 
     /**
      * Maps a column to a Java Object representation of the array by name.
      *
      * @param columnName The column name
-     * @return An Object array representation of the column.
+     * @param input An Object array representation of the column.
      */
-    public Object[] mapColumnToObjectByName(String columnName) {
+    public void mapColumnToObjectByName(String columnName, Object[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
-        return this.mapColumnToObjectByIndex(index);
+        this.mapColumnToObjectByIndex(index, input);
     }
 
     /**
@@ -1181,7 +2191,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      *
      * @param startIndex The first row index to retrieve starting from 1
      * @param endIndex The last row index to retrieve
-     * @return The rows as {@code AbstractRowSet}
+     * @return The rows as {@code QueryResultRowSet}
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
 	public QueryResultRowSet fetchResultSetRows(int startIndex, int endIndex) throws MonetDBEmbeddedException {
@@ -1200,20 +2210,21 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
         int numberOfRowsToRetrieve = endIndex - startIndex + 1;
         Object[][] temp = new Object[numberOfRowsToRetrieve][this.getNumberOfColumns()];
 		for (int i = 0 ; i < this.getNumberOfColumns(); i++) {
-		    Object[] aux = this.mapColumnToObjectByIndex(i + 1);
+            Object[] aux = new Object[numberOfRowsToRetrieve];
+		    this.mapColumnToObjectByIndex(i + 1, aux);
             Object[] nextColumn = Arrays.copyOfRange(aux, startIndex - 1, endIndex);
             for(int j = 0; j < numberOfRowsToRetrieve; j++) {
                 temp[j][i] = nextColumn[j];
 			}
 		}
-        return new QueryResultRowSet(this, this.getMappings(), temp);
+        return new QueryResultRowSet(this, temp);
 	}
 
     /**
      * Fetches the first N rows from the result set.
      *
      * @param n The last row index to retrieve
-     * @return The rows as {@code AbstractRowSet}
+     * @return The rows as {@code QueryResultRowSet}
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public QueryResultRowSet fetchFirstNRowValues(int n) throws MonetDBEmbeddedException {
@@ -1223,7 +2234,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
     /**
      * Fetches all rows from the result set.
      *
-     * @return The rows as {@code AbstractRowSet}
+     * @return The rows as {@code QueryResultRowSet}
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public QueryResultRowSet fetchAllRowValues() throws MonetDBEmbeddedException {
@@ -1236,6 +2247,26 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
             return Arrays.asList(this.fetchAllRowValues().getAllRows()).listIterator();
         } catch (MonetDBEmbeddedException ex) {
             return null;
+        }
+    }
+
+    /**
+     * Release the result set and BATs probably... set the pointers to 0!!
+     */
+    private native void freeResultSet(long structPointer);
+
+    /**
+     * Tells if the connection of this statement result has been closed or not.
+     *
+     * @return A boolean indicating if the statement result has been cleaned or not
+     */
+    public boolean isResultClosed() { return this.structPointer == 0; }
+
+    @Override
+    protected void closeResultImplementation() {
+        if(!this.isResultClosed()) {
+            this.freeResultSet(this.structPointer);
+            this.structPointer = 0;
         }
     }
 }

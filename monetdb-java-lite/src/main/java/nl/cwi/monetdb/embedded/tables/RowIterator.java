@@ -17,7 +17,7 @@ import nl.cwi.monetdb.embedded.mapping.MonetDBRow;
  *
  * @author <a href="mailto:pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>
  */
-public class RowIterator extends AbstractRowSet {
+public final class RowIterator extends AbstractRowSet {
 
     /**
      * The current table row number on the fetched set.
@@ -35,14 +35,16 @@ public class RowIterator extends AbstractRowSet {
     private final int lastIndex;
 
     RowIterator(MonetDBTable table, Object[][] rows, int firstIndex, int lastIndex) {
-        super(table, table.getMappings(), rows);
+        super(table, rows);
         this.firstIndex = firstIndex;
         this.lastIndex = lastIndex;
     }
 
     @Override
     public int getColumnIndexByName(String columnName) {
-        String[] columnNames = this.getTable().getColumnNames();
+        int numberOfColumns = this.getQueryResultTable().getNumberOfColumns();
+        String[] columnNames = new String[numberOfColumns];
+        this.getQueryResultTable().getColumnNames(columnNames);
         int index = 0;
         for (String colName : columnNames) {
             if (columnName.equals(colName)) {
@@ -100,7 +102,7 @@ public class RowIterator extends AbstractRowSet {
      *
      * @return There are more rows to iterate
      */
-    public boolean hasMore() { return this.firstIndex + this.currentIterationNumber < this.lastIndex; }
+    public boolean hasMore() { return this.firstIndex + this.currentIterationNumber <= this.lastIndex; }
 
     /**
      * Gets a column value as a Java class.

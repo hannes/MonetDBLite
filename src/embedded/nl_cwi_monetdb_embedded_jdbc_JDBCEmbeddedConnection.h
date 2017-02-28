@@ -17,11 +17,11 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
 
 /*
  * Class:     nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection
- * Method:    parseTupleLinesInternal
- * Signature: (J[I[Ljava/lang/Object;)I
+ * Method:    initializePointersInternal
+ * Signature: (JLnl/cwi/monetdb/embedded/jdbc/EmbeddedDataBlockResponse;)V
  */
-JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_parseTupleLinesInternal
-  (JNIEnv *, jobject, jlong, jintArray, jobjectArray);
+JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_initializePointersInternal
+  (JNIEnv *, jobject, jlong, jobject);
 
 /*
  * Class:     nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection
@@ -41,6 +41,14 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
 
 /*
  * Class:     nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection
+ * Method:    sendReplySizeCommandInternal
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendReplySizeCommandInternal
+  (JNIEnv *, jobject, jlong, jint);
+
+/*
+ * Class:     nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection
  * Method:    sendReleaseCommandInternal
  * Signature: (JI)V
  */
@@ -53,14 +61,6 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
  * Signature: (JI)V
  */
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendCloseCommandInternal
-  (JNIEnv *, jobject, jlong, jint);
-
-/*
- * Class:     nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection
- * Method:    sendReplySizeCommandInternal
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendReplySizeCommandInternal
   (JNIEnv *, jobject, jlong, jint);
 
 #ifdef __cplusplus

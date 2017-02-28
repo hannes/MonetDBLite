@@ -44,12 +44,16 @@ lib_embedded  = {
 lib_embeddedjava  = {
 	SOURCES = javaids.c javaids.h \
 			converters.c converters.h \
+                        checknulls.c checknulls.h \
+			jresultset.c jresulset.h \
 			nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase.c nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase.h \
 			nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection.c nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection.h \
-			nl_cwi_monetdb_embedded_env_AbstractConnectionResult.c nl_cwi_monetdb_embedded_env_AbstractConnectionResult.h \
+			nl_cwi_monetdb_embedded_jdbc_EmbeddedDataBlockResponse.c nl_cwi_monetdb_embedded_jdbc_EmbeddedDataBlockResponse.h \
+			nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection.c nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection.h \
 			nl_cwi_monetdb_embedded_mapping_NullMappings.c nl_cwi_monetdb_embedded_mapping_NullMappings.h \
-			nl_cwi_monetdb_embedded_tables_MonetDBTable.c nl_cwi_monetdb_embedded_tables_MonetDBTable.h \
-			nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection.c nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection.h
+			nl_cwi_monetdb_embedded_resultset_QueryResultSet.c nl_cwi_monetdb_embedded_resultset_QueryResultSet.h \
+			nl_cwi_monetdb_embedded_tables_MonetDBTable.c nl_cwi_monetdb_embedded_tables_MonetDBTable.h
+
 	VERSION = 1
 	LIBS = libembedded \
 			../gdk/libbat \

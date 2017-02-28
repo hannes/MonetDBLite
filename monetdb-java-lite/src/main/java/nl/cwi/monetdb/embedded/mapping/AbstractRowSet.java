@@ -8,6 +8,8 @@
 
 package nl.cwi.monetdb.embedded.mapping;
 
+import nl.cwi.monetdb.embedded.env.AbstractConnectionResult;
+
 /**
  * A row set retrieved from an embedded MonetDB query result. All the values in this set are already mapped
  * to Java classes a priori.
@@ -19,7 +21,7 @@ public abstract class AbstractRowSet {
     /**
      * The original query result set this row set belongs.
      */
-    private final AbstractResultTable table;
+    private final AbstractConnectionResult table;
 
     /**
      * The MonetDB-To-Java mappings of the columns.
@@ -31,9 +33,11 @@ public abstract class AbstractRowSet {
      */
     protected final MonetDBRow[] rows;
 
-    protected AbstractRowSet(AbstractResultTable table, MonetDBToJavaMapping[] mappings, Object[][] rows) {
+    protected AbstractRowSet(AbstractConnectionResult table, Object[][] rows) {
         this.table = table;
-        this.mappings = mappings;
+        int numberOfColumns = table.getNumberOfColumns();
+        this.mappings = new MonetDBToJavaMapping[numberOfColumns];
+        table.getMappings(this.mappings);
         this.rows = new MonetDBRow[rows.length];
         for(int i = 0 ; i < rows.length ; i++) {
             this.rows[i] = new MonetDBRow(this, rows[i]);
@@ -45,7 +49,7 @@ public abstract class AbstractRowSet {
      *
      * @return The original query result set this row set belongs
      */
-    public AbstractResultTable getQueryResultTable() { return table; }
+    public AbstractConnectionResult getQueryResultTable() { return table; }
 
     /**
      * Gets the number of columns in this set.

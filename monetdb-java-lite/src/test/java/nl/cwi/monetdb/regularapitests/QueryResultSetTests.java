@@ -46,28 +46,36 @@ public class QueryResultSetTests {
         Assertions.assertEquals(numberOfRows, 3, () -> "The number of rows should be 3, got " + numberOfRows + " instead!");
         Assertions.assertEquals(numberOfColumns, 8, () -> "The number of columns should be 8, got " + numberOfColumns + " instead!");
 
-        boolean[] array1 = qrs.getBooleanColumnByIndex(1);
+        boolean[] array1 = new boolean[3];
+        qrs.getBooleanColumnByIndex(1, array1);
         Assertions.assertArrayEquals(new boolean[]{true, false, true}, array1, () -> "Booleans not correctly retrieved!");
 
-        String[] array2 = qrs.getStringColumnByIndex(2);
+        String[] array2 = new String[3];
+        qrs.getStringColumnByIndex(2, array2);
         Assertions.assertArrayEquals(new String[]{"a1212#da ", "another with spaces", "0"}, array2, () -> "Strings not correctly retrieved!");
 
-        byte[] array3 = qrs.getByteColumnByIndex(3);
+        byte[] array3 = new byte[3];
+        qrs.getByteColumnByIndex(3, array3);
         Assertions.assertArrayEquals(new byte[]{1, -2, 0}, array3, () -> "Tinyints not correctly retrieved!");
 
-        short[] array4 = qrs.getShortColumnByIndex(4);
+        short[] array4 = new short[3];
+        qrs.getShortColumnByIndex(4, array4);
         Assertions.assertArrayEquals(new short[]{1, -2, 0}, array4, () -> "Smallints not correctly retrieved!");
 
-        int[] array5 = qrs.getIntColumnByIndex(5);
+        int[] array5 = new int[3];
+        qrs.getIntColumnByIndex(5, array5);
         Assertions.assertArrayEquals(new int[]{1, -2, 0}, array5, () -> "Integers not correctly retrieved!");
 
-        long[] array6 = qrs.getLongColumnByIndex(6);
+        long[] array6 = new long[3];
+        qrs.getLongColumnByIndex(6, array6);
         Assertions.assertArrayEquals(new long[]{1, -2, 0}, array6, () -> "Integers not correctly retrieved!");
 
-        float[] array7 = qrs.getFloatColumnByIndex(7);
+        float[] array7 = new float[3];
+        qrs.getFloatColumnByIndex(7, array7);
         Assertions.assertArrayEquals(new float[]{1, -1.59f, 0}, array7, 0.1f, () -> "Floats not correctly retrieved!");
 
-        double[] array8 = qrs.getDoubleColumnByIndex(8);
+        double[] array8 = new double[3];
+        qrs.getDoubleColumnByIndex(8, array8);
         Assertions.assertArrayEquals(new double[]{1, -1.69d, 0}, array8, 0.1d, () -> "Doubles not correctly retrieved!");
 
         qrs.close();
@@ -94,7 +102,8 @@ public class QueryResultSetTests {
 
         //TODO check dates in the summer time...
 
-        Date[] array1 = qrs.getDateColumnByIndex(1);
+        Date[] array1 = new Date[4];
+        qrs.getDateColumnByIndex(1, array1);
         Assertions.assertArrayEquals(new Date[]{
                 new Date(dateFormater.parse("2016-01-01").getTime()),
                 new Date(dateFormater.parse("1998-10-27").getTime()),
@@ -102,7 +111,8 @@ public class QueryResultSetTests {
                 new Date(dateFormater.parse("1950-12-12").getTime())
         }, array1, () -> "Dates not correctly retrieved!");
 
-        Time[] array2 = qrs.getTimeColumnByIndex(2);
+        Time[] array2 = new Time[4];
+        qrs.getTimeColumnByIndex(2, array2);
         Assertions.assertArrayEquals(new Time[]{
                 new Time(timeFormater.parse("23:10:47").getTime()),
                 new Time(timeFormater.parse("0:10:47").getTime()),
@@ -110,7 +120,8 @@ public class QueryResultSetTests {
                 new Time(timeFormater.parse("20:10:47").getTime())
         }, array2, () -> "Times not correctly retrieved!");
 
-        Time[] array3 = qrs.getTimeColumnByIndex(3);
+        Time[] array3 = new Time[4];
+        qrs.getTimeColumnByIndex(3, array3);
         Assertions.assertArrayEquals(new Time[]{
                 new Time(timeFormater.parse("20:10:47").getTime()),
                 new Time(timeFormater.parse("21:10:47").getTime()),
@@ -118,7 +129,8 @@ public class QueryResultSetTests {
                 new Time(timeFormater.parse("2:10:47").getTime())
         }, array3, () -> "Times with timezones not correctly retrieved!");
 
-        Timestamp[] array4 = qrs.getTimestampColumnByIndex(4);
+        Timestamp[] array4 = new Timestamp[4];
+        qrs.getTimestampColumnByIndex(4, array4);
         Assertions.assertArrayEquals(new Timestamp[]{
                 new Timestamp(timestampFormater.parse("2016-01-31 00:01:44").getTime()),
                 new Timestamp(timestampFormater.parse("1950-11-15 22:10:45").getTime()),
@@ -126,7 +138,8 @@ public class QueryResultSetTests {
                 new Timestamp(timestampFormater.parse("1970-02-19 00:00:00").getTime())
         }, array4, () -> "Timestamps not correctly retrieved!");
 
-        Timestamp[] array5 = qrs.getTimestampColumnByIndex(5);
+        Timestamp[] array5 = new Timestamp[4];
+        qrs.getTimestampColumnByIndex(5, array5);
         Assertions.assertArrayEquals(new Timestamp[]{
                 new Timestamp(timestampFormater.parse("1986-12-31 12:10:12").getTime()),
                 new Timestamp(timestampFormater.parse("1951-02-11 00:59:59").getTime()),
@@ -134,10 +147,12 @@ public class QueryResultSetTests {
                 new Timestamp(timestampFormater.parse("1978-12-07 10:42:31").getTime())
         }, array5, () -> "Timestamps with timezone not correctly retrieved!");
 
-        int[] array6 = qrs.getIntColumnByIndex(6);
+        int[] array6 = new int[4];
+        qrs.getIntColumnByIndex(6, array6);
         Assertions.assertArrayEquals(new int[]{1, -10, 1023, 0}, array6, () -> "Month intervals not correctly retrieved!");
 
-        long[] array7 = qrs.getLongColumnByIndex(7);
+        long[] array7 = new long[4];
+        qrs.getLongColumnByIndex(7, array7);
         Assertions.assertArrayEquals(new long[]{1000, -3000000, 12000, 0}, array7, () -> "Second intervals not correctly retrieved!");
 
         qrs.close();
@@ -156,7 +171,8 @@ public class QueryResultSetTests {
         Assertions.assertEquals(numberOfColumns, 1, () -> "The number of columns should be 1, got " + numberOfColumns + " instead!");
 
         //Having default precision of 3
-        BigDecimal[] array1 = qrs.getDecimalColumnByIndex(1);
+        BigDecimal[] array1 = new BigDecimal[6];
+                qrs.getDecimalColumnByIndex(1, array1);
         Assertions.assertArrayEquals(new BigDecimal[]{
                 new BigDecimal("1.600"), new BigDecimal("12.000"), new BigDecimal("-1.420"),
                 new BigDecimal("525636.777"), new BigDecimal("-41242.320"), new BigDecimal("0.000")
@@ -177,7 +193,8 @@ public class QueryResultSetTests {
         Assertions.assertEquals(numberOfRows, 1, () -> "The number of rows should be 1, got " + numberOfRows + " instead!");
         Assertions.assertEquals(numberOfColumns, 1, () -> "The number of columns should be 1, got " + numberOfColumns + " instead!");
 
-        byte[][] array1 = qrs.getBlobColumnByIndex(1);
+        byte[][] array1 = new byte[1][];
+        qrs.getBlobColumnByIndex(1, array1);
         Assertions.assertArrayEquals(new byte[][]{
                 new byte[]{-86, -69, -52}
         }, array1, () -> "Blobs not correctly retrieved!");

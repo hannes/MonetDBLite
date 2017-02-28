@@ -9,6 +9,8 @@ import java.util.Random;
  */
 public final class Randomizer {
 
+    private Randomizer() {}
+
     /**  A random instance to generate the result set identifier. */
     private static final Random Randomizer = new Random();
 

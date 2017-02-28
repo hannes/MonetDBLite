@@ -23,8 +23,8 @@ ext.sourceCompatibility = 1.8
 ext.targetCompatibility = 1.8
 ext.junitPlatformVersion = '1.0.0-M3'
 ext.junitJupiterVersion  = '5.0.0-M3'
-//ext.junit4Version        = '4.12'
-//ext.junitVintageVersion  = '4.12.0-M3'
+ext.junit4Version        = '4.12'
+ext.junitVintageVersion  = '4.12.0-M3'
 ext.log4jVersion         = '2.7'
 version = '2.24'
 
@@ -42,7 +42,7 @@ def urlFile = { url, name ->
 }
 
 dependencies {
-    compile urlFile('https://www.dropbox.com/s/jihyyd6knu7lkx4/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
+    compile urlFile('https://www.dropbox.com/s/0e1w0vonzeym5hk/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
 
     // JUnit Jupiter API and TestEngine implementation
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")

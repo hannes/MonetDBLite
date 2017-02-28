@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.EnumMap;
 import java.util.HashMap;
 
 /**
@@ -32,11 +31,6 @@ public enum MonetDBToJavaMapping {
      * The mapping between MonetDB data types and enum values.
      */
     private static final HashMap<String, MonetDBToJavaMapping> MonetDBMappings;
-
-    /**
-     * The mapping between MonetDB data types and enum values.
-     */
-    private static final EnumMap<MonetDBToJavaMapping, Class<?>> AppendMappings;
 
     static {
         MonetDBMappings = new HashMap<>();
@@ -59,27 +53,6 @@ public enum MonetDBToJavaMapping {
         MonetDBMappings.put("timestamp", Timestamp);
         MonetDBMappings.put("timestamptz", TimestampTz);
         MonetDBMappings.put("blob", Blob);
-
-        AppendMappings = new EnumMap<>(MonetDBToJavaMapping.class);
-        AppendMappings.put(Boolean, byte[].class);
-        AppendMappings.put(Char, String[].class);
-        AppendMappings.put(Varchar, String[].class);
-        AppendMappings.put(Clob, String[].class);
-        AppendMappings.put(Tinyint, byte[].class);
-        AppendMappings.put(Smallint, short[].class);
-        AppendMappings.put(Int, int[].class);
-        AppendMappings.put(Bigint, long[].class);
-        AppendMappings.put(Decimal, BigDecimal[].class);
-        AppendMappings.put(Real, float[].class);
-        AppendMappings.put(Double, double[].class);
-        AppendMappings.put(MonthInterval, int[].class);
-        AppendMappings.put(SecondInterval, long[].class);
-        AppendMappings.put(Time, Time[].class);
-        AppendMappings.put(TimeTz, Time[].class);
-        AppendMappings.put(Date, Date[].class);
-        AppendMappings.put(Timestamp, Timestamp[].class);
-        AppendMappings.put(TimestampTz, Timestamp[].class);
-        AppendMappings.put(Blob, byte[][].class);
     }
 
     /**
@@ -90,16 +63,6 @@ public enum MonetDBToJavaMapping {
      */
     public static MonetDBToJavaMapping GetJavaMappingFromMonetDBString(String sqlName) {
         return MonetDBMappings.get(sqlName);
-    }
-
-    /**
-     * Get the corresponding MonetDBToJavaMapping from MonetDB internal data type.
-     *
-     * @param value A MonetDBToJavaMapping entry
-     * @return The corresponding Java array class or null if no mapping
-     */
-    public static Class<?> GetArrayMappingFromEnumValue(MonetDBToJavaMapping value) {
-        return AppendMappings.get(value);
     }
 
     /**

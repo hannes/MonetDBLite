@@ -29,7 +29,7 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckByteIsNull(byte value) { return value == Byte.MIN_VALUE; }
+    public static boolean CheckByteIsNull(byte value) { return value == GetByteNullConstant(); }
 
     /**
      * Gets MonetDB's short null constant
@@ -44,7 +44,7 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckShortIsNull(short value) { return value == Short.MIN_VALUE; }
+    public static boolean CheckShortIsNull(short value) { return value == GetShortNullConstant(); }
 
     /**
      * Gets MonetDB's int null constant
@@ -59,7 +59,7 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckIntIsNull(int value) { return value == Integer.MIN_VALUE; }
+    public static boolean CheckIntIsNull(int value) { return value == GetIntNullConstant(); }
 
     /**
      * Gets MonetDB's long null constant
@@ -74,7 +74,7 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckLongIsNull(long value) { return value == Long.MIN_VALUE; }
+    public static boolean CheckLongIsNull(long value) { return value == GetLongNullConstant(); }
 
     /**
      * Gets MonetDB's float null constant
@@ -89,7 +89,7 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckFloatIsNull(float value) { return value == Float.MIN_VALUE; }
+    public static boolean CheckFloatIsNull(float value) { return value == GetFloatNullConstant(); }
 
     /**
      * Gets MonetDB's double null constant
@@ -104,7 +104,7 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckDoubleIsNull(double value) { return value == Double.MIN_VALUE; }
+    public static boolean CheckDoubleIsNull(double value) { return value == GetDoubleNullConstant(); }
 
     /**
      * A null pointer returning method.

@@ -9,6 +9,7 @@
 #include "nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection.h"
 
 #include "javaids.h"
+#include "jresulset.h"
 #include "converters.h"
 #include "embedded.h"
 #include "monetdb_config.h"
@@ -41,6 +42,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     const char *query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
     char *err = NULL;
     res_table *output = NULL;
+    jobject result;
 
     // Execute the query
     err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
@@ -53,117 +55,60 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     // Check if we had results, otherwise we send an exception
     if (output && output->nr_cols > 0) {
         numberOfColumns = output->nr_cols;
-        numberOfRows = BATcount(BATdescriptor(output->cols[0].b));
     } else {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "There was no output to retrieve!");
         monetdb_cleanup_result(NULL, output);
         return NULL;
     }
 
-    //public QueryResultSet(MonetDBEmbeddedConnection connection, long tablePointer, String[] columnNames, String[] columnTypes, int[] columnDigits, int[] columnScales, Object[] data, int numberOfRows
-    jobjectArray columnNamesArray = (*env)->NewObjectArray(env, numberOfColumns, getStringClassID(), NULL);
-    jobjectArray columnTypesArray = (*env)->NewObjectArray(env, numberOfColumns, getStringClassID(), NULL);
-    jintArray digitsArray = (*env)->NewIntArray(env, numberOfColumns);
-    jintArray scalesArray = (*env)->NewIntArray(env, numberOfColumns);
-    jobjectArray dataArray = (*env)->NewObjectArray(env, numberOfColumns, getJavaObjectClassID(), NULL);
-    jint* digitsAux = (*env)->GetIntArrayElements(env, digitsArray, NULL);
-    jint* scalesAux = (*env)->GetIntArrayElements(env, scalesArray, NULL);
+    //QueryResultSetMonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns, int numberOfRows, int[] typesIDs)
+    jintArray typesIDs = (*env)->NewIntArray(env, numberOfColumns);
+    jint* copy = GDKmalloc(sizeof(jint) * numberOfColumns);
+    JResultSet* thisResultSet = createResultSet(output);
 
-    for (i = 0; i < numberOfColumns; i++) {
+    for (int i = 0; i < numberOfColumns; i++) {
         res_col col = output->cols[i];
-        BAT* b = BATdescriptor(col.b);
         char* nextSQLName = col.type.type->sqlname;
-        
-        jstring colname = (*env)->NewStringUTF(env, col.name);
-        jstring coltype = (*env)->NewStringUTF(env, nextSQLName);
-        (*env)->SetObjectArrayElement(env, columnNamesArray, i, colname);
-        (*env)->SetObjectArrayElement(env, columnTypesArray, i, coltype);
-        (*env)->DeleteLocalRef(env, colname);
-        (*env)->DeleteLocalRef(env, coltype);
-        digitsAux[i] = (int) col.type.digits;
-        scalesAux[i] = (int) col.type.scale;
-
         if(strncmp(nextSQLName, "boolean", 7) == 0) {
-            jbyteArray aux1 = (*env)->NewByteArray(env, numberOfRows);
-            getBooleanColumn(env, aux1, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux1);
-            (*env)->DeleteLocalRef(env, aux1);
+            copy[i] = 1;
         } else if(strncmp(nextSQLName, "tinyint", 7) == 0) {
-            jbyteArray aux2 = (*env)->NewByteArray(env, numberOfRows);
-            getTinyintColumn(env, aux2, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux2);
-            (*env)->DeleteLocalRef(env, aux2);
+            copy[i] = 2;
         } else if(strncmp(nextSQLName, "smallint", 8) == 0) {
-            jshortArray aux3 = (*env)->NewShortArray(env, numberOfRows);
-            getSmallintColumn(env, aux3, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux3);
-            (*env)->DeleteLocalRef(env, aux3);
+            copy[i] = 3;
         } else if(strncmp(nextSQLName, "int", 3) == 0 || strncmp(nextSQLName, "month_interval", 14) == 0) {
-            jintArray aux4 = (*env)->NewIntArray(env, numberOfRows);
-            getIntColumn(env, aux4, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux4);
-            (*env)->DeleteLocalRef(env, aux4);
+            copy[i] = 4;
         } else if(strncmp(nextSQLName, "bigint", 6) == 0 || strncmp(nextSQLName, "sec_interval", 12) == 0) {
-            jlongArray aux5 = (*env)->NewLongArray(env, numberOfRows);
-            getBigintColumn(env, aux5, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux5);
-            (*env)->DeleteLocalRef(env, aux5);
+            copy[i] = 5;
         } else if(strncmp(nextSQLName, "real", 4) == 0) {
-            jfloatArray aux6 = (*env)->NewFloatArray(env, numberOfRows);
-            getRealColumn(env, aux6, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux6);
-            (*env)->DeleteLocalRef(env, aux6);
+            copy[i] = 6;
         } else if(strncmp(nextSQLName, "double", 6) == 0) {
-            jdoubleArray aux7 = (*env)->NewDoubleArray(env, numberOfRows);
-            getDoubleColumn(env, aux7, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux7);
-            (*env)->DeleteLocalRef(env, aux7);
+            copy[i] = 7;
         } else if(strncmp(nextSQLName, "char", 4) == 0 || strncmp(nextSQLName, "varchar", 7) == 0 || strncmp(nextSQLName, "clob", 4) == 0) {
-            jobjectArray aux8 = (*env)->NewObjectArray(env, numberOfRows, getStringClassID(), NULL);
-            getStringColumn(env, aux8, getStringClassID(), NULL, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux8);
-            (*env)->DeleteLocalRef(env, aux8);
+            copy[i] = 8;
         } else if(strncmp(nextSQLName, "date", 4) == 0) {
-            jobjectArray aux9 = (*env)->NewObjectArray(env, numberOfRows, getDateClassID(), NULL);
-            getDateColumn(env, aux9, getDateClassID(), getDateConstructorID(), NULL, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux9);
-            (*env)->DeleteLocalRef(env, aux9);
+            copy[i] = 9;
         } else if(strncmp(nextSQLName, "timestamp", 9) == 0 || strncmp(nextSQLName, "timestamptz", 11) == 0) { //WARNING must come before the time type!!!
-            jobjectArray aux10 = (*env)->NewObjectArray(env, numberOfRows, getTimestampClassID(), NULL);
-            getTimestampColumn(env, aux10, getTimestampClassID(), getTimestampConstructorID(), NULL, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux10);
-            (*env)->DeleteLocalRef(env, aux10);
+            copy[i] = 10;
         } else if(strncmp(nextSQLName, "time", 4) == 0 || strncmp(nextSQLName, "timetz", 6) == 0) {
-            jobjectArray aux11 = (*env)->NewObjectArray(env, numberOfRows, getTimeClassID(), NULL);
-            getTimeColumn(env, aux11, getTimeClassID(), getTimeConstructorID(), NULL, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux11);
-            (*env)->DeleteLocalRef(env, aux11);
+            copy[i] = 11;
         } else if(strncmp(nextSQLName, "blob", 4) == 0) {
-            jobjectArray aux12 = (*env)->NewObjectArray(env, numberOfRows, getByteArrayClassID(), NULL);
-            getBlobColumn(env, aux12, NULL, NULL, 0, numberOfRows, b);
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux12);
-            (*env)->DeleteLocalRef(env, aux12);
+            copy[i] = 12;
         } else if(strncmp(nextSQLName, "decimal", 7) == 0) {
-            jobjectArray aux13 = (*env)->NewObjectArray(env, numberOfRows, getBigDecimalClassID(), NULL);
-            if(col.type.digits <= 2) {
-                getDecimalbteColumn(env, aux13, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
-            } else if(col.type.digits > 2 && col.type.digits <= 4) {
-                getDecimalshtColumn(env, aux13, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
-            } else if(col.type.digits > 4 && col.type.digits <= 8) {
-                getDecimalintColumn(env, aux13, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
-            } else {
-                getDecimallngColumn(env, aux13, getBigDecimalClassID(), getBigDecimalConstructorID(), 0, numberOfRows, b, col.type.scale);
-            }
-            (*env)->SetObjectArrayElement(env, dataArray, i, aux13);
-            (*env)->DeleteLocalRef(env, aux13);
+            copy[i] = 13;
         } else {
             (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "Unknown MonetDB type!");
         }
     }
 
-    (*env)->ReleaseIntArrayElements(env, digitsArray, digitsAux, 0);
-    (*env)->ReleaseIntArrayElements(env, scalesArray, scalesAux, 0);
-    return (*env)->NewObject(env, getQueryResultSetID(), getQueryResultSetConstructorID(), jconnection, (jlong) output, columnNamesArray, columnTypesArray, digitsArray, scalesArray, dataArray, numberOfRows);
+    if((*env)->ExceptionCheck(env) == JNI_TRUE) {
+        result = NULL;
+    } else {
+        numberOfRows = BATcount(thisResultSet->bats[0]);
+        (*env)->SetIntArrayRegion(env, typesIDs, 0, numberOfColumns, copy);
+        result = (*env)->NewObject(env, getQueryResultSetID(), getQueryResultSetConstructorID(), jconnection, (jlong) thisResultSet, numberOfColumns, numberOfRows, typesIDs);
+    }
+    GDKfree(copy);
+    return result;
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_getMonetDBTableInternal

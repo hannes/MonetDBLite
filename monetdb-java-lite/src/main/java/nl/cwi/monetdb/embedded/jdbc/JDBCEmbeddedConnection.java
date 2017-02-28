@@ -127,13 +127,10 @@ public final class JDBCEmbeddedConnection extends MonetDBEmbeddedConnection {
     /**
      * Fills the result set data for a {@link DataBlockResponse} according into the JDBC mappings.
      *
-     * @param typesMap The JDBC types mapping array for every column in the ResultSetResponse of the DataBlock
-     * @param values An array of columns to fill the values
-     * @return Always the number of rows in the set
-     * @throws MonetDBEmbeddedException If there is an unknown JDBC mapping
+     * @param response The response to set data
      */
-    int parseTupleLines(int[] typesMap, Object[] values) throws MonetDBEmbeddedException {
-        return this.parseTupleLinesInternal(this.lastResultSetPointer, typesMap, values);
+    void initializePointers(EmbeddedDataBlockResponse response) throws MonetDBEmbeddedException {
+        this.initializePointersInternal(this.lastResultSetPointer, response);
     }
 
     /**
@@ -205,7 +202,7 @@ public final class JDBCEmbeddedConnection extends MonetDBEmbeddedConnection {
     /**
      * Native implementation of the result set construction.
      */
-    private native int parseTupleLinesInternal(long resultSetPointer, int[] typesMap, Object[] values)
+    private native void initializePointersInternal(long resultSetPointer, EmbeddedDataBlockResponse response)
             throws MonetDBEmbeddedException;
 
     /**

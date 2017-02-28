@@ -8,9 +8,11 @@
 
 package nl.cwi.monetdb.embedded.env;
 
+import nl.cwi.monetdb.embedded.mapping.MonetDBToJavaMapping;
 import nl.cwi.monetdb.embedded.utils.Randomizer;
 
 import java.io.Closeable;
+import java.lang.reflect.Array;
 
 /**
  * The base class for a pending statement to a connection.
@@ -19,19 +21,15 @@ import java.io.Closeable;
  */
 public abstract class AbstractConnectionResult implements Closeable {
 
-    /** The table C pointer. */
-    private long tablePointer;
-
     /** The corresponding connection of this result. */
     private final MonetDBEmbeddedConnection connection;
 
     /** A long value used to identify this result set. */
     private final long randomIdentifier;
 
-    protected AbstractConnectionResult(MonetDBEmbeddedConnection connection, long tablePointer) {
+    protected AbstractConnectionResult(MonetDBEmbeddedConnection connection) {
         this.connection = connection;
-        this.tablePointer = tablePointer;
-        this.randomIdentifier = Randomizer.GenerateNextLong() + tablePointer;
+        this.randomIdentifier = Randomizer.GenerateNextLong();
     }
 
     /**
@@ -42,38 +40,90 @@ public abstract class AbstractConnectionResult implements Closeable {
     public MonetDBEmbeddedConnection getConnection() { return connection; }
 
     /**
+     * Returns the number of columns in the result set.
+     *
+     * @return Number of columns
+     */
+    public abstract int getNumberOfColumns();
+
+    /**
+     * Returns the number of rows in the result set.
+     *
+     * @return Number of rows
+     */
+    public abstract int getNumberOfRows();
+
+    /**
      * Gets a long number randomly generated, used to identify the result set.
      *
      * @return A random long identifier
      */
-    public long getRandomIdentifier() { return randomIdentifier; }
+    protected long getRandomIdentifier() { return randomIdentifier; }
 
     /**
-     * Tells if the connection of this statement result has been closed or not.
+     * Checks the length of an input array for metadata retrieval
      *
-     * @return A boolean indicating if the statement result has been cleaned or not
+     * @param input - An array to check its bounds
      */
-    public boolean isResultClosed() { return this.tablePointer == 0; }
-
-    @Override
-    public void close() {
-        if(!this.isResultClosed()) {
-            this.closeResultImplementation();
-            this.connection.removeQueryResult(this);
+    protected void checkMetadataArrayLength(Object input) {
+        int arrayLength = Array.getLength(input);
+        if (arrayLength != this.getNumberOfColumns()) {
+            throw new ArrayIndexOutOfBoundsException("The array length is different from the number of columns! "
+                    + this.getNumberOfColumns() + " != " + arrayLength);
         }
     }
 
     /**
-     * Overriding the finalize method to close the connection
+     * Gets the columns names as a string array.
+     *
+     * @param input The columns names array to fill
+     */
+    public abstract void getColumnNames(String[] input);
+
+    /**
+     * Gets the columns types as a string array.
+     *
+     * @param input The columns types array to fill
+     */
+    public abstract void getColumnTypes(String[] input);
+
+    /**
+     * Gets the Java mappings as a MonetDBToJavaMapping array.
+     *
+     * @param input The columns mappings array to fill
+     */
+    public abstract void getMappings(MonetDBToJavaMapping[] input);
+
+    /**
+     * Gets the column digits as an integer array.
+     *
+     * @param input The columns digits array to fill
+     */
+    public abstract void getColumnDigits(int[] input);
+
+    /**
+     * Gets the column scales as an integer array.
+     *
+     * @param input The columns scales array to fill
+     */
+    public abstract void getColumnScales(int[] input);
+
+    @Override
+    public void close() {
+        this.connection.removeQueryResult(this);
+    }
+
+    /**
+     * Close the result set internally.
+     */
+    protected abstract void closeResultImplementation();
+
+    /**
+     * Overriding the finalize method to clean the result set.
      */
     @Override
     protected void finalize() throws Throwable {
         this.close();
         super.finalize();
     }
-
-    /**
-     * Closes the result set.
-     */
-    protected native void closeResultImplementation();
 }

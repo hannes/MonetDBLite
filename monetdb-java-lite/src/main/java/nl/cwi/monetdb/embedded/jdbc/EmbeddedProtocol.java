@@ -11,10 +11,7 @@ package nl.cwi.monetdb.embedded.jdbc;
 import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
 import nl.cwi.monetdb.jdbc.MonetConnection;
 import nl.cwi.monetdb.mcl.protocol.*;
-import nl.cwi.monetdb.mcl.responses.AutoCommitResponse;
-import nl.cwi.monetdb.mcl.responses.DataBlockResponse;
-import nl.cwi.monetdb.mcl.responses.ResultSetResponse;
-import nl.cwi.monetdb.mcl.responses.UpdateResponse;
+import nl.cwi.monetdb.mcl.responses.*;
 
 import java.io.IOException;
 import java.util.Map;
@@ -25,14 +22,14 @@ import java.util.Map;
  *
  * @author <a href="mailto:pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>
  */
-public class EmbeddedProtocol extends AbstractProtocol {
+public final class EmbeddedProtocol extends AbstractProtocol {
 
     /**
      * The underlying embedded connection.
      */
     private final JDBCEmbeddedConnection connection;
 
-    public EmbeddedProtocol(JDBCEmbeddedConnection con) {
+    EmbeddedProtocol(JDBCEmbeddedConnection con) {
         this.connection = con;
     }
 
@@ -41,7 +38,7 @@ public class EmbeddedProtocol extends AbstractProtocol {
      *
      * @return The underlying embedded connection
      */
-    public JDBCEmbeddedConnection getEmbeddedConnection() {
+    JDBCEmbeddedConnection getEmbeddedConnection() {
         return this.connection;
     }
 
@@ -123,6 +120,12 @@ public class EmbeddedProtocol extends AbstractProtocol {
         return (AutoCommitResponse) connection.getLastServerResponse();
     }
 
+    @Override
+    public AbstractDataBlockResponse getAnEmptyDataBlockResponse(int rowcount, int columncount,
+                                                                 AbstractProtocol protocol, int[] JdbcSQLTypes) {
+        return new EmbeddedDataBlockResponse(rowcount, protocol, JdbcSQLTypes);
+    }
+
     /**
      * Gets the next DataBlockResponse response from the server, belonging to a ResultSetResponse
      *
@@ -132,7 +135,7 @@ public class EmbeddedProtocol extends AbstractProtocol {
      * @throws ProtocolException If an error in the underlying connection happened.
      */
     @Override
-    public DataBlockResponse getNextDatablockResponse(Map<Integer, ResultSetResponse> rsresponses)
+    public AbstractDataBlockResponse getNextDatablockResponse(Map<Integer, ResultSetResponse> rsresponses)
             throws ProtocolException {
         int[] array = connection.getLastServerResponseParameters();
         int id = array[0]; //The order cannot be switched!!
@@ -165,16 +168,12 @@ public class EmbeddedProtocol extends AbstractProtocol {
      * Retrieves the next values in a DataBlockResponse from the underlying connection, starting at a specific line
      * number. On an embedded connection, always all the lines are retrieved.
      *
-     * @param firstLineNumber The first line number in the response to retrieve (ignored)
-     * @param typesMap The JDBC types mapping array for every column in the ResultSetResponse of the DataBlock
-     * @param values An array of columns to fill the values
-     * @return The number of lines parsed from the underlying connection
+     * @param response The response to initialize
      * @throws ProtocolException If an error in the underlying connection happened.
      */
-    @Override
-    public int parseTupleLines(int firstLineNumber, int[] typesMap, Object[] values) throws ProtocolException {
+    void initializePointers(EmbeddedDataBlockResponse response) throws ProtocolException {
         try {
-            return connection.parseTupleLines(typesMap, values);
+            connection.initializePointers(response);
         } catch (MonetDBEmbeddedException ex) {
             throw new ProtocolException(ex.getMessage(), 0);
         }

@@ -15,6 +15,8 @@ package nl.cwi.monetdb.embedded.utils;
  */
 public final class StringEscaper {
 
+    private StringEscaper() {}
+
     /**
      * Escapes a Java String for usage in SQL queries.
      *

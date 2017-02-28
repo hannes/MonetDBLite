@@ -10,7 +10,6 @@ package nl.cwi.monetdb.embedded.tables;
 
 import nl.cwi.monetdb.embedded.env.AbstractConnectionResult;
 import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
-import nl.cwi.monetdb.embedded.mapping.AbstractResultTable;
 import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedConnection;
 import nl.cwi.monetdb.embedded.mapping.MonetDBRow;
 import nl.cwi.monetdb.embedded.mapping.MonetDBToJavaMapping;
@@ -24,7 +23,7 @@ import java.math.BigDecimal;
  *
  * @author <a href="mailto:pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>
  */
-public final class MonetDBTable extends AbstractConnectionResult implements AbstractResultTable {
+public final class MonetDBTable extends AbstractConnectionResult {
 
     /** The table's schema */
     private final String tableSchema;
@@ -36,7 +35,7 @@ public final class MonetDBTable extends AbstractConnectionResult implements Abst
     private int roundingMode = BigDecimal.ROUND_HALF_EVEN;
 
     private MonetDBTable(MonetDBEmbeddedConnection connection, String tableSchema, String tableName) {
-        super(connection, -1);
+        super(connection);
         this.tableSchema = tableSchema;
         this.tableName = tableName;
     }
@@ -55,7 +54,7 @@ public final class MonetDBTable extends AbstractConnectionResult implements Abst
         try {
             String query = "SELECT COUNT(*) FROM " + this.getTableSchema() + "." + this.getTableName() + ";";
             QueryResultSet eqr = this.getConnection().sendQuery(query);
-            res = (int) eqr.getLongColumnByIndex(1)[0];
+            res = (int) eqr.getLongByColumnIndexAndRow(1, 1);
             eqr.close();
         } catch (MonetDBEmbeddedException ex) {
             res = -1;
@@ -63,20 +62,19 @@ public final class MonetDBTable extends AbstractConnectionResult implements Abst
         return res;
     }
 
-    @Override
-    public native String[] getColumnNames();
+    protected native void getColumnNamesInternal(String[] input);
 
-    @Override
-    public native String[] getColumnTypes();
+    protected native void getColumnTypesInternal(String[] input);
 
-    @Override
-    public native MonetDBToJavaMapping[] getMappings();
+    protected native void getMappingsInternal(MonetDBToJavaMapping[] input);
 
-    @Override
-    public native int[] getColumnDigits();
+    protected native void getColumnDigitsInternal(int[] input);
 
-    @Override
-    public native int[] getColumnScales();
+    protected native void getColumnScalesInternal(int[] input);
+
+    protected native void getColumnNullableIndexesInternal(boolean[] input);
+
+    protected native void getColumnDefaultValuesInternal(String[] input);
 
     /**
      * Gets the table schema name.
@@ -98,7 +96,7 @@ public final class MonetDBTable extends AbstractConnectionResult implements Abst
      * @return The current rounding mode for decimals in this table.
      */
     public int getRoundingMode() {
-        return roundingMode;
+        return this.roundingMode;
     }
 
     /**
@@ -115,19 +113,55 @@ public final class MonetDBTable extends AbstractConnectionResult implements Abst
         this.roundingMode = roundingMode;
     }
 
+    @Override
+    public void getColumnNames(String[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getColumnNamesInternal(input);
+    }
+
+    @Override
+    public void getColumnTypes(String[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getColumnTypesInternal(input);
+    }
+
+    @Override
+    public void getMappings(MonetDBToJavaMapping[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getMappingsInternal(input);
+    }
+
+    @Override
+    public void getColumnDigits(int[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getColumnDigitsInternal(input);
+    }
+
+    @Override
+    public void getColumnScales(int[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getColumnScalesInternal(input);
+    }
+
     /**
      * Gets the columns nullable indexes as an array.
      *
-     * @return The columns nullable indexes as an array
+     * @param input The columns nullable indexes array to fill
      */
-    public native boolean[] getColumnNullableIndexes();
+    public void getColumnNullableIndexes(boolean[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getColumnNullableIndexesInternal(input);
+    }
 
     /**
      * Gets the columns default values in an array.
      *
-     * @return The columns default values in an array
+     * @param input The columns default values array to fill
      */
-    public native String[] getColumnDefaultValues();
+    public void getColumnDefaultValues(String[] input) {
+        this.checkMetadataArrayLength(input);
+        this.getColumnDefaultValuesInternal(input);
+    }
 
     /**
      * Gets a column metadata by index.
@@ -208,27 +242,26 @@ public final class MonetDBTable extends AbstractConnectionResult implements Abst
     /**
      * Appends new rows to the table column-wise.
      *
-     * @param data An array of columns to append
+     * @param input An array of columns to append
      * @return The number of rows appended
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
-    public int appendColumns(Object[] data) throws MonetDBEmbeddedException {
-        MonetDBToJavaMapping[] mappings = this.getMappings();
-        if (data.length != mappings.length) {
-            throw new ArrayStoreException("The number of columns between the data nad the classes is not consistent!");
+    public int appendColumns(Object[] input) throws MonetDBEmbeddedException {
+        int numberOfColumns = this.getNumberOfColumns();
+        if (input.length != numberOfColumns) {
+            throw new ArrayStoreException("The number of columns between the input and the table is not consistent!");
         }
-        if (mappings.length != this.getNumberOfColumns()) {
-            throw new ArrayStoreException("The number of columns between data and the table is not consistent!");
-        }
-        int[] javaIndexes = new int[mappings.length];
+        MonetDBToJavaMapping[] mappings = new MonetDBToJavaMapping[numberOfColumns];
+        this.getMappings(mappings);
+        int[] javaIndexes = new int[numberOfColumns];
         for (int i = 0; i < mappings.length; i++) {
             javaIndexes[i] = mappings[i].ordinal();
         }
-        return this.appendColumnsInternal(data, javaIndexes, this.roundingMode);
+        return this.appendColumnsInternal(input, javaIndexes, this.roundingMode);
     }
 
     @Override
-    public void closeResultImplementation() {}
+    protected void closeResultImplementation() {} //Do Nothing!!!
 
     private native int appendColumnsInternal(Object[] data, int[] javaIndexes, int roundingMode)
             throws MonetDBEmbeddedException;

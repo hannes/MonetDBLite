@@ -104,27 +104,26 @@ less object allocations. However for the more complex SQL types, we mapped them 
 specification.
 
 One important feature of MonetDB is that the SQL `NULL` values are mapped into the system's minimum values (e.g. MonetDB
-Integer - 2^31 - 1 in a 64-bit machine). In MonetDBJavaLite, this feature persists, being converted into the JVM's
-minimum values for the primitives. **However for the Java Classes mapping, SQL NULL values are translated into null
-objects, so be careful!**
+Integer - 2^31 - 1 in a 64-bit machine). In MonetDBJavaLite, this feature persists for primitive types.
+**However for the Java Classes mapping, SQL NULL values are translated into null objects, so be careful!**
 
-| MonetDB Type                         | Java Primitive/Class                                                                        | Null Value            |
-| :----------------------------------- | :------------------------------------------------------------------------------------------ | :-------------------- |
-| boolean                              | boolean                                                                                     | Minimum byte value    |
-| tinyint                              | byte                                                                                        | Minimum byte value    |
-| smallint                             | short                                                                                       | Minimum short value   |
-| integer                              | int                                                                                         | Minimum integer value |
-| bigint                               | long                                                                                        | Minimum long value    |
-| real                                 | float                                                                                       | Minimum float value   |
-| double                               | double                                                                                      | Minimum double value  |
-| decimal/numeric                      | [java.math.BigDecimal](https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html) | Null pointer          |
-| char/varchar/clob                    | [java.lang.String](https://docs.oracle.com/javase/8/docs/api/java/lang/String.html)         | Null pointer          |
-| date                                 | [java.sql.Date](https://docs.oracle.com/javase/8/docs/api/java/sql/Date.html)               | Null pointer          |
-| time (with or without timezone)      | [java.sql.Time](https://docs.oracle.com/javase/8/docs/api/java/sql/Time.html)               | Null pointer          |
-| timestamp (with or without timezone) | [java.sql.Timestamp](https://docs.oracle.com/javase/8/docs/api/java/sql/Timestamp.html)     | Null pointer          |
-| month interval                       | int                                                                                         | Minimum integer value |
-| second interval                      | long                                                                                        | Minimum long value    |
-| blob                                 | byte&#91;&#93; &#40;an object&#33;&#41;                                                     | Null pointer          |
+| MonetDB Type                         | Java Primitive/Class                                                                        | Null Value                     |
+| :----------------------------------- | :------------------------------------------------------------------------------------------ | :----------------------------- |
+| boolean                              | boolean                                                                                     | System's minimum byte value    |
+| tinyint                              | byte                                                                                        | System's minimum C byte value  |
+| smallint                             | short                                                                                       | System's minimum short value   |
+| integer                              | int                                                                                         | System's minimum integer value |
+| bigint                               | long                                                                                        | System's minimum long value    |
+| real                                 | float                                                                                       | System's minimum float value   |
+| double                               | double                                                                                      | System's minimum double value  |
+| decimal/numeric                      | [java.math.BigDecimal](https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html) | Null pointer                   |
+| char/varchar/clob                    | [java.lang.String](https://docs.oracle.com/javase/8/docs/api/java/lang/String.html)         | Null pointer                   |
+| date                                 | [java.sql.Date](https://docs.oracle.com/javase/8/docs/api/java/sql/Date.html)               | Null pointer                   |
+| time (with or without timezone)      | [java.sql.Time](https://docs.oracle.com/javase/8/docs/api/java/sql/Time.html)               | Null pointer                   |
+| timestamp (with or without timezone) | [java.sql.Timestamp](https://docs.oracle.com/javase/8/docs/api/java/sql/Timestamp.html)     | Null pointer                   |
+| month interval                       | int                                                                                         | System's minimum integer value |
+| second interval                      | long                                                                                        | System's minimum long value    |
+| blob                                 | byte&#91;&#93; &#40;an object&#33;&#41;                                                     | Null pointer                   |
 
 Notice that other more rare data types like `geometry`, `json` and `hugeint` are still missing, because they were taken
 off from MonetDBLite to shrink the size of the library.
@@ -142,54 +141,67 @@ send update queries to the server and get the number of rows affected.
 
 ```java
 connection.startTransaction();
-connection.sendUpdate("CREATE TABLE example (truth boolean, words text, counter int, fraction real, temporal timestamp)");
-int numberOfInsertions = connection.sendUpdate("INSERT INTO example VALUES ('true', 'just one word', 1, 1.23, now()), ('false', 'another word', 2, -45.65467, now()), (null, null, null, null, null)");
+connection.sendUpdate("CREATE TABLE example (words text, counter int, temporal timestamp)");
+int numberOfInsertions = connection.sendUpdate("INSERT INTO example VALUES ('monetdb', 1, now()), ('java', 2, now()), (null, null, null)");
 connection.commit();
 ```
 
 ### Queries with result sets
 
 For queries with result sets, the method `QueryResultSet sendQuery(String query)` sends a query to the server, and
-retrieves the results immediately in a `QueryResultSet` instance. The column values can be retrieved using the
-`T[] get#TYPE#ColumnByIndex(int n)` methods, with the column numbers starting from 1, alike in JDBC, or by name with
-`T[] get#TYPE#ColumnByName(String name)` methods. An important note is that the pointer to the array is retrieved when
-the fetch is made, to save memory allocations, except when the type does not match the method (e.g call
-`getIntColumnByIndex` in a `short` column). If the user wants to re-use values, he should clone the arrays. The entire
-result set can be fetched with the `Object[] getTheFullResultSet()` method.
+retrieves the results immediately in a `QueryResultSet` instance.
 
-For `NULL` values, the methods `boolean[] getColumnNullMappingsByIndex(int n)` and
-`boolean[] getColumnNullMappingsByName (String name)` can be used. The result set metada can be retrieved with the
-`int getNumberOfRows()`, `int getNumberOfColumns()`, `String[] getColumnNames()` and `String[] getColumnTypes()`
-methods.
+The result set metadata can be retrieved with the `int getNumberOfRows()`, `int getNumberOfColumns()`,
+`void getColumnNames(String[] input)` and `void getColumnTypes(String[] input)` methods.
+
+There are several ways to retrieve the results from a query. The `T get#TYPE#ByColumnIndexAndRow(int column, int row)`
+and `T get#TYPE#ByColumnNameAndRow(String columnName, int row)` family methods retrieve a single value from the result
+set. The `column` and `row` indexes for these methods and the remaining ones start from 1, alike in JDBC.
+
+A column of values can be retrieved using the 
+`void get#TYPE#ColumnByIndex(int column, T[] input, int offset, int length)` and
+`void get#TYPE#ColumnByName(String name, T[] input, int offset, int length)` family of methods. Remember that the input
+array must be already initialized. If there is no desire to provide the `offset` and `length` parameters, the methods
+`void get#Type#ColumnByIndex(int column, T[] input)` and `get#Type#ColumnByName(String columnName, T[] input)` methods
+can be used instead.
+
+For the `NULL` values mappings of a column, the methods `void getColumnNullMappingsByIndex(int column, boolean[] input)`
+and`void getNullMappingByName(String columnName, boolean[] input)` can be used. 
 
 ```java
 QueryResultSet qrs = connection.sendQuery("SELECT * FROM example");
-
-//gets ['truth', 'words', 'counter', 'fraction', 'temporal']
-String[] columnNames = qrs.getColumnNames();
 int numberOfRows = qrs.getNumberOfRows();
 
-boolean[] truthValues = qrs.getBooleanColumnByIndex(1);
-String[] wordValues = qrs.getStringColumnByIndex(2);
-int[] counterValues = qrs.getIntColumnByIndex(3);
-float[] fractionValues = qrs.getFloatColumnByIndex(4);
-Timestamp[] temporalValues = qrs.getTimestampColumnByIndex(5);
-int[] theSameCounterValues = qrs.getIntColumnByName("counter"); //got it by name
+String[] columnNames =  new String[numberOfRows];
+//gets ['words', 'counter', 'temporal']
+qrs.getColumnNames(columnNames);
 
-//gets the null mappings of column, in this case: [false, false, true]
-boolean[] truthNullMappings = qrs.getColumnNullMappingsByIndex(1);
-//gets the pointer to the result set matrix, be carefull!!
-Object[] result set = qrs.getFullResultSet();
+//gets 'monetdb'
+String singleWord = qrs.getStringByColumnIndexAndRow(1, 1);
+
+int[] counterValues = new int[numberOfRows];
+//gets [1, 2, (low negative value because it's a null value)]
+qrs.getIntColumnByName(2, counterValues);
+
+Timestamp[] temporalValues = new Timestamp[numberOfRows];
+//gets an array of java.sql.Timestamp objects
+qrs.getTimestampColumnByIndex("temporal", temporalValues); //got it by name
+
+boolean[] truthNullMappings = new boolean[numberOfRows];
+//get the null mappings of a column, in this case: [false, false, true]
+qrs.getColumnNullMappingsByName("counter", truthNullMappings);
+
 qrs.close(); //don't forget to close in the end!!! ;)
 ```
-A single value can be checked if it's `NULL` with the `NullMappings` class `boolean Check#Type#IsNull(T value)` static
-methods, except for `booleans`, in which the `boolean checkBooleanIsNull(int column, int row)` in the `QueryResultSet`
-should be used instead.
+A single value can be checked if it's `NULL` with the help of `NullMappings` class `boolean Check#Type#IsNull(T value)`
+static methods, except for `booleans`, in which the `boolean checkBooleanIsNull(int column, int row)` in the
+`QueryResultSet` should be used instead.
 
 If it is desired to iterate row-wise, the methods `QueryResultRowSet fetchResultSetRows(int startIndex, int endIndex)`,
 `QueryResultRowSet fetchFirstNRowValues(int n)` and `QueryResultRowSet fetchAllRowValues()` can be used. However as of
 now, these methods convert all the values including primitives into Java Objects, which causes slightly more memory
-allocations. The `MonetDBRow` class instance holds the data of a single retrieved row.
+allocations, hence is not recommended in low memory devices. The `MonetDBRow` class instance holds the data of a single
+retrieved row.
 
 ```java
 QueryResultSet qrs = connection.sendQuery("SELECT truth, words, counter FROM example");
@@ -206,7 +218,7 @@ qrs.close(); //don't forget ;)
 
 ### Utilities methods
 
-In the `MonetDBEmbeddedConnection` class there are other utility methods, that can used to manage the current connection.
+In the `MonetDBEmbeddedConnection` class there are other utility methods that can used to manage the current connection.
 
 * `String getCurrentSchema()` - Returns the current schema name.
 * `void setCurrentSchema(String newSchema)` - Sets the current schema.
@@ -222,7 +234,8 @@ present in MonetDBJavaLite. A single table data can be retrieved using the metho
 `MonetDBTable getMonetDBTable(String schemaName, String tableName)` and `MonetDBTable getMonetDBTable(String tableName)`
 in a `MonetDBEmbeddedConnection` class instance.
 
-Much alike the `QueryResultSet` class, the tables' metadata information can be retrieved with the same methods of above.
+Much alike the `QueryResultSet` class, the tables' metadata information can be retrieved with the same above methods
+(both `QueryResultSet` and `MonetDBTable` share the same base class).
 
 ### Iterate a table
 
@@ -413,19 +426,36 @@ methods to check if a value is null or not. At the same time, the SQL standard h
 [COALESCE](https://www.w3schools.com/sql/sql_isnull.asp) function to return a default value when a value is null in the
 result set.
 
-### 5. If I modify a value in one array of QueryResultSet, it changes the value in the result set as well right?
-
-Yes, as I explained above the `QueryResultSet` `T[] get#TYPE#ColumnByIndex(int n)` and
-`T[] get#TYPE#ColumnByName(String name)` methods returns the pointer to the array of the column if the type matches with
-the one of the `QueryResultSet`. This was done to save memory allocations, which is useful in some use case scenarios.
-If you to preserve the `QueryResultSet` data, use the
-[Arrays.copyOf](https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html#i19) family of methods.
-
-### 6. While starting a JDBC connection, I am getting the SQLException: "Unable to connect (localhost:50000): Connection refused"!
+### 5. While starting a JDBC connection, I am getting the SQLException: "Unable to connect (localhost:50000): Connection refused"!
 
 The new MonetDB JDBC driver creates a MAPI connection by default, as the most common use case of it. To start an
 embedded connection you **MUST** provide JDBC URL specifying the embedded connection and the directory. Check the
-example above how it can be done.
+example above on how it can be done.
+
+### 6. Why I have to pass a column array as an input in the QueryResultSet? It would be easier to return it in the method instead.
+
+That's a very good question indeed. The reason of this implementation has to do with the representation of Arrays in the
+JVM. Whenever you create an Array in the JVM, it gets auto-initialized with 0s, which might cause a slight overhead in
+large result sets. You could try to create them without initialization, but that currently it's not possible in the JVM
+([check here for details](http://stackoverflow.com/questions/13780350/is-there-any-way-to-create-a-primitive-array-without-initialization)).
+With the current implementation you can re-use the same arrays in multiple QueryResultSets, thus getting the
+auto-initialization overhead much less often.
+
+In overall you can see that the `QueryResultSet` API is similar to the [ByteBuffers](https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html)
+implementation, where both intend to re-use Arrays.
+
+Regarding this question, it would be better to approach to create an Array pointing directly to the result column, thus
+avoiding any copy likewise happens in MonetDBRLite and MonetDBPythonLite. However there are several issues regarding
+this approach in the JVM:
+
+* The internal representation of Arrays vary between JVMs. (In some JVMs they might not be contiguous in memory!)
+* We have to allocate the result set in the Java's Heap instead of the MonetDB's heap. We could try that with an array,
+but even in the native API the arrays are always auto-initialized, which is already a copy. We could do some crazy
+hacking by pointing the array to the MonetDB's heap, but the JVM's Garbage Colector might move memory areas, which we
+have to be very careful with.
+* We could try direct [ByteBuffers](https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html), which are 
+allocated outside of the Java's heap. However to access their data in the Java code in a bulk way to an array, a copy is
+made.
 
 ### 7. Is there a way to know if a JDBC connection is MAPI or Embedded after it has started?
 
@@ -474,6 +504,8 @@ remember that the best setting may vary with the underlying JVM, and MonetDBJava
 application. One possible optimization is to run the JVM in `server` mode instead of `client` mode, although it should
 be benchmarked as it might not provide better performance results in some applications. You can check the Stack Overflow
 question [here](https://stackoverflow.com/questions/198577/real-differences-between-java-server-and-java-client).
+Don't forget to check the options to JVM like the garbage collection algorithm and the size of the heap 
+[here](https://docs.oracle.com/cd/E13222_01/wls/docs81/perform/JVMTuning.html).
 
 ## License
 

@@ -15,7 +15,6 @@ import nl.cwi.monetdb.jdbc.MonetConnection;
 import nl.cwi.monetdb.mcl.connection.ControlCommands;
 import nl.cwi.monetdb.mcl.connection.MCLException;
 import nl.cwi.monetdb.mcl.protocol.ProtocolException;
-import nl.cwi.monetdb.mcl.protocol.ServerResponses;
 
 import java.io.*;
 import java.sql.Connection;

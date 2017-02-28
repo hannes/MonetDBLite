@@ -28,8 +28,21 @@ static jfieldID monetDBEmbeddedConnectionPointerID;
 static jfieldID connectionResultPointerID;
 
 /* Java MonetDB mappings constructors */
+static jclass booleanClassID;
+static jmethodID booleanConstructorID;
+static jclass byteClassID;
+static jmethodID byteConstructorID;
+static jclass shortClassID;
+static jmethodID shortConstructorID;
+static jclass integerClassID;
+static jmethodID integerConstructorID;
+static jclass longClassID;
+static jmethodID longConstructorID;
+static jclass floatClassID;
+static jmethodID floatConstructorID;
+static jclass doubleClassID;
+static jmethodID doubleConstructorID;
 
-static jclass javaObjectClassID;
 static jclass byteArrayClassID;
 static jclass shortArrayClassID;
 static jclass integerArrayClassID;
@@ -66,6 +79,7 @@ static jfieldID lastResultSetPointerID;
 static jfieldID serverHeaderResponseID;
 static jfieldID lastServerResponseParametersID;
 static jfieldID lastServerResponseID;
+static jfieldID structPointerID;
 
 static jclass autoCommitResponseClassID;
 static jmethodID autoCommitResponseConstructorID;
@@ -112,10 +126,6 @@ void initializeIDS(JNIEnv *env) {
     monetDBEmbeddedConnectionConstructorID = (*env)->GetMethodID(env, monetDBEmbeddedConnectionClassID, "<init>", "(J)V");
     monetDBEmbeddedConnectionPointerID = (*env)->GetFieldID(env, monetDBEmbeddedConnectionClassID, "connectionPointer", "J");
 
-    jclass abstractConnectionResultClass = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/AbstractConnectionResult");
-    connectionResultPointerID = (*env)->GetFieldID(env, abstractConnectionResultClass, "tablePointer", "J");
-    (*env)->DeleteLocalRef(env, abstractConnectionResultClass);
-
     tempLocalRef = (jobject) (*env)->FindClass(env, "nl/cwi/monetdb/embedded/jdbc/JDBCEmbeddedConnection");
     jDBCEmbeddedConnectionClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
@@ -127,8 +137,10 @@ void initializeIDS(JNIEnv *env) {
     queryResultSetID = (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
 
-    //public QueryResultSet(MonetDBEmbeddedConnection connection, long tablePointer, String[] columnNames, String[] columnTypes, int[] columnDigits, int[] columnScales, Object[] data, int numberOfRows
-    queryResultSetConstructorID = (*env)->GetMethodID(env, queryResultSetID, "<init>", "(Lnl/cwi/monetdb/embedded/env/MonetDBEmbeddedConnection;J[Ljava/lang/String;[Ljava/lang/String;[I[I[Ljava/lang/Object;I)V");
+    //QueryResultSetMonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns, int numberOfRows, int[] typesIDs)
+    queryResultSetConstructorID = (*env)->GetMethodID(env, queryResultSetID, "<init>", "(Lnl/cwi/monetdb/embedded/env/MonetDBEmbeddedConnection;JII[I)V");
+
+    connectionResultPointerID = (*env)->GetFieldID(env, queryResultSetID, "structPointer", "J");
 
     tempLocalRef = (jobject) (*env)->FindClass(env, "nl/cwi/monetdb/embedded/tables/MonetDBTable");
     monetDBTableClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
@@ -138,10 +150,47 @@ void initializeIDS(JNIEnv *env) {
     monetDBTableClassConstructorID = (*env)->GetMethodID(env, monetDBTableClassID, "<init>", "(Lnl/cwi/monetdb/embedded/env/MonetDBEmbeddedConnection;Ljava/lang/String;Ljava/lang/String;)V");
 
     /* Java MonetDB mappings constructors */
-
-    tempLocalRef = (jobject) (*env)->FindClass(env, "java/lang/Object");
-    javaObjectClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    tempLocalRef = (jobject) (*env)->FindClass(env, "java/lang/Boolean");
+    booleanClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    booleanConstructorID = (*env)->GetMethodID(env, booleanClassID, "<init>", "(Z)V");
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "java/lang/Byte");
+    byteClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    byteConstructorID = (*env)->GetMethodID(env, byteClassID, "<init>", "(B)V");
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "java/lang/Short");
+    shortClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    shortConstructorID = (*env)->GetMethodID(env, shortClassID, "<init>", "(S)V");
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "java/lang/Integer");
+    integerClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    integerConstructorID = (*env)->GetMethodID(env, integerClassID, "<init>", "(I)V");
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "java/lang/Long");
+    longClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    longConstructorID = (*env)->GetMethodID(env, longClassID, "<init>", "(J)V");
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "java/lang/Float");
+    floatClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    floatConstructorID = (*env)->GetMethodID(env, floatClassID, "<init>", "(F)V");
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "java/lang/Double");
+    doubleClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    doubleConstructorID = (*env)->GetMethodID(env, doubleClassID, "<init>", "(D)V");
 
     tempLocalRef = (jobject) (*env)->FindClass(env, "[B");
     byteArrayClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
@@ -237,6 +286,10 @@ void initializeIDS(JNIEnv *env) {
     lastServerResponseParametersID = (*env)->GetFieldID(env, jDBCEmbeddedConnectionClassID, "lastServerResponseParameters", "[I");
     lastServerResponseID = (*env)->GetFieldID(env, jDBCEmbeddedConnectionClassID, "lastServerResponse", "Lnl/cwi/monetdb/mcl/responses/IResponse;");
 
+    jclass embeddedDataBlockResponseClass = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/jdbc/EmbeddedDataBlockResponse");
+    structPointerID = (*env)->GetFieldID(env, embeddedDataBlockResponseClass, "structPointer", "J");
+    (*env)->DeleteLocalRef(env, (jobject) embeddedDataBlockResponseClass);
+
     tempLocalRef = (jobject) (*env)->FindClass(env, "nl/cwi/monetdb/mcl/responses/AutoCommitResponse");
     autoCommitResponseClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
@@ -285,8 +338,14 @@ void releaseIDS(JNIEnv *env) {
     (*env)->DeleteGlobalRef(env, monetDBTableClassID);
 
     /* Java MonetDB mappings classes */
+    (*env)->DeleteGlobalRef(env, booleanClassID);
+    (*env)->DeleteGlobalRef(env, byteClassID);
+    (*env)->DeleteGlobalRef(env, shortClassID);
+    (*env)->DeleteGlobalRef(env, integerClassID);
+    (*env)->DeleteGlobalRef(env, longClassID);
+    (*env)->DeleteGlobalRef(env, floatClassID);
+    (*env)->DeleteGlobalRef(env, doubleClassID);
 
-    (*env)->DeleteGlobalRef(env, javaObjectClassID);
     (*env)->DeleteGlobalRef(env, byteArrayClassID);
     (*env)->DeleteGlobalRef(env, shortArrayClassID);
     (*env)->DeleteGlobalRef(env, integerArrayClassID);
@@ -369,8 +428,60 @@ jfieldID getConnectionResultPointerID() {
 
 /* Java MonetDB mappings constructors */
 
-jclass getJavaObjectClassID() {
-    return javaObjectClassID;
+jclass getBooleanClassID() {
+    return booleanClassID;
+}
+
+jmethodID getBooleanConstructorID() {
+    return booleanConstructorID;
+}
+
+jclass getByteClassID() {
+    return byteClassID;
+}
+
+jmethodID getByteConstructorID() {
+    return byteConstructorID;
+}
+
+jclass getShortClassID() {
+    return shortClassID;
+}
+
+jmethodID getShortConstructorID() {
+    return shortConstructorID;
+}
+
+jclass getIntegerClassID() {
+    return integerClassID;
+}
+
+jmethodID getIntegerConstructorID() {
+    return integerConstructorID;
+}
+
+jclass getLongClassID() {
+    return longClassID;
+}
+
+jmethodID getLongConstructorID() {
+    return longConstructorID;
+}
+
+jclass getFloatClassID() {
+    return floatClassID;
+}
+
+jmethodID getFloatConstructorID() {
+    return floatConstructorID;
+}
+
+jclass getDoubleClassID() {
+    return doubleClassID;
+}
+
+jmethodID getDoubleConstructorID() {
+    return doubleConstructorID;
 }
 
 jclass getByteArrayClassID() {
@@ -497,6 +608,10 @@ jfieldID getLastServerResponseParametersID() {
 
 jfieldID getLastServerResponseID() {
     return lastServerResponseID;
+}
+
+jfieldID getStructPointerID() {
+    return structPointerID;
 }
 
 jclass getAutoCommitResponseClassID() {

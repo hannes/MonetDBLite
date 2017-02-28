@@ -31,7 +31,21 @@ jfieldID getConnectionResultPointerID();
 
 /* Java MonetDB mappings constructors */
 
-jclass getJavaObjectClassID();
+jclass getBooleanClassID();
+jmethodID getBooleanConstructorID();
+jclass getByteClassID();
+jmethodID getByteConstructorID();
+jclass getShortClassID();
+jmethodID getShortConstructorID();
+jclass getIntegerClassID();
+jmethodID getIntegerConstructorID();
+jclass getLongClassID();
+jmethodID getLongConstructorID();
+jclass getFloatClassID();
+jmethodID getFloatConstructorID();
+jclass getDoubleClassID();
+jmethodID getDoubleConstructorID();
+
 jclass getShortArrayClassID();
 jclass getIntegerArrayClassID();
 jclass getLongArrayClassID();
@@ -40,6 +54,7 @@ jclass getDoubleArrayClassID();
 jclass getByteArrayClassID();
 jclass getByteMatrixClassID();
 jclass getBigDecimalClassID();
+
 jclass getBigDecimalArrayClassID();
 jmethodID getBigDecimalConstructorID();
 jclass getDateClassID();
@@ -81,6 +96,7 @@ jfieldID getGetConnectionID();
 jfieldID getGetConnectionLongID();
 jfieldID getGetSchemaID();
 jfieldID getGetTableID();
+jfieldID getStructPointerID();
 
 jmethodID getBigDecimalToStringID();
 jmethodID getSetBigDecimalScaleID();
