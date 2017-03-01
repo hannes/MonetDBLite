@@ -34,10 +34,10 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
 /*
  * Class:     nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection
  * Method:    closeConnectionInternal
- * Signature: ()V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_closeConnectionInternal
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus
 }

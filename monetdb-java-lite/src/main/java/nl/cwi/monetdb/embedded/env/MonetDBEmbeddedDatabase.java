@@ -27,7 +27,9 @@ public final class MonetDBEmbeddedDatabase {
     /** The MonetDBEmbeddedDatabase instance as only one database is allowed per JVM process. */
     private static MonetDBEmbeddedDatabase MonetDBEmbeddedDatabase = null;
 
-    /**  A read-write locker to avoid racing conditions. */
+    private static boolean isClosed = true;
+
+    /**  A ReadWriteLock to avoid racing conditions. */
     private static final ReentrantReadWriteLock Locker = new ReentrantReadWriteLock();
 
     /**
@@ -37,7 +39,7 @@ public final class MonetDBEmbeddedDatabase {
      */
     public static boolean IsDatabaseRunning() {
         Locker.readLock().lock();
-        boolean res = MonetDBEmbeddedDatabase != null;
+        boolean res = !isClosed;
         Locker.readLock().unlock();
         return res;
     }
@@ -48,10 +50,9 @@ public final class MonetDBEmbeddedDatabase {
      * @param dbDirectory The full path of the farm
      * @param silentFlag A boolean if silent mode will be turned on or not
      * @param sequentialFlag A boolean indicating if the sequential pipeline will be set or not
-     * @return Returns true if the load was successful.
      * @throws MonetDBEmbeddedException If the JNI library has not been loaded yet or an error in the database occurred
      */
-    public static boolean StartDatabase(String dbDirectory, boolean silentFlag, boolean sequentialFlag)
+    public static void StartDatabase(String dbDirectory, boolean silentFlag, boolean sequentialFlag)
             throws MonetDBEmbeddedException {
         Locker.writeLock().lock();
         try {
@@ -60,13 +61,13 @@ public final class MonetDBEmbeddedDatabase {
             } else {
                 MonetDBJavaLiteLoader.LoadMonetDBJavaLite();
                 MonetDBEmbeddedDatabase = StartDatabaseInternal(dbDirectory, silentFlag, sequentialFlag);
+                isClosed = false;
             }
             Locker.writeLock().unlock();
         } catch (Exception ex) {
             Locker.writeLock().unlock();
             throw ex;
         }
-        return true;
     }
 
     /**
@@ -172,6 +173,7 @@ public final class MonetDBEmbeddedDatabase {
                 MonetDBEmbeddedDatabase.connections.clear();
                 MonetDBEmbeddedDatabase.stopDatabaseInternal();
                 MonetDBEmbeddedDatabase = null;
+                isClosed = true;
             }
             Locker.writeLock().unlock();
         } catch (Exception ex) {
@@ -243,6 +245,7 @@ public final class MonetDBEmbeddedDatabase {
         if(toShutDown && MonetDBEmbeddedDatabase.connections.isEmpty()) {
             MonetDBEmbeddedDatabase.stopDatabaseInternal();
             MonetDBEmbeddedDatabase = null;
+            isClosed = true;
         }
         Locker.writeLock().unlock();
     }
@@ -263,6 +266,18 @@ public final class MonetDBEmbeddedDatabase {
         this.databaseDirectory = dbDirectory;
         this.silentFlag = silentFlag;
         this.sequentialFlag = sequentialFlag;
+    }
+
+    /**
+     * Overriding the finalize method to shut down the database. As the MonetDBEmbeddedDatabase is a static variable,
+     * it will be garbage collected when the ClassLoader of this class gets Garbage Collected.
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        if(!isClosed) {
+            this.stopDatabaseInternal();
+        }
+        super.finalize();
     }
 
     /**

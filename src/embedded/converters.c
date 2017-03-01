@@ -528,9 +528,9 @@ CONVERSION_LEVEL_THREE(lng)
 
 /* Put in the BAT's heap :S */
 
-#define JSTRING_TO_BAT      int len = (*env)->GetStringUTFLength(env, value);  \
-                            p = GDKmalloc(len);                                \
-                            (*env)->GetStringUTFRegion(env, value, 0, len, p);
+#define JSTRING_TO_BAT      const char* helper = (*env)->GetStringUTFChars(env, value, 0); \
+                            p = GDKstrdup(helper);                                         \
+                            (*env)->ReleaseStringUTFChars(env, value, helper);
 
 #define PUT_STR_IN_HEAP     BUNappend(aux, p, FALSE);
 

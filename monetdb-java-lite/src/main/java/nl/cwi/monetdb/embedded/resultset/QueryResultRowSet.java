@@ -8,6 +8,7 @@
 
 package nl.cwi.monetdb.embedded.resultset;
 
+import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
 import nl.cwi.monetdb.embedded.mapping.AbstractRowSet;
 import nl.cwi.monetdb.embedded.mapping.MonetDBRow;
 import nl.cwi.monetdb.embedded.mapping.MonetDBToJavaMapping;
@@ -23,7 +24,7 @@ import java.util.ListIterator;
  */
 public class QueryResultRowSet extends AbstractRowSet implements Iterable {
 
-    QueryResultRowSet(QueryResultSet queryResultSet, Object[][] rows) {
+    QueryResultRowSet(QueryResultSet queryResultSet, Object[][] rows) throws MonetDBEmbeddedException {
         super(queryResultSet, rows);
     }
 

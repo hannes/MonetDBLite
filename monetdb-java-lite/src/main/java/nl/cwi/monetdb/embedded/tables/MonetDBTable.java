@@ -114,31 +114,31 @@ public final class MonetDBTable extends AbstractConnectionResult {
     }
 
     @Override
-    public void getColumnNames(String[] input) {
+    public void getColumnNames(String[] input) throws MonetDBEmbeddedException {
         this.checkMetadataArrayLength(input);
         this.getColumnNamesInternal(input);
     }
 
     @Override
-    public void getColumnTypes(String[] input) {
+    public void getColumnTypes(String[] input) throws MonetDBEmbeddedException {
         this.checkMetadataArrayLength(input);
         this.getColumnTypesInternal(input);
     }
 
     @Override
-    public void getMappings(MonetDBToJavaMapping[] input) {
+    public void getMappings(MonetDBToJavaMapping[] input) throws MonetDBEmbeddedException {
         this.checkMetadataArrayLength(input);
         this.getMappingsInternal(input);
     }
 
     @Override
-    public void getColumnDigits(int[] input) {
+    public void getColumnDigits(int[] input) throws MonetDBEmbeddedException {
         this.checkMetadataArrayLength(input);
         this.getColumnDigitsInternal(input);
     }
 
     @Override
-    public void getColumnScales(int[] input) {
+    public void getColumnScales(int[] input) throws MonetDBEmbeddedException {
         this.checkMetadataArrayLength(input);
         this.getColumnScalesInternal(input);
     }

@@ -128,10 +128,9 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
 }
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_closeConnectionInternal
-    (JNIEnv *env, jobject jconnection) {
+    (JNIEnv *env, jobject jconnection, jlong connectionPointer) {
+    (void) env;
+    (void) jconnection;
 
-    jfieldID connectionPointerID = getMonetDBEmbeddedConnectionPointerID();
-    jlong connectionPointer = (*env)->GetLongField(env, jconnection, connectionPointerID);
     monetdb_disconnect((void*) connectionPointer);
-    (*env)->SetLongField(env, jconnection, connectionPointerID, 0);
 }

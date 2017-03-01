@@ -8,6 +8,7 @@
 
 package nl.cwi.monetdb.embedded.tables;
 
+import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
 import nl.cwi.monetdb.embedded.mapping.AbstractRowSet;
 import nl.cwi.monetdb.embedded.mapping.MonetDBRow;
 
@@ -34,7 +35,7 @@ public final class RowIterator extends AbstractRowSet {
      */
     private final int lastIndex;
 
-    RowIterator(MonetDBTable table, Object[][] rows, int firstIndex, int lastIndex) {
+    RowIterator(MonetDBTable table, Object[][] rows, int firstIndex, int lastIndex) throws MonetDBEmbeddedException {
         super(table, rows);
         this.firstIndex = firstIndex;
         this.lastIndex = lastIndex;
@@ -44,7 +45,12 @@ public final class RowIterator extends AbstractRowSet {
     public int getColumnIndexByName(String columnName) {
         int numberOfColumns = this.getQueryResultTable().getNumberOfColumns();
         String[] columnNames = new String[numberOfColumns];
-        this.getQueryResultTable().getColumnNames(columnNames);
+        try {
+            this.getQueryResultTable().getColumnNames(columnNames);
+        } catch (MonetDBEmbeddedException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+
         int index = 0;
         for (String colName : columnNames) {
             if (columnName.equals(colName)) {
@@ -81,7 +87,7 @@ public final class RowIterator extends AbstractRowSet {
      *
      * @return The current iteration number
      */
-    public int getCurrentIterationNumber() { return currentIterationNumber; }
+    public int getCurrentIterationNumber() { return currentIterationNumber + 1; }
 
     /**
      * Gets the current row number of the table in the iteration.

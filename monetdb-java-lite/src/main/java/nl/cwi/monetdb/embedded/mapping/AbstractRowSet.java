@@ -9,6 +9,7 @@
 package nl.cwi.monetdb.embedded.mapping;
 
 import nl.cwi.monetdb.embedded.env.AbstractConnectionResult;
+import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
 
 /**
  * A row set retrieved from an embedded MonetDB query result. All the values in this set are already mapped
@@ -37,7 +38,11 @@ public abstract class AbstractRowSet {
         this.table = table;
         int numberOfColumns = table.getNumberOfColumns();
         this.mappings = new MonetDBToJavaMapping[numberOfColumns];
-        table.getMappings(this.mappings);
+        try {
+            table.getMappings(this.mappings);
+        } catch (MonetDBEmbeddedException ex) {
+            throw new IllegalArgumentException(ex);
+        }
         this.rows = new MonetDBRow[rows.length];
         for(int i = 0 ; i < rows.length ; i++) {
             this.rows[i] = new MonetDBRow(this, rows[i]);

@@ -185,21 +185,21 @@ char* monetdb_query(void* conn, char* query, char execute, void** result) {
 	if (strncasecmp(query, "START", 5) == 0) { // START TRANSACTION
 		m->session->auto_commit = 0;
 		m->session->status = 0;
-	}
-	else if (strncasecmp(query, "ROLLBACK", 8) == 0 && strncasecmp(query + 8, " TO SAVEPOINT", 13) != 0) {
+	} else if (strncasecmp(query, "ROLLBACK", 8) == 0 && strncasecmp(query + 8, " TO SAVEPOINT", 13) != 0) {
 		m->session->status = -1;
 		m->session->auto_commit = 1;
-	}
-	else if (strncasecmp(query, "COMMIT", 6) == 0) {
-		m->session->auto_commit = 1;
-	}
-	else if (strncasecmp(query, "SHIBBOLEET", 10) == 0) {
-		res = GDKstrdup("\x46\x6f\x72\x20\x69\x6d\x6d\x65\x64\x69\x61\x74\x65\x20\x74\x65\x63\x68\x6e\x69\x63\x61\x6c\x20\x73\x75\x70\x70\x6f\x72\x74\x20\x63\x61\x6c\x6c\x20\x2b\x33\x31\x20\x32\x30\x20\x35\x39\x32\x20\x34\x30\x33\x39");
-	}
-	else if (m->session->status < 0 && m->session->auto_commit == 0){
+	} else if (strncasecmp(query, "COMMIT", 6) == 0) {
+		if(m->session->auto_commit == 1) {
+			res = GDKstrdup("COMMIT: not allowed in auto commit mode");
+		} else {
+			m->session->auto_commit = 1;
+		}
+	} else if (m->session->status < 0 && m->session->auto_commit == 0) {
 		res = GDKstrdup("Current transaction is aborted (please ROLLBACK)");
-	} else if(m->session->auto_commit == 1 && strncasecmp(query, "SAVEPOINT", 9) == 0) {
-		res = GDKstrdup("SAVEPOINT: not allowed in auto commit mode");
+    } else if(m->session->auto_commit == 1 && strncasecmp(query, "SAVEPOINT", 9) == 0) {
+		 res = GDKstrdup("SAVEPOINT: not allowed in auto commit mode");
+	} else if (strncasecmp(query, "SHIBBOLEET", 10) == 0) {
+		res = GDKstrdup("\x46\x6f\x72\x20\x69\x6d\x6d\x65\x64\x69\x61\x74\x65\x20\x74\x65\x63\x68\x6e\x69\x63\x61\x6c\x20\x73\x75\x70\x70\x6f\x72\x74\x20\x63\x61\x6c\x6c\x20\x2b\x33\x31\x20\x32\x30\x20\x35\x39\x32\x20\x34\x30\x33\x39");
 	} else {
 		res = SQLstatementIntern(c, &query, "main", execute, 0, (res_table **) result);
 	}

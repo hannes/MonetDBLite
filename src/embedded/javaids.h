@@ -26,7 +26,6 @@ jclass getQueryResultSetID();
 jmethodID getQueryResultSetConstructorID();
 jclass getMonetDBTableClassID();
 jmethodID getMonetDBTableClassConstructorID();
-jfieldID getMonetDBEmbeddedConnectionPointerID();
 jfieldID getConnectionResultPointerID();
 
 /* Java MonetDB mappings constructors */

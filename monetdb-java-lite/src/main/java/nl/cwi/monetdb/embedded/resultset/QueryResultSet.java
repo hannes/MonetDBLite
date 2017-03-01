@@ -94,6 +94,19 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
         this.columnNames = null;
     }
 
+    /**
+     * Tells if the connection of this statement result has been closed or not.
+     *
+     * @return A boolean indicating if the statement result has been cleaned or not
+     */
+    public boolean isQueryResultSetClosed() { return this.structPointer == 0; }
+
+    private void checkQueryResultSetIsNotClosed() throws MonetDBEmbeddedException {
+        if(this.isQueryResultSetClosed()) {
+            throw new MonetDBEmbeddedException("This QueryResultSet is already closed!");
+        }
+    }
+
     @Override
     public int getNumberOfRows() { return this.numberOfRows; }
 
@@ -111,31 +124,36 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
     private native void getColumnScalesInternal(long tablePointer, int[] input);
 
     @Override
-    public void getColumnNames(String[] input) {
+    public void getColumnNames(String[] input) throws MonetDBEmbeddedException {
+        this.checkQueryResultSetIsNotClosed();
         this.checkMetadataArrayLength(input);
         this.getColumnNamesInternal(this.structPointer, input);
     }
 
     @Override
-    public void getColumnTypes(String[] input) {
+    public void getColumnTypes(String[] input) throws MonetDBEmbeddedException {
+        this.checkQueryResultSetIsNotClosed();
         this.checkMetadataArrayLength(input);
         this.getColumnTypesInternal(this.structPointer, input);
     }
 
     @Override
-    public void getMappings(MonetDBToJavaMapping[] input) {
+    public void getMappings(MonetDBToJavaMapping[] input) throws MonetDBEmbeddedException {
+        this.checkQueryResultSetIsNotClosed();
         this.checkMetadataArrayLength(input);
         this.getMappingsInternal(this.structPointer, input);
     }
 
     @Override
-    public void getColumnDigits(int[] input) {
+    public void getColumnDigits(int[] input) throws MonetDBEmbeddedException {
+        this.checkQueryResultSetIsNotClosed();
         this.checkMetadataArrayLength(input);
         this.getColumnDigitsInternal(this.structPointer, input);
     }
 
     @Override
-    public void getColumnScales(int[] input) {
+    public void getColumnScales(int[] input) throws MonetDBEmbeddedException {
+        this.checkQueryResultSetIsNotClosed();
         this.checkMetadataArrayLength(input);
         this.getColumnScalesInternal(this.structPointer, input);
     }
@@ -185,7 +203,8 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
 
     private native byte[] getBlobByColumnAndRowInternal(long structPointer, int column, int row);
 
-    private void checkRangesScalars(int column, int row) {
+    private void checkRangesScalars(int column, int row) throws MonetDBEmbeddedException {
+        this.checkQueryResultSetIsNotClosed();
         if(column < 1) {
             throw new ArrayIndexOutOfBoundsException("The column index is smaller than 1?");
         } else if(column > this.numberOfColumns) {
@@ -206,7 +225,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The boolean value
      */
-    public boolean getBooleanByColumnIndexAndRow(int column, int row) {
+    public boolean getBooleanByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -242,7 +261,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The byte value
      */
-    public byte getByteByColumnIndexAndRow(int column, int row) {
+    public byte getByteByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -283,7 +302,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The short value
      */
-    public short getShortByColumnIndexAndRow(int column, int row) {
+    public short getShortByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -324,7 +343,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The integer value
      */
-    public int getIntegerByColumnIndexAndRow(int column, int row) {
+    public int getIntegerByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -365,7 +384,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The long value
      */
-    public long getLongByColumnIndexAndRow(int column, int row) {
+    public long getLongByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -406,7 +425,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The float value
      */
-    public float getFloatByColumnIndexAndRow(int column, int row) {
+    public float getFloatByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -447,7 +466,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The double value
      */
-    public double getDoubleByColumnIndexAndRow(int column, int row) {
+    public double getDoubleByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -488,7 +507,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The String value
      */
-    public String getStringByColumnIndexAndRow(int column, int row) {
+    public String getStringByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -543,7 +562,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The Date value
      */
-    public Date getDateByColumnIndexAndRow(int column, int row) {
+    public Date getDateByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -568,7 +587,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The Timestamp value
      */
-    public Timestamp getTimestampByColumnIndexAndRow(int column, int row) {
+    public Timestamp getTimestampByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -593,7 +612,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The Time value
      */
-    public Time getTimeByColumnIndexAndRow(int column, int row) {
+    public Time getTimeByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -618,7 +637,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The byte[] value (BLOB)
      */
-    public byte[] getBlobByColumnIndexAndRow(int column, int row) {
+    public byte[] getBlobByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -640,7 +659,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The BigDecimal value
      */
-    public BigDecimal getDecimalByColumnIndexAndRow(int column, int row) {
+    public BigDecimal getDecimalByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
         column--;
         row--;
@@ -675,7 +694,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The boolean value
      */
-    public boolean getBooleanByColumnNameAndRow(String columnName, int row) {
+    public boolean getBooleanByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getBooleanByColumnIndexAndRow(index, row);
     }
@@ -687,7 +706,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The byte value
      */
-    public byte getByteByColumnNameAndRow(String columnName, int row) {
+    public byte getByteByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getByteByColumnIndexAndRow(index, row);
     }
@@ -699,7 +718,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The short value
      */
-    public short getShortByColumnNameAndRow(String columnName, int row) {
+    public short getShortByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getShortByColumnIndexAndRow(index, row);
     }
@@ -711,7 +730,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The integer value
      */
-    public int getIntegerByColumnNameAndRow(String columnName, int row) {
+    public int getIntegerByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getIntegerByColumnIndexAndRow(index, row);
     }
@@ -723,7 +742,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The long value
      */
-    public long getLongByColumnNameAndRow(String columnName, int row) {
+    public long getLongByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getLongByColumnIndexAndRow(index, row);
     }
@@ -735,7 +754,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The float value
      */
-    public float getFloatByColumnNameAndRow(String columnName, int row) {
+    public float getFloatByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getFloatByColumnIndexAndRow(index, row);
     }
@@ -747,7 +766,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The double value
      */
-    public double getDoubleByColumnNameAndRow(String columnName, int row) {
+    public double getDoubleByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getDoubleByColumnIndexAndRow(index, row);
     }
@@ -759,7 +778,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The String value
      */
-    public String getStringByColumnNameAndRow(String columnName, int row) {
+    public String getStringByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getStringByColumnIndexAndRow(index, row);
     }
@@ -771,7 +790,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The Date value
      */
-    public Date getDateByColumnNameAndRow(String columnName, int row) {
+    public Date getDateByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getDateByColumnIndexAndRow(index, row);
     }
@@ -783,7 +802,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The Timestamp value
      */
-    public Timestamp getTimestampByColumnNameAndRow(String columnName, int row) {
+    public Timestamp getTimestampByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getTimestampByColumnIndexAndRow(index, row);
     }
@@ -795,7 +814,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The Time value
      */
-    public Time getTimeByColumnNameAndRow(String columnName, int row) {
+    public Time getTimeByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getTimeByColumnIndexAndRow(index, row);
     }
@@ -807,7 +826,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The byte[] (BLOB) value
      */
-    public byte[] getBlobByColumnNameAndRow(String columnName, int row) {
+    public byte[] getBlobByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getBlobByColumnIndexAndRow(index, row);
     }
@@ -819,7 +838,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index starting from 1
      * @return The decimal value
      */
-    public BigDecimal getDecimalByColumnNameAndRow(String columnName, int row) {
+    public BigDecimal getDecimalByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         return this.getDecimalByColumnIndexAndRow(index, row);
     }
@@ -850,7 +869,8 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
 
     private native void getDecimalColumnByIndexInternal(long structPointer, int column, BigDecimal[] input, int offset, int length);
 
-    private void checkRangesArrays(int column, Object input, int offset, int length) {
+    private void checkRangesArrays(int column, Object input, int offset, int length) throws MonetDBEmbeddedException {
+        this.checkQueryResultSetIsNotClosed();
         int sum = offset + length;
         if(column < 1) {
             throw new ArrayIndexOutOfBoundsException("The column index is smaller than 1?");
@@ -878,7 +898,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getBooleanColumnByIndex(int column, boolean[] input, int offset, int length) {
+    public void getBooleanColumnByIndex(int column, boolean[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -948,7 +968,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getByteColumnByIndex(int column, byte[] input, int offset, int length) {
+    public void getByteColumnByIndex(int column, byte[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1018,7 +1038,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getShortColumnByIndex(int column, short[] input, int offset, int length) {
+    public void getShortColumnByIndex(int column, short[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1088,7 +1108,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getIntColumnByIndex(int column, int[] input, int offset, int length) {
+    public void getIntColumnByIndex(int column, int[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1158,7 +1178,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getLongColumnByIndex(int column, long[] input, int offset, int length) {
+    public void getLongColumnByIndex(int column, long[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1228,7 +1248,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getFloatColumnByIndex(int column, float[] input, int offset, int length) {
+    public void getFloatColumnByIndex(int column, float[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1298,7 +1318,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getDoubleColumnByIndex(int column, double[] input, int offset, int length) {
+    public void getDoubleColumnByIndex(int column, double[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1368,7 +1388,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getStringColumnByIndex(int column, String[] input, int offset, int length) {
+    public void getStringColumnByIndex(int column, String[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1466,7 +1486,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getDateColumnByIndex(int column, Date[] input, int offset, int length) {
+    public void getDateColumnByIndex(int column, Date[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1500,7 +1520,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getTimestampColumnByIndex(int column, Timestamp[] input, int offset, int length) {
+    public void getTimestampColumnByIndex(int column, Timestamp[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1534,7 +1554,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getTimeColumnByIndex(int column, Time[] input, int offset, int length) {
+    public void getTimeColumnByIndex(int column, Time[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1568,7 +1588,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getBlobColumnByIndex(int column, byte[][] input, int offset, int length) {
+    public void getBlobColumnByIndex(int column, byte[][] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1595,7 +1615,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getDecimalColumnByIndex(int column, BigDecimal[] input, int offset, int length) {
+    public void getDecimalColumnByIndex(int column, BigDecimal[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
         column--;
         switch (this.typesIDs[column]) {
@@ -1658,7 +1678,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getBooleanColumnByName(String columnName, boolean[] input, int offset, int length) {
+    public void getBooleanColumnByName(String columnName, boolean[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getBooleanColumnByIndex(index, input, offset, length);
     }
@@ -1671,7 +1691,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getByteColumnByName(String columnName, byte[] input, int offset, int length) {
+    public void getByteColumnByName(String columnName, byte[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getByteColumnByIndex(index, input, offset, length);
     }
@@ -1684,7 +1704,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getShortColumnByName(String columnName, short[] input, int offset, int length) {
+    public void getShortColumnByName(String columnName, short[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getShortColumnByIndex(index, input, offset, length);
     }
@@ -1697,7 +1717,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getIntColumnByName(String columnName, int[] input, int offset, int length) {
+    public void getIntColumnByName(String columnName, int[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getIntColumnByIndex(index, input, offset, length);
     }
@@ -1710,7 +1730,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getLongColumnByName(String columnName, long[] input, int offset, int length) {
+    public void getLongColumnByName(String columnName, long[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getLongColumnByIndex(index, input, offset, length);
     }
@@ -1723,7 +1743,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getFloatColumnByName(String columnName, float[] input, int offset, int length) {
+    public void getFloatColumnByName(String columnName, float[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getFloatColumnByIndex(index, input, offset, length);
     }
@@ -1736,7 +1756,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getDoubleColumnByName(String columnName, double[] input, int offset, int length) {
+    public void getDoubleColumnByName(String columnName, double[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getDoubleColumnByIndex(index, input, offset, length);
     }
@@ -1749,7 +1769,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getStringColumnByName(String columnName, String[] input, int offset, int length) {
+    public void getStringColumnByName(String columnName, String[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getStringColumnByIndex(index, input, offset, length);
     }
@@ -1762,7 +1782,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getDateColumnByName(String columnName, Date[] input, int offset, int length) {
+    public void getDateColumnByName(String columnName, Date[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getDateColumnByIndex(index, input, offset, length);
     }
@@ -1775,7 +1795,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getTimestampColumnByName(String columnName, Timestamp[] input, int offset, int length) {
+    public void getTimestampColumnByName(String columnName, Timestamp[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getTimestampColumnByIndex(index, input, offset, length);
     }
@@ -1788,7 +1808,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getTimeColumnByName(String columnName, Time[] input, int offset, int length) {
+    public void getTimeColumnByName(String columnName, Time[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getTimeColumnByIndex(index, input, offset, length);
     }
@@ -1801,7 +1821,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getBlobColumnByName(String columnName, byte[][] input, int offset, int length) {
+    public void getBlobColumnByName(String columnName, byte[][] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getBlobColumnByIndex(index, input, offset, length);
     }
@@ -1814,7 +1834,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param offset - The starting offset of the array
      * @param length - The number of elements to copy.
      */
-    public void getDecimalColumnByName(String columnName, BigDecimal[] input, int offset, int length) {
+    public void getDecimalColumnByName(String columnName, BigDecimal[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getDecimalColumnByIndex(index, input, offset, length);
     }
@@ -1825,7 +1845,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input boolean array where the result will be copied to.
      */
-    public void getBooleanColumnByIndex(int column, boolean[] input) {
+    public void getBooleanColumnByIndex(int column, boolean[] input) throws MonetDBEmbeddedException {
         this.getBooleanColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1835,7 +1855,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input byte array where the result will be copied to.
      */
-    public void getByteColumnByIndex(int column, byte[] input) {
+    public void getByteColumnByIndex(int column, byte[] input) throws MonetDBEmbeddedException {
         this.getByteColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1845,7 +1865,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input short array where the result will be copied to.
      */
-    public void getShortColumnByIndex(int column, short[] input) {
+    public void getShortColumnByIndex(int column, short[] input) throws MonetDBEmbeddedException {
         this.getShortColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1855,7 +1875,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input integer array where the result will be copied to.
      */
-    public void getIntColumnByIndex(int column, int[] input) {
+    public void getIntColumnByIndex(int column, int[] input) throws MonetDBEmbeddedException {
         this.getIntColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1865,7 +1885,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input long array where the result will be copied to.
      */
-    public void getLongColumnByIndex(int column, long[] input) {
+    public void getLongColumnByIndex(int column, long[] input) throws MonetDBEmbeddedException {
         this.getLongColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1875,7 +1895,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input float array where the result will be copied to.
      */
-    public void getFloatColumnByIndex(int column, float[] input) {
+    public void getFloatColumnByIndex(int column, float[] input) throws MonetDBEmbeddedException {
         this.getFloatColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1885,7 +1905,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input double array where the result will be copied to.
      */
-    public void getDoubleColumnByIndex(int column, double[] input) {
+    public void getDoubleColumnByIndex(int column, double[] input) throws MonetDBEmbeddedException {
         this.getDoubleColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1895,7 +1915,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input String array where the result will be copied to.
      */
-    public void getStringColumnByIndex(int column, String[] input) {
+    public void getStringColumnByIndex(int column, String[] input) throws MonetDBEmbeddedException {
         this.getStringColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1905,7 +1925,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input Date array where the result will be copied to.
      */
-    public void getDateColumnByIndex(int column, Date[] input) {
+    public void getDateColumnByIndex(int column, Date[] input) throws MonetDBEmbeddedException {
         this.getDateColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1915,7 +1935,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input Timestamp array where the result will be copied to.
      */
-    public void getTimestampColumnByIndex(int column, Timestamp[] input) {
+    public void getTimestampColumnByIndex(int column, Timestamp[] input) throws MonetDBEmbeddedException {
         this.getTimestampColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1925,7 +1945,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input Time array where the result will be copied to.
      */
-    public void getTimeColumnByIndex(int column, Time[] input) {
+    public void getTimeColumnByIndex(int column, Time[] input) throws MonetDBEmbeddedException {
         this.getTimeColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1935,7 +1955,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input byte[] (BLOB) array where the result will be copied to.
      */
-    public void getBlobColumnByIndex(int column, byte[][] input) {
+    public void getBlobColumnByIndex(int column, byte[][] input) throws MonetDBEmbeddedException {
         this.getBlobColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1945,7 +1965,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column - The index of the column starting from 1.
      * @param input - The input BigDecimal array where the result will be copied to.
      */
-    public void getDecimalColumnByIndex(int column, BigDecimal[] input) {
+    public void getDecimalColumnByIndex(int column, BigDecimal[] input) throws MonetDBEmbeddedException {
         this.getDecimalColumnByIndex(column, input, 0, input.length);
     }
 
@@ -1955,7 +1975,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input boolean array where the result will be copied to.
      */
-    public void getBooleanColumnByName(String columnName, boolean[] input) {
+    public void getBooleanColumnByName(String columnName, boolean[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getBooleanColumnByIndex(index, input, 0, input.length);
     }
@@ -1966,7 +1986,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input byte array where the result will be copied to.
      */
-    public void getByteColumnByName(String columnName, byte[] input) {
+    public void getByteColumnByName(String columnName, byte[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getByteColumnByIndex(index, input, 0, input.length);
     }
@@ -1977,7 +1997,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input short array where the result will be copied to.
      */
-    public void getShortColumnByName(String columnName, short[] input) {
+    public void getShortColumnByName(String columnName, short[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getShortColumnByIndex(index, input, 0, input.length);
     }
@@ -1988,7 +2008,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input integer array where the result will be copied to.
      */
-    public void getIntColumnByName(String columnName, int[] input) {
+    public void getIntColumnByName(String columnName, int[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getIntColumnByIndex(index, input, 0, input.length);
     }
@@ -1999,7 +2019,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input long array where the result will be copied to.
      */
-    public void getLongColumnByName(String columnName, long[] input) {
+    public void getLongColumnByName(String columnName, long[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getLongColumnByIndex(index, input, 0, input.length);
     }
@@ -2010,7 +2030,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input float array where the result will be copied to.
      */
-    public void getFloatColumnByName(String columnName, float[] input) {
+    public void getFloatColumnByName(String columnName, float[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getFloatColumnByIndex(index, input, 0, input.length);
     }
@@ -2021,7 +2041,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input double array where the result will be copied to.
      */
-    public void getDoubleColumnByName(String columnName, double[] input) {
+    public void getDoubleColumnByName(String columnName, double[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getDoubleColumnByIndex(index, input, 0, input.length);
     }
@@ -2032,7 +2052,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input String array where the result will be copied to.
      */
-    public void getStringColumnByName(String columnName, String[] input) {
+    public void getStringColumnByName(String columnName, String[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getStringColumnByIndex(index, input, 0, input.length);
     }
@@ -2043,7 +2063,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input Date array where the result will be copied to.
      */
-    public void getDateColumnByName(String columnName, Date[] input) {
+    public void getDateColumnByName(String columnName, Date[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getDateColumnByIndex(index, input, 0, input.length);
     }
@@ -2054,7 +2074,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input Timestamp array where the result will be copied to.
      */
-    public void getTimestampColumnByName(String columnName, Timestamp[] input) {
+    public void getTimestampColumnByName(String columnName, Timestamp[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getTimestampColumnByIndex(index, input, 0, input.length);
     }
@@ -2065,7 +2085,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input Time array where the result will be copied to.
      */
-    public void getTimeColumnByName(String columnName, Time[] input) {
+    public void getTimeColumnByName(String columnName, Time[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getTimeColumnByIndex(index, input, 0, input.length);
     }
@@ -2076,7 +2096,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input byte[] (BLOB) array where the result will be copied to.
      */
-    public void getBlobColumnByName(String columnName, byte[][] input) {
+    public void getBlobColumnByName(String columnName, byte[][] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getBlobColumnByIndex(index, input, 0, input.length);
     }
@@ -2087,7 +2107,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName - The name of the column.
      * @param input - The input BigDecimal array where the result will be copied to.
      */
-    public void getDecimalColumnByName(String columnName, BigDecimal[] input) {
+    public void getDecimalColumnByName(String columnName, BigDecimal[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getDecimalColumnByIndex(index, input, 0, input.length);
     }
@@ -2101,7 +2121,8 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param row The row index in the column starting from 1
      * @return A boolean indicating if the value is null
      */
-    public boolean checkBooleanIsNull(int column, int row) {
+    public boolean checkBooleanIsNull(int column, int row) throws MonetDBEmbeddedException {
+        this.checkQueryResultSetIsNotClosed();
         if (row < 1) {
             throw new ArrayIndexOutOfBoundsException("A row smaller than 1?");
         } else if (row > this.numberOfRows) {
@@ -2118,7 +2139,8 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
                 == NullMappings.GetByteNullConstant();
     }
 
-    private void checkRowArray(int column, Object input) {
+    private void checkRowArray(int column, Object input) throws MonetDBEmbeddedException {
+        this.checkQueryResultSetIsNotClosed();
         int arrayLength = Array.getLength(input);
         if(column < 1) {
             throw new ArrayIndexOutOfBoundsException("The column index is smaller than 1?");
@@ -2141,7 +2163,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param column The column index starting from 1
      * @param input  An array of booleans, indicating if the values of the column are null or not.
      */
-    public void getColumnNullMappingsByIndex(int column, boolean[] input) {
+    public void getColumnNullMappingsByIndex(int column, boolean[] input) throws MonetDBEmbeddedException {
         this.checkRowArray(column, input);
         column--;
         this.getColumnNullMappingsByIndexInternal(this.structPointer, column, this.typesIDs[column], input);
@@ -2153,7 +2175,7 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      * @param columnName The column name
      * @param input An array of booleans, indicating if the values of the column are null or not.
      */
-    public void getNullMappingByName(String columnName, boolean[] input) {
+    public void getNullMappingByName(String columnName, boolean[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
         this.getColumnNullMappingsByIndex(index, input);
     }
@@ -2255,16 +2277,15 @@ public final class QueryResultSet extends AbstractConnectionResult implements It
      */
     private native void freeResultSet(long structPointer);
 
-    /**
-     * Tells if the connection of this statement result has been closed or not.
-     *
-     * @return A boolean indicating if the statement result has been cleaned or not
-     */
-    public boolean isResultClosed() { return this.structPointer == 0; }
+    @Override
+    public void close() {
+        super.close();
+        this.structPointer = 0;
+    }
 
     @Override
     protected void closeResultImplementation() {
-        if(!this.isResultClosed()) {
+        if(!this.isQueryResultSetClosed()) {
             this.freeResultSet(this.structPointer);
             this.structPointer = 0;
         }

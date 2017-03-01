@@ -26,7 +26,7 @@ import java.util.Hashtable;
 public class MonetDBEmbeddedConnection implements Closeable {
 
     /** The C connection pointer. */
-	protected final long connectionPointer;
+	protected long connectionPointer;
 
     /** A long value used to identify this connection. */
     private final long randomIdentifier;
@@ -47,12 +47,26 @@ public class MonetDBEmbeddedConnection implements Closeable {
     public long getRandomIdentifier() { return randomIdentifier; }
 
     /**
+     * Tells if the connection has been closed or not.
+     *
+     * @return A boolean indicating if the connection has been cleaned or not
+     */
+    public boolean isConnectionClosed() { return this.connectionPointer == 0; }
+
+    private void checkConnectionIsNotClosed() throws MonetDBEmbeddedException {
+        if(this.isConnectionClosed()) {
+            throw new MonetDBEmbeddedException("This connection is already closed!");
+        }
+    }
+
+    /**
      * Gets the current schema set on the connection.
      *
      * @return A Java String with the name of the schema
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public String getCurrentSchema() throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
         QueryResultSet eqr = this.sendQuery("SELECT current_schema FROM sys.var();");
         String res = eqr.getStringByColumnIndexAndRow(1, 1);
         eqr.close();
@@ -66,6 +80,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public void setCurrentSchema(String newSchema) throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
         newSchema = StringEscaper.SQLStringEscape(newSchema);
         this.sendUpdate("SET SCHEMA " + newSchema + ";");
     }
@@ -76,6 +91,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public void startTransaction() throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
         this.sendUpdate("START TRANSACTION;");
     }
 
@@ -85,6 +101,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public void commit() throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
         this.sendUpdate("COMMIT;");
     }
 
@@ -94,6 +111,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public void rollback() throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
         this.sendUpdate("ROLLBACK;");
     }
 
@@ -105,6 +123,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public int sendUpdate(String query) throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
         if (!query.endsWith(";")) {
             query += ";";
         }
@@ -119,6 +138,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
 	 * @throws MonetDBEmbeddedException If an error in the database occurred
 	 */
 	public QueryResultSet sendQuery(String query) throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
 		if (!query.endsWith(";")) {
             query += ";";
 		}
@@ -136,6 +156,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public MonetDBTable getMonetDBTable(String schemaName, String tableName) throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
         MonetDBTable res = this.getMonetDBTableInternal(this.connectionPointer, schemaName, tableName);
         results.put(res.getRandomIdentifier(), res);
         return res;
@@ -149,6 +170,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public MonetDBTable getMonetDBTable(String tableName) throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
         String schemaName = this.getCurrentSchema();
         MonetDBTable res = this.getMonetDBTableInternal(this.connectionPointer, schemaName, tableName);
         results.put(res.getRandomIdentifier(), res);
@@ -163,6 +185,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public QueryResultSet listTables(boolean listSystemTables) throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
         String query = "select schemas.name as sn, tables.name as tn from sys.tables join sys.schemas on tables.schema_id=schemas.id";
         if (!listSystemTables) {
             query += " where tables.system=false order by sn, tn";
@@ -179,6 +202,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public boolean checkIfTableExists(String schemaName, String tableName) throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
         schemaName = StringEscaper.SQLStringEscape(schemaName);
         tableName = StringEscaper.SQLStringEscape(tableName);
         String query =
@@ -197,18 +221,12 @@ public class MonetDBEmbeddedConnection implements Closeable {
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public void removeTable(String schemaName, String tableName) throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
         schemaName = StringEscaper.SQLStringEscape(schemaName);
         tableName = StringEscaper.SQLStringEscape(tableName);
         String query = "drop table " + schemaName + "." + tableName + ";";
         this.sendUpdate(query);
     }
-
-    /**
-     * Tells if the connection has been closed or not.
-     *
-     * @return A boolean indicating if the connection has been cleaned or not
-     */
-    public boolean isConnectionClosed() { return this.connectionPointer == 0; }
 
     /**
      * When the database shuts down, this method is called instead
@@ -218,7 +236,10 @@ public class MonetDBEmbeddedConnection implements Closeable {
             res.closeResultImplementation();
         }
         this.results.clear();
-        this.closeConnectionInternal();
+        if(!this.isConnectionClosed()) {
+            this.closeConnectionInternal(this.connectionPointer);
+            this.connectionPointer = 0;
+        }
     }
 
     /**
@@ -267,5 +288,5 @@ public class MonetDBEmbeddedConnection implements Closeable {
     /**
      * Internal implementation to close a connection.
      */
-    private native void closeConnectionInternal();
+    private native void closeConnectionInternal(long connectionPointer);
 }

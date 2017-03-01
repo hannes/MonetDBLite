@@ -78,35 +78,35 @@ public abstract class AbstractConnectionResult implements Closeable {
      *
      * @param input The columns names array to fill
      */
-    public abstract void getColumnNames(String[] input);
+    public abstract void getColumnNames(String[] input) throws MonetDBEmbeddedException;
 
     /**
      * Gets the columns types as a string array.
      *
      * @param input The columns types array to fill
      */
-    public abstract void getColumnTypes(String[] input);
+    public abstract void getColumnTypes(String[] input) throws MonetDBEmbeddedException;
 
     /**
      * Gets the Java mappings as a MonetDBToJavaMapping array.
      *
      * @param input The columns mappings array to fill
      */
-    public abstract void getMappings(MonetDBToJavaMapping[] input);
+    public abstract void getMappings(MonetDBToJavaMapping[] input) throws MonetDBEmbeddedException;
 
     /**
      * Gets the column digits as an integer array.
      *
      * @param input The columns digits array to fill
      */
-    public abstract void getColumnDigits(int[] input);
+    public abstract void getColumnDigits(int[] input) throws MonetDBEmbeddedException;
 
     /**
      * Gets the column scales as an integer array.
      *
      * @param input The columns scales array to fill
      */
-    public abstract void getColumnScales(int[] input);
+    public abstract void getColumnScales(int[] input) throws MonetDBEmbeddedException;
 
     @Override
     public void close() {

@@ -24,7 +24,6 @@ static jmethodID queryResultSetConstructorID;
 static jclass monetDBTableClassID;
 static jmethodID monetDBTableClassConstructorID;
 
-static jfieldID monetDBEmbeddedConnectionPointerID;
 static jfieldID connectionResultPointerID;
 
 /* Java MonetDB mappings constructors */
@@ -124,7 +123,6 @@ void initializeIDS(JNIEnv *env) {
 
     // protected MonetDBEmbeddedConnection(long connectionPointer)
     monetDBEmbeddedConnectionConstructorID = (*env)->GetMethodID(env, monetDBEmbeddedConnectionClassID, "<init>", "(J)V");
-    monetDBEmbeddedConnectionPointerID = (*env)->GetFieldID(env, monetDBEmbeddedConnectionClassID, "connectionPointer", "J");
 
     tempLocalRef = (jobject) (*env)->FindClass(env, "nl/cwi/monetdb/embedded/jdbc/JDBCEmbeddedConnection");
     jDBCEmbeddedConnectionClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
@@ -416,10 +414,6 @@ jclass getMonetDBTableClassID() {
 
 jmethodID getMonetDBTableClassConstructorID() {
     return monetDBTableClassConstructorID;
-}
-
-jfieldID getMonetDBEmbeddedConnectionPointerID() {
-    return monetDBEmbeddedConnectionPointerID;
 }
 
 jfieldID getConnectionResultPointerID() {
