@@ -1275,14 +1275,13 @@ BATselect(BAT *b, BAT *s, const void *tl, const void *th,
 	equi = th == NULL || (lval && ATOMcmp(t, tl, th) == 0); /* point select? */
 	if (equi) {
 		assert(lval);
-		hi = li;
+		if (th == NULL)
+			hi = li;
 		th = tl;
 		hval = 1;
 	} else {
 		hval = ATOMcmp(t, th, nil) != 0;
 	}
-	if (!equi && !lval && !hval && lnil)
-		anti = !anti;
 	if (anti) {
 		if (lval != hval) {
 			/* one of the end points is nil and the other
@@ -1797,7 +1796,7 @@ BATselect(BAT *b, BAT *s, const void *tl, const void *th,
 			}
 			if (smpl_cnt > 0 && slct_cnt > 0) {
 				/* linear extrapolation plus 10% margin */
-				estimate = (BUN) ((dbl) slct_cnt / (dbl) smpl_cnt
+				estimate = (BUN) ((dbl) slct_cnt / (dbl) smpl_cnt 
 						  * (dbl) BATcount(b) * 1.1);
 			} else if (smpl_cnt > 0 && slct_cnt == 0) {
 				/* estimate low enough to trigger hash select */
@@ -1877,7 +1876,7 @@ BATthetaselect(BAT *b, BAT *s, const void *val, const char *op)
 	nil = ATOMnilptr(b->ttype);
 	if (ATOMcmp(b->ttype, val, nil) == 0)
 		return newempty();
-	if (op[0] == '=' && ((op[1] == '=' && op[2] == 0) || op[2] == 0)) {
+	if (op[0] == '=' && ((op[1] == '=' && op[2] == 0) || op[1] == 0)) {
 		/* "=" or "==" */
 		return BATselect(b, s, val, NULL, 1, 1, 0);
 	}

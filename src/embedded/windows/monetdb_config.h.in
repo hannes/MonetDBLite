@@ -65,6 +65,8 @@
 
 #define NATIVE_WIN32 1
 
+#define HAVE_LIBPCRE 1
+
 /* Define if building universal (internal helper macro) */
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
@@ -780,13 +782,13 @@
 #define PACKAGE_NAME "MonetDB"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "MonetDB 11.25.8"
+#define PACKAGE_STRING "MonetDB 11.25.10"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "MonetDB"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "11.25.8"
+#define PACKAGE_VERSION "11.25.10"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL ""
