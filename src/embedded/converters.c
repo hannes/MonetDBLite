@@ -27,9 +27,9 @@ static blob* my_blob_null(void) {
     return (&mynullval);
 }
 
-static void decimal_to_str_java(char* value, lng v, int scale) {
+static void decimal_to_str_java(char* value, lng v, jint scale) {
     char buf[BIG_INTEGERS_ARRAY_SIZE];
-    int cur = 63, neg = (v<0), i, done = 0;
+    jint cur = 63, neg = (v<0), i, done = 0;
 
     if (v<0) v = -v;
 
@@ -57,7 +57,7 @@ static void decimal_to_str_java(char* value, lng v, int scale) {
 static lng decimal_from_str_java(const char *dec) {
     lng res = 0;
     const lng max0 = GDK_lng_max / 10, max1 = GDK_lng_max % 10;
-    int neg = 0;
+    jint neg = 0;
 
     while(isspace(*dec))
         dec++;
@@ -102,15 +102,28 @@ FETCHING_LEVEL_ONE(Double, jdouble)
 
 /* For dates we have to create Java objects :( */
 
-#define GET_NEXT_JDATE           long value = ((long) nvalue - 719528L) * 86400000L - 3600000L; //number of days since jan first (year 0) to number of milliseconds since 1 jan 1970
+//number of days since jan first (year 0) to number of milliseconds since 1 jan 1970
+#ifndef WIN32
+#define GET_NEXT_JDATE           jlong value = ((jlong) nvalue - 719528L) * 86400000L - 3600000L;
+#else
+#define GET_NEXT_JDATE           jlong value = ((jlong) nvalue - 719528L) * 86400000L;
+#endif
+
 #define CHECK_NULL_BDATE         nvalue != date_nil
 #define CREATE_JDATE             (*env)->NewObject(env, getDateClassID(),  getDateConstructorID(), value)
 
-#define GET_NEXT_JTIME           long value = (long) nvalue - 3600000L; //convert number of milliseconds since start of the day to to number of milliseconds since 1 jan 1970
+//convert number of milliseconds since start of the day to to number of milliseconds since 1 jan 1970
+#define GET_NEXT_JTIME           jlong value = (jlong) nvalue - 3600000L;
+
 #define CHECK_NULL_BTIME         nvalue != daytime_nil
 #define CREATE_JTIME             (*env)->NewObject(env, getTimeClassID(),  getTimeConstructorID(), value)
 
-#define GET_NEXT_JTIMESTAMP      long value = ((long) nvalue.payload.p_days - 719528L) * 86400000L + (long) nvalue.payload.p_msecs - 3600000L;
+#ifndef WIN32
+#define GET_NEXT_JTIMESTAMP      jlong value = ((jlong) nvalue.payload.p_days - 719528L) * 86400000L + (jlong) nvalue.payload.p_msecs - 3600000L;
+#else
+#define GET_NEXT_JTIMESTAMP      jlong value = ((jlong) nvalue.payload.p_days - 719528L) * 86400000L + (jlong) nvalue.payload.p_msecs;
+#endif
+
 #define CHECK_NULL_BTIMESTAMP    !ts_isnil(nvalue)
 #define CREATE_JTIMESTAMP        (*env)->NewObject(env, getTimestampClassID(),  getTimestampConstructorID(), value)
 
@@ -132,18 +145,18 @@ FETCHING_LEVEL_ONE(Double, jdouble)
         return result; \
     }
 
-FETCHING_LEVEL_TWO(Date, int, GET_NEXT_JDATE, CHECK_NULL_BDATE, CREATE_JDATE, DO_NOTHING)
-FETCHING_LEVEL_TWO(Time, int, GET_NEXT_JTIME, CHECK_NULL_BTIME, CREATE_JTIME, DO_NOTHING)
+FETCHING_LEVEL_TWO(Date, jint, GET_NEXT_JDATE, CHECK_NULL_BDATE, CREATE_JDATE, DO_NOTHING)
+FETCHING_LEVEL_TWO(Time, jint, GET_NEXT_JTIME, CHECK_NULL_BTIME, CREATE_JTIME, DO_NOTHING)
 FETCHING_LEVEL_TWO(Timestamp, timestamp, GET_NEXT_JTIMESTAMP, CHECK_NULL_BTIMESTAMP, CREATE_JTIMESTAMP, DO_NOTHING)
 
-FETCHING_LEVEL_TWO(GregorianCalendarDate, int, GET_NEXT_JDATE, CHECK_NULL_BDATE, CREATE_JGREGORIAN, GREGORIAN_EXTRA)
-FETCHING_LEVEL_TWO(GregorianCalendarTime, int, GET_NEXT_JTIME, CHECK_NULL_BTIME, CREATE_JGREGORIAN, GREGORIAN_EXTRA)
+FETCHING_LEVEL_TWO(GregorianCalendarDate, jint, GET_NEXT_JDATE, CHECK_NULL_BDATE, CREATE_JGREGORIAN, GREGORIAN_EXTRA)
+FETCHING_LEVEL_TWO(GregorianCalendarTime, jint, GET_NEXT_JTIME, CHECK_NULL_BTIME, CREATE_JGREGORIAN, GREGORIAN_EXTRA)
 FETCHING_LEVEL_TWO(GregorianCalendarTimestamp, timestamp, GET_NEXT_JTIMESTAMP, CHECK_NULL_BTIMESTAMP, CREATE_JGREGORIAN, GREGORIAN_EXTRA)
 
 /* Decimals are harder! */
 
 #define FETCHING_LEVEL_THREE(BAT_CAST, CONVERSION_CAST) \
-    jobject getDecimal##BAT_CAST##Single(JNIEnv* env, jint position, BAT* b, int scale) { \
+    jobject getDecimal##BAT_CAST##Single(JNIEnv* env, jint position, BAT* b, jint scale) { \
         char value[BIG_INTEGERS_ARRAY_SIZE]; \
         const BAT_CAST *array = (const BAT_CAST *) Tloc(b, 0); \
         BAT_CAST nvalue = array[position]; \
@@ -208,7 +221,7 @@ FETCHING_LEVEL_FOUR(Blob, jbyteArray, GET_BAT_BLOB, CHECK_NULL_BLOB, BAT_TO_JBLO
 BATCH_LEVEL_ONE(Boolean, jboolean, Boolean, sizeof(bit))
 BATCH_LEVEL_ONE(Tinyint, jbyte, Byte, sizeof(bte))
 BATCH_LEVEL_ONE(Smallint, jshort, Short, sizeof(sht))
-BATCH_LEVEL_ONE(Int, jint, Int, sizeof(int))
+BATCH_LEVEL_ONE(Int, jint, Int, sizeof(jint))
 BATCH_LEVEL_ONE(Bigint, jlong, Long, sizeof(lng))
 BATCH_LEVEL_ONE(Real, jfloat, Float, sizeof(flt))
 BATCH_LEVEL_ONE(Double, jdouble, Double, sizeof(dbl))
@@ -229,14 +242,14 @@ BATCH_LEVEL_ONE(Double, jdouble, Double, sizeof(dbl))
         array += first; \
         jobject next; \
         if (b->tnonil && !b->tnil) { \
-            for (int i = 0; i < size; i++) { \
+            for (jint i = 0; i < size; i++) { \
                 BAT_CAST nvalue = array[i]; \
                 next = CONVERT_ATOM; \
                 (*env)->SetObjectArrayElement(env, input, i, next); \
                 (*env)->DeleteLocalRef(env, next); \
             } \
         } else { \
-            for (int i = 0; i < size; i++) { \
+            for (jint i = 0; i < size; i++) { \
                 BAT_CAST nvalue = array[i]; \
                 if(nvalue != NULL_ATOM##_nil) { \
                     next = CONVERT_ATOM; \
@@ -264,7 +277,7 @@ BATCH_LEVEL_ONE_OBJECT(Double, jdouble, dbl, CREATE_NEW_DOUBLE)
         array += first; \
         jobject next; \
         if (b->tnonil && !b->tnil) { \
-            for (int i = 0; i < size; i++) { \
+            for (jint i = 0; i < size; i++) { \
                 BAT_CAST nvalue = array[i]; \
                 GET_ATOM \
                 next = CONVERT_ATOM; \
@@ -272,7 +285,7 @@ BATCH_LEVEL_ONE_OBJECT(Double, jdouble, dbl, CREATE_NEW_DOUBLE)
                 (*env)->DeleteLocalRef(env, next); \
             } \
         } else { \
-            for (int i = 0; i < size; i++) { \
+            for (jint i = 0; i < size; i++) { \
                 BAT_CAST nvalue = array[i]; \
                 if(NOT_NULL_CMP) { \
                     GET_ATOM \
@@ -286,19 +299,19 @@ BATCH_LEVEL_ONE_OBJECT(Double, jdouble, dbl, CREATE_NEW_DOUBLE)
         } \
     }
 
-BATCH_LEVEL_TWO(Date, int, GET_NEXT_JDATE, CHECK_NULL_BDATE, CREATE_JDATE)
-BATCH_LEVEL_TWO(Time, int, GET_NEXT_JTIME, CHECK_NULL_BTIME, CREATE_JTIME)
+BATCH_LEVEL_TWO(Date, jint, GET_NEXT_JDATE, CHECK_NULL_BDATE, CREATE_JDATE)
+BATCH_LEVEL_TWO(Time, jint, GET_NEXT_JTIME, CHECK_NULL_BTIME, CREATE_JTIME)
 BATCH_LEVEL_TWO(Timestamp, timestamp, GET_NEXT_JTIMESTAMP, CHECK_NULL_BTIMESTAMP, CREATE_JTIMESTAMP)
 
 #define BATCH_LEVEL_THREE(BAT_CAST, CONVERSION_CAST) \
-    void getDecimal##BAT_CAST##Column(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b, int scale) { \
+    void getDecimal##BAT_CAST##Column(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b, jint scale) { \
         char value[BIG_INTEGERS_ARRAY_SIZE]; \
         const BAT_CAST *array = (const BAT_CAST *) Tloc(b, 0); \
         array += first; \
         jclass lbigDecimalClassID = getBigDecimalClassID(); \
         jmethodID lbigDecimalConstructorID = getBigDecimalConstructorID(); \
         if (b->tnonil && !b->tnil) { \
-            for (int i = 0; i < size; i++) { \
+            for (jint i = 0; i < size; i++) { \
                 decimal_to_str_java(value, (CONVERSION_CAST) array[i], scale); \
                 jstring aux = (*env)->NewStringUTF(env, value); \
                 jobject next = (*env)->NewObject(env, lbigDecimalClassID, lbigDecimalConstructorID, aux); \
@@ -307,7 +320,7 @@ BATCH_LEVEL_TWO(Timestamp, timestamp, GET_NEXT_JTIMESTAMP, CHECK_NULL_BTIMESTAMP
                 (*env)->DeleteLocalRef(env, next); \
             } \
         } else { \
-            for (int i = 0; i < size; i++) { \
+            for (jint i = 0; i < size; i++) { \
                 BAT_CAST nvalue = array[i]; \
                 if(nvalue != BAT_CAST##_nil) { \
                     decimal_to_str_java(value, (CONVERSION_CAST) nvalue, scale); \
@@ -330,7 +343,7 @@ BATCH_LEVEL_THREE(lng, lng)
 
 #define BATCH_LEVEL_FOUR(NAME, GET_ATOM, CHECK_NOT_NULL, CONVERT_ATOM) \
     void get##NAME##Column(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b) { \
-        int i = 0; \
+        jint i = 0; \
         BATiter li = bat_iterator(b); \
         if (b->tnonil && !b->tnil) { \
             for (BUN p = first, q = (BUN) size; p < q; p++) { \
@@ -363,7 +376,7 @@ BATCH_LEVEL_FOUR(Blob, GET_BAT_BLOB, CHECK_NULL_BLOB, BAT_TO_JBLOB)
 /* Direct mapping for primitives :) */
 
 #define CONVERSION_LEVEL_ONE(NAME, BAT_CAST, JAVA_CAST, COPY_METHOD) \
-    void store##NAME##Column(JNIEnv *env, BAT** b, JAVA_CAST##Array data, size_t cnt, int localtype) { \
+    void store##NAME##Column(JNIEnv *env, BAT** b, JAVA_CAST##Array data, size_t cnt, jint localtype) { \
         BAT *aux = COLnew(0, localtype, cnt, TRANSIENT); \
         if (!aux) { \
             *b = NULL; \
@@ -411,23 +424,36 @@ CONVERSION_LEVEL_ONE(Double, dbl, jdouble, Double)
 
 #define EASY_CMP                 *p - prev
 
-#define JDATE_TO_BAT             long nvalue = (*env)->CallLongMethod(env, value, getDateToLongID()); \
-                                 if(nvalue > 0) { \
-                                     nvalue += 86400000L; \
-                                 } \
+#ifndef WIN32
+#define JDATE_TO_BAT             jlong nvalue = (*env)->CallLongMethod(env, value, getDateToLongID()); \
+                                 if(nvalue > 0) {                                                      \
+                                     nvalue += 86400000L;                                              \
+                                 }                                                                     \
                                  *p = (date) (nvalue / 86400000L + 719528L);
+#else
+#define JDATE_TO_BAT             jlong nvalue = (*env)->CallLongMethod(env, value, getDateToLongID()); \
+                                 *p = (date) (nvalue / 86400000L + 719528L);
+#endif
 
-#define JTIME_TO_BAT             long nvalue = (*env)->CallLongMethod(env, value, getTimeToLongID()); \
+#define JTIME_TO_BAT             jlong nvalue = (*env)->CallLongMethod(env, value, getTimeToLongID()); \
                                  *p = (daytime) (nvalue + 3600000L);
 
-#define JTIMESTAMP_TO_BAT        long nvalue = (*env)->CallLongMethod(env, value, getTimestampToLongID()); \
-                                 ldiv_t aux1 = ldiv(nvalue, 86400000L);                       \
-                                 p->payload.p_days = (date) (aux1.quot + 719528L);            \
+#ifndef WIN32
+#define JTIMESTAMP_TO_BAT        jlong nvalue = (*env)->CallLongMethod(env, value, getTimestampToLongID()); \
+                                 ldiv_t aux1 = ldiv(nvalue, 86400000L);                                     \
+                                 p->payload.p_days = (date) (aux1.quot + 719528L);                          \
                                  p->payload.p_msecs = (daytime) (aux1.rem + 3600000L);
+#else
+#define JTIMESTAMP_TO_BAT        jlong nvalue = (*env)->CallLongMethod(env, value, getTimestampToLongID()); \
+                                 lldiv_t aux1 = lldiv(nvalue, 86400000L);                                   \
+                                 p->payload.p_days = (date) (aux1.quot + 719528L);                          \
+                                 p->payload.p_msecs = (daytime) aux1.rem;
+#endif
+
 #define TIMESTAMP_CMP            p->payload.p_days + p->payload.p_msecs - prev.payload.p_days - prev.payload.p_msecs
 
 #define CONVERSION_LEVEL_TWO(NAME, BAT_CAST, NULL_CONST, CONVERT_TO_BAT, ORDER_CMP) \
-    void store##NAME##Column(JNIEnv *env, BAT** b, jobjectArray data, size_t cnt, int localtype) { \
+    void store##NAME##Column(JNIEnv *env, BAT** b, jobjectArray data, size_t cnt, jint localtype) { \
         BAT *aux = COLnew(0, localtype, cnt, TRANSIENT); \
         if (!aux) { \
             *b = NULL; \
@@ -474,7 +500,7 @@ CONVERSION_LEVEL_TWO(Timestamp, timestamp, *timestamp_nil, JTIMESTAMP_TO_BAT, TI
 /* Decimals are harder :P */
 
 #define CONVERSION_LEVEL_THREE(BAT_CAST) \
-    void storeDecimal##BAT_CAST##Column(JNIEnv *env, BAT** b, jobjectArray data, size_t cnt, int localtype, int scale, int roundingMode) { \
+    void storeDecimal##BAT_CAST##Column(JNIEnv *env, BAT** b, jobjectArray data, size_t cnt, jint localtype, jint scale, jint roundingMode) { \
         BAT *aux = COLnew(0, localtype, cnt, TRANSIENT); \
         if (!aux) { \
             *b = NULL; \
@@ -550,7 +576,7 @@ CONVERSION_LEVEL_THREE(lng)
 #define BLOB_CMP            memcmp(p->data, prev->data, min(p->nitems, prev->nitems))
 
 #define CONVERSION_LEVEL_FOUR(NAME, BAT_CAST, NULL_CONST, START_STEP, CONVERT_TO_BAT, ORDER_CMP, PUT_IN_HEAP) \
-    void store##NAME##Column(JNIEnv *env, BAT** b, jobjectArray data, size_t cnt, int localtype) { \
+    void store##NAME##Column(JNIEnv *env, BAT** b, jobjectArray data, size_t cnt, jint localtype) { \
         BAT *aux = COLnew(0, localtype, cnt, TRANSIENT); \
         if (!aux) { \
             *b = NULL; \
@@ -564,7 +590,7 @@ CONVERSION_LEVEL_THREE(lng)
         BAT_CAST p; \
         BAT_CAST prev = NULL_CONST; \
         START_STEP \
-        int previousToFree = 0; \
+        jint previousToFree = 0; \
         for(size_t i = 0; i < cnt; i++) { \
             jobject value = (*env)->GetObjectArrayElement(env, data, i); \
             if (value == NULL) { \

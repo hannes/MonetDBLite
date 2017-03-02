@@ -30,10 +30,10 @@ jobject getGregorianCalendarDateSingle(JNIEnv* env, jint position, BAT* b);
 jobject getGregorianCalendarTimeSingle(JNIEnv* env, jint position, BAT* b);
 jobject getGregorianCalendarTimestampSingle(JNIEnv* env, jint position, BAT* b);
 
-jobject getDecimalbteSingle(JNIEnv* env, jint position, BAT* b, int scale);
-jobject getDecimalshtSingle(JNIEnv* env, jint position, BAT* b, int scale);
-jobject getDecimalintSingle(JNIEnv* env, jint position, BAT* b, int scale);
-jobject getDecimallngSingle(JNIEnv* env, jint position, BAT* b, int scale);
+jobject getDecimalbteSingle(JNIEnv* env, jint position, BAT* b, jint scale);
+jobject getDecimalshtSingle(JNIEnv* env, jint position, BAT* b, jint scale);
+jobject getDecimalintSingle(JNIEnv* env, jint position, BAT* b, jint scale);
+jobject getDecimallngSingle(JNIEnv* env, jint position, BAT* b, jint scale);
 
 jstring getStringSingle(JNIEnv* env, jint position, BAT* b);
 jbyteArray getBlobSingle(JNIEnv* env, jint position, BAT* b);
@@ -60,34 +60,34 @@ void getDateColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* 
 void getTimeColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b);
 void getTimestampColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b);
 
-void getDecimalbteColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b, int scale);
-void getDecimalshtColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b, int scale);
-void getDecimalintColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b, int scale);
-void getDecimallngColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b, int scale);
+void getDecimalbteColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b, jint scale);
+void getDecimalshtColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b, jint scale);
+void getDecimalintColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b, jint scale);
+void getDecimallngColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b, jint scale);
 
 void getStringColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b);
 void getBlobColumn(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b);
 
 /* -- Converting Java Classes and primitives to BATs -- */
 
-void storeBooleanColumn(JNIEnv* env, BAT** b, jbooleanArray input, size_t cnt, int localtype);
-void storeTinyintColumn(JNIEnv* env, BAT** b, jbyteArray input, size_t cnt, int localtype);
-void storeSmallintColumn(JNIEnv* env, BAT** b, jshortArray input, size_t cnt, int localtype);
-void storeIntColumn(JNIEnv* env, BAT** b, jintArray input, size_t cnt, int localtype);
-void storeBigintColumn(JNIEnv* env, BAT** b, jlongArray input, size_t cnt, int localtype);
-void storeRealColumn(JNIEnv* env, BAT** b, jfloatArray input, size_t cnt, int localtype);
-void storeDoubleColumn(JNIEnv* env, BAT** b, jdoubleArray input, size_t cnt, int localtype);
+void storeBooleanColumn(JNIEnv* env, BAT** b, jbooleanArray input, size_t cnt, jint localtype);
+void storeTinyintColumn(JNIEnv* env, BAT** b, jbyteArray input, size_t cnt, jint localtype);
+void storeSmallintColumn(JNIEnv* env, BAT** b, jshortArray input, size_t cnt, jint localtype);
+void storeIntColumn(JNIEnv* env, BAT** b, jintArray input, size_t cnt, jint localtype);
+void storeBigintColumn(JNIEnv* env, BAT** b, jlongArray input, size_t cnt, jint localtype);
+void storeRealColumn(JNIEnv* env, BAT** b, jfloatArray input, size_t cnt, jint localtype);
+void storeDoubleColumn(JNIEnv* env, BAT** b, jdoubleArray input, size_t cnt, jint localtype);
 
-void storeDateColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, int localtype);
-void storeTimeColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, int localtype);
-void storeTimestampColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, int localtype);
+void storeDateColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, jint localtype);
+void storeTimeColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, jint localtype);
+void storeTimestampColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, jint localtype);
 
-void storeDecimalbteColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, int localtype, int scale, int roundingMode);
-void storeDecimalshtColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, int localtype, int scale, int roundingMode);
-void storeDecimalintColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, int localtype, int scale, int roundingMode);
-void storeDecimallngColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, int localtype, int scale, int roundingMode);
+void storeDecimalbteColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, jint localtype, jint scale, jint roundingMode);
+void storeDecimalshtColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, jint localtype, jint scale, jint roundingMode);
+void storeDecimalintColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, jint localtype, jint scale, jint roundingMode);
+void storeDecimallngColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, jint localtype, jint scale, jint roundingMode);
 
-void storeStringColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, int localtype);
-void storeBlobColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, int localtype);
+void storeStringColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, jint localtype);
+void storeBlobColumn(JNIEnv* env, BAT** b, jobjectArray input, size_t cnt, jint localtype);
 
 #endif //SRC_CONVERTERS_H

@@ -111,7 +111,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         connection.sendUpdate("INSERT INTO testdates VALUES ('2016-01-01', '23:10:47', '20:10:47', '2016-01-31T00:01:44', '1986-12-31T12:10:12', 1, 1);");
         connection.sendUpdate("INSERT INTO testdates VALUES ('1998-10-27', '0:10:47', '21:10:47', '1950-11-15T22:10:45', '1951-02-11T00:59:59', -10, -3000);");
         connection.sendUpdate("INSERT INTO testdates VALUES ('2014-02-02', '10:10:47', '11:10:47', '2016-03-04T08:30:30', '2016-03-04T09:00:01', 1023, 12);");
-        connection.sendUpdate("INSERT INTO testdates VALUES ('1950-12-12', '20:10:47', '2:10:47', '1970-02-19T00:00:00', '1978-12-07T10:42:31', 0, 0);");
+        connection.sendUpdate("INSERT INTO testdates VALUES ('1950-12-12', '20:10:47', '2:10:47', '1992-02-19T00:00:00', '1978-12-07T10:42:31', 0, 0);");
 
         QueryResultSet qrs = connection.sendQuery("SELECT * FROM testdates;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
@@ -153,7 +153,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
                 new Timestamp(timestampFormater.parse("2016-01-31 00:01:44").getTime()),
                 new Timestamp(timestampFormater.parse("1950-11-15 22:10:45").getTime()),
                 new Timestamp(timestampFormater.parse("2016-03-04 08:30:30").getTime()),
-                new Timestamp(timestampFormater.parse("1970-02-19 00:00:00").getTime())
+                new Timestamp(timestampFormater.parse("1992-02-19 00:00:00").getTime())
         }, array4, "Timestamps not correctly retrieved!");
 
         Timestamp[] array5 = new Timestamp[4];
