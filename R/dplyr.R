@@ -63,14 +63,16 @@ sample_n.tbl_monetdb <- function(x, size, replace = FALSE, weight = NULL) {
     stop("Sorry, replace and weight are not supported for MonetDB tables. \
       Consider collect()'ing first.")
   }
-  DBI::dbGetQuery(con_acquire(x$src), dplyr::build_sql("SELECT * FROM (", x$query$sql, ") AS s SAMPLE ", as.integer(size)))
+  con <- con_acquire(x$src)
+
+  DBI::dbGetQuery(con, dplyr::build_sql("SELECT * FROM (", sql_render(x, con), ") AS s SAMPLE ", as.integer(size)))
 }
 
 sample_frac.tbl_monetdb <- function(tbl, frac=1, replace = FALSE, weight = NULL) {
   if (frac < 0 || frac > 1) {
     stop("frac must be in [0,1]")
   }
-  n <- as.integer(round(dim(tbl)[[1]] * frac))
+  n <- as.data.frame(tbl %>% summarize(n()))[[1,1]]
   if (n < 1) {
     stop("not sampling 0 rows...")
   }
