@@ -28,7 +28,7 @@ import java.util.ListIterator;
  *
  * @author <a href="mailto:pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>
  */
-public final class QueryResultSet extends AbstractConnectionResult implements Iterable {
+public strictfp final class QueryResultSet extends AbstractConnectionResult implements Iterable {
 
     /**
      * Get the string representation of a typesID

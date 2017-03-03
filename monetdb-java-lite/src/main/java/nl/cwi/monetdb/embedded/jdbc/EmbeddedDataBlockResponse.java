@@ -15,7 +15,7 @@ import java.util.Calendar;
  *
  * @author <a href="mailto:pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>
  */
-public final class EmbeddedDataBlockResponse extends AbstractDataBlockResponse {
+public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockResponse {
 
     /* The underlying structPointer */
     private long structPointer;

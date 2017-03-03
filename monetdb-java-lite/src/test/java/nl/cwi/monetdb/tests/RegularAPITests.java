@@ -55,7 +55,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
     @DisplayName("Retrieve the most common types from a query into arrays (Also testing foreign characters)")
     void testBasicTypes() throws MonetDBEmbeddedException {
         connection.sendUpdate("CREATE TABLE testbasics (a boolean, b text, c tinyint, d smallint, e int, f bigint, h real, i double);");
-        connection.sendUpdate("INSERT INTO testbasics VALUES ('true', 'a1ñ212#da ', 1, 1, 1, 1, 1, 1);");
+        connection.sendUpdate("INSERT INTO testbasics VALUES ('true', 'a1ñ212#da ', 1, 1, 1, 1, 1.22, 1.33);");
         connection.sendUpdate("INSERT INTO testbasics VALUES ('false', 'another with spaces', -2, -2, -2, -2, -1.59, -1.69);");
         connection.sendUpdate("INSERT INTO testbasics VALUES ('true', '0', 0, 0, 0, 0, 0, 0);");
 
@@ -90,11 +90,11 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
 
         float[] array7 = new float[3];
         qrs.getFloatColumnByIndex(7, array7);
-        Assertions.assertArrayEquals(new float[]{1, -1.59f, 0}, array7, 0.1f, "Floats not correctly retrieved!");
+        Assertions.assertArrayEquals(new float[]{1.22f, -1.59f, 0}, array7, 0.1f, "Floats not correctly retrieved!");
 
         double[] array8 = new double[3];
         qrs.getDoubleColumnByIndex(8, array8);
-        Assertions.assertArrayEquals(new double[]{1, -1.69d, 0}, array8, 0.1d, "Doubles not correctly retrieved!");
+        Assertions.assertArrayEquals(new double[]{1.33d, -1.69d, 0}, array8, 0.1d, "Doubles not correctly retrieved!");
 
         qrs.close();
         connection.sendUpdate("DROP TABLE testbasics;");
