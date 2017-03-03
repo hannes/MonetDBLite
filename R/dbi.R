@@ -533,7 +533,7 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
 
         # MonetDB does not like Inf or NaN in double columns
         for (i in 1:length(value)) {
-          if (class(value[1, i]) == "numeric") {
+          if ("numeric" %in% class(value[, i])) {
             value[!is.finite(value[, i]), i] <- NA
           }
         }
