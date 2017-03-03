@@ -51,7 +51,7 @@ sql_translate_env.MonetDBConnection <- function(con) {
 }
 
 src_desc.src_monetdb <- function(x) {
-  if (inherits(x$con, "MonetDBEmbeddedConnection")) {
+  if (inherits(con_acquire(x), "MonetDBEmbeddedConnection")) {
     paste0("MonetDBLite ", packageVersion("MonetDBLite"), " (", monetdb_embedded_env$started_dir, ")")
   } else {
     paste0("MonetDB ",x$info$monet_version, " (",x$info$monet_release, ")")
@@ -63,7 +63,7 @@ sample_n.tbl_monetdb <- function(x, size, replace = FALSE, weight = NULL) {
     stop("Sorry, replace and weight are not supported for MonetDB tables. \
       Consider collect()'ing first.")
   }
-  DBI::dbGetQuery(x$src$con, dplyr::build_sql("SELECT * FROM (", x$query$sql, ") AS s SAMPLE ", as.integer(size)))
+  DBI::dbGetQuery(con_acquire(x$src), dplyr::build_sql("SELECT * FROM (", x$query$sql, ") AS s SAMPLE ", as.integer(size)))
 }
 
 sample_frac.tbl_monetdb <- function(tbl, frac=1, replace = FALSE, weight = NULL) {

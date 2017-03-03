@@ -530,6 +530,14 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
     else {
       if (csvdump) {
         tmp <- tempfile(fileext = ".csv")
+
+        # MonetDB does not like Inf or NaN in double columns
+        for (i in 1:length(value)) {
+          if (class(value[,i]) == "numeric") {
+            value[!is.finite(value[, i]), i] <- NA
+          }
+        }
+
         write.table(value, tmp, sep = ",", quote = TRUE, row.names = FALSE, col.names = FALSE, na="", fileEncoding = "UTF-8")
         dbSendQuery(conn, paste0("COPY INTO ", qname, " FROM '", encodeString(tmp), "' USING DELIMITERS ',','\\n','\"' NULL AS ''"))
         file.remove(tmp) 
