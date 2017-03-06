@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ev
+
 PREVDIRECTORY=`pwd`
 BASEDIR=$(dirname "$0")
 cd $BASEDIR
@@ -47,8 +49,6 @@ make -j
 if [ $? -ne 0 ]
 then
 	echo "build failure"
-	cd $PREVDIRECTORY
-	exit 1
 fi
 
 # Move the shared library to the resources directory

@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# We compiled the MacOS library on our MacOS testing machine
-export PKG_CONFIG_PATH=/usr/local/opt/zlib/lib/pkgconfig
-export M4DIRS=-I/usr/local/opt/gettext/share/aclocal
+set -ev
 
 PREVDIRECTORY=`pwd`
 BASEDIR=$(dirname "$0")
@@ -51,8 +49,6 @@ make -j
 if [ $? -ne 0 ]
 then
 	echo "build failure"
-	cd $PREVDIRECTORY
-	exit 1
 fi
 
 # Move the shared library to the resources directory

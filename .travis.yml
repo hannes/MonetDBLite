@@ -1,16 +1,30 @@
 language: java
-sudo: false
+
 addons:
-  apt:
-    packages:
-      - oracle-java8-installer
+    apt:
+        packages:
+            - oracle-java8-installer
 
 jdk:
-  - oraclejdk8
+    - oraclejdk8
 
-install:
-  - make get-deps
-  - ant deps
+git:
+    depth: 3
 
-script: ./linux.sh
+branches:
+    only:
+        - Dec2016Lite-Java
+
+matrix:
+    include:
+        - os: linux
+        - os: osx
+
+before_install:
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq autoconf automake libtool gettext ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install autoconf automake libtool gettext ; fi
+
+script:
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./linux.sh ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./macos.sh ; fi
 

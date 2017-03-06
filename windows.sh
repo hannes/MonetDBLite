@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ev
+
 PREVDIRECTORY=`pwd`
 BASEDIR=$(dirname "$0")
 cd $BASEDIR
@@ -50,7 +52,6 @@ make -j
 if [ $? -ne 0 ]
 then
 	echo "build failure"
-	exit 1
 fi
 
 OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
@@ -60,7 +61,6 @@ $CC $ADD_CFLAGS -shared -fPIC -Wl,--export-all-symbols -o libmonetdb5.dll $OFILE
 if [ ! -s libmonetdb5.dll ]
 then
 	echo "library file was not created, something went wrong"
-	exit 1
 fi
 
 # Move the shared library to the resources directory, as well as the other dependent libraries
