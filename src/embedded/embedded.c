@@ -402,6 +402,6 @@ void setMonetDB5LibraryPathEmbedded(const char* path) {
     setMonetDB5LibraryPath(path);
 }
 
-void freeMonetDB5LibraryPathEmbedded() {
+void freeMonetDB5LibraryPathEmbedded(void) {
     freeMonetDB5LibraryPath();
 }

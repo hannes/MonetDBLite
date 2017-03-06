@@ -376,304 +376,304 @@ void releaseIDS(JNIEnv *env) {
 
 /* Embedded database environment Classes */
 
-jmethodID getMonetDBEmbeddedDatabaseConstructorID() {
+jmethodID getMonetDBEmbeddedDatabaseConstructorID(void) {
     return monetDBEmbeddedDatabaseConstructorID;
 }
 
-jclass getMonetDBEmbeddedExceptionClassID() {
+jclass getMonetDBEmbeddedExceptionClassID(void) {
     return monetDBEmbeddedExceptionClassID;
 }
 
-jclass getMonetDBEmbeddedConnectionClassID() {
+jclass getMonetDBEmbeddedConnectionClassID(void) {
     return monetDBEmbeddedConnectionClassID;
 }
 
-jmethodID getMonetDBEmbeddedConnectionConstructorID() {
+jmethodID getMonetDBEmbeddedConnectionConstructorID(void) {
     return monetDBEmbeddedConnectionConstructorID;
 }
 
-jclass getJDBCEmbeddedConnectionClassID() {
+jclass getJDBCEmbeddedConnectionClassID(void) {
     return jDBCEmbeddedConnectionClassID;
 }
 
-jmethodID getJDBCDBEmbeddedConnectionConstructorID() {
+jmethodID getJDBCDBEmbeddedConnectionConstructorID(void) {
     return jDBCDBEmbeddedConnectionConstructorID;
 }
 
-jclass getQueryResultSetID() {
+jclass getQueryResultSetID(void) {
     return queryResultSetID;
 }
 
-jmethodID getQueryResultSetConstructorID() {
+jmethodID getQueryResultSetConstructorID(void) {
     return queryResultSetConstructorID;
 }
 
-jclass getMonetDBTableClassID() {
+jclass getMonetDBTableClassID(void) {
     return monetDBTableClassID;
 }
 
-jmethodID getMonetDBTableClassConstructorID() {
+jmethodID getMonetDBTableClassConstructorID(void) {
     return monetDBTableClassConstructorID;
 }
 
-jfieldID getConnectionResultPointerID() {
+jfieldID getConnectionResultPointerID(void) {
     return connectionResultPointerID;
 }
 
 /* Java MonetDB mappings constructors */
 
-jclass getBooleanClassID() {
+jclass getBooleanClassID(void) {
     return booleanClassID;
 }
 
-jmethodID getBooleanConstructorID() {
+jmethodID getBooleanConstructorID(void) {
     return booleanConstructorID;
 }
 
-jclass getByteClassID() {
+jclass getByteClassID(void) {
     return byteClassID;
 }
 
-jmethodID getByteConstructorID() {
+jmethodID getByteConstructorID(void) {
     return byteConstructorID;
 }
 
-jclass getShortClassID() {
+jclass getShortClassID(void) {
     return shortClassID;
 }
 
-jmethodID getShortConstructorID() {
+jmethodID getShortConstructorID(void) {
     return shortConstructorID;
 }
 
-jclass getIntegerClassID() {
+jclass getIntegerClassID(void) {
     return integerClassID;
 }
 
-jmethodID getIntegerConstructorID() {
+jmethodID getIntegerConstructorID(void) {
     return integerConstructorID;
 }
 
-jclass getLongClassID() {
+jclass getLongClassID(void) {
     return longClassID;
 }
 
-jmethodID getLongConstructorID() {
+jmethodID getLongConstructorID(void) {
     return longConstructorID;
 }
 
-jclass getFloatClassID() {
+jclass getFloatClassID(void) {
     return floatClassID;
 }
 
-jmethodID getFloatConstructorID() {
+jmethodID getFloatConstructorID(void) {
     return floatConstructorID;
 }
 
-jclass getDoubleClassID() {
+jclass getDoubleClassID(void) {
     return doubleClassID;
 }
 
-jmethodID getDoubleConstructorID() {
+jmethodID getDoubleConstructorID(void) {
     return doubleConstructorID;
 }
 
-jclass getByteArrayClassID() {
+jclass getByteArrayClassID(void) {
     return byteArrayClassID;
 }
 
-jclass getShortArrayClassID() {
+jclass getShortArrayClassID(void) {
     return shortArrayClassID;
 }
 
-jclass getIntegerArrayClassID() {
+jclass getIntegerArrayClassID(void) {
     return integerArrayClassID;
 }
 
-jclass getLongArrayClassID() {
+jclass getLongArrayClassID(void) {
     return longArrayClassID;
 }
 
-jclass getFloatArrayClassID() {
+jclass getFloatArrayClassID(void) {
     return floatArrayClassID;
 }
 
-jclass getDoubleArrayClassID() {
+jclass getDoubleArrayClassID(void) {
     return doubleArrayClassID;
 }
 
-jclass getByteMatrixClassID() {
+jclass getByteMatrixClassID(void) {
     return byteMatrixClassID;
 }
 
-jclass getBigDecimalClassID() {
+jclass getBigDecimalClassID(void) {
     return bigDecimalClassID;
 }
 
-jclass getBigDecimalArrayClassID() {
+jclass getBigDecimalArrayClassID(void) {
     return bigDecimalArrayClassID;
 }
 
-jmethodID getBigDecimalConstructorID() {
+jmethodID getBigDecimalConstructorID(void) {
     return bigDecimalConstructorID;
 }
 
-jclass getDateClassID() {
+jclass getDateClassID(void) {
     return dateClassID;
 }
 
-jclass getDateClassArrayID() {
+jclass getDateClassArrayID(void) {
     return dateClassArrayID;
 }
 
-jmethodID getDateConstructorID() {
+jmethodID getDateConstructorID(void) {
     return dateConstructorID;
 }
 
-jclass getTimeClassID() {
+jclass getTimeClassID(void) {
     return timeClassID;
 }
 
-jclass getTimeArrayClassID() {
+jclass getTimeArrayClassID(void) {
     return timeArrayClassID;
 }
 
-jmethodID getTimeConstructorID() {
+jmethodID getTimeConstructorID(void) {
     return timeConstructorID;
 }
 
-jclass getTimestampClassID() {
+jclass getTimestampClassID(void) {
     return timestampClassID;
 }
 
-jclass getTimestampArrayClassID() {
+jclass getTimestampArrayClassID(void) {
     return timestampArrayClassID;
 }
 
-jmethodID getTimestampConstructorID() {
+jmethodID getTimestampConstructorID(void) {
     return timestampConstructorID;
 }
 
-jclass getGregorianCalendarClassID() {
+jclass getGregorianCalendarClassID(void) {
     return gregorianCalendarClassID;
 }
 
-jmethodID getGregorianCalendarConstructorID() {
+jmethodID getGregorianCalendarConstructorID(void) {
     return gregorianCalendarConstructorID;
 }
 
-jmethodID getGregorianCalendarSetterID() {
+jmethodID getGregorianCalendarSetterID(void) {
     return gregorianCalendarSetterID;
 }
 
-jclass getStringClassID() {
+jclass getStringClassID(void) {
     return stringClassID;
 }
 
-jclass getStringArrayClassID() {
+jclass getStringArrayClassID(void) {
     return stringArrayClassID;
 }
 
-jmethodID getStringByteArrayConstructorID() {
+jmethodID getStringByteArrayConstructorID(void) {
     return stringByteArrayConstructorID;
 }
 
 /* JDBC Embedded Connection */
 
-jfieldID getServerResponsesID() {
+jfieldID getServerResponsesID(void) {
     return serverResponsesID;
 }
 
-jfieldID getLastErrorID() {
+jfieldID getLastErrorID(void) {
     return lastErrorID;
 }
 
-jfieldID getLastResultSetPointerID() {
+jfieldID getLastResultSetPointerID(void) {
     return lastResultSetPointerID;
 }
 
-jfieldID getServerHeaderResponseID() {
+jfieldID getServerHeaderResponseID(void) {
     return serverHeaderResponseID;
 }
 
-jfieldID getLastServerResponseParametersID() {
+jfieldID getLastServerResponseParametersID(void) {
     return lastServerResponseParametersID;
 }
 
-jfieldID getLastServerResponseID() {
+jfieldID getLastServerResponseID(void) {
     return lastServerResponseID;
 }
 
-jfieldID getStructPointerID() {
+jfieldID getStructPointerID(void) {
     return structPointerID;
 }
 
-jclass getAutoCommitResponseClassID() {
+jclass getAutoCommitResponseClassID(void) {
     return autoCommitResponseClassID;
 }
 
-jmethodID getAutoCommitResponseConstructorID() {
+jmethodID getAutoCommitResponseConstructorID(void) {
     return autoCommitResponseConstructorID;
 }
 
-jclass getUpdateResponseClassID() {
+jclass getUpdateResponseClassID(void) {
     return updateResponseClassID;
 }
 
-jmethodID getUpdateResponseConstructorID() {
+jmethodID getUpdateResponseConstructorID(void) {
     return updateResponseConstructorID;
 }
 
 /* MonetDB Table */
 
-jclass getMonetDBTableColumnClassID() {
+jclass getMonetDBTableColumnClassID(void) {
     return monetDBTableColumnClassID;
 }
 
-jmethodID getMonetDBTableColumnConstructorID() {
+jmethodID getMonetDBTableColumnConstructorID(void) {
     return monetDBTableColumnConstructorID;
 }
 
-jclass getMappingEnumID() {
+jclass getMappingEnumID(void) {
     return mappingEnumID;
 }
 
-jmethodID getGetEnumValueID() {
+jmethodID getGetEnumValueID(void) {
     return getEnumValueID;
 }
 
-jfieldID getGetConnectionID() {
+jfieldID getGetConnectionID(void) {
     return getConnectionID;
 }
 
-jfieldID getGetConnectionLongID() {
+jfieldID getGetConnectionLongID(void) {
     return getConnectionLongID;
 }
 
-jfieldID getGetSchemaID() {
+jfieldID getGetSchemaID(void) {
     return getSchemaID;
 }
 
-jfieldID getGetTableID() {
+jfieldID getGetTableID(void) {
     return getTableID;
 }
 
-jmethodID getBigDecimalToStringID() {
+jmethodID getBigDecimalToStringID(void) {
     return bigDecimalToStringID;
 }
 
-jmethodID getSetBigDecimalScaleID() {
+jmethodID getSetBigDecimalScaleID(void) {
     return setBigDecimalScaleID;
 }
 
-jmethodID getDateToLongID() {
+jmethodID getDateToLongID(void) {
     return dateToLongID;
 }
 
-jmethodID getTimeToLongID() {
+jmethodID getTimeToLongID(void) {
     return timeToLongID;
 }
 
-jmethodID getTimestampToLongID() {
+jmethodID getTimestampToLongID(void) {
     return timestampToLongID;
 }

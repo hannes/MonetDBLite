@@ -5,6 +5,7 @@
  *
  * Copyright 2008-2017 MonetDB B.V.
  */
+
 #ifndef MONETDBLITE_JRESULTSET_H
 #define MONETDBLITE_JRESULTSET_H
 

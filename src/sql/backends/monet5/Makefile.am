@@ -157,7 +157,7 @@ install-exec-local-sql_aggr_dbl.mal: sql_aggr_dbl.mal
 uninstall-local-sql_aggr_dbl.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/sql_aggr_dbl.mal
 
-AM_CPPFLAGS = -I$(srcdir) -I../../include -I$(srcdir)/../../include -I../../common -I$(srcdir)/../../common -I../../storage -I$(srcdir)/../../storage -I../../server -I$(srcdir)/../../server -I../../../mal/modules -I$(srcdir)/../../../mal/modules -I../../../mal/mal -I$(srcdir)/../../../mal/mal -I../../../mal/optimizer -I$(srcdir)/../../../mal/optimizer -I../../../mal/scheduler -I$(srcdir)/../../../mal/scheduler -I../../../mal/extras/rapi -I$(srcdir)/../../../mal/extras/rapi -I../../../common/options -I$(srcdir)/../../../common/options -I../../../common/stream -I$(srcdir)/../../../common/stream -I../../../common/utils -I$(srcdir)/../../../common/utils -I../../../gdk -I$(srcdir)/../../../gdk
+AM_CPPFLAGS = -I$(srcdir) -I../../include -I$(srcdir)/../../include -I../../common -I$(srcdir)/../../common -I../../storage -I$(srcdir)/../../storage -I../../server -I$(srcdir)/../../server -I../../../mal/modules -I$(srcdir)/../../../mal/modules -I../../../mal/mal -I$(srcdir)/../../../mal/mal -I../../../mal/optimizer -I$(srcdir)/../../../mal/optimizer -I../../../mal/extras/rapi -I$(srcdir)/../../../mal/extras/rapi -I../../../common/options -I$(srcdir)/../../../common/options -I../../../common/stream -I$(srcdir)/../../../common/stream -I../../../common/utils -I$(srcdir)/../../../common/utils -I../../../gdk -I$(srcdir)/../../../gdk
 if HAVE_HGE
 C_41_sql_hge_mal = 41_sql_hge.mal
 endif

@@ -16,91 +16,91 @@ void releaseIDS(JNIEnv *env);
 
 /* Embedded database environment Classes */
 
-jmethodID getMonetDBEmbeddedDatabaseConstructorID();
-jclass getMonetDBEmbeddedExceptionClassID();
-jclass getMonetDBEmbeddedConnectionClassID();
-jmethodID getMonetDBEmbeddedConnectionConstructorID();
-jclass getJDBCEmbeddedConnectionClassID();
-jmethodID getJDBCDBEmbeddedConnectionConstructorID();
-jclass getQueryResultSetID();
-jmethodID getQueryResultSetConstructorID();
-jclass getMonetDBTableClassID();
-jmethodID getMonetDBTableClassConstructorID();
-jfieldID getConnectionResultPointerID();
+jmethodID getMonetDBEmbeddedDatabaseConstructorID(void);
+jclass getMonetDBEmbeddedExceptionClassID(void);
+jclass getMonetDBEmbeddedConnectionClassID(void);
+jmethodID getMonetDBEmbeddedConnectionConstructorID(void);
+jclass getJDBCEmbeddedConnectionClassID(void);
+jmethodID getJDBCDBEmbeddedConnectionConstructorID(void);
+jclass getQueryResultSetID(void);
+jmethodID getQueryResultSetConstructorID(void);
+jclass getMonetDBTableClassID(void);
+jmethodID getMonetDBTableClassConstructorID(void);
+jfieldID getConnectionResultPointerID(void);
 
 /* Java MonetDB mappings constructors */
 
-jclass getBooleanClassID();
-jmethodID getBooleanConstructorID();
-jclass getByteClassID();
-jmethodID getByteConstructorID();
-jclass getShortClassID();
-jmethodID getShortConstructorID();
-jclass getIntegerClassID();
-jmethodID getIntegerConstructorID();
-jclass getLongClassID();
-jmethodID getLongConstructorID();
-jclass getFloatClassID();
-jmethodID getFloatConstructorID();
-jclass getDoubleClassID();
-jmethodID getDoubleConstructorID();
+jclass getBooleanClassID(void);
+jmethodID getBooleanConstructorID(void);
+jclass getByteClassID(void);
+jmethodID getByteConstructorID(void);
+jclass getShortClassID(void);
+jmethodID getShortConstructorID(void);
+jclass getIntegerClassID(void);
+jmethodID getIntegerConstructorID(void);
+jclass getLongClassID(void);
+jmethodID getLongConstructorID(void);
+jclass getFloatClassID(void);
+jmethodID getFloatConstructorID(void);
+jclass getDoubleClassID(void);
+jmethodID getDoubleConstructorID(void);
 
-jclass getShortArrayClassID();
-jclass getIntegerArrayClassID();
-jclass getLongArrayClassID();
-jclass getFloatArrayClassID();
-jclass getDoubleArrayClassID();
-jclass getByteArrayClassID();
-jclass getByteMatrixClassID();
-jclass getBigDecimalClassID();
+jclass getShortArrayClassID(void);
+jclass getIntegerArrayClassID(void);
+jclass getLongArrayClassID(void);
+jclass getFloatArrayClassID(void);
+jclass getDoubleArrayClassID(void);
+jclass getByteArrayClassID(void);
+jclass getByteMatrixClassID(void);
+jclass getBigDecimalClassID(void);
 
-jclass getBigDecimalArrayClassID();
-jmethodID getBigDecimalConstructorID();
-jclass getDateClassID();
-jclass getDateClassArrayID();
-jmethodID getDateConstructorID();
-jclass getTimeClassID();
-jclass getTimeArrayClassID();
-jmethodID getTimeConstructorID();
-jclass getTimestampClassID();
-jclass getTimestampArrayClassID();
-jmethodID getTimestampConstructorID();
-jclass getGregorianCalendarClassID();
-jmethodID getGregorianCalendarConstructorID();
-jmethodID getGregorianCalendarSetterID();
-jclass getStringClassID();
-jclass getStringArrayClassID();
-jmethodID getStringByteArrayConstructorID();
+jclass getBigDecimalArrayClassID(void);
+jmethodID getBigDecimalConstructorID(void);
+jclass getDateClassID(void);
+jclass getDateClassArrayID(void);
+jmethodID getDateConstructorID(void);
+jclass getTimeClassID(void);
+jclass getTimeArrayClassID(void);
+jmethodID getTimeConstructorID(void);
+jclass getTimestampClassID(void);
+jclass getTimestampArrayClassID(void);
+jmethodID getTimestampConstructorID(void);
+jclass getGregorianCalendarClassID(void);
+jmethodID getGregorianCalendarConstructorID(void);
+jmethodID getGregorianCalendarSetterID(void);
+jclass getStringClassID(void);
+jclass getStringArrayClassID(void);
+jmethodID getStringByteArrayConstructorID(void);
 
 /* JDBC Embedded Connection */
 
-jfieldID getServerResponsesID();
-jfieldID getLastErrorID();
-jfieldID getLastResultSetPointerID();
-jfieldID getServerHeaderResponseID();
-jfieldID getLastServerResponseParametersID();
-jfieldID getLastServerResponseID();
-jclass getAutoCommitResponseClassID();
-jmethodID getAutoCommitResponseConstructorID();
-jclass getUpdateResponseClassID();
-jmethodID getUpdateResponseConstructorID();
+jfieldID getServerResponsesID(void);
+jfieldID getLastErrorID(void);
+jfieldID getLastResultSetPointerID(void);
+jfieldID getServerHeaderResponseID(void);
+jfieldID getLastServerResponseParametersID(void);
+jfieldID getLastServerResponseID(void);
+jclass getAutoCommitResponseClassID(void);
+jmethodID getAutoCommitResponseConstructorID(void);
+jclass getUpdateResponseClassID(void);
+jmethodID getUpdateResponseConstructorID(void);
 
 /* MonetDB Table */
 
-jclass getMonetDBTableColumnClassID();
-jmethodID getMonetDBTableColumnConstructorID();
-jclass getMappingEnumID();
-jmethodID getGetEnumValueID();
-jfieldID getGetConnectionID();
-jfieldID getGetConnectionLongID();
-jfieldID getGetSchemaID();
-jfieldID getGetTableID();
-jfieldID getStructPointerID();
+jclass getMonetDBTableColumnClassID(void);
+jmethodID getMonetDBTableColumnConstructorID(void);
+jclass getMappingEnumID(void);
+jmethodID getGetEnumValueID(void);
+jfieldID getGetConnectionID(void);
+jfieldID getGetConnectionLongID(void);
+jfieldID getGetSchemaID(void);
+jfieldID getGetTableID(void);
+jfieldID getStructPointerID(void);
 
-jmethodID getBigDecimalToStringID();
-jmethodID getSetBigDecimalScaleID();
-jmethodID getDateToLongID();
-jmethodID getTimeToLongID();
-jmethodID getTimestampToLongID();
+jmethodID getBigDecimalToStringID(void);
+jmethodID getSetBigDecimalScaleID(void);
+jmethodID getDateToLongID(void);
+jmethodID getTimeToLongID(void);
+jmethodID getTimestampToLongID(void);
 
 #endif //SRC_JAVAIDS_H

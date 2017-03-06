@@ -38,7 +38,7 @@
 
 static const char* monetDB5LibraryPath = NULL;
 
-void freeMonetDB5LibraryPath() {
+void freeMonetDB5LibraryPath(void) {
 	GDKfree((void*) monetDB5LibraryPath);
 }
 

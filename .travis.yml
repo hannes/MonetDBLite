@@ -37,7 +37,6 @@ before_script:
     - export PATH=$GRADLE_HOME/bin:$PATH
 
 script:
-    - jdk_switcher use oraclejdk8
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./linux.sh ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then jdk_switcher use oraclejdk8 ; ./linux.sh ; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./macos.sh ; fi
 

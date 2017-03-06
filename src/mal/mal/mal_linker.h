@@ -24,7 +24,7 @@
 /* #define DEBUG_MAL_LINKER */
 #define MONET64 1
 
-mal_export void freeMonetDB5LibraryPath();
+mal_export void freeMonetDB5LibraryPath(void);
 mal_export void setMonetDB5LibraryPath(const char* path);
 
 mal_export MALfcn getAddress(stream *out, str filename, str fcnname,int silent);

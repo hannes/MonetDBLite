@@ -51,7 +51,7 @@ void getUpdateQueryData(void* conn, long* lastId, long* rowCount);
 int getAutocommitFlag(void* conn);
 
 void setMonetDB5LibraryPathEmbedded(const char* path);
-void freeMonetDB5LibraryPathEmbedded();
+void freeMonetDB5LibraryPathEmbedded(void);
 
 #endif
 /*
