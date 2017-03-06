@@ -138,6 +138,7 @@
  * with some hand munging afterward.  The data file is UnicodeData.txt
  * from http://www.unicode.org/.
  */
+
 struct UTF8_lower_upper {
 	unsigned int lower, upper;
 } UTF8_lower_upper[] = {
@@ -1498,55 +1499,6 @@ convertCase(BAT *from, BAT *to, str *res, const char *s, const char *malfunc)
  */
 #include "mal_exception.h"
 
-/*
- * The SQL like function return a boolean
- */
-static int
-STRlike(const char *s, const char *pat, const char *esc)
-{
-	const char *t, *p;
-
-	t = s;
-	for (p = pat; *p && *t; p++) {
-		if (esc && *p == *esc) {
-			p++;
-			if (*p != *t)
-				return FALSE;
-			t++;
-		} else if (*p == '_')
-			t++;
-		else if (*p == '%') {
-			p++;
-			while (*p == '%')
-				p++;
-			if (*p == 0)
-				return TRUE;	/* tail is acceptable */
-			for (; *p && *t; t++)
-				if (STRlike(t, p, esc))
-					return TRUE;
-			if (*p == 0 && *t == 0)
-				return TRUE;
-			return FALSE;
-		} else if (*p == *t)
-			t++;
-		else
-			return FALSE;
-	}
-	if (*p == '%' && *(p + 1) == 0)
-		return TRUE;
-	return *t == 0 && *p == 0;
-}
-
-str
-STRlikewrap(bit *ret, const str *s, const str *pat, const str *esc){
-	*ret = STRlike(*s,*pat,*esc);
-	return MAL_SUCCEED;
-}
-str
-STRlikewrap2(bit *ret, const str *s, const str *pat){
-	*ret = STRlike(*s,*pat,0);
-	return MAL_SUCCEED;
-}
 
 str
 STRtostr(str *res, const str *src)
@@ -2466,4 +2418,88 @@ str
 STRspace(str *ret, const int *l){
 	char buf[]= " ", *s= buf;
 	return STRrepeat(ret,&s,l);
+}
+
+
+bit STRlike(const char* const_pattern, const char* const_data, bit case_insensitive, char escape) {
+	BATiter toi = bat_iterator(UTF8_lowerBat);
+	BATiter fromi = bat_iterator(UTF8_upperBat);
+	BUN UTF8_CONV_r;
+	char *back_pat = 0, *back_str = back_str;
+	str pattern = (char*) const_pattern;
+	str data = (char*) const_data;
+	bit retval = 0;
+
+	(void) escape; // FIXME
+	if (case_insensitive) {
+		STRLower(&pattern, (const str*) &const_pattern);
+	}
+
+	for (;;) {
+		unsigned char *c = (unsigned char *) data++;
+		unsigned char *d = (unsigned char *) pattern++;
+		char sz_c = 0, sz_d = 0;
+		unsigned int cp_c = 0, cp_d = 0;
+
+		switch (*d) {
+		case '_':
+			if (*c == '\0') {
+				goto bailout;
+			}
+			UTF8_GETCHAR_SZ(cp_c, sz_c, c);
+			data += sz_c - 1;
+			break;
+		case '%':
+			if (*pattern == '\0') {
+				retval = 1;
+				goto bailout;
+			}
+			back_pat = pattern;
+			back_str = --data; /* Allow zero-length match */
+			break;
+/*        case '\\':
+			d = *pat++;
+			//FALLTHROUGH*/
+		default:        /* Literal character */
+			if (case_insensitive && *c != '\0') {
+				// get code points from strings
+				UTF8_GETCHAR_SZ(cp_c, sz_c, c);
+				UTF8_GETCHAR_SZ(cp_d, sz_d, d);
+
+				if (cp_c < 0x80) {
+					if ('A' <= cp_c && cp_c <= 'Z')
+						cp_c += 'a' - 'A';
+				} else {
+					HASHfnd_int(UTF8_CONV_r, fromi, &cp_c);
+					if (UTF8_CONV_r != BUN_NONE)
+						cp_c = *(int*) BUNtloc(toi, UTF8_CONV_r);
+				}
+				data += sz_c - 1;
+				pattern += sz_d - 1;
+				if (cp_c == cp_d) {
+					break;
+				}
+			} else {
+				if (*c == *d) {
+					if (*d == '\0') {
+						retval = 1;
+						goto bailout;
+					}
+					break;
+				}
+			}
+			if (*c == '\0' || !back_pat)
+				goto bailout;   /* No point continuing */
+			/* Try again from last *, one character later in str. */
+			pattern = back_pat;
+			data = ++back_str;
+			break;
+		}
+	}
+	bailout:
+	hashfnd_failed:
+	if (case_insensitive) {
+		GDKfree(pattern);
+	}
+	return retval;
 }
