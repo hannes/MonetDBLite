@@ -39,7 +39,9 @@
 static const char* monetDB5LibraryPath = NULL;
 
 void freeMonetDB5LibraryPath(void) {
-	GDKfree((void*) monetDB5LibraryPath);
+	if(monetDB5LibraryPath != NULL) {
+		GDKfree((void*) monetDB5LibraryPath);
+	}
 }
 
 void setMonetDB5LibraryPath(const char* path) {
