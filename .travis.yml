@@ -15,6 +15,15 @@ branches:
     only:
         - Dec2016Lite-Java
 
+before_cache:
+    - rm -f  $HOME/monetdb-java-lite/.gradle/caches/modules-2/modules-2.lock
+    - rm -fr $HOME/monetdb-java-lite/.gradle/caches/*/plugin-resolution/
+
+cache:
+    directories:
+        - $HOME/monetdb-java-lite/.gradle/caches/
+        - $HOME/monetdb-java-lite/.gradle/wrapper/
+
 matrix:
     include:
         - os: linux

@@ -33,7 +33,7 @@ sh ./bootstrap
 cd ../build
 
 # Prepare the compilation flags
-CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -D_XPG6" \
+CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -std=c99 -D_XPG6" \
 ../src/configure --config-cache --enable-embedded \
 $OPTFLAG --enable-silent-rules --disable-int128
 
