@@ -1092,7 +1092,7 @@ str
 strPrelude(void *ret)
 {
 	(void) ret;
-	if (UTF8_upperBat == NULL) {
+//	if (UTF8_upperBat == NULL) {
 		int i = UTF8_CONVERSIONS;
 
 		UTF8_upperBat = COLnew(0, TYPE_int, UTF8_CONVERSIONS, TRANSIENT);
@@ -1110,7 +1110,7 @@ strPrelude(void *ret)
 		}
 		BATname(UTF8_upperBat, "monet_unicode_toupper");
 		BATname(UTF8_lowerBat, "monet_unicode_tolower");
-	}
+	//}
 	return NULL;
 }
 
@@ -2427,12 +2427,14 @@ bit STRlike(const char* const_pattern, const char* const_data, bit case_insensit
 	BUN UTF8_CONV_r;
 	char *back_pat = 0, *back_str = back_str;
 	str pattern = (char*) const_pattern;
+	str pattern_start = NULL;
 	str data = (char*) const_data;
 	bit retval = 0;
 
 	(void) escape; // FIXME
 	if (case_insensitive) {
 		STRLower(&pattern, (const str*) &const_pattern);
+		pattern_start = pattern;
 	}
 
 	for (;;) {
@@ -2499,7 +2501,7 @@ bit STRlike(const char* const_pattern, const char* const_data, bit case_insensit
 	bailout:
 	hashfnd_failed:
 	if (case_insensitive) {
-		GDKfree(pattern);
+		GDKfree(pattern_start);
 	}
 	return retval;
 }

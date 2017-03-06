@@ -170,8 +170,74 @@ test_that("transactions are on ACID", {
 	dbRemoveTable(con, tname)
 })
 
+
 test_that("LIKE queries work", {
-	expect_equal(1, NROW(dbGetQuery(con, "select id from tables where name like '%sche_as%' limit 1")))
+	# if the string module does not restart correctly this will fail
+	expect_equal(dbGetQuery(con, "SELECT UPPER('mühleisen') as a")$a, "MÜHLEISEN")
+
+	like_match <- function(pattern, data, case_insensitive) {
+		dbBegin(con)
+		dbWriteTable(con, "borat", data.frame(a=data), transaction=F)
+		if (!case_insensitive) 
+			res <- dbGetQuery(con, paste0("SELECT a FROM borat WHERE a LIKE '",pattern,"'"))
+		else 
+			res <- dbGetQuery(con, paste0("SELECT a FROM borat WHERE a ILIKE '",pattern,"'"))
+		dbRollback(con)
+		return(nrow(res) == 1)
+	}
+
+	expect_true(like_match("%", "", 0))
+	expect_true(like_match("%", "asdf", 0))
+	expect_true(like_match("a%f", "asdf", 0))
+	expect_true(like_match("asd%", "asdf", 0))
+	expect_true(like_match("as%", "asdf", 0))
+	expect_true(like_match("%sdf", "asdf", 0))
+	expect_true(like_match("%df", "asdf", 0))
+	expect_true(like_match("a%f%k", "asdfghjk", 0))
+	expect_true(like_match("%s%g%", "asdfghjk", 0))
+	expect_true(like_match("%a%a%a%a%a%a%a%a%a%a%b", "aaaaaaaaaab", 0))
+
+	expect_true(!like_match("t%", "asdf", 0))
+	expect_true(!like_match("%t", "asdf", 0))
+	expect_true(!like_match("y%t", "asdf", 0))
+
+	expect_true(like_match("____", "asdf", 0))
+	expect_true(like_match("as_f", "asdf", 0))
+	expect_true(like_match("a__f", "asdf", 0))
+	expect_true(like_match("_sd_", "asdf", 0))
+	expect_true(like_match("a__fg__k", "asdfghjk", 0))
+	expect_true(like_match("_sd_g_j_", "asdfghjk", 0))
+
+	expect_true(!like_match("_", "", 0))
+	expect_true(!like_match("___", "asdf", 0))
+	expect_true(!like_match("_____", "asdf", 0))
+	expect_true(!like_match("fd_a", "asdf", 0))
+
+	expect_true(like_match("M\xC3\x9Chleisen", "M\xC3\x9Chleisen", 0))
+	expect_true(like_match("M%hleisen", "M\xC3\x9Chleisen", 0))
+	expect_true(like_match("M%", "M\xC3\x9C", 0))
+	expect_true(like_match("M__", "M\xC3\x9Ch", 0))
+	expect_true(like_match("M_hleisen", "M\xC3\x9Chleisen", 0))
+
+	expect_true(like_match("duck_quacks", "duck\xF0\x9F\xA6\x86quacks", 0))
+	expect_true(like_match("duck%quacks", "duck\xF0\x9F\xA6\x86quacks", 0))
+	expect_true(like_match("___", "\xF0\x9F\xA6\x86\xF0\x9F\xA6\x86\xF0\x9F\xA6\x86", 0))
+
+	expect_true(like_match("ASDF", "asdf", 1))
+	expect_true(like_match("asdf", "asdf", 1))
+	expect_true(like_match("asdf", "ASDF", 1))
+	expect_true(like_match("ASDF", "ASDF", 1))
+
+	expect_true(!like_match("ASDF", "asdf", 0))
+	expect_true(like_match("asdf", "asdf", 0))
+	expect_true(!like_match("asdf", "ASDF", 0))
+	expect_true(like_match("ASDF", "ASDF", 0))
+
+	expect_true(like_match("M\xC3\xBCHLEISEN", "m\xC3\x9Chleisen", 1))
+	expect_true(like_match("m\xC3\x9Chleisen", "M\xC3\xBCHLEISEN", 1))
+	expect_true(like_match("\xF0\x9F\xA6\x86\xF0\x9F\xA6\x86\xF0\x9F\xA6\x86", 
+	    "\xF0\x9F\xA6\x86\xF0\x9F\xA6\x86\xF0\x9F\xA6\x86", 1))
+	
 })
 
 test_that("strings can have exotic characters", {
