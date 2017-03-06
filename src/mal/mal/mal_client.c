@@ -425,7 +425,7 @@ MCstopClients(Client cntxt)
 	Client c = mal_clients;
 	MT_lock_set(&mal_contextLock);
 	for (c = mal_clients + 1; c < mal_clients + MAL_MAXCLIENTS; c++) {
-		if (cntxt != c){
+		if (c && cntxt != c) {
 			if (c->mode == RUNCLIENT){
 				c->mode = FINISHCLIENT;
 			}

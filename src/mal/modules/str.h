@@ -44,8 +44,6 @@ mal_export str STRSubstitute(str *res, const str *arg1, const str *arg2, const s
 
 mal_export str STRsubstringTail(str *ret, const str *s, const int *start);
 mal_export str STRsubstring(str *ret, const str *s, const int *start, const int *l);
-mal_export str STRlikewrap2(bit *ret, const str *s, const str *pat);
-mal_export str STRlikewrap(bit *ret, const str *s, const str *pat, const str *esc);
 mal_export str STRascii(int *ret, const str *s);
 mal_export str STRprefix(str *ret, const str *s, const int *l);
 mal_export str STRsuffix(str *ret, const str *s, const int *l);
@@ -55,5 +53,7 @@ mal_export str STRinsert(str *ret, const str *s, const int *start, const int *l,
 mal_export str STRreplace(str *ret, const str *s1, const str *s2, const str *s3);
 mal_export str STRrepeat(str *ret, const str *s, const int *c);
 mal_export str STRspace(str *ret, const int *l);
+
+mal_export bit STRlike(const char *const_pattern, const char *const_data, bit case_insensitive, char escape);
 
 #endif /* __string_H__ */

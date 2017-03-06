@@ -108,13 +108,6 @@ comment "Substitute first occurrence of 'src' by
 	size, repeating is only done iff src is
 	not a substring of dst.";
 
-command like(s:str,pat:str):bit
-address STRlikewrap2
-comment "SQL pattern match function";
-command like(s:str,pat:str,esc:str):bit
-address STRlikewrap
-comment "SQL pattern match function";
-
 command ascii(s:str):int
 address STRascii
 comment "Return unicode of head of string";
