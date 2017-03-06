@@ -15,12 +15,12 @@
 
 /* --  Get just a single value -- */
 
-jbyte getTinyintSingle(JNIEnv* env, jint position, BAT* b);
-jshort getSmallintSingle(JNIEnv* env, jint position, BAT* b);
-jint getIntSingle(JNIEnv* env, jint position, BAT* b);
-jlong getBigintSingle(JNIEnv* env, jint position, BAT* b);
-jfloat getRealSingle(JNIEnv* env, jint position, BAT* b);
-jdouble getDoubleSingle(JNIEnv* env, jint position, BAT* b);
+jbyte getTinyintSingle(jint position, BAT* b);
+jshort getSmallintSingle(jint position, BAT* b);
+jint getIntSingle(jint position, BAT* b);
+jlong getBigintSingle(jint position, BAT* b);
+jfloat getRealSingle(jint position, BAT* b);
+jdouble getDoubleSingle(jint position, BAT* b);
 
 jobject getDateSingle(JNIEnv* env, jint position, BAT* b);
 jobject getTimeSingle(JNIEnv* env, jint position, BAT* b);

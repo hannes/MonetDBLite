@@ -29,14 +29,16 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     res_table *output = (res_table *) resultSetPointer;
     int numberOfColumns = (*env)->GetArrayLength(env, columnNames);
     jint* columnLengthsFound = GDKmalloc(numberOfColumns * sizeof(jint));
+    res_col col;
+    jstring colname, sqlname, tablename;
     (void) jdbccon;
 
     for (int i = 0; i < numberOfColumns; i++) {
-        res_col col = output->cols[i];
+        col = output->cols[i];
         columnLengthsFound[i] = col.type.digits;
-        jstring colname = (*env)->NewStringUTF(env, col.name);
-        jstring sqlname = (*env)->NewStringUTF(env, col.type.type->sqlname);
-        jstring tablename = (*env)->NewStringUTF(env, col.tn);
+        colname = (*env)->NewStringUTF(env, col.name);
+        sqlname = (*env)->NewStringUTF(env, col.type.type->sqlname);
+        tablename = (*env)->NewStringUTF(env, col.tn);
         (*env)->SetObjectArrayElement(env, columnNames, i, colname);
         (*env)->SetObjectArrayElement(env, types, i, sqlname);
         (*env)->SetObjectArrayElement(env, tableNames, i, tablename);
@@ -51,9 +53,9 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_initializePointersInternal
     (JNIEnv *env, jobject jdbccon, jlong lastResultSetPointer, jobject embeddedDataBlockResponse) {
-    (void) jdbccon;
     res_table* output = (res_table*) lastResultSetPointer;
     JResultSet* thisResultSet = createResultSet(output);
+    (void) jdbccon;
     (*env)->SetLongField(env, embeddedDataBlockResponse, getStructPointerID(), (jlong) thisResultSet);
 }
 
@@ -66,6 +68,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     char *err = NULL;
     res_table *output = NULL;
     BAT* dearBat;
+    jintArray lineResponse, lastServerResponseParameters;
 
     // Execute the query
     err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
@@ -103,7 +106,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
             //set the other headers
             nextResponses[lineResponseCounter++] = 2; //HEADER
             //IMPORTANT Due to the Embedded architecture, we can skip the RESULT header in the response
-            jintArray lastServerResponseParameters = (jintArray) (*env)->GetObjectField(env, jdbccon, getLastServerResponseParametersID());
+            lastServerResponseParameters = (jintArray) (*env)->GetObjectField(env, jdbccon, getLastServerResponseParametersID());
             (*env)->SetIntArrayRegion(env, lastServerResponseParameters, 0, 3, responseParameters);
             break;
         case 2: //UPDATE
@@ -117,7 +120,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     }
     nextResponses[lineResponseCounter++] = 4; //PROMPT
     //set the line response headers
-    jintArray lineResponse = (jintArray) (*env)->GetObjectField(env, jdbccon, getServerResponsesID());
+    lineResponse = (jintArray) (*env)->GetObjectField(env, jdbccon, getServerResponsesID());
     (*env)->SetIntArrayRegion(env, lineResponse, 0, lineResponseCounter, nextResponses);
 
     if(query_type != 1 && query_type != 5) { //if the result is not a table or a prepare, delete it right away

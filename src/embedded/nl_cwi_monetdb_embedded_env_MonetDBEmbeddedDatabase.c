@@ -15,22 +15,27 @@
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_StartDatabaseInternal
     (JNIEnv *env, jclass monetDBEmbeddedDatabase, jstring dbDirectory, jboolean silentFlag, jboolean sequentialFlag) {
     const char *dbdir_string_tmp = (*env)->GetStringUTFChars(env, dbDirectory, NULL);
+    const char *loadPath_tmp;
+    char *err;
+    jclass exceptionCls, loaderCls;
+    jfieldID pathID;
+    jstring loadPath;
 
     if(!monetdb_is_initialized()) {
         //initialize the java ID fields for faster Java data loading later on
         initializeIDS(env);
 
         //because of the dlopen stuff, this step has to be done before the monetdb_startup call
-        jclass loaderCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBJavaLiteLoader");
-        jfieldID pathID = (*env)->GetStaticFieldID(env, loaderCls, "LoadedLibraryFullPath", "Ljava/lang/String;");
-        jstring loadPath = (jstring) (*env)->GetStaticObjectField(env, loaderCls, pathID);
-        const char* loadPath_tmp = (*env)->GetStringUTFChars(env, loadPath, NULL);
+        loaderCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBJavaLiteLoader");
+        pathID = (*env)->GetStaticFieldID(env, loaderCls, "LoadedLibraryFullPath", "Ljava/lang/String;");
+        loadPath = (jstring) (*env)->GetStaticObjectField(env, loaderCls, pathID);
+        loadPath_tmp = (*env)->GetStringUTFChars(env, loadPath, NULL);
         setMonetDB5LibraryPathEmbedded(loadPath_tmp);
         (*env)->ReleaseStringUTFChars(env, loadPath, loadPath_tmp);
         (*env)->DeleteLocalRef(env, loaderCls);
         (*env)->DeleteLocalRef(env, loadPath);
 
-        char *err = monetdb_startup((char*) dbdir_string_tmp, (char) silentFlag, (char) sequentialFlag);
+        err = monetdb_startup((char*) dbdir_string_tmp, (char) silentFlag, (char) sequentialFlag);
         (*env)->ReleaseStringUTFChars(env, dbDirectory, dbdir_string_tmp);
         if (err != NULL) {
             (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
@@ -39,7 +44,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDataba
         }
         return (*env)->NewObject(env, monetDBEmbeddedDatabase, getMonetDBEmbeddedDatabaseConstructorID(), dbDirectory, silentFlag, sequentialFlag);
     } else {
-        jclass exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
+        exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
         (*env)->ThrowNew(env, exceptionCls, "Only one MonetDB Embedded database is allowed per process!");
         (*env)->DeleteLocalRef(env, exceptionCls);
         return NULL;
@@ -48,6 +53,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDataba
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_stopDatabaseInternal
     (JNIEnv *env, jobject database) {
+    jclass exceptionCls;
     (void) env;
     (void) database;
 
@@ -58,7 +64,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_
         freeMonetDB5LibraryPathEmbedded();
         monetdb_shutdown();
     } else {
-        jclass exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
+        exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
         (*env)->ThrowNew(env, exceptionCls, "The MonetDB Embedded database is not running!");
         (*env)->DeleteLocalRef(env, exceptionCls);
     }
@@ -67,6 +73,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_createConnectionInternal
     (JNIEnv *env, jobject database) {
     jlong conn;
+    jclass exceptionCls;
     (void) database;
 
     if(monetdb_is_initialized()) {
@@ -77,7 +84,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDataba
         }
         return (*env)->NewObject(env, getMonetDBEmbeddedConnectionClassID(), getMonetDBEmbeddedConnectionConstructorID(), conn);
     } else {
-        jclass exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
+        exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
         (*env)->ThrowNew(env, exceptionCls, "The MonetDB Embedded database is not running!");
         (*env)->DeleteLocalRef(env, exceptionCls);
         return NULL;
@@ -87,6 +94,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDataba
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_createJDBCEmbeddedConnectionInternal
     (JNIEnv *env, jobject database) {
     jlong conn;
+    jclass exceptionCls;
     (void) database;
 
     if(monetdb_is_initialized()) {
@@ -97,7 +105,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDataba
         }
         return (*env)->NewObject(env, getJDBCEmbeddedConnectionClassID(), getJDBCDBEmbeddedConnectionConstructorID(), conn);
     } else {
-        jclass exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
+        exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
         (*env)->ThrowNew(env, exceptionCls, "The MonetDB Embedded database is not running!");
         (*env)->DeleteLocalRef(env, exceptionCls);
         return NULL;

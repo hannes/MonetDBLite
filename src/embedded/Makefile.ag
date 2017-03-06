@@ -19,7 +19,6 @@ MTSAFE
 
 INCLUDES = ../mal/mal \
 		   ../mal/modules \
-		   ../mal/extras/rapi \
 		   ../gdk \
 		   ../common/stream \
 		   ../common/utils \
@@ -30,8 +29,8 @@ INCLUDES = ../mal/mal \
 		   ../sql/storage \
 		   ../sql/storage/bat \
 		   ../sql/backends/monet5 \
-			./incjni \
-			$(pcre_CFLAGS)
+		   ./incjni \
+		   $(pcre_CFLAGS)
 
 lib_embedded  = {
 	SOURCES = embedded.c embedded.h
@@ -44,7 +43,7 @@ lib_embedded  = {
 lib_embeddedjava  = {
 	SOURCES = javaids.c javaids.h \
 			converters.c converters.h \
-                        checknulls.c checknulls.h \
+			checknulls.c checknulls.h \
 			jresultset.c jresulset.h \
 			nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase.c nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase.h \
 			nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection.c nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection.h \

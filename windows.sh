@@ -20,7 +20,7 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	ADD_CFLAGS="-O0 -g -m64"
 fi
 
-# Remove previous instalations data
+# Remove previous installation data
 rm -rf monetdb-java-lite/build
 rm -f monetdb-java-lite/src/main/resources/libs/windows/*
 
@@ -75,4 +75,3 @@ cd monetdb-java-lite
 gradle build
 
 cd $PREVDIRECTORY
-

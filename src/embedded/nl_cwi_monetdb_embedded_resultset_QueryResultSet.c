@@ -50,6 +50,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_get
     JResultSet* thisResultSet = (JResultSet*) structPointer;
     res_table *output = thisResultSet->output;
     jint numberOfColumns = output->nr_cols;
+    (void) queryResultSet;
 
     for (int i = 0; i < numberOfColumns; i++) {
         res_col col = output->cols[i];
@@ -93,74 +94,91 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_get
     GDKfree(fscales);
 }
 
-#define THIS_IS_ANNOYING(TYPE_FUNCTION_CALL) \
-    (void) queryResultSet; \
+#define THIS_IS_ANNOYING \
     JResultSet* thisResultSet = (JResultSet*) structPointer; \
     BAT* dearBat = thisResultSet->bats[column]; \
+    (void) queryResultSet;
+
+#define THIS_IS_ANNOYING_LEVEL_ONE(TYPE_FUNCTION_CALL) \
+    (void) env; \
+    return get##TYPE_FUNCTION_CALL##Single(row, dearBat);
+
+#define THIS_IS_ANNOYING_LEVEL_TWO(TYPE_FUNCTION_CALL) \
     return get##TYPE_FUNCTION_CALL##Single(env, row, dearBat);
 
 JNIEXPORT jbyte JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getByteByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    THIS_IS_ANNOYING(Tinyint)
+    THIS_IS_ANNOYING
+    THIS_IS_ANNOYING_LEVEL_ONE(Tinyint)
 }
 
 JNIEXPORT jshort JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getShortByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    THIS_IS_ANNOYING(Smallint)
+    THIS_IS_ANNOYING
+    THIS_IS_ANNOYING_LEVEL_ONE(Smallint)
 }
 
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getIntegerByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    THIS_IS_ANNOYING(Int)
+    THIS_IS_ANNOYING
+    THIS_IS_ANNOYING_LEVEL_ONE(Int)
 }
 
 JNIEXPORT jlong JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getLongByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    THIS_IS_ANNOYING(Bigint)
+    THIS_IS_ANNOYING
+    THIS_IS_ANNOYING_LEVEL_ONE(Bigint)
 }
 
 JNIEXPORT jfloat JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getFloatByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    THIS_IS_ANNOYING(Real)
+    THIS_IS_ANNOYING
+    THIS_IS_ANNOYING_LEVEL_ONE(Real)
 }
 
 JNIEXPORT jdouble JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getDoubleByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    THIS_IS_ANNOYING(Double)
+    THIS_IS_ANNOYING
+    THIS_IS_ANNOYING_LEVEL_ONE(Double)
 }
 
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getStringByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    THIS_IS_ANNOYING(String)
+    THIS_IS_ANNOYING
+    THIS_IS_ANNOYING_LEVEL_TWO(String)
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getDateByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    THIS_IS_ANNOYING(Date)
+    THIS_IS_ANNOYING
+    THIS_IS_ANNOYING_LEVEL_TWO(Date)
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getTimestampByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    THIS_IS_ANNOYING(Timestamp)
+    THIS_IS_ANNOYING
+    THIS_IS_ANNOYING_LEVEL_TWO(Timestamp)
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getTimeByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    THIS_IS_ANNOYING(Time)
+    THIS_IS_ANNOYING
+    THIS_IS_ANNOYING_LEVEL_TWO(Time)
 }
 
 JNIEXPORT jbyteArray JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getBlobByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    THIS_IS_ANNOYING(Blob)
+    THIS_IS_ANNOYING
+    THIS_IS_ANNOYING_LEVEL_TWO(Blob)
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getDecimalByColumnAndRowInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint row) {
-    (void) queryResultSet; //Decimals!
     JResultSet* thisResultSet = (JResultSet*) structPointer;
     BAT* dearBat = thisResultSet->bats[column];
     int digits = thisResultSet->digits[column];
     int scale = thisResultSet->scales[column];
+    (void) queryResultSet; //Decimals!
 
     if(digits <= 2) {
         return getDecimalbteSingle(env, row, dearBat, scale);
@@ -174,9 +192,9 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_
 }
 
 #define ANOTHER_ANNOYING_TASK(TYPE_FUNCTION_CALL) \
-    (void) queryResultSet; \
     JResultSet* thisResultSet = (JResultSet*) structPointer; \
     BAT* dearBat = thisResultSet->bats[column]; \
+    (void) queryResultSet; \
     get##TYPE_FUNCTION_CALL##Column(env, result, offset, length, dearBat);
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getBooleanColumnByIndexInternal
@@ -255,18 +273,18 @@ static void getDecimalColumn(JNIEnv *env, JResultSet* thisResultSet, jint column
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getDecimalColumnByIndexInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jobjectArray result, jint offset, jint length) {
-    (void) queryResultSet; //Decimals!
     JResultSet* thisResultSet = (JResultSet*) structPointer;
     BAT* dearBat = thisResultSet->bats[column];
+    (void) queryResultSet; //Decimals!
     getDecimalColumn(env, thisResultSet, column, result, offset, length, dearBat);
 }
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_getColumnNullMappingsByIndexInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint typeID, jbooleanArray result) {
-    (void) queryResultSet;
     JResultSet* thisResultSet = (JResultSet*) structPointer;
     BAT* dearBat = thisResultSet->bats[column];
-    int numberOfRows = BATcount(dearBat), digits, scale;
+    int numberOfRows = BATcount(dearBat), digits = thisResultSet->digits[column];
+    (void) queryResultSet;
 
     //I could use function pointers, but there is too much variety
     switch(typeID) {
@@ -307,8 +325,6 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_get
             checkBlobNulls(env, result, numberOfRows, dearBat);
             break;
         case 13:
-            digits = thisResultSet->digits[column];
-            scale = thisResultSet->scales[column];
             if(digits <= 2) {
                 checkTinyintNulls(env, result, numberOfRows, dearBat);
             } else if(digits > 2 && digits <= 4) {
@@ -326,10 +342,10 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_get
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_mapColumnToObjectByIndexInternal
     (JNIEnv *env, jobject queryResultSet, jlong structPointer, jint column, jint typeID, jobjectArray result) {
-    (void) queryResultSet;
     JResultSet* thisResultSet = (JResultSet*) structPointer;
     BAT* dearBat = thisResultSet->bats[column];
     int numberOfRows = BATcount(dearBat);
+    (void) queryResultSet;
 
     //I could use function pointers, but there is too much variety
     switch(typeID) {
@@ -379,9 +395,8 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_map
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_freeResultSet
     (JNIEnv *env, jobject queryResultSet, jlong structPointer) {
+    JResultSet* thisResultSet = (JResultSet*) structPointer;
     (void) env;
     (void) queryResultSet;
-
-    JResultSet* thisResultSet = (JResultSet*) structPointer;
     freeResultSet(thisResultSet);
 }

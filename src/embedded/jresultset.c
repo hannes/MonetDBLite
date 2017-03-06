@@ -15,18 +15,20 @@
 
 JResultSet* createResultSet(res_table* output) {
     JResultSet* thisResultSet = (JResultSet*) GDKmalloc(sizeof(JResultSet));
-    int numberOfColumns = output->nr_cols;
+    int numberOfColumns = output->nr_cols, *quickerDigits, *quickerScales, i;
+    BAT** dearBats;
+    res_col col;
 
     thisResultSet->output = output;
     thisResultSet->bats = (BAT**) GDKmalloc(sizeof(BAT*) * numberOfColumns);
     thisResultSet->digits = (int*) GDKmalloc(sizeof(int) * numberOfColumns);
     thisResultSet->scales = (int*) GDKmalloc(sizeof(int) * numberOfColumns);
-    BAT** dearBats = thisResultSet->bats;
-    int* quickerDigits = thisResultSet->digits;
-    int* quickerScales = thisResultSet->scales;
+    dearBats = thisResultSet->bats;
+    quickerDigits = thisResultSet->digits;
+    quickerScales = thisResultSet->scales;
 
-    for (int i = 0; i < numberOfColumns; i++) {
-        res_col col = output->cols[i];
+    for (i = 0; i < numberOfColumns; i++) {
+        col = output->cols[i];
         dearBats[i] = BATdescriptor(col.b);
         quickerDigits[i] = (int) col.type.digits;
         quickerScales[i] = (int) col.type.scale;
@@ -35,9 +37,10 @@ JResultSet* createResultSet(res_table* output) {
 }
 
 void freeResultSet(JResultSet* thisResultSet) {
-    int numberOfColumns = thisResultSet->output->nr_cols;
+    int numberOfColumns = thisResultSet->output->nr_cols, i;
     BAT** dearBats = thisResultSet->bats;
-    for (int i = 0; i < numberOfColumns; i++) {
+
+    for (i = 0; i < numberOfColumns; i++) {
         BBPunfix(dearBats[i]->batCacheid);
     }
     GDKfree(dearBats);

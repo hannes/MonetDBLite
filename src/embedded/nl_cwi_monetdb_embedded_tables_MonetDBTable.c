@@ -17,14 +17,13 @@
 
 static char* loadTable(JNIEnv *env, jobject monetDBTable, sql_table** table, int *ncols, jlong* connectionPointer) {
     char* err = NULL;
-
     jobject connection = (*env)->GetObjectField(env, monetDBTable, getGetConnectionID());
-    *connectionPointer = (*env)->GetLongField(env, connection, getGetConnectionLongID());
     jstring schemaName = (*env)->GetObjectField(env, monetDBTable, getGetSchemaID());
     jstring tableName = (*env)->GetObjectField(env, monetDBTable, getGetTableID());
-
     const char *schema = (*env)->GetStringUTFChars(env, schemaName, NULL);
     const char *name = (*env)->GetStringUTFChars(env, tableName, NULL);
+
+    *connectionPointer = (*env)->GetLongField(env, connection, getGetConnectionLongID());
     err = monetdb_find_table((void*) (*connectionPointer), table, schema, name);
     if (!err) {
         *ncols = (*table)->columns.set->cnt;
@@ -43,7 +42,10 @@ static char* loadTable(JNIEnv *env, jobject monetDBTable, sql_table** table, int
     sql_table* tableData; \
     int ncols; \
     jlong connectionPointer; \
-    char* err = loadTable(env, monetDBTable, &tableData, &ncols, &connectionPointer); \
+    node *n; \
+    char* err = loadTable(env, monetDBTable, &tableData, &ncols, &connectionPointer);
+
+#define AFTERLOAD \
     if (err) { \
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err); \
         GDKfree(err); \
@@ -52,7 +54,9 @@ static char* loadTable(JNIEnv *env, jobject monetDBTable, sql_table** table, int
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getNumberOfColumns
     (JNIEnv *env, jobject monetDBTable) {
     LOADTABLEDATA
+    AFTERLOAD
 
+    (void) n;
     if((*env)->ExceptionCheck(env) == JNI_TRUE) {
         return 0;
     } else {
@@ -63,8 +67,8 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getNumbe
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColumnNamesInternal
     (JNIEnv *env, jobject monetDBTable, jobjectArray result) {
     LOADTABLEDATA
+    AFTERLOAD
 
-    node *n;
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
         jstring colname = (*env)->NewStringUTF(env, col->base.name);
@@ -76,8 +80,8 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColum
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColumnTypesInternal
     (JNIEnv *env, jobject monetDBTable, jobjectArray result) {
     LOADTABLEDATA
+    AFTERLOAD
 
-    node *n;
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
         jstring coltype = (*env)->NewStringUTF(env, col->type.type->sqlname);
@@ -89,8 +93,8 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColum
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getMappingsInternal
     (JNIEnv *env, jobject monetDBTable, jobjectArray result) {
     LOADTABLEDATA
+    AFTERLOAD
 
-    node *n;
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
         jobject next = (*env)->CallStaticObjectMethod(env, getMappingEnumID(), getGetEnumValueID(), (*env)->NewStringUTF(env, col->type.type->sqlname));
@@ -102,9 +106,10 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getMappi
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColumnDigitsInternal
     (JNIEnv *env, jobject monetDBTable, jintArray result) {
     LOADTABLEDATA
+    jint* fdigits;
+    AFTERLOAD
+    fdigits = GDKmalloc(ncols * sizeof(jint));
 
-    node *n;
-    jint* fdigits = GDKmalloc(ncols * sizeof(jint));
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
         fdigits[col->colnr] = col->type.digits;
@@ -116,9 +121,10 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColum
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColumnScalesInternal
     (JNIEnv *env, jobject monetDBTable, jintArray result) {
     LOADTABLEDATA
+    jint* fscales;
+    AFTERLOAD
+    fscales = GDKmalloc(ncols * sizeof(jint));
 
-    node *n;
-    jint* fscales = GDKmalloc(ncols * sizeof(jint));
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
         fscales[col->colnr] = col->type.scale;
@@ -130,9 +136,10 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColum
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColumnNullableIndexesInternal
     (JNIEnv *env, jobject monetDBTable, jbooleanArray result) {
     LOADTABLEDATA
+    jboolean* fnulls;
+    AFTERLOAD
+    fnulls = GDKmalloc(ncols * sizeof(jboolean));
 
-    node *n;
-    jboolean* fnulls = GDKmalloc(ncols * sizeof(jboolean));
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
         fnulls[col->colnr] = (jboolean) col->null;
@@ -144,8 +151,8 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColum
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColumnDefaultValuesInternal
     (JNIEnv *env, jobject monetDBTable, jobjectArray result) {
     LOADTABLEDATA
+    AFTERLOAD
 
-    node *n;
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
         jstring defaultValue = (*env)->NewStringUTF(env, col->def); 
@@ -168,9 +175,9 @@ static jobject getColumnData(JNIEnv *env, sql_column *col) {
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColumnMetadataByIndex
     (JNIEnv *env, jobject monetDBTable, jint index) {
     LOADTABLEDATA
-
-    node *n;
     jobject res = NULL;
+    AFTERLOAD
+
     index--;
     if(index > -1 && index < ncols) {
         for (n = tableData->columns.set->h; n; n = n->next) {
@@ -187,10 +194,11 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getCo
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getColumnMetadataByName
     (JNIEnv *env, jobject monetDBTable, jstring colname) {
     LOADTABLEDATA
-
-    const char *col_name_tmp = (*env)->GetStringUTFChars(env, colname, NULL);
-    node *n;
     jobject res = NULL;
+    const char *col_name_tmp;
+    AFTERLOAD
+    col_name_tmp = (*env)->GetStringUTFChars(env, colname, NULL);
+
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
         if(!strcmp(col_name_tmp, col->base.name)) {
@@ -205,9 +213,10 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getCo
 JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_getAllColumnsMetadata
     (JNIEnv *env, jobject monetDBTable) {
     LOADTABLEDATA
+    jobjectArray result;
+    AFTERLOAD
+    result = (*env)->NewObjectArray(env, ncols, getMonetDBTableColumnClassID(), NULL);
 
-    node *n;
-    jobjectArray result = (*env)->NewObjectArray(env, ncols, getMonetDBTableColumnClassID(), NULL);
     for (n = tableData->columns.set->h; n; n = n->next) {
         sql_column *col = n->data;
         jobject newColumn = getColumnData(env, col);
@@ -231,27 +240,37 @@ static char* generateWrongArrayErrorMessage(int index, const char* arrayClass) {
 
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_appendColumnsInternal
     (JNIEnv *env, jobject monetDBTable, jobjectArray columnData, jintArray javaIndexes, jint roundingMode) {
-    node *n;
-
     LOADTABLEDATA
+
+    jint *jindexes;
+    append_data* newdata;
+    jsize numberOfRows, nextSize;
+    sql_column *col;
+    int nextMonetDBIndex, nextColumnIndex;
+    jint nextJavaIndex;
+    BAT* nextBAT;
+    jobject nextArray;
+
+    AFTERLOAD
+
     if((*env)->ExceptionCheck(env) == JNI_TRUE) {
         return 0;
     }
 
-    jint *jindexes = (*env)->GetIntArrayElements(env, javaIndexes, NULL);
-    append_data* newdata = GDKmalloc(ncols * sizeof(append_data));
-    jsize numberOfRows = (*env)->GetArrayLength(env, (*env)->GetObjectArrayElement(env, columnData, 0));
+    jindexes = (*env)->GetIntArrayElements(env, javaIndexes, NULL);
+    newdata = GDKmalloc(ncols * sizeof(append_data));
+    numberOfRows = (*env)->GetArrayLength(env, (*env)->GetObjectArrayElement(env, columnData, 0));
 
     for (n = tableData->columns.set->h; n; n = n->next) {
-        sql_column *col = n->data;
-        int nextMonetDBIndex = col->type.type->localtype;
-        int nextColumnIndex = col->colnr;
-        jint nextJavaIndex = jindexes[nextColumnIndex];
+        col = n->data;
+        nextMonetDBIndex = col->type.type->localtype;
+        nextColumnIndex = col->colnr;
+        nextJavaIndex = jindexes[nextColumnIndex];
         newdata[nextColumnIndex].colname = col->base.name;
 
-        BAT* nextBAT = NULL;
-        jobject nextArray = (*env)->GetObjectArrayElement(env, columnData, nextColumnIndex);
-        jsize nextSize = (*env)->GetArrayLength(env, nextArray);
+        nextBAT = NULL;
+        nextArray = (*env)->GetObjectArrayElement(env, columnData, nextColumnIndex);
+        nextSize = (*env)->GetArrayLength(env, nextArray);
         if(nextSize != numberOfRows) {
            err = GDKstrdup("The row sizes between the columns are not consistent!");
            break;

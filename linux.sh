@@ -15,7 +15,7 @@ if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	LINKFLAG="-g"
 fi
 
-# Remove previous instalations data
+# Remove previous installation data
 rm -rf build
 rm -rf monetdb-java-lite/build
 
@@ -60,4 +60,3 @@ cd monetdb-java-lite
 gradle build
 
 cd $PREVDIRECTORY
-

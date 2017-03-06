@@ -107,7 +107,9 @@ void initializeIDS(JNIEnv *env) {
     /* Embedded database environment Classes */
 
     jobject tempLocalRef;
-    jclass monetDBEmbeddedDatabaseClass = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedDatabase");
+    jclass embeddedDataBlockResponseClass, monetDBEmbeddedDatabaseClass, tableClass;
+
+    monetDBEmbeddedDatabaseClass = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedDatabase");
 
     // private MonetDBEmbeddedDatabase(String dbDirectory, boolean silentFlag, boolean sequentialFlag)
     monetDBEmbeddedDatabaseConstructorID = (*env)->GetMethodID(env, monetDBEmbeddedDatabaseClass, "<init>", "(Ljava/lang/String;ZZ)V");
@@ -284,7 +286,7 @@ void initializeIDS(JNIEnv *env) {
     lastServerResponseParametersID = (*env)->GetFieldID(env, jDBCEmbeddedConnectionClassID, "lastServerResponseParameters", "[I");
     lastServerResponseID = (*env)->GetFieldID(env, jDBCEmbeddedConnectionClassID, "lastServerResponse", "Lnl/cwi/monetdb/mcl/responses/IResponse;");
 
-    jclass embeddedDataBlockResponseClass = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/jdbc/EmbeddedDataBlockResponse");
+    embeddedDataBlockResponseClass = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/jdbc/EmbeddedDataBlockResponse");
     structPointerID = (*env)->GetFieldID(env, embeddedDataBlockResponseClass, "structPointer", "J");
     (*env)->DeleteLocalRef(env, (jobject) embeddedDataBlockResponseClass);
 
@@ -312,7 +314,7 @@ void initializeIDS(JNIEnv *env) {
     (*env)->DeleteLocalRef(env, tempLocalRef);
 
     getEnumValueID = (*env)->GetStaticMethodID(env, mappingEnumID, "GetJavaMappingFromMonetDBString", "(Ljava/lang/String;)Lnl/cwi/monetdb/embedded/mapping/MonetDBToJavaMapping;");
-    jclass tableClass = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/tables/MonetDBTable");
+    tableClass = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/tables/MonetDBTable");
     getConnectionID = (*env)->GetFieldID(env, tableClass, "connection", "Lnl/cwi/monetdb/embedded/env/MonetDBEmbeddedConnection;");
     getConnectionLongID = (*env)->GetFieldID(env, monetDBEmbeddedConnectionClassID, "connectionPointer", "J");
     getSchemaID = (*env)->GetFieldID(env, tableClass, "tableSchema", "Ljava/lang/String;");

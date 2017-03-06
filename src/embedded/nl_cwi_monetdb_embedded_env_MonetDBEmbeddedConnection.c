@@ -40,9 +40,13 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring query, jboolean execute) {
     int i, numberOfColumns, numberOfRows;
     const char *query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
-    char *err = NULL;
+    char *err = NULL, *nextSQLName;
     res_table *output = NULL;
     jobject result;
+    jintArray typesIDs;
+    jint* copy;
+    JResultSet* thisResultSet;
+    res_col col;
 
     // Execute the query
     err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
@@ -62,13 +66,13 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     }
 
     //QueryResultSetMonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns, int numberOfRows, int[] typesIDs)
-    jintArray typesIDs = (*env)->NewIntArray(env, numberOfColumns);
-    jint* copy = GDKmalloc(sizeof(jint) * numberOfColumns);
-    JResultSet* thisResultSet = createResultSet(output);
+    typesIDs = (*env)->NewIntArray(env, numberOfColumns);
+    copy = GDKmalloc(sizeof(jint) * numberOfColumns);
+    thisResultSet = createResultSet(output);
 
-    for (int i = 0; i < numberOfColumns; i++) {
-        res_col col = output->cols[i];
-        char* nextSQLName = col.type.type->sqlname;
+    for (i = 0; i < numberOfColumns; i++) {
+        col = output->cols[i];
+        nextSQLName = col.type.type->sqlname;
         if(strncmp(nextSQLName, "boolean", 7) == 0) {
             copy[i] = 1;
         } else if(strncmp(nextSQLName, "tinyint", 7) == 0) {
