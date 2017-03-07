@@ -5,6 +5,8 @@ addons:
         packages:
             - oracle-java8-installer
 
+osx_image: xcode8.2
+
 git:
     depth: 1
 
@@ -14,7 +16,7 @@ branches:
 
 before_cache:
     - rm -f  $HOME/monetdb-java-lite/.gradle/caches/modules-2/modules-2.lock
-    - rm -fr $HOME/monetdb-java-lite/.gradle/caches/*/plugin-resolution/
+    - rm -rf $HOME/monetdb-java-lite/.gradle/caches/*/plugin-resolution/
 
 cache:
     directories:
@@ -27,7 +29,7 @@ matrix:
         - os: osx
 
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq autoconf automake libtool gettext ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq autoconf automake libtool gettext mingw-w64 ; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gettext ; fi
 
 before_script:
@@ -37,5 +39,6 @@ before_script:
     - export PATH=$GRADLE_HOME/bin:$PATH
 
 script:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then jdk_switcher use oraclejdk8 ; ./linux.sh ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then jdk_switcher use oraclejdk8 ; ./linuxtravis.sh ; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then chmod +x ./macos.sh ; ./macos.sh ; fi
+

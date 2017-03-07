@@ -1,7 +1,6 @@
 # MonetDBJavaLite
 
 [![Build Status](https://travis-ci.org/hannesmuehleisen/MonetDBLite.svg?branch=Dec2016Lite-Java)](https://travis-ci.org/hannesmuehleisen/MonetDBLite)
-[![Build status](https://ci.appveyor.com/api/projects/status/t9uoaru0cm3pec3q/branch/Dec2016Lite-Java?svg=true)](https://ci.appveyor.com/project/PedroTadim/monetdblite/branch/Dec2016Lite-Java)
 
 > **IMPORTANT** Before any further reading, remember that this software is still experimental, and it might crash
 sometimes, although some testing was already been made on it :) To be 100% safe you can run MonetDBJavaLite, a

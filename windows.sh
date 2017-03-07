@@ -12,9 +12,9 @@ SRC=`pwd | sed -e 's|/cygdrive/||'`"/src"
 # We compile only for 64 bits for now
 BITS=64 
 
-# Prepare the compilation flags
-CC=/usr/bin/x86_64-w64-mingw32-gcc
-ADD_CFLAGS="-O3 -m64 -fPIC -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2 -I /usr/x86_64-w64-mingw32/include -Wl,-rpath=/usr/x86_64-w64-mingw32/lib"
+# Prepare the compilation flags - We will compile while using MinGW-x64
+CC=x86_64-w64-mingw32-gcc
+ADD_CFLAGS="-O3 -m64 -fPIC -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2 -I/usr/x86_64-w64-mingw32/include -Wl,-rpath=/usr/x86_64-w64-mingw32/lib"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
 	ADD_CFLAGS="-O0 -g -m64"
@@ -41,6 +41,14 @@ find src/ -name "Makefile" -delete
 cp src/embedded/windows/monetdb_config.h.in src/
 # PMC stands for "poor man's configure", it does something similar using the sedscript
 sh src/embedded/windows/pmc.sh
+
+# Now the tricky part, copy the fixed MinGW-x64 headers! (it may require root permissions!)
+if [ ! -z $TRAVIS ] ; then
+	cp src/embedded/windows/mingwheaders/intrin.h /usr/x86_64-w64-ming32/include
+	cp src/embedded/windows/mingwheaders/stdlib.h /usr/x86_64-w64-ming32/include
+	cp src/embedded/windows/mingwheaders/time.h /usr/x86_64-w64-ming32/include
+	cp src/embedded/windows/mingwheaders/intrin-impl.h /usr/x86_64-w64-ming32/include/psdk_inc
+fi
 
 # Compile the shared library
 cd src
@@ -69,7 +77,9 @@ cp src/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/s
 mv src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
 
 # Build the jar with gradle
-cd monetdb-java-lite
-gradle build
+if [ ! -z $TRAVIS ] ; then
+	cd monetdb-java-lite
+	gradle build
+fi
 
 cd $PREVDIRECTORY
