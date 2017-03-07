@@ -172,6 +172,7 @@ test_that("transactions are on ACID", {
 
 
 test_that("LIKE queries work", {
+	skip_on_os("windows")
 	# if the string module does not restart correctly this will fail
 	expect_equal(dbGetQuery(con, "SELECT UPPER('mühleisen') as a")$a, "MÜHLEISEN")
 
