@@ -103,11 +103,7 @@ FETCHING_LEVEL_ONE(Double, jdouble)
 /* For dates we have to create Java objects :( */
 
 //number of days since jan first (year 0) to number of milliseconds since 1 jan 1970
-#ifndef WIN32
-#define GET_NEXT_JDATE           value = ((jlong) nvalue - 719528L) * 86400000L - 3600000L;
-#else
 #define GET_NEXT_JDATE           value = ((jlong) nvalue - 719528L) * 86400000L;
-#endif
 
 #define CHECK_NULL_BDATE         nvalue != date_nil
 #define CREATE_JDATE             (*env)->NewObject(env, getDateClassID(),  getDateConstructorID(), value)
@@ -118,11 +114,7 @@ FETCHING_LEVEL_ONE(Double, jdouble)
 #define CHECK_NULL_BTIME         nvalue != daytime_nil
 #define CREATE_JTIME             (*env)->NewObject(env, getTimeClassID(),  getTimeConstructorID(), value)
 
-#ifndef WIN32
-#define GET_NEXT_JTIMESTAMP      value = ((jlong) nvalue.payload.p_days - 719528L) * 86400000L + (jlong) nvalue.payload.p_msecs - 3600000L;
-#else
 #define GET_NEXT_JTIMESTAMP      value = ((jlong) nvalue.payload.p_days - 719528L) * 86400000L + (jlong) nvalue.payload.p_msecs;
-#endif
 
 #define CHECK_NULL_BTIMESTAMP    !ts_isnil(nvalue)
 #define CREATE_JTIMESTAMP        (*env)->NewObject(env, getTimestampClassID(),  getTimestampConstructorID(), value)
@@ -435,41 +427,27 @@ CONVERSION_LEVEL_ONE(Double, dbl, jdouble, Double)
 /* These types have constant sizes, so the conversion is still easy :P */
 
 #ifndef WIN32
-#define DIVMOD_HELPER ldiv_t aux1;
-#else 
-#define DIVMOD_HELPER lldiv_t aux1;
+#define DIVMOD_HELPER_FIR ldiv_t aux1;
+#define DIVMOD_HELPER_SEC ldiv(nvalue, 86400000L);
+#else
+#define DIVMOD_HELPER_FIR lldiv_t aux1;
+#define DIVMOD_HELPER_SEC lldiv(nvalue, 86400000L);
 #endif
 
 #define EASY_CMP                 *p - prev
 
-#ifndef WIN32
 #define JDATE_TO_BAT             nvalue = (*env)->CallLongMethod(env, value, getDateToLongID()); \
-                                 if(nvalue > 0) {                                                \
-                                     nvalue += 86400000L;                                        \
-                                 }                                                               \
-                                 *p = (date) (nvalue / 86400000L + 719528L);                     \
+                                 *p = (date) (nvalue / 86400000L + 719529L);                     \
                                  (void) aux1;
-#else
-#define JDATE_TO_BAT             nvalue = (*env)->CallLongMethod(env, value, getDateToLongID()); \
-                                 *p = (date) (nvalue / 86400000L + 719528L);                     \
-                                 (void) aux1;
-#endif
 
 #define JTIME_TO_BAT             nvalue = (*env)->CallLongMethod(env, value, getTimeToLongID()); \
                                  *p = (daytime) (nvalue + 3600000L);                             \
                                  (void) aux1;
 
-#ifndef WIN32
 #define JTIMESTAMP_TO_BAT        nvalue = (*env)->CallLongMethod(env, value, getTimestampToLongID()); \
-                                 aux1 = ldiv(nvalue, 86400000L);                                      \
-                                 p->payload.p_days = (date) (aux1.quot + 719528L);                    \
-                                 p->payload.p_msecs = (daytime) (aux1.rem + 3600000L);
-#else
-#define JTIMESTAMP_TO_BAT        nvalue = (*env)->CallLongMethod(env, value, getTimestampToLongID()); \
-                                 aux1 = lldiv(nvalue, 86400000L);                                     \
-                                 p->payload.p_days = (date) (aux1.quot + 719528L);                    \
-                                 p->payload.p_msecs = (daytime) aux1.rem;
-#endif
+                                 aux1 = DIVMOD_HELPER_SEC                                             \
+                                 p->payload.p_days = (date) (aux1.quot + 719529L);                    \
+                                 p->payload.p_msecs = (daytime) (aux1.rem);
 
 #define TIMESTAMP_CMP            p->payload.p_days + p->payload.p_msecs - prev.payload.p_days - prev.payload.p_msecs
 
@@ -480,7 +458,7 @@ CONVERSION_LEVEL_ONE(Double, dbl, jdouble, Double)
         BAT_CAST *p; \
         BAT_CAST prev = NULL_CONST; \
         jobject value; \
-        DIVMOD_HELPER \
+        DIVMOD_HELPER_FIR \
         if (!aux) { \
             *b = NULL; \
             return; \

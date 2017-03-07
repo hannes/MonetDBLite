@@ -5,8 +5,6 @@ addons:
         packages:
             - oracle-java8-installer
 
-osx_image: xcode8.2
-
 git:
     depth: 1
 
@@ -39,6 +37,5 @@ before_script:
     - export PATH=$GRADLE_HOME/bin:$PATH
 
 script:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then jdk_switcher use oraclejdk8 ; ./linuxtravis.sh ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then jdk_switcher use oraclejdk8 ; ./.linuxtravis.sh ; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then chmod +x ./macos.sh ; ./macos.sh ; fi
-
