@@ -21,14 +21,8 @@ cache:
         - $HOME/monetdb-java-lite/.gradle/caches/
         - $HOME/monetdb-java-lite/.gradle/wrapper/
 
-matrix:
-    include:
-        - os: linux
-        - os: osx
-
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq autoconf automake libtool gettext ; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gettext ; fi
+    - sudo apt-get install -qq autoconf automake libtool gettext gcc-mingw-w64
 
 before_script:
     - wget http://services.gradle.org/distributions/gradle-3.4.1-bin.zip
@@ -37,6 +31,6 @@ before_script:
     - export PATH=$GRADLE_HOME/bin:$PATH
 
 script:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then jdk_switcher use oraclejdk8 ; ./.linuxtravis.sh ; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then chmod +x ./macos.sh ; ./macos.sh ; fi
+    - jdk_switcher use oraclejdk8
+    - ./.travisscript.sh
 

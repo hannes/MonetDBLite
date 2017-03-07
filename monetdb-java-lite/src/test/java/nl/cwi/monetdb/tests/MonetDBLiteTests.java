@@ -46,9 +46,10 @@ public class MonetDBLiteTests extends MonetDBJavaLiteTesting {
     @Test
     @DisplayName("Just another race of MonetDBEmbeddedConnections")
     void oneMoreRace() throws InterruptedException {
-        List<Thread> otherStressers = new ArrayList<>();
+        int stress = 50;
+        List<Thread> otherStressers = new ArrayList<>(stress);
 
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < stress; i++) {
             Thread t = new Thread(() -> {
                 try {
                     MonetDBEmbeddedConnection con = MonetDBEmbeddedDatabase.CreateConnection();

@@ -61,9 +61,10 @@ public class JDBCTests extends MonetDBJavaLiteTesting {
     @Test
     @DisplayName("Create some concurrent JDBC connections")
     void timeToStress() throws SQLException, InterruptedException {
-        List<Thread> stressers = new ArrayList<>();
+        int stress = 50;
+        List<Thread> stressers = new ArrayList<>(stress);
 
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < stress; i++) {
             final int threadID = i;
             Thread t = new Thread(() -> {
                 try {
@@ -93,8 +94,9 @@ public class JDBCTests extends MonetDBJavaLiteTesting {
     @Test
     @DisplayName("Test more JDBC concurrent connections")
     void otherStressTest() throws SQLException {
-        List<Connection> cons = new ArrayList<>(50); //Create many simultaneous connections
-        for (int i = 0; i < 50; i++) {
+        int stress = 50;
+        List<Connection> cons = new ArrayList<>(stress); //Create many simultaneous connections
+        for (int i = 0; i < stress; i++) {
             Connection con = createJDBCEmbeddedConnection();
             con.setAutoCommit(false);
             cons.add(con);
