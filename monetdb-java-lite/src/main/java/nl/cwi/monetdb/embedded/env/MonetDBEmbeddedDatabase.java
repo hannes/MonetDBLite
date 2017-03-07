@@ -27,7 +27,7 @@ public final class MonetDBEmbeddedDatabase {
     /** The MonetDBEmbeddedDatabase instance as only one database is allowed per JVM process. */
     private static MonetDBEmbeddedDatabase MonetDBEmbeddedDatabase = null;
 
-    private static boolean isClosed = true;
+    private static volatile boolean isClosed = true;
 
     /**  A ReadWriteLock to avoid racing conditions. */
     private static final ReentrantReadWriteLock Locker = new ReentrantReadWriteLock();
@@ -276,6 +276,7 @@ public final class MonetDBEmbeddedDatabase {
     protected void finalize() throws Throwable {
         if(!isClosed) {
             this.stopDatabaseInternal();
+            isClosed = true;
         }
         super.finalize();
     }

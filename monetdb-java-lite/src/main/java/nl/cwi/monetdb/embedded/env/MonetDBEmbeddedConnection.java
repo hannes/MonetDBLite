@@ -26,7 +26,7 @@ import java.util.Hashtable;
 public class MonetDBEmbeddedConnection implements Closeable {
 
     /** The C connection pointer. */
-	protected long connectionPointer;
+	protected volatile long connectionPointer;
 
     /** A long value used to identify this connection. */
     private final long randomIdentifier;

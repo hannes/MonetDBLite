@@ -71,11 +71,13 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     jintArray lineResponse, lastServerResponseParameters;
 
     // Execute the query
-    err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+    if(connectionPointer == 0) {
+        err = GDKstrdup("Connection already closed?");
+    } else {
+        err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+    }
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
-
-    //if there are errors, set the error string and exit
-    if (err) {
+    if (err) { //if there are errors, set the error string and exit
         setErrorResponse(env, jdbccon, err);
         monetdb_cleanup_result(NULL, output);
         return;

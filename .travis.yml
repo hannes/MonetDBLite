@@ -27,7 +27,7 @@ matrix:
         - os: osx
 
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq autoconf automake libtool gettext mingw-w64 ; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq autoconf automake libtool gettext ; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gettext ; fi
 
 before_script:
@@ -39,3 +39,4 @@ before_script:
 script:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then jdk_switcher use oraclejdk8 ; ./.linuxtravis.sh ; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then chmod +x ./macos.sh ; ./macos.sh ; fi
+

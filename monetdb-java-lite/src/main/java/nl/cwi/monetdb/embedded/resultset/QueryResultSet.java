@@ -70,7 +70,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
     }
 
     /** The C structPointer */
-    private long structPointer;
+    private volatile long structPointer;
 
     /** The number of columns in the query result. */
     private final int numberOfColumns;

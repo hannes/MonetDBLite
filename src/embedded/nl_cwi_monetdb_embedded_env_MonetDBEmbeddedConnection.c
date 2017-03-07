@@ -49,7 +49,11 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     res_col col;
 
     // Execute the query
-    err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+    if(connectionPointer == 0) {
+        err = GDKstrdup("Connection already closed?");
+    } else {
+        err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+    }
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
     if (err) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);

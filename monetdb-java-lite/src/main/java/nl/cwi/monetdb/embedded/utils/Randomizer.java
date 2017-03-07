@@ -1,6 +1,6 @@
 package nl.cwi.monetdb.embedded.utils;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * An helper class to generate random values.
@@ -12,7 +12,7 @@ public final class Randomizer {
     private Randomizer() {}
 
     /**  A random instance to generate the result set identifier. */
-    private static final Random Randomizer = new Random();
+    private static final SecureRandom Randomizer = new SecureRandom();
 
     /**
      * Generates and returns a long value.

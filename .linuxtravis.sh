@@ -15,6 +15,7 @@ cp MonetDBLite/monetdb-java-lite/src/main/resources/libs/linux libs/linux
 
 # Do the Windows compilation
 cd MonetDBLiteWindows
+sudo apt-get install -qq gcc-mingw-w64
 sh windows.sh
 cd ..
 cp MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows libs/windows

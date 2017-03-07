@@ -6,6 +6,11 @@ PREVDIRECTORY=`pwd`
 BASEDIR=$(dirname "$0")
 cd $BASEDIR
 
+if [ ! -z $TRAVIS ] ; then
+	export PKG_CONFIG_PATH=/usr/local/opt/zlib/lib/pkgconfig:$PKG_CONFIG_PATH
+	export M4DIRS=-I/usr/local/opt/gettext/share/aclocal
+fi
+
 # Prepare the compilation flags
 OPTFLAG="--enable-optimize"
 LINKFLAG=""

@@ -77,7 +77,7 @@ cp src/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/s
 mv src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
 
 # Build the jar with gradle
-if [ ! -z $TRAVIS ] ; then
+if [ -z $TRAVIS ] ; then
 	cd monetdb-java-lite
 	gradle build
 fi
