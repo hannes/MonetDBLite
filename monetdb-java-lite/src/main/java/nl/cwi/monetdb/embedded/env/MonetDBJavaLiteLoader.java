@@ -112,8 +112,6 @@ public final class MonetDBJavaLiteLoader {
             return OSLibraries.Windows;
         } else if (OS.contains("nux")) {
             return OSLibraries.Linux;
-        /*} else if (OS.contains("sunos")) {
-            return OSLibraries.Solaris;*/
         } else {
             throw new MonetDBEmbeddedException("Operating system not detected!");
         }
@@ -225,10 +223,8 @@ public final class MonetDBJavaLiteLoader {
 
         int OSORdinal = toLoad.ordinal();
         // Extract the libraries from the jar
-        if(OSORdinal == 0) { //Windows dammit!! -- The problem of dependencies!
-            LoadLibraryIntoDirectory(nativeLibraryPath, "", "vcruntime140.dll", TempDirectory);
+        if(OSORdinal == 0) { //Windows dammit!!
             LoadLibraryIntoDirectory(nativeLibraryPath, "", "msvcr100.dll", TempDirectory);
-            LoadLibraryIntoDirectory(nativeLibraryPath, "", "pcre.dll", TempDirectory);
         }
         String prefix = "MonetDBJavaLite-" + MonetDBJDBCDriverString + "-"; //the prefix will be this
         LoadedLibraryFullPath = LoadLibraryIntoDirectory(nativeLibraryPath, prefix, nativeLibraryName, TempDirectory);

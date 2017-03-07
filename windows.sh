@@ -13,8 +13,8 @@ SRC=`pwd | sed -e 's|/cygdrive/||'`"/src"
 BITS=64 
 
 # Prepare the compilation flags
-CC=gcc
-ADD_CFLAGS="-O3 -m64 -fPIC -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2"
+CC=/usr/bin/x86_64-w64-mingw32-gcc
+ADD_CFLAGS="-O3 -m64 -fPIC -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2 -I /usr/x86_64-w64-mingw32/include -Wl,-rpath=/usr/x86_64-w64-mingw32/lib"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	echo "Using debug flags"
 	ADD_CFLAGS="-O0 -g -m64"
@@ -56,7 +56,7 @@ fi
 
 OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
 
-$CC $ADD_CFLAGS -shared -fPIC -Wl,--export-all-symbols -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37.win$BITS-vs2014 -lpcre
+$CC $ADD_CFLAGS -shared -fPIC -Wl,--export-all-symbols -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi
 
 if [ ! -s libmonetdb5.dll ]
 then
@@ -65,9 +65,7 @@ fi
 
 # Move the shared library to the resources directory, as well as the other dependent libraries
 cd ..
-cp src/embedded/windows/vcruntime140.win$BITS/vcruntime140.dll monetdb-java-lite/src/main/resources/libs/windows/vcruntime140.dll
 cp src/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
-cp src/embedded/windows/pcre-8.37.win$BITS-vs2014/pcre.dll monetdb-java-lite/src/main/resources/libs/windows/pcre.dll
 mv src/libmonetdb5.dll monetdb-java-lite/src/main/resources/libs/windows/libmonetdb5.dll
 
 # Build the jar with gradle

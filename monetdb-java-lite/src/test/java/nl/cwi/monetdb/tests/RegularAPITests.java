@@ -556,7 +556,6 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
     }
 
     @Test
-    @Disabled("Crashes on Windows :(") //TODO still crashing on Windows Dammit! (Why Junit doesn't allow to skip tests on runtime?)
     void testRegexes() throws MonetDBEmbeddedException {
         QueryResultSet qrs = connection.sendQuery("SELECT name from tables where name LIKE '%chemas'");
         String schemas = qrs.getStringByColumnIndexAndRow(1,1);
