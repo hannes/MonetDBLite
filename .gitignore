@@ -101,6 +101,3 @@ cmake-build-debug/
 # Windows generated sedscript file
 src/embedded/windows/sedscript
 
-# The copied JNI header files
-src/embedded/incjni/
-
