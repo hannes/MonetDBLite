@@ -36,7 +36,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
 
 	protected MonetDBEmbeddedConnection(long connectionPointer) {
 	    this.connectionPointer = connectionPointer;
-        this.randomIdentifier = Randomizer.GenerateNextLong() + connectionPointer;
+        this.randomIdentifier = Randomizer.GenerateNextLong();
 	}
 
     /**

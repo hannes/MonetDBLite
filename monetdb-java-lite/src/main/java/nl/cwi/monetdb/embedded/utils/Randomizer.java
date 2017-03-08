@@ -1,9 +1,9 @@
 package nl.cwi.monetdb.embedded.utils;
 
-import java.security.SecureRandom;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * An helper class to generate random values.
+ * An helper class to generate long values.
  *
  * @author <a href="mailto:pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>
  */
@@ -11,15 +11,15 @@ public final class Randomizer {
 
     private Randomizer() {}
 
-    /**  A random instance to generate the result set identifier. */
-    private static final SecureRandom Randomizer = new SecureRandom();
+    /**  A AtomicLong instance to generate the result set identifier. */
+    private static final AtomicLong ResultSetCounter = new AtomicLong();
 
     /**
-     * Generates and returns a long value.
+     * Generates and returns an incrementally long value.
      *
-     * @return A random generated long value
+     * @return An incrementally generated long value
      */
     public static long GenerateNextLong() {
-        return Randomizer.nextLong();
+        return ResultSetCounter.incrementAndGet();
     }
 }

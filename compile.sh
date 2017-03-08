@@ -3,7 +3,7 @@
 set -ev
 
 PREVDIRECTORY=`pwd`
-BASEDIR=$(dirname "$0")
+BASEDIR=$(realpath `dirname $0`)
 cd $BASEDIR
 
 # For now we only target 64 bits
@@ -43,7 +43,7 @@ BUILDDIR=`pwd`
 # Prepare the compilation flags depending on the target BUILD
 case "$1" in
     windows)
-        ADD_CFLAGS="-O3 -m64 -fPIC -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2 -I/usr/x86_64-w64-mingw32/include -I$SOURCEDIR/embedded/incwindows -Wl,-rpath=/usr/x86_64-w64-mingw32/lib"
+        ADD_CFLAGS="-O3 -m64 -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2 -I/usr/x86_64-w64-mingw32/include -I$SOURCEDIR/embedded/incwindows -Wl,-rpath=/usr/x86_64-w64-mingw32/lib"
         if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	     echo "Using debug flags"
 	     ADD_CFLAGS="-O0 -g -m64"
@@ -129,7 +129,7 @@ mv $BUILDDIR/$BUILDLIBRARY monetdb-java-lite/src/main/resources/libs/$BUILDSYS
 if [ $1 == "windows" ] ; then
     cp -rf $SOURCEDIR/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
     cd $SOURCEDIR
-    make -j dist clean
+    make distclean
     cd $BASEDIR
 fi
 
