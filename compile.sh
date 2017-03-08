@@ -6,6 +6,9 @@ PREVDIRECTORY=`pwd`
 BASEDIR=$(dirname "$0")
 cd $BASEDIR
 
+# For now we only target 64 bits
+BITS=64
+
 cd src
 SOURCEDIR=`pwd`
 
@@ -35,15 +38,12 @@ mkdir -p build/$BUILDSYS
 # Move into the build directory
 bash bootstrap
 cd build/$BUILDSYS
-
-# For now we only target 64 bits
-BITS=64
 BUILDDIR=`pwd`
 
 # Prepare the compilation flags depending on the target BUILD
 case "$1" in
     windows)
-        ADD_CFLAGS="-O3 -m64 -fPIC -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2 -I/usr/x86_64-w64-mingw32/include -I../../../embedded/embedded/incwindows -Wl,-rpath=/usr/x86_64-w64-mingw32/lib"
+        ADD_CFLAGS="-O3 -m64 -fPIC -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2 -I/usr/x86_64-w64-mingw32/include -I$SOURCEDIR/embedded/incwindows -Wl,-rpath=/usr/x86_64-w64-mingw32/lib"
         if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	     echo "Using debug flags"
 	     ADD_CFLAGS="-O0 -g -m64"
@@ -60,8 +60,10 @@ case "$1" in
         fi
         # for osxcross
         export OSXCROSS_PKG_CONFIG_USE_NATIVE_VARIABLES=1
-        CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -std=c99 -D_XPG6 -I../../../embedded/incmacos" \
-        ../../configure --config-cache --enable-embedded --host=x86_64-apple-darwin13 \
+        export OSXCROSS_MP_INC=1
+        export MACOSX_DEPLOYMENT_TARGET=10.9
+        CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -std=c99 -fPIC -DPIC -D_XPG6 -I$SOURCEDIR/embedded/incmacos" \
+        $SOURCEDIR/configure --config-cache --enable-embedded --host=x86_64-apple-darwin13 \
         $OPTFLAG --enable-silent-rules --disable-int128
         ;;
 
@@ -73,25 +75,36 @@ case "$1" in
 	    OPTFLAG="--enable-debug --enable-assert --enable-strict"
 	    LINKFLAG="-g"
         fi
-        CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -std=c99 -D_XPG6 -I../../../embedded/inclinux" \
-        ../../configure --config-cache --enable-embedded \
+        CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -std=c99 -fPIC -DPIC -D_XPG6 -I$SOURCEDIR/embedded/inclinux" \
+        $SOURCEDIR/configure --config-cache --enable-embedded \
         $OPTFLAG --enable-silent-rules --disable-int128
 esac
 
 # Prepare the compilation
 case "$1" in
     windows)
+        # On Windows the compilation is more complicated...
+        cd $SOURCEDIR
         # Patch sedscript for build/install/library paths
-        sed -e "s|%CC%|$CC|" -e "s|%ADD_CFLAGS%|$ADD_CFLAGS|" -e "s|%BITS%|$BITS|" -e "s|%PREFIX%|$BUILDDIR|" -e "s|%SRCDIR%|$SOURCEDIR|" ../../embedded/windows/sedscript.tpl > ../../embedded/windows/sedscript
+        sed -e "s|%CC%|$CC|" -e "s|%ADD_CFLAGS%|$ADD_CFLAGS|" -e "s|%BITS%|$BITS|" -e "s|%PREFIX%|$BUILDDIR|" -e "s|%SRCDIR%|$SOURCEDIR|" embedded/windows/sedscript.tpl > embedded/windows/sedscript
         # Re-update the monetdb_config.h file
-        rm -f ../../monetdb_config.h
-        find ../../ -name "Makefile" -delete
+        rm -f monetdb_config.h
+        find . -name "Makefile" -delete
         # This is copied from NT/monetdb_config.h.in in the packaging script
-        cp ../../embedded/windows/monetdb_config.h.in ../../
+        cp embedded/windows/monetdb_config.h.in .
         # PMC stands for "poor man's configure", it does something similar using the sedscript
-        bash ../../embedded/windows/pmc.sh
-        rm -f ../../config.status
-        touch ../../Makefile.in ../../config.status ../../configure ../../aclocal.m4 ../../monetdb_config.h ../../stamp-h1 ../../monetdb_config.h.in
+        bash embedded/windows/pmc.sh
+        rm -f config.status
+        touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
+        make -j
+        if [ $? -ne 0 ] ; then
+	        echo "build failure"
+        fi
+        OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
+        $CC $ADD_CFLAGS -shared -fPIC -Wl,--export-all-symbols -o $BUILDDIR/$BUILDLIBRARY $OFILES -lws2_32 -lpthread -lpsapi
+        if [ ! -s $BUILDLIBRARY ] ; then
+	        echo "library file was not created, something went wrong"
+        fi
         ;;
 
     *)
@@ -101,36 +114,28 @@ case "$1" in
           all: $(BUILT_SOURCES) monetdb_config.h
 	     $(MAKE) $(AM_MAKEFLAGS) all-recursive && $(MAKE) $(AM_MAKEFLAGS) ' $BUILDLIBRARY '
          ' >> Makefile
+        make -j
+        if [ $? -ne 0 ] ; then
+	        echo "build failure"
+        fi
 esac
 
-# Compile the shared library
-make -j
-
-if [ $? -ne 0 ] ; then
-	echo "build failure"
-fi
-
-# On Windows we still have on extra step...
-if [ $1 == "windows" ] ; then
-    OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
-    $CC $ADD_CFLAGS -shared -fPIC -Wl,--export-all-symbols -o $BUILDLIBRARY $OFILES -lws2_32 -lpthread -lpsapi
-    if [ ! -s $BUILDLIBRARY ] ; then
-	echo "library file was not created, something went wrong"
-    fi
-fi
-
 # Move the compiled library to the Gradle directory
-mkdir -p ../../../monetdb-java-lite/src/main/resources/libs/$BUILDSYS
-mv $BUILDLIBRARY ../../../monetdb-java-lite/src/main/resources/libs/$BUILDSYS
+cd $BASEDIR
+mkdir -p monetdb-java-lite/src/main/resources/libs/$BUILDSYS
+mv $BUILDDIR/$BUILDLIBRARY monetdb-java-lite/src/main/resources/libs/$BUILDSYS
 
 # Windows again damm!
 if [ $1 == "windows" ] ; then
-    mv ../../embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll ../../../monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
+    cp -rf $SOURCEDIR/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
+    cd $SOURCEDIR
+    make -j dist clean
+    cd $BASEDIR
 fi
 
 # If we are not on Travis then we perform the gradle build
 if [ -z $TRAVIS ] ; then
-    cd ../../../monetdb-java-lite
+    cd monetdb-java-lite
     ./gradlew build
 fi
 

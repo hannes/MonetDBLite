@@ -35,10 +35,10 @@ before_install:
     - sudo apt-get -qy install aptitude autoconf automake libtool gettext
     # To compile to 64-bit Windows binaries (override some headers)
     - sudo aptitude install -y gcc-mingw-w64
-    - sudo cp src/embedded/windows/mingwheaders/intrin.h /usr/x86_64-w64-ming32/include
-    - sudo cp src/embedded/windows/mingwheaders/stdlib.h /usr/x86_64-w64-ming32/include
-    - sudo cp src/embedded/windows/mingwheaders/time.h /usr/x86_64-w64-ming32/include
-    - sudo cp src/embedded/windows/mingwheaders/intrin-impl.h /usr/x86_64-w64-ming32/include/psdk_inc
+    - sudo \cp src/embedded/windows/mingwheaders/intrin.h /usr/x86_64-w64-mingw32/include/intrin.h
+    - sudo \cp src/embedded/windows/mingwheaders/stdlib.h /usr/x86_64-w64-mingw32/include/stdlib.h
+    - sudo \cp src/embedded/windows/mingwheaders/time.h /usr/x86_64-w64-mingw32/include/time.h
+    - sudo \cp src/embedded/windows/mingwheaders/intrin-impl.h /usr/x86_64-w64-mingw32/include/psdk_inc/intrin-impl.h
     # To compile for OS X, we need osxcross
     - sudo apt-get -qy install gcc zlib1g-dev libmpc-dev libmpfr-dev libgmp-dev
     - cd ..
