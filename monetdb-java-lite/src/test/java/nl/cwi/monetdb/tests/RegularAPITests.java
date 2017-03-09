@@ -547,12 +547,19 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
     }
 
     @Test
-    @Disabled("Still returning -1 in updates") //TODO still returning -1 in updates
     void testUpdates() throws MonetDBEmbeddedException {
         connection.sendUpdate("CREATE TABLE testupdates (val int);");
-        connection.sendUpdate("INSERT INTO testupdates VALUES (1), (2), (3), (4);");
-        int rows = connection.sendUpdate("UPDATE testupdates SET val=2 WHERE val<3;");
-        Assertions.assertEquals(2, rows, "It should have affected 2 rows!");
+        connection.sendUpdate("INSERT INTO testupdates VALUES (1), (2), (3), (4), (5), (6), (7), (8), (9);");
+
+        int rows1 = connection.sendUpdate("UPDATE testupdates SET val=2 WHERE val<3;");
+        Assertions.assertEquals(2, rows1, "It should have affected 2 rows!");
+
+        int rows2 = connection.sendUpdate("UPDATE testupdates SET val=10 WHERE val>5;");
+        Assertions.assertEquals(4, rows2, "It should have affected 4 rows!");
+
+        int rows3 = connection.sendUpdate("UPDATE testupdates SET val=2;");
+        Assertions.assertEquals(9, rows3, "It should have affected 9 rows!");
+
         connection.sendUpdate("DROP TABLE testupdates;");
     }
 

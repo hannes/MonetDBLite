@@ -10,7 +10,6 @@
 
 #include "javaids.h"
 #include "jresulset.h"
-#include "converters.h"
 #include "embedded.h"
 #include "monetdb_config.h"
 #include "res_table.h"
@@ -26,14 +25,14 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnectio
 
     // Execute the query
     err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+    getUpdateQueryData((void*) connectionPointer, &lastId, &rowCount);
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
     monetdb_cleanup_result(NULL, output);
     if (err) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
         return -1;
     }
-    getUpdateQueryData((void*) connectionPointer, &lastId, &rowCount);
-    return rowCount;
+    return (jint) rowCount;
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_sendQueryInternal

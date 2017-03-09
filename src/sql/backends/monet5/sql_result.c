@@ -1659,21 +1659,25 @@ int
 mvc_export_affrows(backend *b, stream *s, lng val, str w)
 {
 	mvc *m = b->mvc;
+    Client cc = b->client;
+	(void) s;
+	(void) w;
 	/* if we don't have a stream, nothing can go wrong, so we return
 	 * success.  This is especially vital for execution of internal SQL
 	 * commands, since they don't get a stream to suppress their output.
 	 * If we would fail on having no stream here, those internal commands
 	 * fail too.
 	 */
-	if (!s)
-		return 0;
-
 	m->rowcnt = val;
+	cc->lastNumberOfRows = (int) val;
 	stack_set_number(m, "rowcnt", m->rowcnt);
-	if (mnstr_write(s, "&2 ", 3, 1) != 1 || !mvc_send_lng(s, val) || mnstr_write(s, " ", 1, 1) != 1 || !mvc_send_lng(s, m->last_id) || mnstr_write(s, "\n", 1, 1) != 1)
+
+	/*if (!s)
+		return 0;*/
+	/*if (mnstr_write(s, "&2 ", 3, 1) != 1 || !mvc_send_lng(s, val) || mnstr_write(s, " ", 1, 1) != 1 || !mvc_send_lng(s, m->last_id) || mnstr_write(s, "\n", 1, 1) != 1)
 		return -1;
 	if (mvc_export_warning(s, w) != 1)
-		return -1;
+		return -1;*/
 
 	return 0;
 }
@@ -1690,21 +1694,22 @@ int
 mvc_export_head(backend *b, stream *s, int res_id, int only_header)
 {
 	mvc *m = b->mvc;
-	int i, res = 0;
+	int res = 0;
 	BUN count = 0;
 	res_table *t = res_tables_find(m->results, res_id);
 	BAT *order = NULL;
+	(void) s;
 
-	if (!s || !t)
-		return 0;
+	/*if (!s || !t)
+		return 0;*/
 
 	/* query type: Q_TABLE */
-	if (!(mnstr_write(s, "&1 ", 3, 1) == 1))
-		return -1;
+	/*if (!(mnstr_write(s, "&1 ", 3, 1) == 1))
+		return -1;*/
 
 	/* id */
-	if (!mvc_send_int(s, t->id) || mnstr_write(s, " ", 1, 1) != 1)
-		 return -1;
+	/*if (!mvc_send_int(s, t->id) || mnstr_write(s, " ", 1, 1) != 1)
+		 return -1;*/
 
 	/* tuple count */
 	if (only_header) {
@@ -1719,18 +1724,18 @@ mvc_export_head(backend *b, stream *s, int res_id, int only_header)
 	}
 	m->rowcnt = count;
 	stack_set_number(m, "rowcnt", m->rowcnt);
-	if (!mvc_send_lng(s, (lng) count) || mnstr_write(s, " ", 1, 1) != 1)
-		return -1;
+	/*if (!mvc_send_lng(s, (lng) count) || mnstr_write(s, " ", 1, 1) != 1)
+		return -1;*/
 
 	/* column count */
-	if (!mvc_send_int(s, t->nr_cols) || mnstr_write(s, " ", 1, 1) != 1)
-		return -1;
+	/*if (!mvc_send_int(s, t->nr_cols) || mnstr_write(s, " ", 1, 1) != 1)
+		return -1;*/
 
 	/* row count, min(count, reply_size) */
-	if (!mvc_send_int(s, (m->reply_size >= 0 && (BUN) m->reply_size < count) ? m->reply_size : (int) count))
-		return -1;
+	/*if (!mvc_send_int(s, (m->reply_size >= 0 && (BUN) m->reply_size < count) ? m->reply_size : (int) count))
+		return -1;*/
 
-	if (mnstr_write(s, "\n% ", 3, 1) != 1)
+	/*if (mnstr_write(s, "\n% ", 3, 1) != 1)
 		return -1;
 	for (i = 0; i < t->nr_cols; i++) {
 		res_col *c = t->cols + i;
@@ -1809,7 +1814,7 @@ mvc_export_head(backend *b, stream *s, int res_id, int only_header)
 		}
 		if (mnstr_write(s, " # typesizes\n", 13, 1) != 1)
 			return -1;
-	}
+	}*/
 	return res;
 }
 

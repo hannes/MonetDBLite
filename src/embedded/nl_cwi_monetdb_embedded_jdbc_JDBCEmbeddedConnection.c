@@ -10,7 +10,6 @@
 
 #include "javaids.h"
 #include "jresulset.h"
-#include "converters.h"
 #include "embedded.h"
 #include "monetdb_config.h"
 #include "res_table.h"
