@@ -31,7 +31,10 @@ malBootstrap(void)
 	str msg, bootfile = "mal_init", s = NULL;
 
 	c = MCinitClient((oid) 0, 0, 0);
-	assert(c != NULL);
+	if (!c) {
+		GDKerror("malBootstrap:Failed to initialise client");
+		return 0;
+	}
 	c->nspace = newModule(NULL, putName("user"));
 	if ( (msg = defaultScenario(c)) ) {
 		GDKfree(msg);

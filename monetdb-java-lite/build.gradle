@@ -16,7 +16,7 @@ repositories {
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'org.junit.platform.gradle.plugin'
-apply plugin: 'maven-publish'
+//apply plugin: 'maven-publish'
 
 ext.group = 'nl.cwi.monetdb'
 ext.packaging = 'jar'
@@ -81,4 +81,3 @@ junitPlatform { //configurations for JUnit5 tests
 task wrapper(type: Wrapper) {
     gradleVersion = '3.4.1'
 }
-

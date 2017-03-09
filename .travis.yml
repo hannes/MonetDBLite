@@ -28,11 +28,25 @@ env:
         - TERM=dumb
         # Deployment target for oxcross
         - MACOSX_DEPLOYMENT_TARGET=10.9
+        # Ubuntu problems...
+        - LANG=en_US.utf8
+        - LC_CTYPE=en_US.utf8
+        - LC_NUMERIC=en_US.utf8
+        - LC_TIME=en_US.utf8
+        - LC_COLLATE=en_US.utf8
+        - LC_MONETARY=en_US.utf8
+        - LC_MESSAGES=en_US.utf8
+        - LC_PAPER=en_US.utf8
+        - LC_NAME=en_US.utf8
+        - LC_ADDRESS=en_US.utf8
+        - LC_TELEPHONE=en_US.utf8
+        - LC_MEASUREMENT=en_US.utf8
+        - LC_IDENTIFICATION=en_US.utf8
 
 before_install:
     # From http://stackoverflow.com/a/11069162
     - sudo apt-get -qy update
-    - sudo apt-get -qy install aptitude autoconf automake libtool gettext
+    # - sudo apt-get -qy install aptitude autoconf automake libtool gettext
     # To compile to 64-bit Windows binaries (override some headers)
     - sudo aptitude install -y gcc-mingw-w64
     - sudo \cp src/embedded/windows/mingwheaders/intrin.h /usr/x86_64-w64-mingw32/include/intrin.h
@@ -40,12 +54,14 @@ before_install:
     - sudo \cp src/embedded/windows/mingwheaders/time.h /usr/x86_64-w64-mingw32/include/time.h
     - sudo \cp src/embedded/windows/mingwheaders/intrin-impl.h /usr/x86_64-w64-mingw32/include/psdk_inc/intrin-impl.h
     # To compile for OS X, we need osxcross
-    - sudo apt-get -qy install gcc zlib1g-dev libmpc-dev libmpfr-dev libgmp-dev
+    # - sudo apt-get -qy install gcc zlib1g-dev
+    - sudo apt-get -qy install libmpc-dev libmpfr-dev libgmp-dev
     - cd ..
     - git clone --depth=1 https://github.com/tpoechtrager/osxcross
     - cd osxcross
     - (cd tarballs; wget https://dl.dropboxusercontent.com/u/1463845/osxcross/MacOSX10.9.sdk.tar.bz2)
     - sudo tools/get_dependencies.sh
+    - yes | ./build.sh
     - yes | ./build_gcc.sh
     - eval `target/bin/osxcross-env`
 

@@ -419,7 +419,13 @@ QueryResultSet resultSet = asyncFetch.join();
 [`CompletableFuture<T> exceptionally(Function<Throwable,? extends T> fn)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html#exceptionally-java.util.function.Function-)
 method to handle the exceptions.
 
-### 4. I am getting very low negative numbers and/or NullPointer exceptions in the QueryResultSet!
+### 4. Floating-point values are not being correctly parsed on SQL queries.
+
+I found out on Linux Debian distributions, that the locales setting may not be set properly. Just set them to
+`en_US.utf8` and you will be fine,
+[click here for details](https://askubuntu.com/questions/193251/how-to-set-all-locale-settings-in-ubuntu).
+
+### 5. I am getting very low negative numbers and/or NullPointer exceptions in the QueryResultSet!
 
 You are getting SQL `NULL` values in your query result sets. As explained above, for the primitive MonetDB SQL types we
 map them to the JVM minimum values. For the more complex MonetDB SQL types like `CHAR` and `DATE` we map to Java
@@ -428,13 +434,13 @@ methods to check if a value is null or not. At the same time, the SQL standard h
 [COALESCE](https://www.w3schools.com/sql/sql_isnull.asp) function to return a default value when a value is null in the
 result set.
 
-### 5. While starting a JDBC connection, I am getting the SQLException: "Unable to connect (localhost:50000): Connection refused"!
+### 6. While starting a JDBC connection, I am getting the SQLException: "Unable to connect (localhost:50000): Connection refused"!
 
 The new MonetDB JDBC driver creates a MAPI connection by default, as the most common use case of it. To start an
 embedded connection you **MUST** provide JDBC URL specifying the embedded connection and the directory. Check the
 example above on how it can be done.
 
-### 6. Why I have to pass a column array as an input in the QueryResultSet? It would be easier to return it in the method instead.
+### 7. Why I have to pass a column array as an input in the QueryResultSet? It would be easier to return it in the method instead.
 
 That's a very good question indeed. The reason of this implementation has to do with the representation of Arrays in the
 JVM. Whenever you create an Array in the JVM, it gets auto-initialized with 0s, which might cause a slight overhead in
@@ -459,7 +465,7 @@ have to be very careful with.
 allocated outside of the Java's heap. However to access their data in the Java code in a bulk way to an array, a copy is
 made.
 
-### 7. Is there a way to know if a JDBC connection is MAPI or Embedded after it has started?
+### 8. Is there a way to know if a JDBC connection is MAPI or Embedded after it has started?
 
 Yes there is! In JDBC specification you can call the
 [`String getClientInfo(String name)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getClientInfo-java.lang.String-)
@@ -470,7 +476,7 @@ String embeddedString = connection.getClientInfo("embedded");
 boolean isEmbedded = (embeddedString != null && embeddedString.equals("true"));
 ```
 
-### 8. I don't like Java that much, can I use this for another programming languages for the JVM?
+### 9. I don't like Java that much, can I use this for another programming languages for the JVM?
 
 Yes you can! You can easily import Java libraries for other JVM programming languages like Scala. The following example
 creates a JDBC Embedded connection in Scala:
@@ -499,7 +505,7 @@ try {
 connection.close() //Don't forget! ;)
 ```
 
-### 9. Any tips for additional performance of MonetDBJavaLite regarding the JVM?
+### 10. Any tips for additional performance of MonetDBJavaLite regarding the JVM?
 
 We haven't dug into the settings of the JVM with MonetDBJavaLite yet, although we can do that in JNI. However we must
 remember that the best setting may vary with the underlying JVM, and MonetDBJavaLite will be just a part of the running
