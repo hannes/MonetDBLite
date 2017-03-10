@@ -18,7 +18,7 @@ services:
     - docker
 
 before_cache:
-    # Clean caches
+    # Clean gradle caches
     - rm -f  $HOME/monetdb-java-lite/.gradle/caches/modules-2/modules-2.lock
     - rm -rf $HOME/monetdb-java-lite/.gradle/caches/*/plugin-resolution/
 
@@ -49,8 +49,8 @@ env:
 before_install:
     # From http://stackoverflow.com/a/11069162
     - sudo apt-get -qy update
-    # - sudo apt-get -qy install aptitude autoconf automake libtool gettext
     # To compile to 64-bit Windows binaries (override some headers)
+    - sudo apt-get install -qq -y realpath coreutils
     - sudo aptitude install -y gcc-mingw-w64
     - sudo \cp src/embedded/windows/mingwheaders/intrin.h /usr/x86_64-w64-mingw32/include/intrin.h
     - sudo \cp src/embedded/windows/mingwheaders/stdlib.h /usr/x86_64-w64-mingw32/include/stdlib.h
@@ -64,12 +64,21 @@ install:
 
 script:
     - jdk_switcher use oraclejdk8
-    # Compile for the 3 operative systems! May the God be with us!
+    # Compile for the 3 operative systems! May the God be with us! However we will compile in 3 different directories for safety!
+    - cd ..
+    - cp -rf MonetDBLite MonetDBLiteMacOS/
+    - cp -rf MonetDBLite MonetDBLiteWindows/
+    - cd MonetDBLite
     - bash compile.sh linux
+    - cd ../MonetDBLiteMacOS
     - docker run -it --rm -v $(pwd):/workdir -e CROSS_TRIPLE=x86_64-apple-darwin -e TRAVIS=1 multiarch/crossbuild bash compile.sh macos
+    - cd ../MonetDBLiteWindows
     - bash compile.sh windows
-    # Assemble everything with Gradle
-    - cd monetdb-java-lite
+    # Assemble everything with Gradle, but move the generated binaries first
+    - cd ..
+    - mv MonetDBLiteMacOS/monetdb-java-lite/src/main/resources/libs/macos/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
+    - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
+    - cd MonetDBLite/monetdb-java-lite
     - ./gradlew -i build
 
 after_success:
