@@ -76,9 +76,6 @@ m4_ifndef([PKG_PROG_PKG_CONFIG],
 
 PKG_PROG_PKG_CONFIG
 
-AS_VAR_IF([PKG_CONFIG], [],
-	[AC_MSG_ERROR([pkg-config is required to configure MonetDB])])
-
 # BUILD and SOURCE are *only* used for testing.
 
 # The Q versions of various variables are used in places where \'s
@@ -1605,16 +1602,12 @@ AC_SUBST([compilercall], ["$CC $CFLAGS $X_CFLAGS"])
 AC_SUBST([linkercall], ["$LD $LDFLAGS"])
 AC_SUBST([builtby], ["${USER}@`hostname`"])
 pcreversion="not linked to any PCRE library"
-AS_VAR_IF([have_pcre], [yes], [
-        pcreversion="compiled with `pkg-config --modversion libpcre 2>/dev/null`"])
 AC_SUBST([pcreversion])
 opensslversion="not linked to any openssl library"
 AS_VAR_IF([have_openssl], [yes], [
         opensslversion="compiled with `openssl version 2>/dev/null`"])
 AC_SUBST([opensslversion])
 libxml2version="not linked to any libxml2 library"
-AS_VAR_IF([have_libxml2], [yes], [
-        libxml2version="compiled with `pkg-config --modversion libxml-2.0 2>/dev/null`"])
 AC_SUBST([libxml2version])
 
 # provide different versions of the paths derived above

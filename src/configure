@@ -3844,10 +3844,6 @@ $as_echo "no" >&6; }
 	fi
 fi
 
-if ${PKG_CONFIG:+false} :; then :
-  as_fn_error $? "pkg-config is required to configure MonetDB" "$LINENO" 5
-fi
-
 # BUILD and SOURCE are *only* used for testing.
 
 # The Q versions of various variables are used in places where \'s
@@ -21925,10 +21921,6 @@ linkercall="$LD $LDFLAGS"
 builtby="${USER}@`hostname`"
 
 pcreversion="not linked to any PCRE library"
-if test "x$have_pcre" = xyes; then :
-
-        pcreversion="compiled with `pkg-config --modversion libpcre 2>/dev/null`"
-fi
 
 opensslversion="not linked to any openssl library"
 if test "x$have_openssl" = xyes; then :
@@ -21937,10 +21929,6 @@ if test "x$have_openssl" = xyes; then :
 fi
 
 libxml2version="not linked to any libxml2 library"
-if test "x$have_libxml2" = xyes; then :
-
-        libxml2version="compiled with `pkg-config --modversion libxml-2.0 2>/dev/null`"
-fi
 
 
 # provide different versions of the paths derived above
