@@ -78,12 +78,12 @@ Module newModule(Module scope, str nme){
 	}
 	// User modules are never global
 	if( strcmp(nme,"user")){
-		MT_lock_set(&moduleChain_contextLock);
+		//MT_lock_set(&moduleChain_contextLock);
 		cur->link= moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]];
 		moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]]= cur;
 		cur->next = moduleChain;
 		moduleChain = cur;
-		MT_lock_unset(&moduleChain_contextLock);
+		//MT_lock_unset(&moduleChain_contextLock);
 	}
 	return cur;
 }
@@ -97,7 +97,7 @@ Module fixModule(Module scope, str nme){
 
 	if( strcmp(nme,"user")==0)
 		return scope;
-	MT_lock_set(&moduleChain_contextLock);
+	//MT_lock_set(&moduleChain_contextLock);
 	s= moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]];
 	while(s != NULL && !broke){
 		if( nme == s->name ) {
@@ -106,7 +106,7 @@ Module fixModule(Module scope, str nme){
 			s= s->link;
 		}
 	}
-	MT_lock_unset(&moduleChain_contextLock);
+	//MT_lock_unset(&moduleChain_contextLock);
 	return broke ? s : newModule(scope, nme);
 }
 /*
@@ -259,7 +259,7 @@ Module findModule(Module scope, str name){
 
 	if( name == NULL) return scope;
 
-	MT_lock_set(&moduleChain_contextLock);
+	//MT_lock_set(&moduleChain_contextLock);
 	scope= moduleIndex[((unsigned char *) name)[0]][((unsigned char *) name)[1]];
 	while(scope != NULL && !broke){
 		if( name == scope->name ) {
@@ -268,7 +268,7 @@ Module findModule(Module scope, str name){
 			scope = scope->link;
 		}
 	}
-	MT_lock_unset(&moduleChain_contextLock);
+	//MT_lock_unset(&moduleChain_contextLock);
 
 	if(broke) return scope;
 
@@ -282,7 +282,7 @@ int isModuleDefined(Module scope, str name){
 	if( name==NULL || scope==NULL) return FALSE;
 	if( name == scope->name) return TRUE;
 
-	MT_lock_set(&moduleChain_contextLock);
+	//MT_lock_set(&moduleChain_contextLock);
 	scope= moduleIndex[((unsigned char *) name)[0]][((unsigned char *) name)[1]];
 	while(scope != NULL && !broke){
 		if( name == scope->name ) {
@@ -291,7 +291,7 @@ int isModuleDefined(Module scope, str name){
 			scope= scope->link;
 		}
 	}
-	MT_lock_unset(&moduleChain_contextLock);
+	//MT_lock_unset(&moduleChain_contextLock);
 
 	return broke ? TRUE : FALSE;
 }

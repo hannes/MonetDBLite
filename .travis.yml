@@ -1,3 +1,5 @@
+sudo: required
+
 language: java
 
 addons:
@@ -11,6 +13,9 @@ git:
 branches:
     only:
         - Dec2016Lite-Java
+
+services:
+    - docker
 
 before_cache:
     # Clean caches
@@ -26,8 +31,6 @@ env:
     global:
         # From http://stackoverflow.com/a/21841688
         - TERM=dumb
-        # Deployment target for oxcross
-        - MACOSX_DEPLOYMENT_TARGET=10.9
         # Ubuntu problems...
         - LANG=en_US.utf8
         - LC_CTYPE=en_US.utf8
@@ -53,17 +56,6 @@ before_install:
     - sudo \cp src/embedded/windows/mingwheaders/stdlib.h /usr/x86_64-w64-mingw32/include/stdlib.h
     - sudo \cp src/embedded/windows/mingwheaders/time.h /usr/x86_64-w64-mingw32/include/time.h
     - sudo \cp src/embedded/windows/mingwheaders/intrin-impl.h /usr/x86_64-w64-mingw32/include/psdk_inc/intrin-impl.h
-    # To compile for OS X, we need osxcross
-    # - sudo apt-get -qy install gcc zlib1g-dev
-    - sudo apt-get -qy install libmpc-dev libmpfr-dev libgmp-dev
-    - cd ..
-    - git clone --depth=1 https://github.com/tpoechtrager/osxcross
-    - cd osxcross
-    - (cd tarballs; wget https://dl.dropboxusercontent.com/u/1463845/osxcross/MacOSX10.9.sdk.tar.bz2)
-    - sudo tools/get_dependencies.sh
-    - yes | ./build.sh
-    - yes | ./build_gcc.sh
-    - eval `target/bin/osxcross-env`
 
 install:
     # Disable default "./gradlew assemble" command.
@@ -74,7 +66,7 @@ script:
     - jdk_switcher use oraclejdk8
     # Compile for the 3 operative systems! May the God be with us!
     - bash compile.sh linux
-    - bash compile.sh macos
+    - docker run -it --rm -v $(pwd):/workdir -e CROSS_TRIPLE=x86_64-apple-darwin -e TRAVIS=1 multiarch/crossbuild bash compile.sh macos
     - bash compile.sh windows
     # Assemble everything with Gradle
     - cd monetdb-java-lite

@@ -2,6 +2,11 @@
 
 set -ev
 
+# for osxcross on the dockerfile
+if [ ! -z $TRAVIS  ] && [ $1 == "macos" ] ; then
+    apt-get -qq update && apt-get -qq -y install pkg-config pkgconf
+fi
+
 PREVDIRECTORY=`pwd`
 BASEDIR=$(realpath `dirname $0`)
 cd $BASEDIR
@@ -58,10 +63,6 @@ case "$1" in
 	    OPTFLAG="--enable-debug --enable-assert --enable-strict"
 	    LINKFLAG="-g"
         fi
-        # for osxcross
-        export OSXCROSS_PKG_CONFIG_USE_NATIVE_VARIABLES=1
-        export OSXCROSS_MP_INC=1
-        export MACOSX_DEPLOYMENT_TARGET=10.9
         CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -std=c99 -fPIC -DPIC -D_XPG6 -I$SOURCEDIR/embedded/incmacos" \
         $SOURCEDIR/configure --config-cache --enable-embedded --host=x86_64-apple-darwin13 \
         $OPTFLAG --enable-silent-rules --disable-int128
