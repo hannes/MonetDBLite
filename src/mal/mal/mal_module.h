@@ -26,7 +26,7 @@ typedef struct SCOPEDEF {
 
 mal_export Module moduleIndex[256][256];  /* to speedup access to correct scope */
 
-mal_export Module   getModuleChain(void);
+//mal_export Module   getModuleChain(void);
 mal_export Module   newModule(Module scope, str nme);
 mal_export Module   fixModule(Module scope, str nme);
 mal_export void     freeModule(Module cur);

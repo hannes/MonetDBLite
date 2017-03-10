@@ -29,9 +29,9 @@ class MonetDBJavaLiteTesting {
 
     //TODO In JUnit you can't have a method run only once before all the test classes, so do this...
 
-    static Path directoryPath;
-
     private static boolean setUpIsDone = false;
+
+    static Path directoryPath;
 
     static MonetDBEmbeddedConnection connection;
 
@@ -53,7 +53,7 @@ class MonetDBJavaLiteTesting {
 
     @AfterAll
     @DisplayName("Shutdown at the end")
-    static void shutdownDatabase() throws MonetDBEmbeddedException {
+    static void shutdownDatabase() throws MonetDBEmbeddedException, IOException {
         counter--;
         if(counter == 0) {
             MonetDBEmbeddedDatabase.StopDatabase();
@@ -62,6 +62,12 @@ class MonetDBJavaLiteTesting {
             Assertions.assertThrows(MonetDBEmbeddedException.class, () -> connection.sendQuery("SELECT 1;"));
             //Stop the database again also shouldn't work
             Assertions.assertThrows(MonetDBEmbeddedException.class, MonetDBEmbeddedDatabase::StopDatabase);
+
+            //start again the database and stop it
+            Path otherPath = Files.createTempDirectory("monetdbtestother");
+            MonetDBEmbeddedDatabase.StartDatabase(otherPath.toString(), true, false);
+            MonetDBEmbeddedDatabase.CreateConnection();
+            MonetDBEmbeddedDatabase.StopDatabase();
         }
     }
 }

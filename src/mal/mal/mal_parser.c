@@ -1112,6 +1112,10 @@ fcnHeader(Client cntxt, int kind)
 	cntxt->backup = cntxt->curprg;
 	cntxt->curprg = newFunction( modnme, fnme, kind);
 	curPrg = cntxt->curprg;
+	if (!curPrg) {
+		cntxt->curprg = cntxt->backup;
+		return NULL;
+	}
 	curBlk = curPrg->def;
 	curBlk->flowfixed = 0;
 	curBlk->typefixed = 0;
@@ -1547,6 +1551,10 @@ parseAssign(Client cntxt, int cntrl)
 	curPrg = cntxt->curprg;
 	curBlk = curPrg->def;
 	curInstr = newInstruction(curBlk, cntrl ? cntrl : ASSIGNsymbol);
+	if (!curInstr) {
+		curBlk->errors++;
+		return;
+	}
 
 	/* start the parsing by recognition of the lhs of an assignment */
 	if (currChar(cntxt) == '(') {
@@ -1791,6 +1799,9 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			if (! skipcomments && e > start && curBlk->stop > 0 ) {
 				ValRecord cst;
 				curInstr = newInstruction(curBlk, REMsymbol);
+				if (!curInstr) {
+					return 1;
+				}
 				cst.vtype = TYPE_str;
 				cst.len = (int) strlen(start);
 				cst.val.sval = GDKstrdup(start);
@@ -1816,6 +1827,9 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 		case 'C': case 'c':
 			if (MALkeyword(cntxt, "command", 7)) {
 				parseCommandPattern(cntxt, COMMANDsymbol);
+				if (!cntxt->curprg) {
+					return 1;
+				}
 				cntxt->curprg->def->unsafeProp = unsafeProp;
 				if( inlineProp )
 					showException(cntxt->fdout, SYNTAX, "parseError", "INLINE ignored");
@@ -1883,6 +1897,9 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 				if( inlineProp )
 					showException(cntxt->fdout, SYNTAX, "parseError", "INLINE ignored");
 				parseCommandPattern(cntxt, PATTERNsymbol);
+				if (!cntxt->curprg) {
+					return 1;
+				}
 				cntxt->curprg->def->unsafeProp = unsafeProp;
 				inlineProp = 0;
 				unsafeProp = 0;

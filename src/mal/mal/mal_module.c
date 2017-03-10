@@ -19,14 +19,17 @@
 #include "mal_listing.h"
 #include "mal_private.h"
 
-// SHOULD BE PROTECTED WITH LOCKS
+// SHOULD BE PROTECTED WITH LOCKS -> 2017 update. The locks were added for MonetDBLite but we have to check
 /*
  * Definition of a new module may interfere with concurrent actions.
  * A jump table is mainted to provide a quick start in the module
  * table to find the correct one. 
  *
  * All modules are persistent during a server session
+ *
  */
+
+static MT_Lock moduleChain_contextLock MT_LOCK_INITIALIZER("moduleChain_contextLock");
 Module moduleIndex[256][256];	/* to speedup access to correct scope */
 static Module moduleChain;		/* keep the modules in a chain as well */
 
@@ -34,27 +37,19 @@ static void newModuleSpace(Module scope){
 	scope->space = (Symbol *) GDKzalloc(MAXSCOPE * sizeof(Symbol));
 }
 
-Module
+/*Module
 getModuleChain(void){
 	return moduleChain;
-}
+}*/
 
 void
 mal_module_reset(void)
 {
+	//MT_lock_set(&moduleChain_contextLock);
 	while (moduleChain)
 		freeModule(moduleChain);
 	memset(moduleIndex, 0, sizeof(moduleIndex));
-}
-
-static void clrModuleIndex(str nme, Module cur){
-		if( moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]]== cur)
-			moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]]= cur->link;
-}
-
-static void setModuleIndex(str nme, Module cur){
-		cur->link= moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]];
-		moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]]= cur;
+	//MT_lock_unset(&moduleChain_contextLock);
 }
 
 /*
@@ -83,9 +78,12 @@ Module newModule(Module scope, str nme){
 	}
 	// User modules are never global
 	if( strcmp(nme,"user")){
-		setModuleIndex(nme,cur);
+		MT_lock_set(&moduleChain_contextLock);
+		cur->link= moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]];
+		moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]]= cur;
 		cur->next = moduleChain;
 		moduleChain = cur;
+		MT_lock_unset(&moduleChain_contextLock);
 	}
 	return cur;
 }
@@ -95,16 +93,21 @@ Module newModule(Module scope, str nme){
  */
 Module fixModule(Module scope, str nme){
 	Module s= 0;
+	int broke = 0;
 
 	if( strcmp(nme,"user")==0)
 		return scope;
+	MT_lock_set(&moduleChain_contextLock);
 	s= moduleIndex[((unsigned char *) nme)[0]][((unsigned char *) nme)[1]];
-	while(s != NULL){
-		if( nme == s->name )
-			return s;
-		s= s->link;
+	while(s != NULL && !broke){
+		if( nme == s->name ) {
+			broke = 1;
+		} else {
+			s= s->link;
+		}
 	}
-	return newModule(scope, nme);
+	MT_lock_unset(&moduleChain_contextLock);
+	return broke ? s : newModule(scope, nme);
 }
 /*
  * The freeModule operation throws away a symbol without
@@ -142,6 +145,8 @@ void freeModule(Module m)
 			(void)ret;
 		}
 	}
+
+	MT_lock_set(&moduleChain_contextLock);
 	if (moduleChain == m)
 		moduleChain = m->next;
 	else {
@@ -156,7 +161,9 @@ void freeModule(Module m)
 	}
 	m->next = NULL;
 	freeSubScope(m);
-	clrModuleIndex(m->name, m);
+	if( moduleIndex[((unsigned char *) m->name)[0]][((unsigned char *) m->name)[1]]== m)
+		moduleIndex[((unsigned char *) m->name)[0]][((unsigned char *) m->name)[1]]= m->link;
+	MT_lock_unset(&moduleChain_contextLock);
 	if (m->help)
 		GDKfree(m->help);
 	GDKfree(m);
@@ -247,28 +254,46 @@ void deleteSymbol(Module scope, Symbol prg){
  * to the current user.
  */
 Module findModule(Module scope, str name){
-	Module def=scope;
-	if( name==NULL) return scope;
+	Module def = scope;
+	int broke = 0;
+
+	if( name == NULL) return scope;
+
+	MT_lock_set(&moduleChain_contextLock);
 	scope= moduleIndex[((unsigned char *) name)[0]][((unsigned char *) name)[1]];
-	while(scope != NULL){
-			if( name == scope->name )
-					return scope;
-			scope= scope->link;
+	while(scope != NULL && !broke){
+		if( name == scope->name ) {
+			broke = 1;
+		} else {
+			scope = scope->link;
+		}
 	}
+	MT_lock_unset(&moduleChain_contextLock);
+
+	if(broke) return scope;
+
 	/* default is always matched with current */
 	if( def->name==NULL) return NULL;
 	return def;
 }
 int isModuleDefined(Module scope, str name){
+	int broke = 0;
+
 	if( name==NULL || scope==NULL) return FALSE;
 	if( name == scope->name) return TRUE;
+
+	MT_lock_set(&moduleChain_contextLock);
 	scope= moduleIndex[((unsigned char *) name)[0]][((unsigned char *) name)[1]];
-	while(scope != NULL){
-			if( name == scope->name )
-					return TRUE;
+	while(scope != NULL && !broke){
+		if( name == scope->name ) {
+			broke = 1;
+		} else {
 			scope= scope->link;
+		}
 	}
-	return FALSE;
+	MT_lock_unset(&moduleChain_contextLock);
+
+	return broke ? TRUE : FALSE;
 }
 /*
  * The routine findSymbolInModule starts at a MAL scope level and searches

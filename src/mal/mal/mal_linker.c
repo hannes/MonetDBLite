@@ -36,16 +36,17 @@
 
 /* Just for the Java embedded connection */
 
-static const char* monetDB5LibraryPath = NULL;
+static char* monetDB5LibraryPath = NULL;
 
 void freeMonetDB5LibraryPath(void) {
 	if(monetDB5LibraryPath != NULL) {
-		GDKfree((void*) monetDB5LibraryPath);
+		GDKfree(monetDB5LibraryPath);
+        monetDB5LibraryPath = NULL;
 	}
 }
 
 void setMonetDB5LibraryPath(const char* path) {
-	if(monetDB5LibraryPath) {
+	if(monetDB5LibraryPath != NULL) {
 		freeMonetDB5LibraryPath();
 	}
 	monetDB5LibraryPath = GDKstrdup(path);

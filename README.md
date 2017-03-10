@@ -375,9 +375,6 @@ and [`int getNetworkTimeout()`](https://docs.oracle.com/javase/8/docs/api/java/s
 are insignificant as there is no network involved in the Embedded connection.
 * [Batch Processing](https://www.tutorialspoint.com/jdbc/jdbc-batch-processing.htm) is not possible in a Embedded
 connection, due to its removal from MonetDBLite.
-* The [Savepoints](https://docs.oracle.com/javase/8/docs/api/java/sql/Savepoint.html) feature is not working properly in
-the Embedded connection due to MonetDBLite's architecture. However if enough interest is made, this feature can be fixed
-in MonetDBLite.
 
 ## FAQs
 
