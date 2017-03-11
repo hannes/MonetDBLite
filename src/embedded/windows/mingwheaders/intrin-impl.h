@@ -553,8 +553,8 @@ extern "C" {
 /*unsigned long _lrotl(unsigned long __X, int __C);*/
 #ifndef THIS_SUCKS_GG
 #define THIS_SUCKS_GG
-inline unsigned long _lrotl(unsigned long __X, int __C) {
-  return (__X << __C) | (__X >> ((sizeof(long) * 8) - __C));
+inline unsigned __int64 _lrotl(unsigned __int64 __X, int __C) {
+  return (__X << __C) | (__X >> ((sizeof(__int64) * 8) - __C));
 }
 #endif
 
@@ -565,8 +565,8 @@ inline unsigned long _lrotl(unsigned long __X, int __C) {
 /*unsigned long _lrotr(unsigned long __X, int __C);*/
 #ifndef THIS_SUCKS_HH
 #define THIS_SUCKS_HH
-inline unsigned long _lrotr(unsigned long __X, int __C) {
-  return (__X >> __C) | (__X << ((sizeof(long) * 8) - __C));
+inline unsigned __int64 _lrotr(unsigned __int64 __X, int __C) {
+  return (__X >> __C) | (__X << ((sizeof(__int64) * 8) - __C));
 }
 #endif
 #define __INTRINSIC_DEFINED__lrotr
