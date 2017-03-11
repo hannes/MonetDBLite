@@ -551,21 +551,24 @@ extern "C" {
 
 #if __INTRINSIC_PROLOG(_lrotl)
 /*unsigned long _lrotl(unsigned long __X, int __C);*/
-inline
-unsigned long _lrotl(unsigned long __X, int __C)
-{
+#ifndef THIS_SUCKS_GG
+#define THIS_SUCKS_GG
+inline unsigned long _lrotl(unsigned long __X, int __C) {
   return (__X << __C) | (__X >> ((sizeof(long) * 8) - __C));
 }
+#endif
+
 #define __INTRINSIC_DEFINED__lrotl
 #endif /* __INTRINSIC_PROLOG */
 
 #if __INTRINSIC_PROLOG(_lrotr)
 /*unsigned long _lrotr(unsigned long __X, int __C);*/
-inline
-unsigned long _lrotr(unsigned long __X, int __C)
-{
+#ifndef THIS_SUCKS_HH
+#define THIS_SUCKS_HH
+inline unsigned long _lrotr(unsigned long __X, int __C) {
   return (__X >> __C) | (__X << ((sizeof(long) * 8) - __C));
 }
+#endif
 #define __INTRINSIC_DEFINED__lrotr
 #endif /* __INTRINSIC_PROLOG */
 
