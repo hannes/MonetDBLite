@@ -559,12 +559,12 @@ float __cdecl __MINGW_NOTHROW strtof(const char * __restrict__ _Str,char ** __re
 #else
 
 /* Remove buggy x86intrin.h definitions if present (see gcc bug 61662). */
-#undef _lrotr
-#undef _lrotl
+//#undef _lrotr
+//#undef _lrotl
 
 /* These prototypes work for x86, x64 (native Windows), and cyginwin64. */
-unsigned long __cdecl _lrotl(unsigned long,int);
-unsigned long __cdecl _lrotr(unsigned long,int);
+//unsigned __int64 __cdecl _lrotl(unsigned __int64,__LONG32);
+//unsigned __int64 __cdecl _lrotr(unsigned __int64,__LONG32);
 
 #endif /* defined(__INTRIN_H_) || \
     (defined(_X86INTRIN_H_INCLUDED) && \
