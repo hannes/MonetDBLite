@@ -123,6 +123,7 @@ esac
 
 # Move the compiled library to the Gradle directory
 cd $BASEDIR
+
 mkdir -p monetdb-java-lite/src/main/resources/libs/$BUILDSYS
 mv $BUILDDIR/$BUILDLIBRARY monetdb-java-lite/src/main/resources/libs/$BUILDSYS
 
@@ -132,6 +133,11 @@ if [ $1 == "windows" ] ; then
     cd $SOURCEDIR
     make distclean
     cd $BASEDIR
+fi
+
+# On MacOS as we are compiling inside a Docker Containter we have to change the permissions...
+if [ ! -z $TRAVIS  ] && [ $1 == "macos" ] ; then
+    chmod -R 777 monetdb-java-lite/src/main/resources/libs/$BUILDSYS
 fi
 
 # If we are not on Travis then we perform the gradle build

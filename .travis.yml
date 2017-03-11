@@ -4,8 +4,11 @@ language: java
 
 addons:
     apt:
+        sources:
+            - ubuntu-toolchain-r-test
         packages:
             - oracle-java8-installer
+            - gcc-6
 
 git:
     depth: 1
@@ -45,10 +48,14 @@ env:
         - LC_TELEPHONE=en_US.utf8
         - LC_MEASUREMENT=en_US.utf8
         - LC_IDENTIFICATION=en_US.utf8
+        - CC=/usr/bin/gcc-6
 
 before_install:
     # From http://stackoverflow.com/a/11069162
     - sudo apt-get -qy update
+    # Update GCC
+    - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+    - gcc -v
     # To compile to 64-bit Windows binaries (override some headers)
     - sudo apt-get install -qq -y realpath coreutils
     - sudo aptitude install -y gcc-mingw-w64
