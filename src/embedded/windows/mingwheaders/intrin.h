@@ -73,8 +73,8 @@ extern "C" {
 #include <x86intrin.h>
 
 /* Before 4.9.2, x86intrin.h had broken versions of these. */
-#undef _lrotl
-#undef _lrotr
+//#undef _lrotl
+//#undef _lrotr
 
 #if defined(__cplusplus)
 }

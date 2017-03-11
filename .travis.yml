@@ -78,7 +78,7 @@ script:
     - cd MonetDBLite
     - bash compile.sh linux
     - cd ../MonetDBLiteMacOS
-    - docker run -it --rm -v $(pwd):/workdir -e CROSS_TRIPLE=x86_64-apple-darwin -e TRAVIS=1 multiarch/crossbuild bash compile.sh macos
+    - docker run -it --rm -v $(pwd):/workdir -u `id -u $USER` -e CROSS_TRIPLE=x86_64-apple-darwin -e TRAVIS=1 multiarch/crossbuild bash compile.sh macos
     - cd ../MonetDBLiteWindows
     - bash compile.sh windows
     # Assemble everything with Gradle, but move the generated binaries first

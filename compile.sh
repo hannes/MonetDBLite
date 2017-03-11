@@ -137,7 +137,7 @@ fi
 
 # On MacOS as we are compiling inside a Docker Containter we have to change the permissions...
 if [ ! -z $TRAVIS  ] && [ $1 == "macos" ] ; then
-    chmod -R 777 monetdb-java-lite/src/main/resources/libs/$BUILDSYS
+    chmod -R 777 monetdb-java-lite
 fi
 
 # If we are not on Travis then we perform the gradle build

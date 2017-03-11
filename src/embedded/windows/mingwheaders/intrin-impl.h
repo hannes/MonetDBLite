@@ -546,8 +546,8 @@ extern "C" {
 #endif
 
 /* Before 4.9.2, ia32intrin.h had broken versions of these. */
-#undef _lrotl
-#undef _lrotr
+//#undef _lrotl
+//#undef _lrotr
 
 #if __INTRINSIC_PROLOG(_lrotl)
 /*unsigned long _lrotl(unsigned long __X, int __C);*/
