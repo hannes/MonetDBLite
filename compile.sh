@@ -4,7 +4,7 @@ set -ev
 
 # for osxcross on the dockerfile
 if [ ! -z $TRAVIS  ] && [ $1 == "macos" ] ; then
-    apt-get -qq update && apt-get -qq -y install pkg-config pkgconf
+    apt-get -qq update && apt-get -qq -y install pkg-config pkgconf flex bison byacc
 fi
 
 PREVDIRECTORY=`pwd`
@@ -48,7 +48,7 @@ BUILDDIR=`pwd`
 # Prepare the compilation flags depending on the target BUILD
 case "$1" in
     windows)
-        ADD_CFLAGS="-O3 -m64 -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2 -I/usr/x86_64-w64-mingw32/include -I$SOURCEDIR/embedded/incwindows -Wl,-rpath=/usr/x86_64-w64-mingw32/lib"
+        ADD_CFLAGS="-O3 -m64 -std=c99 -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2 -I/usr/x86_64-w64-mingw32/include -I$SOURCEDIR/embedded/incwindows -Wl,-rpath=/usr/x86_64-w64-mingw32/lib"
         if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	     echo "Using debug flags"
 	     ADD_CFLAGS="-O0 -g -m64"
