@@ -38,7 +38,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnectio
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_sendQueryInternal
     (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring query, jboolean execute) {
     int i, numberOfColumns, numberOfRows;
-    const char *query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
+    const char *query_string_tmp;
     char *err = NULL, *nextSQLName;
     res_table *output = NULL;
     jobject result;
@@ -47,15 +47,23 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     JResultSet* thisResultSet;
     res_col col;
 
-    // Execute the query
     if(connectionPointer == 0) {
-        err = GDKstrdup("Connection already closed?");
-    } else {
-        err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+       (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "Connection already closed?");
+       return NULL;
     }
+
+    query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
+    if(query_string_tmp == NULL) {
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
+        return NULL;
+    }
+
+    //execute the query
+    err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
     if (err) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
+        GDKfree(err);
         monetdb_cleanup_result(NULL, output);
         return NULL;
     }
@@ -69,9 +77,13 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     }
 
     //QueryResultSetMonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns, int numberOfRows, int[] typesIDs)
-    typesIDs = (*env)->NewIntArray(env, numberOfColumns);
     copy = GDKmalloc(sizeof(jint) * numberOfColumns);
     thisResultSet = createResultSet(output);
+    if(thisResultSet == NULL || copy == NULL) {
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
+        return NULL;
+    }
+    typesIDs = (*env)->NewIntArray(env, numberOfColumns);
 
     for (i = 0; i < numberOfColumns; i++) {
         col = output->cols[i];
@@ -108,11 +120,13 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     }
 
     if((*env)->ExceptionCheck(env) == JNI_TRUE) {
+        GDKfree(result);
         result = NULL;
     } else {
         numberOfRows = BATcount(thisResultSet->bats[0]);
         (*env)->SetIntArrayRegion(env, typesIDs, 0, numberOfColumns, copy);
-        result = (*env)->NewObject(env, getQueryResultSetID(), getQueryResultSetConstructorID(), jconnection, (jlong) thisResultSet, numberOfColumns, numberOfRows, typesIDs);
+        result = (*env)->NewObject(env, getQueryResultSetID(), getQueryResultSetConstructorID(), jconnection,
+                                   (jlong) thisResultSet, numberOfColumns, numberOfRows, typesIDs);
     }
     GDKfree(copy);
     return result;
@@ -120,14 +134,27 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_getMonetDBTableInternal
     (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring tableSchema, jstring tableName) {
-    const char *schema_name_tmp = (*env)->GetStringUTFChars(env, tableSchema, NULL), *table_name_tmp = (*env)->GetStringUTFChars(env, tableName, NULL);
+    const char *schema_name_tmp, *table_name_tmp;
     char *err = NULL;
     sql_table* table;
+
+    schema_name_tmp = (*env)->GetStringUTFChars(env, tableSchema, NULL);
+    if(schema_name_tmp == NULL) {
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
+        return NULL;
+    }
+    table_name_tmp = (*env)->GetStringUTFChars(env, tableName, NULL);
+    if(table_name_tmp == NULL) {
+        (*env)->ReleaseStringUTFChars(env, tableSchema, schema_name_tmp);
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
+        return NULL;
+    }
 
     err = monetdb_find_table((void*) connectionPointer, &table, schema_name_tmp, table_name_tmp);
     (*env)->ReleaseStringUTFChars(env, tableSchema, schema_name_tmp);
     (*env)->ReleaseStringUTFChars(env, tableName, table_name_tmp);
     if (err) {
+       GDKfree(err);
        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
        return NULL;
     }

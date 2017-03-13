@@ -19,11 +19,15 @@
     void check##NAME##Nulls(JNIEnv* env, jbooleanArray input, jint size, BAT* b) { \
         const JAVA_CAST* array = (const JAVA_CAST*) Tloc(b, 0); \
         jboolean* aux = (jboolean*) GDKmalloc(sizeof(jboolean) * size); \
-        for(int i = 0 ; i < size ; i++) { \
-            aux[i] = (array[i] == NULL_CONST##_nil) ? JNI_TRUE : JNI_FALSE; \
+        if(aux == NULL) { \
+            (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
+        } else { \
+            for(int i = 0 ; i < size ; i++) { \
+                aux[i] = (array[i] == NULL_CONST##_nil) ? JNI_TRUE : JNI_FALSE; \
+            } \
+            (*env)->SetBooleanArrayRegion(env, input, 0, size, aux); \
+            GDKfree(aux); \
         } \
-        (*env)->SetBooleanArrayRegion(env, input, 0, size, aux); \
-        GDKfree(aux); \
     }
 
 CHECK_NULLS_LEVEL_ONE(Boolean, jboolean, bit)
@@ -40,11 +44,15 @@ CHECK_NULLS_LEVEL_ONE(Time, jint, int)
 void checkTimestampNulls(JNIEnv* env, jbooleanArray input, jint size, BAT* b) {
     const timestamp* array = (const timestamp*) Tloc(b, 0);
     jboolean* aux = (jboolean*) GDKmalloc(sizeof(jboolean) * size);
-    for(int i = 0 ; i < size ; i++) {
-        aux[i] = ts_isnil(array[i]) ? JNI_TRUE : JNI_FALSE;
+    if(aux == NULL) {
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!");
+    } else {
+        for(int i = 0 ; i < size ; i++) {
+            aux[i] = ts_isnil(array[i]) ? JNI_TRUE : JNI_FALSE;
+        }
+        (*env)->SetBooleanArrayRegion(env, input, 0, size, aux);
+        GDKfree(aux);
     }
-    (*env)->SetBooleanArrayRegion(env, input, 0, size, aux);
-    GDKfree(aux);
 }
 
 #define GET_BAT_STRING_NULL      str nvalue = BUNtail(li, p);
@@ -57,13 +65,17 @@ void checkTimestampNulls(JNIEnv* env, jbooleanArray input, jint size, BAT* b) {
     void check##NAME##Nulls(JNIEnv* env, jbooleanArray input, jint size, BAT* b) { \
         BATiter li = bat_iterator(b); \
         jboolean* aux = (jboolean*) GDKmalloc(sizeof(jboolean) * size); \
-        int i = 0; \
-        for (BUN p = 0, q = (BUN) size; p < q; p++) { \
-            GET_ATOM \
-            aux[i++] = (CHECK_ATOM) ? JNI_TRUE : JNI_FALSE; \
+        if(aux == NULL) { \
+            (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
+        } else { \
+            int i = 0; \
+            for (BUN p = 0, q = (BUN) size; p < q; p++) { \
+                GET_ATOM \
+                aux[i++] = (CHECK_ATOM) ? JNI_TRUE : JNI_FALSE; \
+            } \
+            (*env)->SetBooleanArrayRegion(env, input, 0, size, aux); \
+            GDKfree(aux); \
         } \
-        (*env)->SetBooleanArrayRegion(env, input, 0, size, aux); \
-        GDKfree(aux); \
     }
 
 CHECK_NULLS_LEVEL_TWO(String, GET_BAT_STRING_NULL, CHECK_NULL_STRING_NULL)

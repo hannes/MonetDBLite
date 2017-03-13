@@ -254,12 +254,17 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_appendCo
     AFTERLOAD
 
     if((*env)->ExceptionCheck(env) == JNI_TRUE) {
-        return 0;
+        return -1;
     }
 
     jindexes = (*env)->GetIntArrayElements(env, javaIndexes, NULL);
-    newdata = GDKmalloc(ncols * sizeof(append_data));
     numberOfRows = (*env)->GetArrayLength(env, (*env)->GetObjectArrayElement(env, columnData, 0));
+    newdata = GDKmalloc(ncols * sizeof(append_data));
+    if(newdata == NULL) {
+        (*env)->ReleaseIntArrayElements(env, javaIndexes, jindexes, JNI_ABORT);
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
+        return -1;
+    }
 
     for (n = tableData->columns.set->h; n; n = n->next) {
         col = n->data;
@@ -363,7 +368,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_appendCo
     if (err) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
         GDKfree(err);
-        return 0;
+        return -1;
     } else {
         return numberOfRows;
     }

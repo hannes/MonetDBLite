@@ -14,12 +14,19 @@
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_StartDatabaseInternal
     (JNIEnv *env, jclass monetDBEmbeddedDatabase, jstring dbDirectory, jboolean silentFlag, jboolean sequentialFlag) {
-    const char *dbdir_string_tmp = (*env)->GetStringUTFChars(env, dbDirectory, NULL);
+    const char *dbdir_string_tmp;
     const char *loadPath_tmp;
     char *err;
     jclass exceptionCls, loaderCls;
     jfieldID pathID;
     jstring loadPath;
+
+    dbdir_string_tmp = (*env)->GetStringUTFChars(env, dbDirectory, NULL);
+    if(dbdir_string_tmp == NULL) {
+        exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
+        (*env)->ThrowNew(env, exceptionCls, "System out memory!");
+        return NULL;
+    }
 
     if(!monetdb_is_initialized()) {
         //initialize the java ID fields for faster Java data loading later on
@@ -46,7 +53,6 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDataba
     } else {
         exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
         (*env)->ThrowNew(env, exceptionCls, "Only one MonetDB Embedded database is allowed per process!");
-        (*env)->DeleteLocalRef(env, exceptionCls);
         return NULL;
     }
 }
@@ -66,7 +72,6 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_
     } else {
         exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
         (*env)->ThrowNew(env, exceptionCls, "The MonetDB Embedded database is not running!");
-        (*env)->DeleteLocalRef(env, exceptionCls);
     }
 }
 
@@ -86,7 +91,6 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDataba
     } else {
         exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
         (*env)->ThrowNew(env, exceptionCls, "The MonetDB Embedded database is not running!");
-        (*env)->DeleteLocalRef(env, exceptionCls);
         return NULL;
     }
 }
@@ -107,7 +111,6 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDataba
     } else {
         exceptionCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBEmbeddedException");
         (*env)->ThrowNew(env, exceptionCls, "The MonetDB Embedded database is not running!");
-        (*env)->DeleteLocalRef(env, exceptionCls);
         return NULL;
     }
 }

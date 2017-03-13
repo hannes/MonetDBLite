@@ -24,13 +24,20 @@ static void setErrorResponse(JNIEnv *env, jobject jdbccon, char* errorMessage) {
 }
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_getNextTableHeaderInternal
-    (JNIEnv *env, jobject jdbccon, jlong resultSetPointer, jobjectArray columnNames, jintArray columnLengths, jobjectArray types, jobjectArray tableNames) {
+    (JNIEnv *env, jobject jdbccon, jlong resultSetPointer, jobjectArray columnNames, jintArray columnLengths,
+    jobjectArray types, jobjectArray tableNames) {
     res_table *output = (res_table *) resultSetPointer;
     int numberOfColumns = (*env)->GetArrayLength(env, columnNames);
-    jint* columnLengthsFound = GDKmalloc(numberOfColumns * sizeof(jint));
+    jint* columnLengthsFound;
     res_col col;
     jstring colname, sqlname, tablename;
     (void) jdbccon;
+
+    columnLengthsFound = GDKmalloc(numberOfColumns * sizeof(jint));
+    if(columnLengthsFound == NULL) {
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
+        return;
+    }
 
     for (int i = 0; i < numberOfColumns; i++) {
         col = output->cols[i];
@@ -53,8 +60,13 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_initializePointersInternal
     (JNIEnv *env, jobject jdbccon, jlong lastResultSetPointer, jobject embeddedDataBlockResponse) {
     res_table* output = (res_table*) lastResultSetPointer;
-    JResultSet* thisResultSet = createResultSet(output);
+    JResultSet* thisResultSet;
     (void) jdbccon;
+
+    thisResultSet = createResultSet(output);
+    if(thisResultSet == NULL) {
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "Connection already closed?");
+    }
     (*env)->SetLongField(env, embeddedDataBlockResponse, getStructPointerID(), (jlong) thisResultSet);
 }
 
@@ -63,18 +75,24 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     long lastId, rowCount;
     int lineResponseCounter = 0, query_type, autoCommitStatus, numberOfRows;
     jint nextResponses[4], responseParameters[3];
-    const char *query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
+    const char *query_string_tmp;
     char *err = NULL;
     res_table *output = NULL;
     BAT* dearBat;
     jintArray lineResponse, lastServerResponseParameters;
 
-    // Execute the query
     if(connectionPointer == 0) {
-        err = GDKstrdup("Connection already closed?");
-    } else {
-        err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "Connection already closed?");
+        return;
     }
+
+    query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
+    if(query_string_tmp == NULL) {
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
+        return;
+    }
+
+    err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
     if (err) { //if there are errors, set the error string and exit
         setErrorResponse(env, jdbccon, err);
@@ -112,11 +130,13 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
             break;
         case 2: //UPDATE
             getUpdateQueryData((void*) connectionPointer, &lastId, &rowCount);
-            (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env, getUpdateResponseClassID(), getUpdateResponseConstructorID(), (jint) lastId, (jint) rowCount));
+            (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env,
+            getUpdateResponseClassID(), getUpdateResponseConstructorID(), (jint) lastId, (jint) rowCount));
             break;
         case 4: //TRANSACTION
             autoCommitStatus = getAutocommitFlag((void*) connectionPointer);
-            (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env, getAutoCommitResponseClassID(), getAutoCommitResponseConstructorID(), (autoCommitStatus) ? JNI_TRUE : JNI_FALSE));
+            (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env,
+            getAutoCommitResponseClassID(), getAutoCommitResponseConstructorID(), (autoCommitStatus) ? JNI_TRUE : JNI_FALSE));
             break;
     }
     nextResponses[lineResponseCounter++] = 4; //PROMPT
@@ -137,7 +157,8 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     if (err) { //if there is an error set it and return
         setErrorResponse(env, jdbccon, err);
     } else {
-        (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env, getAutoCommitResponseClassID(), getAutoCommitResponseConstructorID(), (autoCommitStatus) ? JNI_TRUE : JNI_FALSE));
+        (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env,
+        getAutoCommitResponseClassID(), getAutoCommitResponseConstructorID(), (autoCommitStatus) ? JNI_TRUE : JNI_FALSE));
     }
 }
 

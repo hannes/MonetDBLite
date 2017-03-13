@@ -2,9 +2,17 @@
 
 set -ev
 
-# for osxcross on the dockerfile
+# for OSXcross in the Dockerfile
 if [ ! -z $TRAVIS  ] && [ $1 == "macos" ] ; then
     apt-get -qq update && apt-get -qq -y install pkg-config pkgconf flex bison byacc
+fi
+
+# for yakkety in the Dockerfile
+if [ ! -z $TRAVIS  ] && [ $1 == "windows" ] ; then
+    \cp src/embedded/windows/mingwheaders/intrin.h /usr/x86_64-w64-mingw32/include/intrin.h
+    \cp src/embedded/windows/mingwheaders/stdlib.h /usr/x86_64-w64-mingw32/include/stdlib.h
+    \cp src/embedded/windows/mingwheaders/time.h /usr/x86_64-w64-mingw32/include/time.h
+    \cp src/embedded/windows/mingwheaders/intrin-impl.h /usr/x86_64-w64-mingw32/include/psdk_inc/intrin-impl.h
 fi
 
 PREVDIRECTORY=`pwd`
@@ -103,7 +111,7 @@ case "$1" in
         fi
         OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
         $CC $ADD_CFLAGS -shared -fPIC -Wl,--export-all-symbols -o $BUILDDIR/$BUILDLIBRARY $OFILES -lws2_32 -lpthread -lpsapi
-        if [ ! -s $BUILDLIBRARY ] ; then
+        if [ ! -s $BUILDDIR/$BUILDLIBRARY ] ; then
 	        echo "library file was not created, something went wrong"
         fi
         ;;
@@ -135,10 +143,8 @@ if [ $1 == "windows" ] ; then
     cd $BASEDIR
 fi
 
-# On MacOS as we are compiling inside a Docker Containter we have to change the permissions...
-if [ ! -z $TRAVIS  ] && [ $1 == "macos" ] ; then
-    chmod -R 777 monetdb-java-lite
-fi
+# For when compiling in a Docker container
+chmod -R 777 monetdb-java-lite
 
 # If we are not on Travis then we perform the gradle build
 if [ -z $TRAVIS ] ; then

@@ -206,12 +206,16 @@ FETCHING_LEVEL_FOUR(Blob, jbyteArray, GET_BAT_BLOB, CHECK_NULL_BLOB, BAT_TO_JBLO
         jboolean isCopy; \
         const JAVA_CAST* array = (const JAVA_CAST*) Tloc(b, 0); \
         JAVA_CAST* inputConverted = (JAVA_CAST*) (*env)->GetPrimitiveArrayCritical(env, input, &isCopy); \
-        if(isCopy == JNI_FALSE) { \
-            memcpy(inputConverted, array + first, size * INTERNAL_SIZE); \
+        if(inputConverted == NULL) { \
+            (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
         } else { \
-            (*env)->Set##ARRAY_FUNCTION_NAME##ArrayRegion(env, input, first, size, array); \
+            if(isCopy == JNI_FALSE) { \
+                memcpy(inputConverted, array + first, size * INTERNAL_SIZE); \
+            } else { \
+                (*env)->Set##ARRAY_FUNCTION_NAME##ArrayRegion(env, input, first, size, array); \
+            } \
+            (*env)->ReleasePrimitiveArrayCritical(env, input, inputConverted, 0); \
         } \
-        (*env)->ReleasePrimitiveArrayCritical(env, input, inputConverted, 0); \
     }
 
 BATCH_LEVEL_ONE(Boolean, jboolean, Boolean, sizeof(bit))
@@ -384,6 +388,7 @@ BATCH_LEVEL_FOUR(Blob, GET_BAT_BLOB, CHECK_NULL_BLOB, BAT_TO_JBLOB, blob*, jbyte
         BAT_CAST *p; \
         BAT_CAST value, prev = BAT_CAST##_nil; \
         if (!aux) { \
+            (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
             *b = NULL; \
             return; \
         } \
@@ -460,6 +465,7 @@ CONVERSION_LEVEL_ONE(Double, dbl, jdouble, Double)
         jobject value; \
         DIVMOD_HELPER_FIR \
         if (!aux) { \
+            (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
             *b = NULL; \
             return; \
         } \
@@ -512,6 +518,7 @@ CONVERSION_LEVEL_TWO(Timestamp, timestamp, *timestamp_nil, JTIMESTAMP_TO_BAT, TI
         jstring nvalue; \
         const char *representation; \
         if (!aux) { \
+            (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
             *b = NULL; \
             return; \
         } \
@@ -532,11 +539,16 @@ CONVERSION_LEVEL_TWO(Timestamp, timestamp, *timestamp_nil, JTIMESTAMP_TO_BAT, TI
                 bigDecimal = (*env)->CallObjectMethod(env, value, lsetBigDecimalScaleID, scale, roundingMode); \
                 nvalue = (*env)->CallObjectMethod(env, bigDecimal, lbigDecimalToStringID); \
                 representation = (*env)->GetStringUTFChars(env, nvalue, NULL); \
-                *p = (BAT_CAST) decimal_from_str_java(representation); \
-                (*env)->ReleaseStringUTFChars(env, nvalue, representation); \
-                (*env)->DeleteLocalRef(env, nvalue); \
-                (*env)->DeleteLocalRef(env, bigDecimal); \
-                (*env)->DeleteLocalRef(env, value); \
+                if(representation == NULL) { \
+                    (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
+                    *p = BAT_CAST##_nil; \
+                } else { \
+                    *p = (BAT_CAST) decimal_from_str_java(representation); \
+                    (*env)->ReleaseStringUTFChars(env, nvalue, representation); \
+                    (*env)->DeleteLocalRef(env, nvalue); \
+                    (*env)->DeleteLocalRef(env, bigDecimal); \
+                    (*env)->DeleteLocalRef(env, value); \
+                } \
             } \
             if (i > 0) { \
                 if (*p - prev > 0 && aux->trevsorted) { \
@@ -560,9 +572,17 @@ CONVERSION_LEVEL_THREE(lng)
 
 /* Put in the BAT's heap :S */
 
-#define JSTRING_TO_BAT      nvalue = (*env)->GetStringUTFChars(env, value, 0); \
-                            p = GDKstrdup(nvalue);                             \
-                            (*env)->ReleaseStringUTFChars(env, value, nvalue);
+#define JSTRING_TO_BAT      nvalue = (*env)->GetStringUTFChars(env, value, 0);                                                     \
+                            if(nvalue == NULL) {                                                                                   \
+                                (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!");     \
+                                p = NULL;                                                                                          \
+                            } else {                                                                                               \
+                                p = GDKstrdup(nvalue);                                                                             \
+                                if(p == NULL) {                                                                                    \
+                                    (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
+                                }                                                                                                  \
+                                (*env)->ReleaseStringUTFChars(env, value, nvalue);                                                 \
+                            }
 
 #define STRING_START        const char* nvalue;
 
@@ -570,11 +590,15 @@ CONVERSION_LEVEL_THREE(lng)
 
 #define STR_CMP             strcmp(p, prev)
 
-#define JBLOB_TO_BAT        nvalue = (jbyteArray) value;                                      \
-                            len = (*env)->GetArrayLength(env, nvalue);                        \
-                            p = GDKmalloc(blobsize(len));                                     \
-                            p->nitems = len;                                                  \
-                            (*env)->GetByteArrayRegion(env, nvalue, 0, len, (jbyte*)p->data);
+#define JBLOB_TO_BAT        nvalue = (jbyteArray) value;                                                                       \
+                            len = (*env)->GetArrayLength(env, nvalue);                                                         \
+                            p = GDKmalloc(blobsize(len));                                                                      \
+                            if(p == NULL) {                                                                                    \
+                                (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
+                            } else {                                                                                           \
+                                p->nitems = len;                                                                               \
+                                (*env)->GetByteArrayRegion(env, nvalue, 0, len, (jbyte*) p->data);                             \
+			    }
 
 #define BLOB_START          var_t bun_offset = 0; \
                             jsize len;            \
@@ -594,6 +618,7 @@ CONVERSION_LEVEL_THREE(lng)
         jobject value; \
         START_STEP \
         if (!aux) { \
+            (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
             *b = NULL; \
             return; \
         } \
@@ -610,6 +635,9 @@ CONVERSION_LEVEL_THREE(lng)
                 p = NULL_CONST; \
             } else { \
                 CONVERT_TO_BAT \
+                if(p == NULL) { \
+                   p = NULL_CONST; \
+                } \
                 (*env)->DeleteLocalRef(env, value); \
             } \
             PUT_IN_HEAP \

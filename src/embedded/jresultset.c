@@ -18,34 +18,51 @@ JResultSet* createResultSet(res_table* output) {
     int numberOfColumns = output->nr_cols, *quickerDigits, *quickerScales, i;
     BAT** dearBats;
     res_col col;
+    if(thisResultSet != NULL) {
+        thisResultSet->output = output;
+        thisResultSet->bats = (BAT**) GDKmalloc(sizeof(BAT*) * numberOfColumns);
+        thisResultSet->digits = (int*) GDKmalloc(sizeof(int) * numberOfColumns);
+        thisResultSet->scales = (int*) GDKmalloc(sizeof(int) * numberOfColumns);
 
-    thisResultSet->output = output;
-    thisResultSet->bats = (BAT**) GDKmalloc(sizeof(BAT*) * numberOfColumns);
-    thisResultSet->digits = (int*) GDKmalloc(sizeof(int) * numberOfColumns);
-    thisResultSet->scales = (int*) GDKmalloc(sizeof(int) * numberOfColumns);
-    dearBats = thisResultSet->bats;
-    quickerDigits = thisResultSet->digits;
-    quickerScales = thisResultSet->scales;
-
-    for (i = 0; i < numberOfColumns; i++) {
-        col = output->cols[i];
-        dearBats[i] = BATdescriptor(col.b);
-        quickerDigits[i] = (int) col.type.digits;
-        quickerScales[i] = (int) col.type.scale;
+        if(thisResultSet->bats == NULL || thisResultSet->digits == NULL || thisResultSet->scales == NULL) {
+            if(thisResultSet->bats != NULL) {
+                GDKfree(thisResultSet->bats);
+            }
+            if(thisResultSet->digits != NULL) {
+                GDKfree(thisResultSet->digits);
+            }
+            if(thisResultSet->scales != NULL) {
+                GDKfree(thisResultSet->scales);
+            }
+            GDKfree(thisResultSet);
+            thisResultSet = NULL;
+        } else {
+            dearBats = thisResultSet->bats;
+            quickerDigits = thisResultSet->digits;
+            quickerScales = thisResultSet->scales;
+            for (i = 0; i < numberOfColumns; i++) {
+                col = output->cols[i];
+                dearBats[i] = BATdescriptor(col.b);
+                quickerDigits[i] = (int) col.type.digits;
+                quickerScales[i] = (int) col.type.scale;
+            }
+        }
     }
     return thisResultSet;
 }
 
 void freeResultSet(JResultSet* thisResultSet) {
-    int numberOfColumns = thisResultSet->output->nr_cols, i;
-    BAT** dearBats = thisResultSet->bats;
+    if(thisResultSet != NULL) {
+        int numberOfColumns = thisResultSet->output->nr_cols, i;
+        BAT **dearBats = thisResultSet->bats;
 
-    for (i = 0; i < numberOfColumns; i++) {
-        BBPunfix(dearBats[i]->batCacheid);
+        for (i = 0; i < numberOfColumns; i++) {
+            BBPunfix(dearBats[i]->batCacheid);
+        }
+        GDKfree(dearBats);
+        GDKfree(thisResultSet->digits);
+        GDKfree(thisResultSet->scales);
+        monetdb_cleanup_result(NULL, thisResultSet->output);
+        GDKfree(thisResultSet);
     }
-    GDKfree(dearBats);
-    GDKfree(thisResultSet->digits);
-    GDKfree(thisResultSet->scales);
-    monetdb_cleanup_result(NULL, thisResultSet->output);
-    GDKfree(thisResultSet);
 }
