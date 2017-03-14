@@ -34,28 +34,29 @@ static int monetdb_embedded_initialized = 0;
 FILE* embedded_stdout;
 FILE* embedded_stderr;
 
-void* monetdb_connect(void) {
-	Client conn = NULL;
+char* monetdb_connect(Client* conn) {
+	str retval = MAL_SUCCEED;
 	if (!monetdb_embedded_initialized) {
-		return NULL;
+		retval = GDKstrdup("The embedded database is not initialized!");
 	}
-	conn = MCforkClient(&mal_clients[0]);
-	if (!MCvalid((Client) conn)) {
-		return NULL;
+	*conn = MCforkClient(&mal_clients[0]);
+	if (!MCvalid(*conn)) {
+		retval = GDKstrdup("The client fork failed!");
 	}
-	if (SQLinitClient(conn) != MAL_SUCCEED) {
-		return NULL;
-	}
-	((backend *) conn->sqlcontext)->mvc->session->auto_commit = 1;
-	return conn;
+	retval = SQLinitClient(*conn);
+    if(!retval) {
+        Client cc = *conn;
+        ((backend *) cc->sqlcontext)->mvc->session->auto_commit = 1;
+    }
+	return retval;
 }
 
-void monetdb_disconnect(void* conn) {
-	if (!MCvalid((Client) conn)) {
+void monetdb_disconnect(Client conn) {
+	if (!MCvalid(conn)) {
 		return;
 	}
-	SQLexitClient((Client) conn);
-	MCcloseClient((Client) conn);
+	SQLexitClient(conn);
+	MCcloseClient(conn);
 }
 
 #ifdef WIN32
@@ -72,7 +73,8 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	str retval = MAL_SUCCEED;
 	char* sqres = NULL;
 	void* res = NULL;
-	void* c;
+	Client conn;
+
 
 // we probably don't want this.
 //	if (setlocale(LC_CTYPE, "") == NULL) {
@@ -142,24 +144,23 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	if (silent) mal_clients[0].fdout = THRdata[0];
 
 	monetdb_embedded_initialized = true;
-	c = monetdb_connect();
-	if (c == NULL) {
+	retval = monetdb_connect(&conn);
+	if (retval != MAL_SUCCEED) {
 		monetdb_embedded_initialized = false;
-		retval = GDKstrdup("Failed to initialize client");
 		goto cleanup;
 	}
 	GDKfataljumpenable = 0;
 
 	// we do not want to jump after this point, since we cannot do so between threads
 	// sanity check, run a SQL query
-	sqres = monetdb_query(c, "SELECT * FROM tables;", 1, &res);
+	sqres = monetdb_query(conn, "SELECT * FROM tables;", 1, &res);
 	if (sqres != NULL) {
 		monetdb_embedded_initialized = false;
 		retval = sqres;
 		goto cleanup;
 	}
-	monetdb_cleanup_result(c, res);
-	monetdb_disconnect(c);
+	monetdb_cleanup_result(conn, res);
+	monetdb_disconnect(conn);
 	cleanup:
 	mo_free_options(set, setlen);
 	return retval;
@@ -169,17 +170,16 @@ int monetdb_is_initialized(void) {
 	return monetdb_embedded_initialized > 0;
 }
 
-char* monetdb_query(void* conn, char* query, char execute, void** result) {
+char* monetdb_query(Client conn, char* query, char execute, void** result) {
 	str res = MAL_SUCCEED;
-	Client c = (Client) conn;
 	mvc* m;
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
 	}
-	if (!MCvalid((Client) conn)) {
+	if (!MCvalid(conn)) {
 		return GDKstrdup("Invalid connection");
 	}
-	m = ((backend *) c->sqlcontext)->mvc;
+	m = ((backend *) conn->sqlcontext)->mvc;
 
 	while (*query == ' ' || *query == '\t') query++;
 	if (strncasecmp(query, "START", 5) == 0) { // START TRANSACTION
@@ -201,13 +201,13 @@ char* monetdb_query(void* conn, char* query, char execute, void** result) {
 	} else if (strncasecmp(query, "SHIBBOLEET", 10) == 0) {
 		res = GDKstrdup("\x46\x6f\x72\x20\x69\x6d\x6d\x65\x64\x69\x61\x74\x65\x20\x74\x65\x63\x68\x6e\x69\x63\x61\x6c\x20\x73\x75\x70\x70\x6f\x72\x74\x20\x63\x61\x6c\x6c\x20\x2b\x33\x31\x20\x32\x30\x20\x35\x39\x32\x20\x34\x30\x33\x39");
 	} else {
-		res = SQLstatementIntern(c, &query, "main", execute, 0, (res_table **) result);
+		res = SQLstatementIntern(conn, &query, "main", execute, 0, (res_table **) result);
 	}
-	SQLautocommit(c, m);
+	SQLautocommit(conn, m);
 	return res;
 }
 
-char* monetdb_append(void* conn, const char* schema, const char* table, append_data *data, int ncols) {
+char* monetdb_append(Client conn, const char* schema, const char* table, append_data *data, int ncols) {
 	int i;
 	int nvar = 6; // variables we need to make up
 	MalBlkRecord mb;
@@ -215,7 +215,6 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	InstrRecord*  pci = NULL;
 	str res = MAL_SUCCEED;
 	VarRecord bat_varrec;
-	Client c = (Client) conn;
 	mvc* m;
 
 	if (!monetdb_is_initialized()) {
@@ -224,10 +223,10 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	if(table == NULL || data == NULL || ncols < 1) {
 		return GDKstrdup("Invalid parameters");
 	}
-	if (!MCvalid((Client) conn)) {
+	if (!MCvalid(conn)) {
 		return GDKstrdup("Invalid connection");
 	}
-	m = ((backend *) c->sqlcontext)->mvc;
+	m = ((backend *) conn->sqlcontext)->mvc;
 
 	// very black MAL magic below
 	mb.var = GDKmalloc(nvar * sizeof(VarRecord*));
@@ -252,7 +251,7 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 		stk->stk[4].val.sval = ad.colname;
 		stk->stk[5].val.bval = ad.batid;
 
-		res = mvc_append_wrap(c, &mb, stk, pci);
+		res = mvc_append_wrap(conn, &mb, stk, pci);
 		if (res != NULL) {
 			break;
 		}
@@ -266,23 +265,23 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	return res;
 }
 
-void  monetdb_cleanup_result(void* conn, void* output) {
+void  monetdb_cleanup_result(Client conn, void* output) {
 	(void) conn; // not needing conn here (but perhaps someday)
 	res_tables_destroy((res_table*) output);
 }
 
-str monetdb_get_columns(void* conn, const char* schema_name, const char *table_name, int *column_count, char ***column_names, int **column_types) {
+str monetdb_get_columns(Client conn, const char* schema_name, const char *table_name, int *column_count, char ***column_names, int **column_types) {
 	mvc *m;
 	sql_schema *s;
 	sql_table *t;
 	char *msg = MAL_SUCCEED;
 	int columns;
 	node *n;
-	Client c = (Client) conn;
+    sql_column *col;
 
 	assert(column_count != NULL && column_names != NULL && column_types != NULL);
 
-	if ((msg = getSQLContext(c, NULL, &m, NULL)) != NULL)
+	if ((msg = getSQLContext(conn, NULL, &m, NULL)) != NULL)
 		return msg;
 
 	s = mvc_bind_schema(m, schema_name);
@@ -302,9 +301,9 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 	}
 
 	for (n = t->columns.set->h; n; n = n->next) {
-		sql_column *c = n->data;
-		(*column_names)[c->colnr] = c->base.name;
-		(*column_types)[c->colnr] = c->type.type->localtype;
+		col = n->data;
+		(*column_names)[col->colnr] = col->base.name;
+		(*column_types)[col->colnr] = col->type.type->localtype;
 	}
 
 	return msg;
@@ -318,13 +317,12 @@ void monetdb_shutdown(void) {
 	}
 }
 
-char* monetdb_find_table(void* conn, sql_table** table, const char* schema_name, const char* table_name) {
+char* monetdb_find_table(Client conn, sql_table** table, const char* schema_name, const char* table_name) {
     mvc *m;
     sql_schema *s;
     char *msg = MAL_SUCCEED;
-    Client c = (Client) conn;
 
-    if ((msg = getSQLContext(c, NULL, &m, NULL)) != NULL)
+    if ((msg = getSQLContext(conn, NULL, &m, NULL)) != NULL)
         return msg;
     s = mvc_bind_schema(m, schema_name);
     if (s == NULL)
@@ -335,9 +333,8 @@ char* monetdb_find_table(void* conn, sql_table** table, const char* schema_name,
     return NULL;
 }
 
-char* sendAutoCommitCommand(void* conn, int flag, int* result) {
-    Client c = (Client) conn;
-    mvc* m = ((backend *) c->sqlcontext)->mvc;
+char* sendAutoCommitCommand(Client conn, int flag, int* result) {
+    mvc* m = ((backend *) conn->sqlcontext)->mvc;
     char *msg = MAL_SUCCEED;
     int commit = (!m->session->auto_commit && flag);
 
@@ -355,9 +352,8 @@ char* sendAutoCommitCommand(void* conn, int flag, int* result) {
     return msg;
 }
 
-void sendReleaseCommand(void* conn, int commandId) {
-    Client c = (Client) conn;
-    mvc* m = ((backend *) c->sqlcontext)->mvc;
+void sendReleaseCommand(Client conn, int commandId) {
+    mvc* m = ((backend *) conn->sqlcontext)->mvc;
     cq *q = qc_find(m->qc, commandId);
 
     if (q) {
@@ -365,9 +361,8 @@ void sendReleaseCommand(void* conn, int commandId) {
     }
 }
 
-void sendCloseCommand(void* conn, int tableID) {
-    Client c = (Client) conn;
-    mvc* m = ((backend *) c->sqlcontext)->mvc;
+void sendCloseCommand(Client conn, int tableID) {
+    mvc* m = ((backend *) conn->sqlcontext)->mvc;
     res_table *t = res_tables_find(m->results, tableID);
 
     if (t) {
@@ -375,31 +370,29 @@ void sendCloseCommand(void* conn, int tableID) {
     }
 }
 
-void sendReplySizeCommand(void* conn, long size) {
-    Client c = (Client) conn;
-    mvc* m = ((backend *) c->sqlcontext)->mvc;
+void sendReplySizeCommand(Client conn, long size) {
+    mvc* m = ((backend *) conn->sqlcontext)->mvc;
 
     if(size >= -1) {
         m->reply_size = size;
     }
 }
 
-void getUpdateQueryData(void* conn, long* lastId, long* rowCount) {
+void getUpdateQueryData(Client conn, long* lastId, long* rowCount) {
     Client c = (Client) conn;
-    mvc* m = ((backend *) c->sqlcontext)->mvc;
+    mvc* m = ((backend *) conn->sqlcontext)->mvc;
 
     *lastId = m->last_id;
     *rowCount = c->lastNumberOfRows;
 }
 
-int getAutocommitFlag(void* conn) {
-    Client c = (Client) conn;
-    mvc* m = ((backend *) c->sqlcontext)->mvc;
+int getAutocommitFlag(Client conn) {
+    mvc* m = ((backend *) conn->sqlcontext)->mvc;
     return m->session->auto_commit;
 }
 
-void setMonetDB5LibraryPathEmbedded(const char* path) {
-    setMonetDB5LibraryPath(path);
+int setMonetDB5LibraryPathEmbedded(const char* path) {
+    return setMonetDB5LibraryPath(path);
 }
 
 void freeMonetDB5LibraryPathEmbedded(void) {

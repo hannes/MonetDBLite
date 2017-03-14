@@ -84,6 +84,5 @@ script:
 
 after_success:
     # Publish to our repository
-    - cd monetdb-java-lite
     #- ./gradlew -i artifactoryPublish
 

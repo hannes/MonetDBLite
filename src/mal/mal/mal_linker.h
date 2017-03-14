@@ -25,7 +25,7 @@
 #define MONET64 1
 
 mal_export void freeMonetDB5LibraryPath(void);
-mal_export void setMonetDB5LibraryPath(const char* path);
+mal_export int setMonetDB5LibraryPath(const char* path);
 
 mal_export MALfcn getAddress(stream *out, str filename, str fcnname,int silent);
 mal_export char *MSP_locate_sqlscript(const char *mod_name, bit recurse);

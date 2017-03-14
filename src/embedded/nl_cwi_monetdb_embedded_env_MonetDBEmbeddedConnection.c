@@ -24,8 +24,8 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnectio
     (void) jconnection;
 
     // Execute the query
-    err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
-    getUpdateQueryData((void*) connectionPointer, &lastId, &rowCount);
+    err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+    getUpdateQueryData((Client) connectionPointer, &lastId, &rowCount);
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
     monetdb_cleanup_result(NULL, output);
     if (err) {
@@ -59,7 +59,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     }
 
     //execute the query
-    err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+    err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
     if (err) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
@@ -71,7 +71,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     if (output && output->nr_cols > 0) {
         numberOfColumns = output->nr_cols;
     } else {
-        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "There was no output to retrieve!");
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "There query returned no results?");
         monetdb_cleanup_result(NULL, output);
         return NULL;
     }
@@ -120,7 +120,6 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     }
 
     if((*env)->ExceptionCheck(env) == JNI_TRUE) {
-        GDKfree(result);
         result = NULL;
     } else {
         numberOfRows = BATcount(thisResultSet->bats[0]);
@@ -150,7 +149,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
         return NULL;
     }
 
-    err = monetdb_find_table((void*) connectionPointer, &table, schema_name_tmp, table_name_tmp);
+    err = monetdb_find_table((Client) connectionPointer, &table, schema_name_tmp, table_name_tmp);
     (*env)->ReleaseStringUTFChars(env, tableSchema, schema_name_tmp);
     (*env)->ReleaseStringUTFChars(env, tableName, table_name_tmp);
     if (err) {
@@ -166,5 +165,5 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnectio
     (void) env;
     (void) jconnection;
 
-    monetdb_disconnect((void*) connectionPointer);
+    monetdb_disconnect((Client) connectionPointer);
 }

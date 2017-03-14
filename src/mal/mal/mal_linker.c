@@ -45,11 +45,12 @@ void freeMonetDB5LibraryPath(void) {
 	}
 }
 
-void setMonetDB5LibraryPath(const char* path) {
+int setMonetDB5LibraryPath(const char* path) {
 	if(monetDB5LibraryPath != NULL) {
 		freeMonetDB5LibraryPath();
 	}
 	monetDB5LibraryPath = GDKstrdup(path);
+	return monetDB5LibraryPath != NULL ? 1 : 0;
 }
 
 typedef struct{

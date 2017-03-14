@@ -32,25 +32,25 @@ typedef struct append_data {
 	size_t batid; /* Disclaimer: this header is GDK-free */
 } append_data;
 
-void* monetdb_connect(void);
-void  monetdb_disconnect(void* conn);
+char* monetdb_connect(Client* conn);
+void monetdb_disconnect(Client conn);
 char* monetdb_startup(char* dbdir, char silent, char sequential);
 int   monetdb_is_initialized(void);
-char* monetdb_query(void* conn, char* query, char execute, void** result);
-char* monetdb_append(void* conn, const char* schema, const char* table, append_data *data, int ncols);
-void  monetdb_cleanup_result(void* conn, void* output);
-char* monetdb_get_columns(void* conn, const char* schema_name, const char *table_name, int *column_count, char ***column_names, int **column_types);
+char* monetdb_query(Client conn, char* query, char execute, void** result);
+char* monetdb_append(Client conn, const char* schema, const char* table, append_data *data, int ncols);
+void  monetdb_cleanup_result(Client conn, void* output);
+char* monetdb_get_columns(Client conn, const char* schema_name, const char *table_name, int *column_count, char ***column_names, int **column_types);
 void  monetdb_shutdown(void);
 
-char* monetdb_find_table(void* conn, sql_table** table, const char* schema_name, const char* table_name);
-char* sendAutoCommitCommand(void* conn, int flag, int* result);
-void sendReleaseCommand(void* conn, int commandId);
-void sendCloseCommand(void* conn, int commandId);
-void sendReplySizeCommand(void* conn, long size);
-void getUpdateQueryData(void* conn, long* lastId, long* rowCount);
-int getAutocommitFlag(void* conn);
+char* monetdb_find_table(Client conn, sql_table** table, const char* schema_name, const char* table_name);
+char* sendAutoCommitCommand(Client conn, int flag, int* result);
+void sendReleaseCommand(Client conn, int commandId);
+void sendCloseCommand(Client conn, int commandId);
+void sendReplySizeCommand(Client conn, long size);
+void getUpdateQueryData(Client conn, long* lastId, long* rowCount);
+int getAutocommitFlag(Client conn);
 
-void setMonetDB5LibraryPathEmbedded(const char* path);
+int setMonetDB5LibraryPathEmbedded(const char* path);
 void freeMonetDB5LibraryPathEmbedded(void);
 
 #endif

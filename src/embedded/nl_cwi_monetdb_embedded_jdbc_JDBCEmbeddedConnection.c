@@ -92,7 +92,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
         return;
     }
 
-    err = monetdb_query((void*) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+    err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
     if (err) { //if there are errors, set the error string and exit
         setErrorResponse(env, jdbccon, err);
@@ -129,12 +129,12 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
             (*env)->SetIntArrayRegion(env, lastServerResponseParameters, 0, 3, responseParameters);
             break;
         case 2: //UPDATE
-            getUpdateQueryData((void*) connectionPointer, &lastId, &rowCount);
+            getUpdateQueryData((Client) connectionPointer, &lastId, &rowCount);
             (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env,
             getUpdateResponseClassID(), getUpdateResponseConstructorID(), (jint) lastId, (jint) rowCount));
             break;
         case 4: //TRANSACTION
-            autoCommitStatus = getAutocommitFlag((void*) connectionPointer);
+            autoCommitStatus = getAutocommitFlag((Client) connectionPointer);
             (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env,
             getAutoCommitResponseClassID(), getAutoCommitResponseConstructorID(), (autoCommitStatus) ? JNI_TRUE : JNI_FALSE));
             break;
@@ -153,7 +153,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jint flag) {
     int autoCommitStatus;
 
-    char *err = sendAutoCommitCommand((void*) connectionPointer, flag, &autoCommitStatus);
+    char *err = sendAutoCommitCommand((Client) connectionPointer, flag, &autoCommitStatus);
     if (err) { //if there is an error set it and return
         setErrorResponse(env, jdbccon, err);
     } else {
@@ -166,19 +166,19 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jint size) {
     (void) env;
     (void) jdbccon;
-    sendReplySizeCommand((void*) connectionPointer, (long) size);
+    sendReplySizeCommand((Client) connectionPointer, (long) size);
 }
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendReleaseCommandInternal
     (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jint commandId) {
     (void) env;
     (void) jdbccon;
-    sendReleaseCommand((void*) connectionPointer, commandId);
+    sendReleaseCommand((Client) connectionPointer, commandId);
 }
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendCloseCommandInternal
     (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jint commandId) {
     (void) env;
     (void) jdbccon;
-    sendCloseCommand((void*) connectionPointer, commandId);
+    sendCloseCommand((Client) connectionPointer, commandId);
 }

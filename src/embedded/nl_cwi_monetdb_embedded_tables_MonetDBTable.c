@@ -24,7 +24,7 @@ static char* loadTable(JNIEnv *env, jobject monetDBTable, sql_table** table, int
     const char *name = (*env)->GetStringUTFChars(env, tableName, NULL);
 
     *connectionPointer = (*env)->GetLongField(env, connection, getGetConnectionLongID());
-    err = monetdb_find_table((void*) (*connectionPointer), table, schema, name);
+    err = monetdb_find_table((Client) (*connectionPointer), table, schema, name);
     if (!err) {
         *ncols = (*table)->columns.set->cnt;
     }
@@ -360,7 +360,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_tables_MonetDBTable_appendCo
     }
 
     if(!err) {
-        err = monetdb_append((void*) connectionPointer, tableData->s->base.name, tableData->base.name, newdata, ncols);
+        err = monetdb_append((Client) connectionPointer, tableData->s->base.name, tableData->base.name, newdata, ncols);
     }
     (*env)->ReleaseIntArrayElements(env, javaIndexes, jindexes, JNI_ABORT);
     GDKfree(newdata);

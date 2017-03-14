@@ -598,7 +598,7 @@ CONVERSION_LEVEL_THREE(lng)
                             } else {                                                                                           \
                                 p->nitems = len;                                                                               \
                                 (*env)->GetByteArrayRegion(env, nvalue, 0, len, (jbyte*) p->data);                             \
-			    }
+			                }
 
 #define BLOB_START          var_t bun_offset = 0; \
                             jsize len;            \
