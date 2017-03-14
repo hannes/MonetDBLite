@@ -3,8 +3,8 @@
 [![Build Status](https://travis-ci.org/hannesmuehleisen/MonetDBLite.svg?branch=Dec2016Lite-Java)](https://travis-ci.org/hannesmuehleisen/MonetDBLite)
 
 > **IMPORTANT** Before any further reading, remember that this software is still experimental, and it might crash
-sometimes, although some testing was already been made on it :) To be 100% safe you can run MonetDBJavaLite, a
-subprocess in the JVM, so if it crashes, your application in the main process will still be up!
+sometimes, although some testing was already been made on it :) To be 100% safe you can run MonetDBJavaLite in a
+subprocess inside the JVM, so if it crashes, your application in the main process will still be up!
 
 After the MonetDBLite, MonetDBRLite and MonetDBPythonLite, MonetDBJavaLite is here! This project allows the integration
 of MonetDB, a column-wise and high-scale OLAP relational database in the JVM! Unlike a traditional socket connection,
@@ -27,16 +27,17 @@ library. This is where it's called the embedded C-level interface function from 
 
 There are two jars distributed: The new MonetDB JDBC driver jar (`monetdb-jdbc-new-<version>.jar`), and the
 MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The former can be used independently, if only MAPI JDBC
-connections are desired. The latter contains the server code. For both the Embedded API and the Embedded JDBC
+connections are desired. The latter contains the embedded server code. For both the Embedded API and the Embedded JDBC
 connections, the second jar is also required in the `CLASSPATH`.
 
 **Both jars require JDK 8 to be installed.** However we can still make it possible to run in the JDK 7 environment if
 someone requests it. Currently, the `monetdb-java-lite-<version>.jar` **only supports 64-bit architectures**.
 
-The `monetdb-jdbc-new-<version>.jar` is both CPU and Operating System independent. It can be obtained from .... - Soon!
+As this software is still experimental, we haven't made it available in a public Maven repository yet. Both jars can be
+obtained through the Download section of our [website](https://www.monetdb.org/downloads/Java-Experimental/). 
 
-The `monetdb-java-lite-<version>.jar` contains the JNI code for 64-bit Linux, Windows and Mac OS X. It can be obtained
-from .... - Soon!
+The `monetdb-jdbc-new-<version>.jar` is both CPU and Operating System independent. ON the other hand, the
+`monetdb-java-lite-<version>.jar` contains the JNI code for 64-bit Linux, Windows and Mac OS X.
 
 ## Libraries
 
@@ -62,8 +63,8 @@ in MonetDBJavaLite turn around in a single database, which has to be loaded in o
 JDBC specification!** If the user wants to use a multi-threading environment, we recommend to either create one
 connection for each thread or use proper synchronization primitives in the Java application code.
 
-Other note is that the `async` API is absent, because no IO operations are made in an embedded connection. At the same
-time they are absent in the JDBC and MonetDB uses multiple threads in its query plans, making it very CPU core
+Other note is that the `async` API is absent, because no IO operations are performed in an embedded connection. At the
+same time they are absent in the JDBC and MonetDB uses multiple threads in its query plans, making it very CPU core
 efficient. However if the user still wants to use `async` operations, this API can be embedded easily with the
 [CompletableFuture<T>](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html) class in
 Java 8.
@@ -426,7 +427,7 @@ I found out on Linux Debian distributions, that the locales setting may not be s
 
 You are getting SQL `NULL` values in your query result sets. As explained above, for the primitive MonetDB SQL types we
 map them to the JVM minimum values. For the more complex MonetDB SQL types like `CHAR` and `DATE` we map to Java
-Objects, and thus in SQL `NULL` values are represented with null Java Objects. The `NullMappings` class has class
+Objects, and thus in SQL `NULL` values are represented with null Java Objects. The `NullMappings` class contains static
 methods to check if a value is null or not. At the same time, the SQL standard has the
 [COALESCE](https://www.w3schools.com/sql/sql_isnull.asp) function to return a default value when a value is null in the
 result set.
