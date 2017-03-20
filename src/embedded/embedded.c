@@ -27,7 +27,7 @@
 #include "decompress.c"
 #include "inlined_scripts.c"
 
-#include <locale.h>
+//#include <locale.h>
 
 static int monetdb_embedded_initialized = 0;
 

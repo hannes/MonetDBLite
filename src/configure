@@ -22119,7 +22119,7 @@ CFLAGS="$CFLAGS \$(X_CFLAGS)"
 
 # bootstrap adds a (long) list of file names inside the
 # AC_CONFIG_FILES command
-ac_config_files="$ac_config_files Makefile common/Makefile gdk/Makefile mal/Makefile sql/Makefile embedded/Makefile mapisplit/Makefile common/stream/Makefile common/options/Makefile common/utils/Makefile mal/mal/Makefile mal/modules/Makefile mal/optimizer/Makefile sql/include/Makefile sql/common/Makefile sql/storage/Makefile sql/server/Makefile sql/backends/Makefile sql/scripts/Makefile sql/storage/bat/Makefile sql/backends/monet5/Makefile"
+ac_config_files="$ac_config_files Makefile common/Makefile gdk/Makefile mal/Makefile sql/Makefile embedded/Makefile common/stream/Makefile common/options/Makefile common/utils/Makefile mal/mal/Makefile mal/modules/Makefile mal/optimizer/Makefile sql/include/Makefile sql/common/Makefile sql/storage/Makefile sql/server/Makefile sql/backends/Makefile sql/scripts/Makefile sql/storage/bat/Makefile sql/backends/monet5/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -23218,7 +23218,6 @@ do
     "mal/Makefile") CONFIG_FILES="$CONFIG_FILES mal/Makefile" ;;
     "sql/Makefile") CONFIG_FILES="$CONFIG_FILES sql/Makefile" ;;
     "embedded/Makefile") CONFIG_FILES="$CONFIG_FILES embedded/Makefile" ;;
-    "mapisplit/Makefile") CONFIG_FILES="$CONFIG_FILES mapisplit/Makefile" ;;
     "common/stream/Makefile") CONFIG_FILES="$CONFIG_FILES common/stream/Makefile" ;;
     "common/options/Makefile") CONFIG_FILES="$CONFIG_FILES common/options/Makefile" ;;
     "common/utils/Makefile") CONFIG_FILES="$CONFIG_FILES common/utils/Makefile" ;;

@@ -7,11 +7,11 @@ AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 
 libmoptions_la_CFLAGS=-DLIBMOPTIONS $(AM_CFLAGS)
 moptionsdir = $(libdir)
-libmoptions_la-monet_options.lo: monet_options.c monet_options.h monet_getopt.h getopt.c getopt1.c
+libmoptions_la-monet_options.lo: monet_options.c monet_options.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmoptions_la_CFLAGS) $(CFLAGS) $(monet_options_CFLAGS) -c -o libmoptions_la-monet_options.lo `test -f 'monet_options.c' || echo '$(srcdir)/'`monet_options.c
 nodist_libmoptions_la_SOURCES =
-dist_libmoptions_la_SOURCES = monet_options.c monet_options.h monet_getopt.h
-monet_options.o monet_options.lo: monet_options.c monet_options.h monet_getopt.h getopt.c getopt1.c
+dist_libmoptions_la_SOURCES = monet_options.c monet_options.h
+monet_options.o monet_options.lo: monet_options.c monet_options.h
 AM_CPPFLAGS = -I$(srcdir)
 CFLAGS += $(THREAD_SAVE_FLAGS)
 install-exec-local-monet_options.h: monet_options.h
@@ -24,7 +24,7 @@ uninstall-local-monet_options.h:
 
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
-EXTRA_DIST = Makefile.ag Makefile.msc getopt.c getopt1.c monet_getopt.h monet_options.c monet_options.h
+EXTRA_DIST = Makefile.ag Makefile.msc getopt.c getopt1.c monet_options.c monet_options.h
 noinst_LTLIBRARIES = libmoptions.la
 install-moptionsLTLIBRARIES:
 uninstall-local: uninstall-local-monet_options.h

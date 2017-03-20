@@ -18,4 +18,3 @@ sql/backends/
 sql/backends/monet5/
 sql/scripts/
 embedded/
-mapisplit/#HAVE_EMBEDDED_R

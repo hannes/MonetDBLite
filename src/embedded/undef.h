@@ -10,12 +10,6 @@ extern FILE* embedded_stderr;
 #undef stderr
 #define stderr embedded_stderr
 
-#ifdef HAVE_EMBEDDED_R
-#define srand(seed) ((void) (seed))
-extern int embedded_r_rand(void);
-#define rand embedded_r_rand
-#endif
-
 #undef PTRFMT
 #undef PTRFMTCAST
 
@@ -27,7 +21,3 @@ extern int embedded_r_rand(void);
 #define _Printf_format_string_
 #define _In_z_
 #define HAVE_GETTIMEOFDAY
-
-#ifdef WIN32
-#define HAVE_LIBPCRE 1
-#endif

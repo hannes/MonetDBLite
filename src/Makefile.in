@@ -164,7 +164,7 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
-DIST_SUBDIRS = common gdk mal sql embedded mapisplit
+DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/monetdb_config.h.in \
 	$(top_srcdir)/buildtools/conf/compile \
 	$(top_srcdir)/buildtools/conf/config.guess \
@@ -443,9 +443,7 @@ zlib_LIBS = @zlib_LIBS@
 AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 ACLOCAL_AMFLAGS = -I buildtools/conf
 AM_CPPFLAGS = -I$(srcdir)
-@HAVE_EMBEDDED_R_FALSE@HAVE_EMBEDDED_R_6_SUBDIR = 
-@HAVE_EMBEDDED_R_TRUE@HAVE_EMBEDDED_R_6_SUBDIR = mapisplit
-SUBDIRS = common gdk mal sql embedded $(HAVE_EMBEDDED_R_6_SUBDIR)
+SUBDIRS = common gdk mal sql embedded
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
 EXTRA_DIST = Makefile.ag Makefile.msc configure configure.ac configure.ag libversions monetdb_config.h

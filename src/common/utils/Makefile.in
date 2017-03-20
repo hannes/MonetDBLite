@@ -118,21 +118,12 @@ libmcrypt_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmcrypt_la_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 libmutils_la_LIBADD =
-dist_libmutils_la_OBJECTS = libmutils_la-mutils.lo \
-	libmutils_la-prompt.lo
+dist_libmutils_la_OBJECTS = libmutils_la-mutils.lo
 nodist_libmutils_la_OBJECTS =
 libmutils_la_OBJECTS = $(dist_libmutils_la_OBJECTS) \
 	$(nodist_libmutils_la_OBJECTS)
 libmutils_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmutils_la_CFLAGS) \
-	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-libmuuid_la_LIBADD =
-dist_libmuuid_la_OBJECTS = libmuuid_la-muuid.lo
-nodist_libmuuid_la_OBJECTS =
-libmuuid_la_OBJECTS = $(dist_libmuuid_la_OBJECTS) \
-	$(nodist_libmuuid_la_OBJECTS)
-libmuuid_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libmuuid_la_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -168,10 +159,9 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(dist_libmcrypt_la_SOURCES) $(nodist_libmcrypt_la_SOURCES) \
-	$(dist_libmutils_la_SOURCES) $(nodist_libmutils_la_SOURCES) \
-	$(dist_libmuuid_la_SOURCES) $(nodist_libmuuid_la_SOURCES)
+	$(dist_libmutils_la_SOURCES) $(nodist_libmutils_la_SOURCES)
 DIST_SOURCES = $(dist_libmcrypt_la_SOURCES) \
-	$(dist_libmutils_la_SOURCES) $(dist_libmuuid_la_SOURCES)
+	$(dist_libmutils_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -428,16 +418,12 @@ dist_libmcrypt_la_SOURCES = mcrypt.h mcrypt.c
 libmutils_la_CFLAGS = -DLIBMUTILS $(AM_CFLAGS)
 mutilsdir = $(libdir)
 nodist_libmutils_la_SOURCES = 
-dist_libmutils_la_SOURCES = mutils.h mutils.c prompt.c mprompt.h
+dist_libmutils_la_SOURCES = mutils.h mutils.c
 AM_CPPFLAGS = -I$(srcdir) $(openssl_CFLAGS)
-libmuuid_la_CFLAGS = -DLIBMUUID $(AM_CFLAGS)
-muuiddir = $(libdir)
-nodist_libmuuid_la_SOURCES = 
-dist_libmuuid_la_SOURCES = muuid.h muuid.c
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
-EXTRA_DIST = Makefile.ag Makefile.msc math_private.h mcrypt.c mcrypt.h mprompt.h mutils.c mutils.h muuid.c muuid.h prompt.c s_nextafterf.c strptime.c
-noinst_LTLIBRARIES = libmcrypt.la libmutils.la libmuuid.la
+EXTRA_DIST = Makefile.ag Makefile.msc math_private.h mcrypt.c mcrypt.h mutils.c mutils.h s_nextafterf.c strptime.c
+noinst_LTLIBRARIES = libmcrypt.la libmutils.la
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -489,9 +475,6 @@ libmcrypt.la: $(libmcrypt_la_OBJECTS) $(libmcrypt_la_DEPENDENCIES) $(EXTRA_libmc
 
 libmutils.la: $(libmutils_la_OBJECTS) $(libmutils_la_DEPENDENCIES) $(EXTRA_libmutils_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libmutils_la_LINK)  $(libmutils_la_OBJECTS) $(libmutils_la_LIBADD) $(LIBS)
-
-libmuuid.la: $(libmuuid_la_OBJECTS) $(libmuuid_la_DEPENDENCIES) $(EXTRA_libmuuid_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libmuuid_la_LINK)  $(libmuuid_la_OBJECTS) $(libmuuid_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -723,19 +706,12 @@ uninstall-am:
 
 libmcrypt_la-mcrypt.lo: mcrypt.c mcrypt.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmcrypt_la_CFLAGS) $(CFLAGS) $(mcrypt_CFLAGS) -c -o libmcrypt_la-mcrypt.lo `test -f 'mcrypt.c' || echo '$(srcdir)/'`mcrypt.c
-muuid.o muuid.lo: muuid.c muuid.h
 mutils.o mutils.lo: mutils.c mutils.h s_nextafterf.c
 mcrypt.o mcrypt.lo: mcrypt.c mcrypt.h
-prompt.o prompt.lo: prompt.c mprompt.h
 libmutils_la-mutils.lo: mutils.c mutils.h s_nextafterf.c
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmutils_la_CFLAGS) $(CFLAGS) $(mutils_CFLAGS) -c -o libmutils_la-mutils.lo `test -f 'mutils.c' || echo '$(srcdir)/'`mutils.c
-libmutils_la-prompt.lo: prompt.c mprompt.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmutils_la_CFLAGS) $(CFLAGS) $(prompt_CFLAGS) -c -o libmutils_la-prompt.lo `test -f 'prompt.c' || echo '$(srcdir)/'`prompt.c
-libmuuid_la-muuid.lo: muuid.c muuid.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmuuid_la_CFLAGS) $(CFLAGS) $(muuid_CFLAGS) -c -o libmuuid_la-muuid.lo `test -f 'muuid.c' || echo '$(srcdir)/'`muuid.c
 install-mcryptLTLIBRARIES:
 install-mutilsLTLIBRARIES:
-install-muuidLTLIBRARIES:
 
   include $(top_srcdir)/buildtools/conf/rules.mk
 

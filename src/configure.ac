@@ -1930,7 +1930,6 @@ gdk/Makefile
 mal/Makefile
 sql/Makefile
 embedded/Makefile
-mapisplit/Makefile
 common/stream/Makefile
 common/options/Makefile
 common/utils/Makefile

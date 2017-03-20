@@ -38,9 +38,6 @@ extern "C" {
 #endif
 #endif
 
-/* mo_print_options will print the option set on stderr */
-moptions_export void mo_print_options(opt *set, int setlen);
-
 /* mo_find_option, finds the option with the given name in the option set
    (set,setlen). */
 moptions_export char *mo_find_option(opt *set, int setlen, const char *name);
