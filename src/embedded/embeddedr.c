@@ -36,10 +36,11 @@ static SEXP monetdb_error_R(char* err) {
 
 SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resultconvertsexp) {
 	res_table* output = NULL;
+	long affected_rows = 0;
 	char* err = NULL;
 	GetRNGstate();
 	err = monetdb_query(R_ExternalPtrAddr(connsexp),
-			(char*)CHAR(STRING_ELT(querysexp, 0)), LOGICAL(executesexp)[0], (void**)&output);
+			(char*)CHAR(STRING_ELT(querysexp, 0)), LOGICAL(executesexp)[0], (void**)&output, &affected_rows);
 	if (err) { // there was an error
 		PutRNGstate();
 		return monetdb_error_R(err);
@@ -106,7 +107,7 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 		return retlist;
 	}
 	PutRNGstate();
-	return ScalarLogical(1);
+	return ScalarReal(affected_rows);
 }
 
 SEXP monetdb_startup_R(SEXP dbdirsexp, SEXP silentsexp, SEXP sequentialsexp) {

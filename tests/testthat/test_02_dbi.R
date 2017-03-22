@@ -267,6 +267,14 @@ test_that("columns can have reserved names", {
 })
 
 
+test_that("number of affected rows is exported correctly", {
+	dbWriteTable(con, tname, data.frame(a=c(1,1), b=c(2,3)))
+	res <- dbSendQuery(con, "delete from monetdbtest where a = 1")
+	expect_equal(dbGetRowsAffected(res), 2)
+	dbRemoveTable(con, tname)
+})
+
+
 test_that("we can have empty result sets", {
 	expect_true(!is.null(dbGetQuery(con, "SELECT * FROM tables WHERE 1=0")))
 })

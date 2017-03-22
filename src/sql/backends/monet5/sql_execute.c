@@ -364,6 +364,7 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
 {
 	int status = 0;
 	int err = 0;
+	lng rowcnt = 0;
 	mvc *o, *m;
 	int ac, sizevars, topvars;
 	sql_var *vars;
@@ -643,11 +644,13 @@ endofcompile:
 	sizevars = m->sizevars;
 	topvars = m->topvars;
 	vars = m->vars;
+	rowcnt = m->rowcnt;
 	*m = *o;
 	_DELETE(o);
 	m->sizevars = sizevars;
 	m->topvars = topvars;
 	m->vars = vars;
+	m->rowcnt = rowcnt;
 	m->session->status = status;
 	m->session->auto_commit = ac;
 	return msg;

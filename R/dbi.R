@@ -371,7 +371,6 @@ setMethod("dbSendQuery", signature(conn="MonetDBEmbeddedConnection", statement="
     env$conn <- conn
     env$query <- statement
     env$info <- resp
-    env$info$rows <- 0
   }
   if (resp$type == MSG_MESSAGE) {
     env$success = FALSE
@@ -901,8 +900,15 @@ valueClass = "numeric")
 
 setMethod("dbGetRowsAffected", "MonetDBResult", def = function(res, ...) {
   as.numeric(NA)
-}, 
-valueClass = "numeric")
+})
+
+setMethod("dbGetRowsAffected", "MonetDBEmbeddedResult", def = function(res, ...) {
+  if (res@env$info$type == Q_UPDATE) {
+    return(res@env$info$rows)
+    } else {
+      return(as.numeric(NA))
+    }
+})
 
 # adapted from RMonetDB, no java-specific things in here...
 monet.read.csv <- monetdb.read.csv <- function(conn, files, tablename, header=TRUE, 

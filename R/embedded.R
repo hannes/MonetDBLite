@@ -71,8 +71,9 @@ monetdb_embedded_query <- function(conn, query, execute=TRUE, resultconvert=TRUE
 		resp$type <- "!" # MSG_MESSAGE
 		resp$message <- gsub("\n", " ", res, fixed=TRUE)
 	}
-	if (is.logical(res)) { # no result set, but successful
+	if (is.numeric(res)) { # no result set, but successful
 		resp$type <- 2 # Q_UPDATE
+		resp$rows <- res
 	}
 	if (is.list(res)) {
 		resp$type <- 1 # Q_TABLE
