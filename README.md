@@ -30,8 +30,9 @@ MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The former can be used 
 connections are desired. The latter contains the embedded server code. For both the Embedded API and the Embedded JDBC
 connections, the second jar is also required in the `CLASSPATH`.
 
-**Both jars require JDK 8 to be installed.** However we can still make it possible to run in the JDK 7 environment if
-someone requests it. Currently, the `monetdb-java-lite-<version>.jar` **only supports 64-bit architectures**.
+**Both jars require JVM 8 to run**, as we found problems running in the JVM 8 when we compile to target JVM 7
+(the problem might be related to the JVM rather than us). Currently, the `monetdb-java-lite-<version>.jar`
+**only supports 64-bit architectures**.
 
 As this software is still experimental, we haven't made it available in a public Maven repository yet. Both jars can be
 obtained through the Download section of our [website](https://www.monetdb.org/downloads/Java-Experimental/). 
@@ -332,7 +333,8 @@ while (rs.next()) {
     System.out.println(justAnInteger + " " + justAString); //just showing!
 }
 rs.close(); //Don't forget! :)
-con.close(); //Don't forget! :)
+st.close();
+con.close();
 ```
 
 As seen in the example, the `MonetDBEmbeddedDatabase` calls were not required for better portability of the JDBC
@@ -371,7 +373,7 @@ a MAPI connection can't be ported to the Embedded connection version of it.
 and [`int getNetworkTimeout()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getNetworkTimeout--)
 are insignificant as there is no network involved in the Embedded connection.
 * [Batch Processing](https://www.tutorialspoint.com/jdbc/jdbc-batch-processing.htm) is not possible in a Embedded
-connection, due to its removal from MonetDBLite.
+connection, due to constraints of MonetDBLite.
 
 ## FAQs
 
@@ -431,7 +433,7 @@ result set.
 ### 6. While starting a JDBC connection, I am getting the SQLException: "Unable to connect (localhost:50000): Connection refused"!
 
 The new MonetDB JDBC driver creates a MAPI connection by default, as the most common use case of it. To start an
-embedded connection you **MUST** provide JDBC URL specifying the embedded connection and the directory. Check the
+embedded connection you **MUST** provide the embedded connection JDBC URL with the farm's directory. Check the
 example above on how it can be done.
 
 ### 7. Why I have to pass a column array as an input in the QueryResultSet? It would be easier to return it in the method instead.
@@ -450,11 +452,13 @@ Regarding this question, it would be better to approach to create an Array point
 avoiding any copy likewise happens in MonetDBRLite and MonetDBPythonLite. However there are several issues regarding
 this approach in the JVM:
 
-* The internal representation of Arrays vary between JVMs. (In some JVMs they might not be contiguous in memory!)
+* The internal representation of Arrays vary between JVMs.
+[In some JVMs the arrays might not be contiguous in memory!](https://stackoverflow.com/questions/10224888/java-are-1-d-arrays-always-contiguous-in-memory)
 * We have to allocate the result set in the Java's Heap instead of the MonetDB's heap. We could try that with an array,
-but even in the native API the arrays are always auto-initialized, which is already a copy. We could do some crazy
-hacking by pointing the array to the MonetDB's heap, but the JVM's Garbage Colector might move memory areas, which we
-have to be very careful with.
+but even in the native API the arrays are always
+[auto-initialized](https://stackoverflow.com/questions/13780350/is-there-any-way-to-create-a-primitive-array-without-initialization),
+which is already a copy. We could do some crazy hacking by pointing the array to the MonetDB's heap, but the JVM's Garbage Colector
+might move memory areas, which we have to be very careful with.
 * We could try direct [ByteBuffers](https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html), which are 
 allocated outside of the Java's heap. However to access their data in the Java code in a bulk way to an array, a copy is
 made.
@@ -493,6 +497,7 @@ try {
     }
     resultSet.close() //Don't forget! ;)
     statement.executeUpdate("DROP TABLE example")
+    statement.close()
 } catch {
     case e: Throwable => e.printStackTrace()
 }

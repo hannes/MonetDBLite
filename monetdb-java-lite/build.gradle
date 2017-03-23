@@ -20,11 +20,11 @@ apply plugin: 'org.junit.platform.gradle.plugin'
 
 ext.group = 'nl.cwi.monetdb'
 ext.packaging = 'jar'
-ext.sourceCompatibility = 1.8
-ext.targetCompatibility = 1.8
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 ext.junitPlatformVersion = '1.0.0-M3'
 ext.junitJupiterVersion  = '5.0.0-M3'
-ext.junit4Version        = '4.12'
+//ext.junit4Version        = '4.12'
 ext.junitVintageVersion  = '4.12.0-M3'
 ext.log4jVersion         = '2.7'
 version = '2.24'
@@ -44,7 +44,7 @@ def urlFile = { url, name ->
 }
 
 dependencies {
-    compile urlFile('https://www.dropbox.com/s/oetn0f5m69x5cxe/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
+    compile urlFile('https://www.dropbox.com/s/pq2q1blywh6mnkd/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
 
     // JUnit Jupiter API and TestEngine implementation
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
