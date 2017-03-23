@@ -153,14 +153,14 @@ typedef struct {
  * a bunch of counters and maintain a linked list of active locks */
 typedef struct MT_Lock {
 	ATOMIC_FLAG volatile lock;
-//#ifndef NDEBUG
+#ifndef NDEBUG
 	size_t count;
 	size_t contention;
 	size_t sleep;
 	struct MT_Lock * volatile next;
 	const char *name;
 	const char *locker;
-//#endif
+#endif
 } MT_Lock;
 
 #ifndef NDEBUG

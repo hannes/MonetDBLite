@@ -25,7 +25,6 @@
 
 #include "monetdb_config.h"
 #include "language.h"
-#include <gdk.h>
 
 str
 CMDraise(str *ret, str *msg)
@@ -172,7 +171,7 @@ MALpass( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	return MAL_SUCCEED;
 }
 
-str
+str 
 CMDregisterFunction(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
 	Symbol sym= NULL;
@@ -205,7 +204,7 @@ CMDevalFile(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	char *msg = NULL;
 	(void) mb;
 
-	if (s == 0)
+	if (s == 0) 
 		throw(MAL, "mal.evalFile", RUNTIME_FILE_NOT_FOUND "missing file name");
 
 	if (*s != '/') {
@@ -218,7 +217,7 @@ CMDevalFile(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		strcat(buf, s);
 		msg = evalFile(cntxt, buf, 0);
 		GDKfree(buf);
-	} else
+	} else 
 		msg = evalFile(cntxt, s, 0);
 	return msg;
 }

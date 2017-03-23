@@ -36,7 +36,6 @@
 
 #include "monetdb_config.h"
 #include "iterator.h"
-#include <gdk.h>
 
 /*
  * We start with the large chunk iterator.

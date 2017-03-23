@@ -122,75 +122,14 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
         return d;
     }
 
-    @Override
-    public Object getValueAsObject(int column) {
+    /**
+     * Helper method to retrieve a Java primitive as an object.
+     *
+     * @param column The column index starting from 0
+     * @return The Object representation of the data type
+     */
+    private Object getJavaPrimitiveAsObject(int column) {
         switch (this.jdbcSQLTypes[column]) {
-            case Types.CHAR:
-            case Types.VARCHAR:
-            case Types.LONGVARCHAR:
-            case Types.OTHER:
-                String res = this.getStringValueInternal(this.structPointer, column, this.blockLine);
-                this.lastReadWasNull = res == null;
-                return res;
-            case Types.LONGVARBINARY:
-                byte[] bytes = this.getBlobValueInternal(this.structPointer, column, this.blockLine);
-                this.lastReadWasNull = bytes == null;
-                return bytes;
-            case Types.DATE:
-                Calendar d = this.getDateAsCalendarValueInternal(this.structPointer, column, this.blockLine);
-                this.lastReadWasNull = d == null;
-                return d;
-            case Types.TIME:
-            case Types.TIME_WITH_TIMEZONE:
-                Calendar t = this.getTimeAsCalendarValueInternal(this.structPointer, column, this.blockLine);
-                this.lastReadWasNull = t == null;
-                return t;
-            case Types.TIMESTAMP:
-            case Types.TIMESTAMP_WITH_TIMEZONE:
-                Calendar tt = this.getTimestampAsCalendarValueInternal(this.structPointer, column, this.blockLine);
-                this.lastReadWasNull = tt == null;
-                return tt;
-            case Types.DECIMAL:
-                BigDecimal bb = this.getDecimalValueInternal(this.structPointer, column, this.blockLine);;
-                this.lastReadWasNull = bb == null;
-                return bb;
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public Object getObjectValue(int column) {
-        switch (this.jdbcSQLTypes[column]) {
-            case Types.CHAR:
-            case Types.VARCHAR:
-            case Types.LONGVARCHAR:
-            case Types.OTHER:
-                String res = this.getStringValueInternal(this.structPointer, column, this.blockLine);
-                this.lastReadWasNull = res == null;
-                return res;
-            case Types.LONGVARBINARY:
-                byte[] blob = this.getBlobValueInternal(this.structPointer, column, this.blockLine);
-                this.lastReadWasNull = blob == null;
-                return blob;
-            case Types.DATE:
-                Date ddd = this.getDateValueInternal(this.structPointer, column, this.blockLine);
-                this.lastReadWasNull = ddd == null;
-                return ddd;
-            case Types.TIME:
-            case Types.TIME_WITH_TIMEZONE:
-                Time ty = this.getTimeValueInternal(this.structPointer, column, this.blockLine);
-                this.lastReadWasNull = ty == null;
-                return ty;
-            case Types.TIMESTAMP:
-            case Types.TIMESTAMP_WITH_TIMEZONE:
-                Timestamp tt = this.getTimestampValueInternal(this.structPointer, column, this.blockLine);
-                this.lastReadWasNull = tt == null;
-                return tt;
-            case Types.DECIMAL:
-                BigDecimal bb = this.getDecimalValueInternal(this.structPointer, column, this.blockLine);;
-                this.lastReadWasNull = bb == null;
-                return bb;
             case Types.BOOLEAN:
                 byte b = this.getByteValueInternal(this.structPointer, column, this.blockLine);
                 if(b == NullMappings.GetByteNullConstant()) {
@@ -257,6 +196,78 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
             default:
                 return null;
         }
+    }
+
+    @Override
+    public Object getValueAsObject(int column) {
+        switch (this.jdbcSQLTypes[column]) {
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+            case Types.OTHER:
+                String res = this.getStringValueInternal(this.structPointer, column, this.blockLine);
+                this.lastReadWasNull = res == null;
+                return res;
+            case Types.LONGVARBINARY:
+                byte[] bytes = this.getBlobValueInternal(this.structPointer, column, this.blockLine);
+                this.lastReadWasNull = bytes == null;
+                return bytes;
+            case Types.DATE:
+                Calendar d = this.getDateAsCalendarValueInternal(this.structPointer, column, this.blockLine);
+                this.lastReadWasNull = d == null;
+                return d;
+            case Types.TIME:
+            case Types.TIME_WITH_TIMEZONE:
+                Calendar t = this.getTimeAsCalendarValueInternal(this.structPointer, column, this.blockLine);
+                this.lastReadWasNull = t == null;
+                return t;
+            case Types.TIMESTAMP:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+                Calendar tt = this.getTimestampAsCalendarValueInternal(this.structPointer, column, this.blockLine);
+                this.lastReadWasNull = tt == null;
+                return tt;
+            case Types.DECIMAL:
+                BigDecimal bb = this.getDecimalValueInternal(this.structPointer, column, this.blockLine);;
+                this.lastReadWasNull = bb == null;
+                return bb;
+        }
+        return getJavaPrimitiveAsObject(column);
+    }
+
+    @Override
+    public Object getObjectValue(int column) {
+        switch (this.jdbcSQLTypes[column]) {
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+            case Types.OTHER:
+                String res = this.getStringValueInternal(this.structPointer, column, this.blockLine);
+                this.lastReadWasNull = res == null;
+                return res;
+            case Types.LONGVARBINARY:
+                byte[] blob = this.getBlobValueInternal(this.structPointer, column, this.blockLine);
+                this.lastReadWasNull = blob == null;
+                return blob;
+            case Types.DATE:
+                Date ddd = this.getDateValueInternal(this.structPointer, column, this.blockLine);
+                this.lastReadWasNull = ddd == null;
+                return ddd;
+            case Types.TIME:
+            case Types.TIME_WITH_TIMEZONE:
+                Time ty = this.getTimeValueInternal(this.structPointer, column, this.blockLine);
+                this.lastReadWasNull = ty == null;
+                return ty;
+            case Types.TIMESTAMP:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+                Timestamp tt = this.getTimestampValueInternal(this.structPointer, column, this.blockLine);
+                this.lastReadWasNull = tt == null;
+                return tt;
+            case Types.DECIMAL:
+                BigDecimal bb = this.getDecimalValueInternal(this.structPointer, column, this.blockLine);;
+                this.lastReadWasNull = bb == null;
+                return bb;
+        }
+        return getJavaPrimitiveAsObject(column);
     }
 
     @Override

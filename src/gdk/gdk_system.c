@@ -57,7 +57,7 @@
 
 MT_Lock MT_system_lock MT_LOCK_INITIALIZER("MT_system_lock");
 
-#if !defined(USE_PTHREAD_LOCKS) //&& !defined(NDEBUG)
+#if !defined(USE_PTHREAD_LOCKS) && !defined(NDEBUG)
 ATOMIC_TYPE volatile GDKlockcnt;
 ATOMIC_TYPE volatile GDKlockcontentioncnt;
 ATOMIC_TYPE volatile GDKlocksleepcnt;
@@ -779,7 +779,7 @@ MT_global_exit(int s)
 MT_Id
 MT_getpid(void)
 {
-#if !defined(HAVE_PTHREAD_H) /*&& defined(_MSC_VER) NOTE: Commented to compile MonetDBJavaLite on Windows */
+#if !defined(HAVE_PTHREAD_H) && defined(_MSC_VER)
 	return (MT_Id) GetCurrentThreadId();
 #elif defined(PTW32)
 	return (MT_Id) (((size_t) pthread_self().p) + 1);

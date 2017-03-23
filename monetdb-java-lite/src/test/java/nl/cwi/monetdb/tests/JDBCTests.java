@@ -9,7 +9,6 @@
 package nl.cwi.monetdb.tests;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -86,6 +85,30 @@ public class JDBCTests extends MonetDBJavaLiteTesting {
         }
         rs.close();
         int rows5 = stmt.executeUpdate("DROP TABLE test1;");
+        Assertions.assertEquals(-2, rows5, "The deletion should have affected no rows!");
+        stmt.close();
+        conn.close();
+    }
+
+    @Test
+    @DisplayName("Test objects retrieval in the result set")
+    void testObjectResultSet() throws SQLException {
+        Connection conn = createJDBCEmbeddedConnection();
+        Statement stmt = conn.createStatement();
+        int rows1 = stmt.executeUpdate("CREATE TABLE test2 (a int, b boolean, c real, d text)");
+        Assertions.assertEquals(-2, rows1, "The creation should have affected no rows!");
+        int rows2 = stmt.executeUpdate("INSERT INTO test2 VALUES (1, 'false', 3.2, 'hola');");
+        Assertions.assertEquals(1, rows2, "The creation should have affected 1 row!");
+
+        ResultSet rs = stmt.executeQuery("SELECT * from test2;");
+        rs.next();
+        Assertions.assertEquals(1, rs.getObject(1), "Problems in the JDBC result set!");
+        Assertions.assertEquals(false, rs.getObject(2), "Problems in the JDBC result set!");
+        Assertions.assertEquals(3.2f, rs.getObject(3), "Problems in the JDBC result set!");
+        Assertions.assertEquals("hola", rs.getObject(4), "Problems in the JDBC result set!");
+        rs.close();
+
+        int rows5 = stmt.executeUpdate("DROP TABLE test2;");
         Assertions.assertEquals(-2, rows5, "The deletion should have affected no rows!");
         stmt.close();
         conn.close();

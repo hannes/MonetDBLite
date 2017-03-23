@@ -399,7 +399,7 @@ cloneFunction(stream *out, Module scope, Symbol proc, MalBlkPtr mb, InstrPtr p)
 #endif
 	new = newFunction(scope->name, proc->name, getSignature(proc)->token);
 	if( new == NULL){
-		//fprintf(stderr,"cloneFunction() failed");
+		fprintf(stderr,"cloneFunction() failed");
 		return NULL;
 	}
 	freeMalBlk(new->def);
@@ -460,8 +460,8 @@ cloneFunction(stream *out, Module scope, Symbol proc, MalBlkPtr mb, InstrPtr p)
 		}
 	}
 #ifdef DEBUG_CLONE
-	/*mnstr_printf(out, "newly cloned function added to %s %d \n",
-				 scope->name, i);*/
+	mnstr_printf(out, "newly cloned function added to %s %d \n",
+				 scope->name, i);
 	printFunction(out, new->def, 0, LIST_MAL_ALL);
 #endif
 	return new;
@@ -472,7 +472,7 @@ cloneFunction(stream *out, Module scope, Symbol proc, MalBlkPtr mb, InstrPtr p)
  * assure that the type-constraints are obeyed. The resulting type
  * is returned.
  */
-/*void
+void
 debugFunction(stream *fd, MalBlkPtr mb, MalStkPtr stk, int flg, int first, int step)
 {
 	int i,j;
@@ -504,7 +504,7 @@ debugFunction(stream *fd, MalBlkPtr mb, MalStkPtr stk, int flg, int first, int s
 			GDKfree(ps);
 		} else mnstr_printf(fd,"#failed instruction2str()\n");
 	}
-}*/
+}
 
 void
 listFunction(stream *fd, MalBlkPtr mb, MalStkPtr stk, int flg, int first, int size)
@@ -521,11 +521,11 @@ listFunction(stream *fd, MalBlkPtr mb, MalStkPtr stk, int flg, int first, int si
 	if (flg & LIST_MAL_MAPI) {
 		size_t len = 0;
 		str ps;
-		/*mnstr_printf(fd, "&1 0 %d 1 %d\n",  type id rows columns tuples
+		mnstr_printf(fd, "&1 0 %d 1 %d\n", /* type id rows columns tuples */
 				mb->stop, mb->stop);
 		mnstr_printf(fd, "%% .explain # table_name\n");
 		mnstr_printf(fd, "%% mal # name\n");
-		mnstr_printf(fd, "%% clob # type\n");*/
+		mnstr_printf(fd, "%% clob # type\n");
 		for (i = first; i < first +size && i < mb->stop; i++) {
 			ps = instruction2str(mb, stk, getInstrPtr(mb, i), flg);
 			if (ps) {
@@ -533,9 +533,9 @@ listFunction(stream *fd, MalBlkPtr mb, MalStkPtr stk, int flg, int first, int si
 				if (l > len)
 					len = l;
 				GDKfree(ps);
-			} //else mnstr_printf(fd,"#failed instruction2str()\n");
+			} else mnstr_printf(fd,"#failed instruction2str()\n");
 		}
-		//mnstr_printf(fd, "%% " SZFMT " # length\n", len);
+		mnstr_printf(fd, "%% " SZFMT " # length\n", len);
 	}
 	for (i = first; i < first +size && i < mb->stop; i++)
 		printInstruction(fd, mb, stk, getInstrPtr(mb, i), flg);

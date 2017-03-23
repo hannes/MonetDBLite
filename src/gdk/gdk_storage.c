@@ -627,7 +627,7 @@ DESCclean(BAT *b)
 		b->tvheap->dirty = 0;
 }
 
-/* spawning the background msync should be done carefully
+/* spawning the background msync should be done carefully 
  * because there is a (small) chance that the BAT has been
  * deleted by the time you issue the msync.
  * This leaves you with possibly deadbeef BAT descriptors.

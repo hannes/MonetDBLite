@@ -180,13 +180,14 @@ str
 SQLepilogue(void *ret)
 {
 	Client c = mal_clients;
+
+#ifndef HAVE_EMBEDDED
+	c++;
+#endif
 	(void) ret;
 	MT_lock_set(&sql_contextLock);
 	if (SQLinitialized) {
 		// exit all clients
-#ifndef HAVE_EMBEDDED
-		c++; // hahahahahaha
-#endif
 		for (; c < mal_clients + MAL_MAXCLIENTS; c++) {
 			if (c->mode == RUNCLIENT){
 				SQLexitClient(c);

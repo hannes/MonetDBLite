@@ -19,7 +19,6 @@
  */
 #include "monetdb_config.h"
 #include "mmath.h"
-#include <gdk.h>
 #ifdef HAVE_FENV_H
 #include <fenv.h>
 #else
@@ -229,3 +228,4 @@ MATHpi(dbl *pi)
 	*pi = 3.14159265358979323846;
 	return MAL_SUCCEED;
 }
+
