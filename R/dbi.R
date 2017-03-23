@@ -605,26 +605,6 @@ setMethod("dbSendUpdateAsync", signature(conn="MonetDBConnection", statement="ch
           })
 
 
-
-# mapiQuote(toString(value))
-
-.bindParameters <- function(statement, param) {
-  for (i in 1:length(param)) {
-    value <- param[[i]]
-    valueClass <- class(value)
-    if (is.na(value)) 
-      statement <- sub("?", "NULL", statement, fixed=TRUE)
-    else if (valueClass %in% c("numeric", "logical", "integer"))
-      statement <- sub("?", value, statement, fixed=TRUE)
-    else if (valueClass == c("raw"))
-      stop("raw() data is so far only supported when reading from BLOBs")
-    else
-      statement <- sub("?", paste("'", .mapiQuote(toString(value)), "'", sep=""), statement, 
-                       fixed=TRUE)
-  }
-  return(statement)
-}
-
 # quote strings when sending them to the db. single quotes are most critical.
 # null bytes are not supported
 .mapiQuote <- function(str) {
@@ -639,6 +619,126 @@ setMethod("dbSendUpdateAsync", signature(conn="MonetDBConnection", statement="ch
   }
   qs
 }
+
+# adapted from DBI sqlParseVariablesImpl
+# FIXME: remove and replace with call to original function once https://github.com/rstats-db/DBI/issues/167 is closed
+.find_placeholders <- function(sql) {
+  sql_arr <- c(strsplit(as.character(sql), "", fixed = TRUE)[[1]], " ")
+
+  quotes <- list(DBI::sqlQuoteSpec('"', '"'), DBI::sqlQuoteSpec("'", "'"))
+  comments <- list(DBI::sqlCommentSpec("/*", "*/", TRUE), DBI::sqlCommentSpec("--", "\n", FALSE))
+
+  # return values
+  var_pos_start <- integer()
+
+  # internal helper variables
+  quote_spec_offset <- 0L
+  comment_spec_offset <- 0L
+  sql_variable_start <- 0L
+
+  # prepare comments & quotes for quicker comparisions
+  for(c in seq_along(comments)) {
+    comments[[c]][[1]] <- strsplit(comments[[c]][[1]], "", fixed = TRUE)[[1]]
+    comments[[c]][[2]] <- strsplit(comments[[c]][[2]], "", fixed = TRUE)[[1]]
+  }
+  for(q in seq_along(quotes)) {
+    quotes[[q]][[5]] <- nchar(quotes[[q]][[3]]) > 0L
+  }
+
+  state <- 'default'
+  i <- 0
+  while(i < length(sql_arr)) {
+    i <- i + 1
+    switch(state,
+
+      default = {
+        # variable?
+        if (sql_arr[[i]] == "?") {
+          var_pos_start <- c(var_pos_start, i)
+          next
+        }
+        # starting quoted area?
+        for(q in seq_along(quotes)) {
+          if (identical(sql_arr[[i]], quotes[[q]][[1]])) {
+            quote_spec_offset <- q
+            state <- 'quote'
+            break
+          }
+        }
+        # we can abort here if the state has changed
+        if (state != 'default') next
+        # starting comment?
+        for(c in seq_along(comments)) {
+          comment_start_arr <- comments[[c]][[1]]
+          comment_start_length <- length(comment_start_arr)
+          if (identical(sql_arr[i:(i + comment_start_length - 1)], comment_start_arr)) {
+            comment_spec_offset <- c
+            i <- i + comment_start_length
+            state <- 'comment'
+            break
+          }
+        }
+        },
+
+        quote = {
+        # if we see backslash-like escapes, ignore next character
+        if (quotes[[quote_spec_offset]][[5]] && identical(sql_arr[[i]], quotes[[quote_spec_offset]][[3]])) {
+          i <- i + 1
+          next
+        }
+        # end quoted area?
+        if (identical(sql_arr[[i]], quotes[[quote_spec_offset]][[2]])) {
+          quote_spec_offset <- 0L
+          state <- 'default'
+        }
+        },
+
+        comment = {
+        # end commented area?
+        comment_end_arr <- comments[[comment_spec_offset]][[2]]
+        comment_end_length <- length(comment_end_arr)
+        if (identical(sql_arr[i:(i + comment_end_length - 1)], comment_end_arr)) {
+          i <- i + comment_end_length
+          comment_spec_offset <- 0L
+          state <- 'default'
+        }
+      }
+    ) # </switch>
+  } # </while>
+
+  if (quote_spec_offset > 0L) {
+    stop("Unterminated literal")
+  }
+  if (comment_spec_offset > 0L && comments[[comment_spec_offset]][[3]]) {
+    stop("Unterminated comment")
+  }
+  list(start = as.integer(var_pos_start))
+}
+
+.bindParameters <- function(statement, param) {
+  vars <- .find_placeholders(statement)
+
+  safe_values <- vapply(param, function(x) {
+    if (is.na(x)) {
+      "NULL"
+    }
+    if (is.character(x)) {
+      paste0("'", .mapiQuote(toString(x)), "'")
+      } else {
+        as.character(x)
+      }
+      }, character(1))
+
+  for (i in rev(seq_along(vars$start))) {
+    statement <- paste0(
+      substring(statement, 0, vars$start[i] - 1),
+      safe_values[i],
+      substring(statement, vars$start[i] + 1, nchar(statement))
+      )
+  }
+  return(statement) 
+}
+
 
 
 ### MonetDBResult

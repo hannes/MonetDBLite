@@ -9,6 +9,6 @@ URL: https://github.com/hannesmuehleisen/MonetDBLite
 BugReports: https://github.com/hannesmuehleisen/MonetDBLite/issues
 SystemRequirements: GNU make
 Depends: R (>= 3.2.0)
-Imports: DBI (>= 0.3.1), digest (>= 0.6.4), methods, codetools
+Imports: DBI (>= 0.6), digest (>= 0.6.4), methods, codetools
 Suggests: assertthat, testthat, survey, nycflights13, RSQLite, dplyr (> 0.5.0), gdata, covr, callr, devtools
 Collate: mapi.R dbi.R dbapply.R dplyr.R control.R embedded.R

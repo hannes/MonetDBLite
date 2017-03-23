@@ -85,6 +85,8 @@ test_that("results are correct", {
 })
 
 
+
+
 test_that("csv import works", {
 	tf <- tempfile()
 	write.table(iris, tf, sep=",", row.names=FALSE)
@@ -257,6 +259,19 @@ test_that("strings can have exotic characters", {
 	expect_equal("Роман Mühleisen", dbGetQuery(con,"SELECT a FROM monetdbtest")$a[[1]])
 	dbRemoveTable(con, tname)
 })
+
+
+test_that("parameter binding works correctly", {
+	dbSendQuery(con, "create table monetdbtest (a string, i integer)")
+	expect_true(dbExistsTable(con, tname))
+	MonetDBLite::dbSendUpdate(con, "INSERT INTO monetdbtest VALUES (?, 42)", "asdf")
+	MonetDBLite::dbSendUpdate(con, "INSERT INTO monetdbtest VALUES ('asdf', ?)", 43)
+	MonetDBLite::dbSendUpdate(con, "INSERT INTO monetdbtest VALUES ('as?df', ?)", 44)
+	MonetDBLite::dbSendUpdate(con, "INSERT INTO monetdbtest /* this is a question ? */ VALUES (?, ?)", "asdf" , 44)
+	expect_equal(tsize(con, tname), 4)
+	dbRemoveTable(con, tname)
+})
+
 
 
 test_that("columns can have reserved names", {
