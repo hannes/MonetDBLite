@@ -583,7 +583,8 @@ if (is.null(getGeneric("dbSendUpdate"))) setGeneric("dbSendUpdate", function(con
                                                                              async=FALSE) standardGeneric("dbSendUpdate"))
 setMethod("dbSendUpdate", signature(conn="MonetDBConnection", statement="character"),  
           def=function(conn, statement, ..., list=NULL, async=FALSE) {
-            
+            #.Deprecated("DBI has dbExecute and sqlInterpolate which can replace this.")
+
             if(!is.null(list) || length(list(...))){
               if (length(list(...))) statement <- .bindParameters(statement, list(...))
               if (!is.null(list)) statement <- .bindParameters(statement, list)
@@ -600,8 +601,9 @@ if (is.null(getGeneric("dbSendUpdateAsync"))) setGeneric("dbSendUpdateAsync", fu
                                                                                        statement, ...) standardGeneric("dbSendUpdateAsync"))
 setMethod("dbSendUpdateAsync", signature(conn="MonetDBConnection", statement="character"),  
           def=function(conn, statement, ..., list=NULL) {
-            
-            dbSendUpdate(conn, statement, async=TRUE)
+            #.Deprecated("DBI has dbExecute and sqlInterpolate which can replace this.")
+
+            dbSendUpdate(conn, statement, ..., async=TRUE)
           })
 
 
