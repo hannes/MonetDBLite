@@ -356,10 +356,6 @@ con.close(); //Don't forget! ;)
 In the original MonetDBLite, some less important features of MonetDB were turned off in order to shrink its size. This
 also means that some features of the MonetDB JDBC driver won't be available in a JDBC Embedded connection at the moment.
 
-* The [PreparedStatement](https://docs.oracle.com/javase/8/docs/api/java/sql/PreparedStatement.html) implementation is
-missing in the Embedded connection, because the
-[PREPARED STATEMENT](https://www.monetdb.org/Documentation/Manuals/SQLreference/PrepareExec) of MonetDB was removed in
-MonetDBLite. However if enough interest is made, this feature can be added to MonetDBLite.
 * In the JDBC specification a [Fetch Size](https://docs.oracle.com/cd/A87860_01/doc/java.817/a83724/resltse5.htm)
 attribute allows to fetch a result set in blocks. This feature is favorable in a socket connection (MAPI) where the
 client and the server might not be in the same machine, thus fetching the results incrementally in blocks. However in

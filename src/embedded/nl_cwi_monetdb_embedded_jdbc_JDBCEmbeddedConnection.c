@@ -58,12 +58,13 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
 }
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_initializePointersInternal
-    (JNIEnv *env, jobject jdbccon, jlong lastResultSetPointer, jobject embeddedDataBlockResponse) {
+    (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jlong lastResultSetPointer,
+        jobject embeddedDataBlockResponse) {
     res_table* output = (res_table*) lastResultSetPointer;
     JResultSet* thisResultSet;
     (void) jdbccon;
 
-    thisResultSet = createResultSet(output);
+    thisResultSet = createResultSet((Client) connectionPointer, output);
     if(thisResultSet == NULL) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "Connection already closed?");
     }
@@ -80,8 +81,9 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     res_table *output = NULL;
     BAT* dearBat;
     jintArray lineResponse, lastServerResponseParameters;
+    Client conn = (Client) connectionPointer;
 
-    if(connectionPointer == 0) {
+    if(conn == NULL) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "Connection already closed?");
         return;
     }
@@ -92,11 +94,12 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
         return;
     }
 
-    err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+    err = monetdb_query(conn, (char*) query_string_tmp, (char) execute, (void**) &output);
+    query_type = conn->lastQueryType;
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
     if (err) { //if there are errors, set the error string and exit
         setErrorResponse(env, jdbccon, err);
-        monetdb_cleanup_result(NULL, output);
+        monetdb_cleanup_result(conn, output);
         return;
     }
 
@@ -105,22 +108,25 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     nextResponses[lineResponseCounter++] = 6; //SOHEADER
 
     //set the next serverHeader
-    query_type = (output == NULL) ? 4 : output->query_type;
     (*env)->SetIntField(env, jdbccon, getServerHeaderResponseID(), query_type);
 
-    // The SCHEMA responses (query_type == 3), don't need anything from the server
+    // The SCHEMA responses (query_type == Q_SCHEMA), don't need anything from the server
     switch(query_type) {
-        case 1: //TABLE
-        case 5: //PREPARE
-        case 6: //BLOCK
+        case Q_TABLE: //TABLE
+        case Q_PREPARE: //PREPARE
+        case Q_BLOCK: //BLOCK
             //set the Table Headers values
-            dearBat = BATdescriptor(output->cols[0].b);
-            numberOfRows = BATcount(dearBat);
-            BBPunfix(dearBat->batCacheid);
-            responseParameters[0] = output->id;
-            responseParameters[1] = numberOfRows; //number of rows
-            if(query_type == 1 || query_type == 5) {
-                responseParameters[2] = output->nr_cols; //number of columns
+            if(output) {
+                dearBat = BATdescriptor(output->cols[0].b);
+                numberOfRows = BATcount(dearBat);
+                BBPunfix(dearBat->batCacheid);
+                responseParameters[1] = numberOfRows; //number of rows
+            } else {
+                responseParameters[1] = 0;
+            }
+            responseParameters[0] = (output) ? output->id : -1;
+            if(query_type == Q_TABLE || query_type == Q_PREPARE) {
+                responseParameters[2] = (output) ? output->nr_cols: 0; //number of columns
             }
             //set the other headers
             nextResponses[lineResponseCounter++] = 2; //HEADER
@@ -128,13 +134,13 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
             lastServerResponseParameters = (jintArray) (*env)->GetObjectField(env, jdbccon, getLastServerResponseParametersID());
             (*env)->SetIntArrayRegion(env, lastServerResponseParameters, 0, 3, responseParameters);
             break;
-        case 2: //UPDATE
-            getUpdateQueryData((Client) connectionPointer, &lastId, &rowCount);
+        case Q_UPDATE: //UPDATE
+            getUpdateQueryData(conn, &lastId, &rowCount);
             (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env,
             getUpdateResponseClassID(), getUpdateResponseConstructorID(), (jint) lastId, (jint) rowCount));
             break;
-        case 4: //TRANSACTION
-            autoCommitStatus = getAutocommitFlag((Client) connectionPointer);
+        case Q_TRANS: //TRANSACTION
+            autoCommitStatus = getAutocommitFlag(conn);
             (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env,
             getAutoCommitResponseClassID(), getAutoCommitResponseConstructorID(), (autoCommitStatus) ? JNI_TRUE : JNI_FALSE));
             break;
@@ -144,8 +150,8 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     lineResponse = (jintArray) (*env)->GetObjectField(env, jdbccon, getServerResponsesID());
     (*env)->SetIntArrayRegion(env, lineResponse, 0, lineResponseCounter, nextResponses);
 
-    if(query_type != 1 && query_type != 5) { //if the result is not a table or a prepare, delete it right away
-        monetdb_cleanup_result(NULL, output);
+    if(query_type != Q_TABLE && query_type != Q_PREPARE && output) { //if the result is not a table or a prepare, delete it right away
+        monetdb_cleanup_result(conn, output);
     }
 }
 

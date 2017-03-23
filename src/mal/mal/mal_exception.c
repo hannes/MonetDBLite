@@ -108,7 +108,7 @@ freeException(str msg)
  * Internal helper function to properly emit the given string to out,
  * thereby abiding to all the protocol laws.
  */
-void
+/*void
 dumpExceptionsToStream(stream *out, str whatever) {
 	size_t i;
 	size_t last = 0;
@@ -117,22 +117,22 @@ dumpExceptionsToStream(stream *out, str whatever) {
 	if (whatever == NULL)
 		return;
 	len = strlen(whatever);
-	/* make sure each line starts with a ! */
+	 make sure each line starts with a !
 	for (i = 0; i < len; i++) {
 		if (whatever[i] == '\n') {
 			whatever[i] = '\0';
-			if (i - last > 0) { /* skip empty lines */
-				if (whatever[last] == '!') /* no need for double ! */
+			if (i - last > 0) {  skip empty lines
+				if (whatever[last] == '!') no need for double !
 					last++;
 				mnstr_printf(out, "!%s\n", whatever + last);
 			}
 			last = i + 1;
 		}
 	}
-	/* flush last part */
-	if (i - last > 0) /* skip if empty */
+	flush last part
+	if (i - last > 0) skip if empty
 		mnstr_printf(out, "!%s\n", whatever + last);
-}
+}*/
 
 /**
  * Dump an error message using the exception structure 
@@ -142,12 +142,13 @@ showException(stream *out, enum malexception type, const char *fcn, const char *
 {
 	va_list ap;
 	str msg;
+	(void) out;
 
 	va_start(ap, format);
 	msg = createExceptionInternal(type, fcn, format, ap);
 	va_end(ap);
 
-	dumpExceptionsToStream(out, msg);
+	//dumpExceptionsToStream(out, msg);
 	freeException(msg);
 }
 
@@ -211,12 +212,13 @@ showScriptException(stream *out, MalBlkPtr mb, int pc, enum malexception type, c
 {
 	va_list ap;
 	str msg;
+	(void) out;
 
 	va_start(ap, format);
 	msg = createScriptExceptionInternal(mb, pc, type, NULL, format, ap);
 	va_end(ap);
 
-	dumpExceptionsToStream(out,msg);
+	//dumpExceptionsToStream(out,msg);
 	GDKfree(msg);
 }
 

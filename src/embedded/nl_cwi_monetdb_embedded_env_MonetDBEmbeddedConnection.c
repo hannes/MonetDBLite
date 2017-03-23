@@ -27,7 +27,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnectio
     err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
     getUpdateQueryData((Client) connectionPointer, &lastId, &rowCount);
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
-    monetdb_cleanup_result(NULL, output);
+    monetdb_cleanup_result((Client) connectionPointer, output);
     if (err) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
         return -1;
@@ -64,7 +64,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     if (err) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
         GDKfree(err);
-        monetdb_cleanup_result(NULL, output);
+        monetdb_cleanup_result((Client) connectionPointer, output);
         return NULL;
     }
     // Check if we had results, otherwise we send an exception
@@ -72,13 +72,13 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
         numberOfColumns = output->nr_cols;
     } else {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "There query returned no results?");
-        monetdb_cleanup_result(NULL, output);
+        monetdb_cleanup_result((Client) connectionPointer, output);
         return NULL;
     }
 
     //QueryResultSetMonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns, int numberOfRows, int[] typesIDs)
     copy = GDKmalloc(sizeof(jint) * numberOfColumns);
-    thisResultSet = createResultSet(output);
+    thisResultSet = createResultSet((Client) connectionPointer, output);
     if(thisResultSet == NULL || copy == NULL) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
         return NULL;

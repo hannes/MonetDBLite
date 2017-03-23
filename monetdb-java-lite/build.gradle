@@ -44,7 +44,7 @@ def urlFile = { url, name ->
 }
 
 dependencies {
-    compile urlFile('https://www.dropbox.com/s/0e1w0vonzeym5hk/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
+    compile urlFile('https://www.dropbox.com/s/oetn0f5m69x5cxe/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
 
     // JUnit Jupiter API and TestEngine implementation
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")

@@ -13,6 +13,8 @@ extern FILE* embedded_stderr;
 #undef PTRFMT
 #undef PTRFMTCAST
 
+#undef HAVE_HGE
+
 #define PTRFMT "%p"
 #define PTRFMTCAST (void *)
 

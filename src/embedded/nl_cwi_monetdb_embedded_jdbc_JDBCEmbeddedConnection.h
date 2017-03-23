@@ -18,10 +18,10 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
 /*
  * Class:     nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection
  * Method:    initializePointersInternal
- * Signature: (JLnl/cwi/monetdb/embedded/jdbc/EmbeddedDataBlockResponse;)V
+ * Signature: (JJLnl/cwi/monetdb/embedded/jdbc/EmbeddedDataBlockResponse;)V
  */
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_initializePointersInternal
-  (JNIEnv *, jobject, jlong, jobject);
+  (JNIEnv *, jobject, jlong, jlong, jobject);
 
 /*
  * Class:     nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection

@@ -97,6 +97,9 @@ src/.idea/
 src/cmake-build-debug/
 .idea/
 cmake-build-debug/
+CMakeLists.txt
+monetdb-java-lite/src/main/main.iml
+monetdb-java-lite/src/test/test.iml
 
 # Windows generated sedscript file
 src/embedded/windows/sedscript

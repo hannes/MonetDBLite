@@ -248,7 +248,7 @@ AUTHinitTables(str *passwd) {
  * Checks the credentials supplied and throws an exception if invalid.
  * The user id of the authenticated user is returned upon success.
  */
-str
+/*str
 AUTHcheckCredentials(
 		oid *uid,
 		Client cntxt,
@@ -272,30 +272,30 @@ AUTHcheckCredentials(
 
 	p = AUTHfindUser(*username);
 	if (p == BUN_NONE) {
-		/* DO NOT reveal that the user doesn't exist here! */
+		// DO NOT reveal that the user doesn't exist here!
 		throw(INVCRED, "checkCredentials", INVCRED_INVALID_USER " '%s'", *username);
 	}
 
-	/* a NULL password is impossible (since we should be dealing with
-	 * hashes here) so we can bail out immediately
-	 */
+	// a NULL password is impossible (since we should be dealing with
+	 / hashes here) so we can bail out immediately
+	 /
 	if (*passwd == NULL || strNil(*passwd)) {
-		/* DO NOT reveal that the password is NULL here! */
+        // DO NOT reveal that the password is NULL here!
 		throw(INVCRED, "checkCredentials", INVCRED_INVALID_USER " '%s'", *username);
 	}
 
-	/* find the corresponding password to the user */
+        // find the corresponding password to the user
 	passi = bat_iterator(pass);
 	tmp = (str)BUNtail(passi, p);
 	assert (tmp != NULL);
-	/* decypher the password (we lose the original tmp here) */
+	// decypher the password (we lose the original tmp here)
 	rethrow("checkCredentials", tmp, AUTHdecypherValue(&pwd, &tmp));
-	/* generate the hash as the client should have done */
+	// generate the hash as the client should have done
 	hash = mcrypt_hashPassword(*algo, pwd, *challenge);
 	GDKfree(pwd);
-	/* and now we have it, compare it to what was given to us */
+	// and now we have it, compare it to what was given to us
 	if (strcmp(*passwd, hash) != 0) {
-		/* of course we DO NOT print the password here */
+		// of course we DO NOT print the password here
 		free(hash);
 		throw(INVCRED, "checkCredentials", INVCRED_INVALID_USER " '%s'", *username);
 	}
@@ -303,7 +303,7 @@ AUTHcheckCredentials(
 
 	*uid = p;
 	return(MAL_SUCCEED);
-}
+}*/
 
 /**
  * Adds the given user with password to the administration.  The

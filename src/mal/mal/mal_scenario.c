@@ -238,7 +238,7 @@ defaultScenario(Client c)
  * defined.
  *
  */
-static void
+/*static void
 print_scenarioCommand(stream *f, str cmd, MALfcn funcptr)
 {
     if (cmd)
@@ -260,7 +260,7 @@ showScenario(stream *f, Scenario scen)
 	print_scenarioCommand(f, scen->tactics, scen->tacticsCmd);
 	print_scenarioCommand(f, scen->engine, scen->engineCmd);
 	mnstr_printf(f, "]\n");
-}
+}*/
 
 Scenario
 findScenario(str nme)
@@ -333,16 +333,16 @@ updateScenario(str nme, str fnme, MALfcn fcn)
 	}
 }
 
-void
+/*void
 showScenarioByName(stream *f, str nme)
 {
 	Scenario scen = findScenario(nme);
 
 	if (scen)
 		showScenario(f, scen);
-}
+}*/
 
-void
+/*void
 showAllScenarios(stream *f)
 {
 	int i;
@@ -350,7 +350,7 @@ showAllScenarios(stream *f)
 
 	for (i = 0; i < MAXSCEN && scen->name; i++, scen++)
 		showScenario(f, scen);
-}
+}*/
 
 str getScenarioLanguage(Client c){
 	Scenario scen= findScenario(c->scenario);
@@ -576,9 +576,9 @@ runScenario(Client c)
 	if (c == 0 || c->phase[MAL_SCENARIO_READER] == 0)
 		return msg;
 	msg = runScenarioBody(c);
-	if (msg != MAL_SUCCEED &&
+	/*if (msg != MAL_SUCCEED &&
 			strcmp(msg,"MALException:client.quit:Server stopped."))
-		mnstr_printf(c->fdout,"!%s\n",msg);
+		mnstr_printf(c->fdout,"!%s\n",msg);*/
 	return msg;
 }
 

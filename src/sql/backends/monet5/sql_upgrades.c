@@ -706,7 +706,10 @@ sql_update_median(Client c, mvc *sql)
 		}
 		BBPunfix(b->batCacheid);
 	}
-	res_tables_destroy(output);
+    if(output) {
+        res_tables_destroy(output);
+        output = NULL;
+    }
 	err = SQLstatementIntern(c, &q2, "update", 1, 0, &output);
 	if (err) {
 		GDKfree(buf);
@@ -735,7 +738,10 @@ sql_update_median(Client c, mvc *sql)
 		}
 		BBPunfix(b->batCacheid);
 	}
-	res_tables_destroy(output);
+	if(output) {
+		res_tables_destroy(output);
+		output = NULL;
+	}
 	pos += snprintf(buf + pos, bufsize - pos,
 			"insert into sys.systemfunctions (select id from sys.functions where name in ('median', 'quantile') and schema_id = (select id from sys.schemas where name = 'sys') and id not in (select function_id from sys.systemfunctions));\n");
 	if (schema)

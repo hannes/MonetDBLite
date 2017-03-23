@@ -125,12 +125,12 @@ public final class JDBCEmbeddedConnection extends MonetDBEmbeddedConnection {
     }
 
     /**
-     * Fills the result set data for a {@link DataBlockResponse} according into the JDBC mappings.
+     * Fills the result set data for a {@link AbstractDataBlockResponse} according into the JDBC mappings.
      *
      * @param response The response to set data
      */
     void initializePointers(EmbeddedDataBlockResponse response) throws MonetDBEmbeddedException {
-        this.initializePointersInternal(this.lastResultSetPointer, response);
+        this.initializePointersInternal(this.connectionPointer, this.lastResultSetPointer, response);
     }
 
     /**
@@ -202,7 +202,8 @@ public final class JDBCEmbeddedConnection extends MonetDBEmbeddedConnection {
     /**
      * Native implementation of the result set construction.
      */
-    private native void initializePointersInternal(long resultSetPointer, EmbeddedDataBlockResponse response)
+    private native void initializePointersInternal(long connectionPointer, long resultSetPointer,
+                                                   EmbeddedDataBlockResponse response)
             throws MonetDBEmbeddedException;
 
     /**

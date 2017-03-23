@@ -412,20 +412,9 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
 
     @Override
     public void close() {
-        if(this.structPointer != 0) {
+        if(this.structPointer != 0 && this.isInitialized) {
             this.freeResultSet(this.structPointer);
             this.structPointer = 0;
         }
-    }
-
-    /**
-     * Overriding the finalize method to clean the result set.
-     */
-    @Override
-    protected void finalize() throws Throwable {
-        if(this.structPointer != 0) {
-            this.close();
-        }
-        super.finalize();
     }
 }

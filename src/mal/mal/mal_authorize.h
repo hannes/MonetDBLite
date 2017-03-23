@@ -14,7 +14,7 @@
 #include "mal_instruction.h"
 #include "mal_client.h"
 
-mal_export str AUTHcheckCredentials(oid *ret, Client c, str *user, str *passwd, str *challenge, str *algo);
+//mal_export str AUTHcheckCredentials(oid *ret, Client c, str *user, str *passwd, str *challenge, str *algo);
 mal_export str AUTHaddUser(oid *ret, Client c, str *user, str *pass);
 mal_export str AUTHremoveUser(Client c, str *username);
 mal_export str AUTHchangeUsername(Client c, str *olduser, str *newuser);

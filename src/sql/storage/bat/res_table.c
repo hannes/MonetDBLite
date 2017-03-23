@@ -29,13 +29,20 @@ res_table_create(sql_trans *tr, int res_id, int nr_cols, int type, res_table *ne
 	BAT *order = (BAT*)O;
 	res_table *t = ZNEW(res_table);
 
+    if(!t) {
+        return NULL;
+    }
 	(void) tr;
-	t->id = res_id;
+    t->id = res_id;
+    t->query_type = type;
+    t->nr_cols = nr_cols;
+    t->cur_col = 0;
+    t->cols = NEW_ARRAY(res_col, nr_cols);
+    if(!t->cols) {
+        GDKfree(t);
+        return NULL;
+    }
 
-	t->query_type = type;
-	t->nr_cols = nr_cols;
-	t->cur_col = 0;
-	t->cols = NEW_ARRAY(res_col, nr_cols);
 	memset((char*) t->cols, 0, nr_cols * sizeof(res_col));
 	t->tsep = t->rsep = t->ssep = t->ns = NULL;
 
@@ -101,23 +108,25 @@ res_table_destroy(res_table *t)
 {
 	int i;
 
-	for (i = 0; i < t->nr_cols; i++) {
-		res_col *c = t->cols + i;
+    if(t) {
+        for (i = 0; i < t->nr_cols; i++) {
+            res_col *c = t->cols + i;
 
-		res_col_destroy(c);
-	}
-	if (t->order)
-		bat_decref(t->order);
-	_DELETE(t->cols);
-	if (t->tsep)
-		_DELETE(t->tsep);
-	if (t->rsep)
-		_DELETE(t->rsep);
-	if (t->ssep)
-		_DELETE(t->ssep);
-	if (t->ns)
-		_DELETE(t->ns);
-	_DELETE(t);
+            res_col_destroy(c);
+        }
+        if (t->order)
+            bat_decref(t->order);
+        _DELETE(t->cols);
+        if (t->tsep)
+            _DELETE(t->tsep);
+        if (t->rsep)
+            _DELETE(t->rsep);
+        if (t->ssep)
+            _DELETE(t->ssep);
+        if (t->ns)
+            _DELETE(t->ns);
+        _DELETE(t);
+    }
 }
 
 res_table *

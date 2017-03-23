@@ -8,61 +8,85 @@
 
 #include "jresulset.h"
 #include "monetdb_config.h"
-#include "res_table.h"
-#include "mal_type.h"
-#include "gdk.h"
 #include "embedded.h"
+#include "gdk.h"
+#include "mal.h"
+#include "mal_client.h"
+#include "mal_type.h"
+#include "res_table.h"
 
-JResultSet* createResultSet(res_table* output) {
+JResultSet* createResultSet(Client conn, res_table* output) {
     JResultSet* thisResultSet = (JResultSet*) GDKmalloc(sizeof(JResultSet));
     int numberOfColumns = output->nr_cols, *quickerDigits, *quickerScales, i;
     BAT** dearBats;
     res_col col;
-    if(thisResultSet != NULL) {
+    if(thisResultSet) {
+        thisResultSet->conn = conn;
         thisResultSet->output = output;
-        thisResultSet->bats = (BAT**) GDKmalloc(sizeof(BAT*) * numberOfColumns);
-        thisResultSet->digits = (int*) GDKmalloc(sizeof(int) * numberOfColumns);
-        thisResultSet->scales = (int*) GDKmalloc(sizeof(int) * numberOfColumns);
+        if(output->nr_cols > 0) {
+            thisResultSet->bats = (BAT**) GDKmalloc(sizeof(BAT*) * numberOfColumns);
+            thisResultSet->digits = (int*) GDKmalloc(sizeof(int) * numberOfColumns);
+            thisResultSet->scales = (int*) GDKmalloc(sizeof(int) * numberOfColumns);
 
-        if(thisResultSet->bats == NULL || thisResultSet->digits == NULL || thisResultSet->scales == NULL) {
-            if(thisResultSet->bats != NULL) {
-                GDKfree(thisResultSet->bats);
+            if(thisResultSet->bats == NULL || thisResultSet->digits == NULL || thisResultSet->scales == NULL) {
+                if(thisResultSet->bats) {
+                    GDKfree(thisResultSet->bats);
+                }
+                if(thisResultSet->digits) {
+                    GDKfree(thisResultSet->digits);
+                }
+                if(thisResultSet->scales) {
+                    GDKfree(thisResultSet->scales);
+                }
+                GDKfree(thisResultSet);
+                thisResultSet = NULL;
+            } else {
+                dearBats = thisResultSet->bats;
+                quickerDigits = thisResultSet->digits;
+                quickerScales = thisResultSet->scales;
+                for (i = 0; i < numberOfColumns; i++) {
+                    col = output->cols[i];
+                    dearBats[i] = BATdescriptor(col.b);
+                    quickerDigits[i] = (int) col.type.digits;
+                    quickerScales[i] = (int) col.type.scale;
+                }
             }
-            if(thisResultSet->digits != NULL) {
-                GDKfree(thisResultSet->digits);
-            }
-            if(thisResultSet->scales != NULL) {
-                GDKfree(thisResultSet->scales);
-            }
-            GDKfree(thisResultSet);
-            thisResultSet = NULL;
         } else {
-            dearBats = thisResultSet->bats;
-            quickerDigits = thisResultSet->digits;
-            quickerScales = thisResultSet->scales;
-            for (i = 0; i < numberOfColumns; i++) {
-                col = output->cols[i];
-                dearBats[i] = BATdescriptor(col.b);
-                quickerDigits[i] = (int) col.type.digits;
-                quickerScales[i] = (int) col.type.scale;
-            }
+            thisResultSet->bats = NULL;
+            thisResultSet->digits = NULL;
+            thisResultSet->scales = NULL;
         }
     }
     return thisResultSet;
 }
 
 void freeResultSet(JResultSet* thisResultSet) {
-    if(thisResultSet != NULL) {
-        int numberOfColumns = thisResultSet->output->nr_cols, i;
-        BAT **dearBats = thisResultSet->bats;
-
-        for (i = 0; i < numberOfColumns; i++) {
-            BBPunfix(dearBats[i]->batCacheid);
+    int numberOfColumns, i;
+    BAT **dearBats;
+    if(thisResultSet) {
+        if(thisResultSet->bats) {
+            dearBats = thisResultSet->bats;
+            if(thisResultSet->output) {
+                numberOfColumns = thisResultSet->output->nr_cols;
+                for (i = 0; i < numberOfColumns; i++) {
+                    BBPunfix(dearBats[i]->batCacheid);
+                }
+            }
+            GDKfree(dearBats);
+            thisResultSet->bats = NULL;
         }
-        GDKfree(dearBats);
-        GDKfree(thisResultSet->digits);
-        GDKfree(thisResultSet->scales);
-        monetdb_cleanup_result(NULL, thisResultSet->output);
+        if(thisResultSet->digits) {
+            GDKfree(thisResultSet->digits);
+            thisResultSet->digits = NULL;
+        }
+        if(thisResultSet->scales) {
+            GDKfree(thisResultSet->scales);
+            thisResultSet->scales = NULL;
+        }
+        if(thisResultSet->output) {
+            monetdb_cleanup_result(thisResultSet->conn, thisResultSet->output);
+            thisResultSet->output = NULL;
+        }
         GDKfree(thisResultSet);
     }
 }

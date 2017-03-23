@@ -10,17 +10,26 @@
 #define MONETDBLITE_JRESULTSET_H
 
 #include "monetdb_config.h"
-#include "res_table.h"
+#include "gdk.h"
+#include "mal.h"
+#include "mal_client.h"
 #include "mal_type.h"
+#include "res_table.h"
+
+/*
+ * Pedro Ferreira
+ * The JResultSet holds the output of a MonetDB query to be translated into Java primitives/Objects
+ */
 
 typedef struct {
+    Client conn;
     res_table *output;
     BAT** bats;
     int* digits;
     int* scales;
 } JResultSet;
 
-JResultSet* createResultSet(res_table* output);
+JResultSet* createResultSet(Client conn, res_table* output);
 void freeResultSet(JResultSet* thisResultSet);
 
 #endif //MONETDBLITE_JRESULTSET_H

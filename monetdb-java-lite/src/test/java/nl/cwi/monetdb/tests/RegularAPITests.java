@@ -548,19 +548,23 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
 
     @Test
     void testUpdates() throws MonetDBEmbeddedException {
-        connection.sendUpdate("CREATE TABLE testupdates (val int);");
-        connection.sendUpdate("INSERT INTO testupdates VALUES (1), (2), (3), (4), (5), (6), (7), (8), (9);");
+        int rows1 = connection.sendUpdate("CREATE TABLE testupdates (val int);");
+        Assertions.assertEquals(-2, rows1, "The creation should have affected no rows!");
 
-        int rows1 = connection.sendUpdate("UPDATE testupdates SET val=2 WHERE val<3;");
-        Assertions.assertEquals(2, rows1, "It should have affected 2 rows!");
+        int rows2 = connection.sendUpdate("INSERT INTO testupdates VALUES (1), (2), (3), (4), (5), (6), (7), (8), (9);");
+        Assertions.assertEquals(9, rows2, "It should have affected 9 rows!");
 
-        int rows2 = connection.sendUpdate("UPDATE testupdates SET val=10 WHERE val>5;");
-        Assertions.assertEquals(4, rows2, "It should have affected 4 rows!");
+        int rows3 = connection.sendUpdate("UPDATE testupdates SET val=2 WHERE val<3;");
+        Assertions.assertEquals(2, rows3, "It should have affected 2 rows!");
 
-        int rows3 = connection.sendUpdate("UPDATE testupdates SET val=2;");
-        Assertions.assertEquals(9, rows3, "It should have affected 9 rows!");
+        int rows4 = connection.sendUpdate("UPDATE testupdates SET val=10 WHERE val>5;");
+        Assertions.assertEquals(4, rows4, "It should have affected 4 rows!");
 
-        connection.sendUpdate("DROP TABLE testupdates;");
+        int rows5 = connection.sendUpdate("UPDATE testupdates SET val=2;");
+        Assertions.assertEquals(9, rows5, "It should have affected 9 rows!");
+
+        int rows6 = connection.sendUpdate("DROP TABLE testupdates;");
+        Assertions.assertEquals(-2, rows6, "The deletion should have affected no rows!");
     }
 
     @Test

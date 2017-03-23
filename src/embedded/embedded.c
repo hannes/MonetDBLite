@@ -75,7 +75,6 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	void* res = NULL;
 	Client conn;
 
-
 // we probably don't want this.
 //	if (setlocale(LC_CTYPE, "") == NULL) {
 //		retval = GDKstrdup("setlocale() failed");
@@ -173,6 +172,9 @@ int monetdb_is_initialized(void) {
 char* monetdb_query(Client conn, char* query, char execute, void** result) {
 	str res = MAL_SUCCEED;
 	mvc* m;
+    conn->lastResultSetID = -1;
+	conn->lastNumberOfRows = -2; //Keep consistence with the JDBC driver
+    *result = NULL;
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
 	}
@@ -185,24 +187,49 @@ char* monetdb_query(Client conn, char* query, char execute, void** result) {
 	if (strncasecmp(query, "START", 5) == 0) { // START TRANSACTION
 		m->session->auto_commit = 0;
 		m->session->status = 0;
+        conn->lastQueryType = Q_TRANS;
+        conn->lastNumberOfRows = 0;
 	} else if (strncasecmp(query, "ROLLBACK", 8) == 0 && strncasecmp(query + 8, " TO SAVEPOINT", 13) != 0) {
 		m->session->status = -1;
 		m->session->auto_commit = 1;
+        conn->lastQueryType = Q_TRANS;
+        conn->lastNumberOfRows = 0;
 	} else if (strncasecmp(query, "COMMIT", 6) == 0) {
 		if(m->session->auto_commit == 1) {
 			res = GDKstrdup("COMMIT: not allowed in auto commit mode");
 		} else {
 			m->session->auto_commit = 1;
+            conn->lastQueryType = Q_TRANS;
+            conn->lastNumberOfRows = 0;
 		}
 	} else if (m->session->status < 0 && m->session->auto_commit == 0) {
 		res = GDKstrdup("Current transaction is aborted (please ROLLBACK)");
     } else if(m->session->auto_commit == 1 && strncasecmp(query, "SAVEPOINT", 9) == 0) {
-		 res = GDKstrdup("SAVEPOINT: not allowed in auto commit mode");
+		res = GDKstrdup("SAVEPOINT: not allowed in auto commit mode");
 	} else if (strncasecmp(query, "SHIBBOLEET", 10) == 0) {
 		res = GDKstrdup("\x46\x6f\x72\x20\x69\x6d\x6d\x65\x64\x69\x61\x74\x65\x20\x74\x65\x63\x68\x6e\x69\x63\x61\x6c\x20\x73\x75\x70\x70\x6f\x72\x74\x20\x63\x61\x6c\x6c\x20\x2b\x33\x31\x20\x32\x30\x20\x35\x39\x32\x20\x34\x30\x33\x39");
+	} else if (strncasecmp(query, "PREPARE", 7) == 0 || strncasecmp(query, "EXEC", 4) == 0) {
+		// prepared statements are VERY COMPLICATED indeed. First we use the SQLPreparedStatementParser to check
+        // the query string and prepare the engine
+        // Then we execute the query. It it's a PREPARE, we get the res_table*, and set the lastQueryType to Q_PREPARE
+        // else (it's an EXEC) we set the output type depending if we have a res_table* or not (in a update we have not)
+        res = SQLPreparedStatementParser(conn, &query, (res_table **) result);
+        if(res == MAL_SUCCEED) {
+            res = SQLengineIntern(conn, (backend *) conn->sqlcontext);
+        }
+        if(res == MAL_SUCCEED) {
+            if(strncasecmp(query, "EXEC", 4) == 0) {
+                *result = res_tables_find(m->results, conn->lastResultSetID);
+                conn->lastQueryType = (*result) ? Q_TABLE : Q_UPDATE;
+            } else { //PREPARE
+                conn->lastQueryType = Q_PREPARE;
+            }
+        }
 	} else {
 		res = SQLstatementIntern(conn, &query, "main", execute, 0, (res_table **) result);
 	}
+    //It's important to set the last auto_commit for the JDBC embedded connection
+    conn->lastAutoCommitStatus = m->session->auto_commit;
 	SQLautocommit(conn, m);
 	return res;
 }
@@ -265,8 +292,12 @@ char* monetdb_append(Client conn, const char* schema, const char* table, append_
 	return res;
 }
 
-void  monetdb_cleanup_result(Client conn, void* output) {
-	(void) conn; // not needing conn here (but perhaps someday)
+void  monetdb_cleanup_result(Client conn, void* output) { //Don't forget to set to null
+    mvc* m;
+    if(conn) {
+        m = ((backend *) conn->sqlcontext)->mvc;
+        m->results = NULL;
+    }
 	res_tables_destroy((res_table*) output);
 }
 
@@ -387,8 +418,7 @@ void getUpdateQueryData(Client conn, long* lastId, long* rowCount) {
 }
 
 int getAutocommitFlag(Client conn) {
-    mvc* m = ((backend *) conn->sqlcontext)->mvc;
-    return m->session->auto_commit;
+    return conn->lastAutoCommitStatus;
 }
 
 int setMonetDB5LibraryPathEmbedded(const char* path) {

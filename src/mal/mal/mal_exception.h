@@ -52,7 +52,7 @@ mal_export int isExceptionVariable(str nme);
 mal_export enum malexception	getExceptionType(str);
 mal_export str	getExceptionPlace(str);
 mal_export str	getExceptionMessage(str);
-mal_export void dumpExceptionsToStream(stream *out, str msg);
+//mal_export void dumpExceptionsToStream(stream *out, str msg);
 mal_export void freeException(str);
 
 #include "mal_errors.h"
