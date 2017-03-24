@@ -198,15 +198,6 @@ setMethod("dbListTables", "MonetDBConnection", def=function(conn, ..., sys_table
   as.character(res)
 })
 
-if (is.null(getGeneric("dbTransaction"))) setGeneric("dbTransaction", function(conn, ...) 
-  standardGeneric("dbTransaction"))
-
-setMethod("dbTransaction", signature(conn="MonetDBConnection"),  def=function(conn, ...) {
-  dbBegin(conn)
-  warning("dbTransaction() is deprecated, use dbBegin() from now.")
-  invisible(TRUE)
-})
-
 setMethod("dbBegin", "MonetDBConnection", def=function(conn, ...) {
   dbSendQuery(conn, "START TRANSACTION")
   invisible(TRUE)
@@ -583,7 +574,7 @@ if (is.null(getGeneric("dbSendUpdate"))) setGeneric("dbSendUpdate", function(con
                                                                              async=FALSE) standardGeneric("dbSendUpdate"))
 setMethod("dbSendUpdate", signature(conn="MonetDBConnection", statement="character"),  
           def=function(conn, statement, ..., list=NULL, async=FALSE) {
-            #.Deprecated("DBI has dbExecute and sqlInterpolate which can replace this.")
+            .Deprecated("DBI has dbExecute and sqlInterpolate which can replace this.")
 
             if(!is.null(list) || length(list(...))){
               if (length(list(...))) statement <- .bindParameters(statement, list(...))
@@ -773,8 +764,7 @@ monetdbRtype <- function(dbType) {
 }
 
 setMethod("fetch", signature(res="MonetDBResult", n="numeric"), def=function(res, n, ...) {
-  # DBI on CRAN still uses fetch()
-  # .Deprecated("dbFetch")
+  .Deprecated("use dbFetch() instead")
   dbFetch(res, n, ...)
 })
 
@@ -952,12 +942,12 @@ setMethod("dbHasCompleted", "MonetDBResult", def = function(res, ...) {
 # compatibility with RSQLite
 if (is.null(getGeneric("isIdCurrent"))) setGeneric("isIdCurrent", function(dbObj, ...) standardGeneric("isIdCurrent"))
 setMethod("isIdCurrent", signature(dbObj="MonetDBResult"), def=function(dbObj, ...) {
-  .Deprecated("dbIsValid")
+  .Deprecated("use dbIsValid() instead")
    dbIsValid(dbObj)
 })
 
 setMethod("isIdCurrent", signature(dbObj="MonetDBConnection"), def=function(dbObj, ...) {
-  .Deprecated("dbIsValid")
+  .Deprecated("use dbIsValid() instead")
    dbIsValid(dbObj)
 })
 
