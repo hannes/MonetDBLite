@@ -51,7 +51,7 @@ sql_translate_env.MonetDBConnection <- function(con) {
 }
 
 src_desc.src_monetdb <- function(x) {
-  if (inherits(con_acquire(x), "MonetDBEmbeddedConnection")) {
+  if (inherits(dplyr::con_acquire(x), "MonetDBEmbeddedConnection")) {
     paste0("MonetDBLite ", packageVersion("MonetDBLite"), " (", monetdb_embedded_env$started_dir, ")")
   } else {
     paste0("MonetDB ",x$info$monet_version, " (",x$info$monet_release, ")")
@@ -63,16 +63,16 @@ sample_n.tbl_monetdb <- function(x, size, replace = FALSE, weight = NULL) {
     stop("Sorry, replace and weight are not supported for MonetDB tables. \
       Consider collect()'ing first.")
   }
-  con <- con_acquire(x$src)
+  con <- dplyr::con_acquire(x$src)
 
-  DBI::dbGetQuery(con, dplyr::build_sql("SELECT * FROM (", sql_render(x, con), ") AS s SAMPLE ", as.integer(size)))
+  DBI::dbGetQuery(con, dplyr::build_sql("SELECT * FROM (", dplyr::sql_render(x, con), ") AS s SAMPLE ", as.integer(size)))
 }
 
 sample_frac.tbl_monetdb <- function(tbl, frac=1, replace = FALSE, weight = NULL) {
   if (frac < 0 || frac > 1) {
     stop("frac must be in [0,1]")
   }
-  n <- as.data.frame(tbl %>% summarize(n()))[[1,1]]
+  n <- as.data.frame(dplyr::summarize(tbl, n()))[[1,1]]
   if (n < 1) {
     stop("not sampling 0 rows...")
   }
