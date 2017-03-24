@@ -16,7 +16,6 @@ repositories {
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'org.junit.platform.gradle.plugin'
-//apply plugin: 'maven-publish'
 
 ext.group = 'nl.cwi.monetdb'
 ext.packaging = 'jar'
@@ -24,7 +23,6 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 ext.junitPlatformVersion = '1.0.0-M3'
 ext.junitJupiterVersion  = '5.0.0-M3'
-//ext.junit4Version        = '4.12'
 ext.junitVintageVersion  = '4.12.0-M3'
 ext.log4jVersion         = '2.7'
 version = '2.24'
@@ -44,19 +42,22 @@ def urlFile = { url, name ->
 }
 
 dependencies {
-    compile urlFile('https://www.dropbox.com/s/pq2q1blywh6mnkd/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
+    compile urlFile('https://www.dropbox.com/s/ntd40vp1ehtywom/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
 
     // JUnit Jupiter API and TestEngine implementation
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
 
-    //not using JUnit4 for now
-    //testCompile("junit:junit:${junit4Version}")
-    //testRuntime("org.junit.vintage:junit-vintage-engine:${junitVintageVersion}")
-
     //Log using log4j
     testRuntime("org.apache.logging.log4j:log4j-core:${log4jVersion}")
     testRuntime("org.apache.logging.log4j:log4j-jul:${log4jVersion}")
+}
+
+junitPlatform { //configurations for JUnit5 tests
+    platformVersion "${junitPlatformVersion}"
+    logManager 'org.apache.logging.log4j.jul.LogManager'
+    reportsDir "build/test-results/junit-platform"
+    enableStandardTestTask false
 }
 
 jar {
@@ -65,19 +66,13 @@ jar {
     }
 }
 
-shadowJar { //Build instruction to the shadowJar
+shadowJar { //Build instruction to the shadowJar (a jar which includes both the JDBC and MonetDBJavaLite jars)
     manifest {
         inheritFrom project.jar.manifest
     }
     destinationDir = file("./build/shadowJar")
 }
 
-junitPlatform { //configurations for JUnit5 tests
-    // platformVersion '1.0.0-M3'
-    // reportsDir file('build/test-results/junit-platform') default
-    logManager 'org.apache.logging.log4j.jul.LogManager'
-}
-
-task wrapper(type: Wrapper) {
+task wrapper(type: Wrapper) { //Set the gradle wrapper, so users don't have to install Gradle
     gradleVersion = '3.4.1'
 }

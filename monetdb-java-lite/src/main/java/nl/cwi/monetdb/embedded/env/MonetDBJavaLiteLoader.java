@@ -13,6 +13,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import nl.cwi.monetdb.jdbc.MonetDriver;
@@ -106,6 +107,21 @@ public final class MonetDBJavaLiteLoader {
      */
     private static OSLibraries DetectRunningOperatingSystemAndLoadLibrary() throws MonetDBEmbeddedException {
         String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
+
+        //Check the CPU architecture
+        //http://stackoverflow.com/questions/1856565/how-do-you-determine-32-or-64-bit-architecture-of-windows-using-java/2269242#2269242
+        boolean is64bit;
+        if (OS.contains("win")) {
+            is64bit = (System.getenv("ProgramFiles(x86)") != null);
+        } else {
+            is64bit = (System.getProperty("os.arch").contains("64"));
+        }
+        if(!is64bit) {
+            throw new MonetDBEmbeddedException("Currently we only support 64-bit architectures! Sorry! :(");
+        }
+
+        //Check the running OS
+        //http://stackoverflow.com/questions/228477/how-do-i-programmatically-determine-operating-system-in-java#answer-18417382
         if ((OS.contains("mac")) || (OS.contains("darwin"))) {
             return OSLibraries.MacOS;
         } else if (OS.contains("win")) {
@@ -113,7 +129,8 @@ public final class MonetDBJavaLiteLoader {
         } else if (OS.contains("nux")) {
             return OSLibraries.Linux;
         } else {
-            throw new MonetDBEmbeddedException("Operating system not detected!");
+            throw new MonetDBEmbeddedException("The operating system " + OS +  " is currently not supported by " +
+                    "MonetDBJavaLite! Sorry! :(");
         }
     }
 

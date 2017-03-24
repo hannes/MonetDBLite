@@ -30,8 +30,9 @@ MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The former can be used 
 connections are desired. The latter contains the embedded server code. For both the Embedded API and the Embedded JDBC
 connections, the second jar is also required in the `CLASSPATH`.
 
-**Both jars require JVM 8 to run**, as we found problems running in the JVM 8 when we compile to target JVM 7
-(the problem might be related to the JVM rather than us). Currently, the `monetdb-java-lite-<version>.jar`
+The **`monetdb-jdbc-new-<version>.jar` is still compatible with JVM 7**, however the **`monetdb-java-lite-<version>.jar`
+requires JVM 8 to run**, as we found problems running in the JVM 8 when we compiled to target JVM 7
+(the problem might be related to the JVM rather than us). Currently the `monetdb-java-lite-<version>.jar`
 **only supports 64-bit architectures**.
 
 As this software is still experimental, we haven't made it available in a public Maven repository yet. Both jars can be
@@ -457,8 +458,8 @@ this approach in the JVM:
 * We have to allocate the result set in the Java's Heap instead of the MonetDB's heap. We could try that with an array,
 but even in the native API the arrays are always
 [auto-initialized](https://stackoverflow.com/questions/13780350/is-there-any-way-to-create-a-primitive-array-without-initialization),
-which is already a copy. We could do some crazy hacking by pointing the array to the MonetDB's heap, but the JVM's Garbage Colector
-might move memory areas, which we have to be very careful with.
+which is already a copy. We could do some crazy hacking by pointing the array to the MonetDB's heap, but the JVM's
+Garbage Collector might move memory areas, which we have to be very careful with.
 * We could try direct [ByteBuffers](https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html), which are 
 allocated outside of the Java's heap. However to access their data in the Java code in a bulk way to an array, a copy is
 made.
