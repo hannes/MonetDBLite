@@ -5,9 +5,10 @@
 \alias{dbSendUpdateAsync,MonetDBConnection,character-method}
 
 \title{
-  Send a data-altering SQL statement to the database.
+  Send a data-altering SQL statement to the database. (DEPRECATED)
 }
 \description{
+Note: This function has been deprecated and will be removed in a future release!
   \code{dbSendUpdate} is used to send a data-altering statement to a MonetDB database, 
   e.g. \code{CREATE TABLE} or \code{INSERT}. As a convenience feature, a placeholder 
   (\code{?} character) can be used in the SQL statement, and bound to parameters given 
@@ -34,19 +35,5 @@
 \seealso{
   \code{\link[DBI]{dbSendQuery}}
 }
-\examples{
 
-# initiate a MonetDBLite server
-library(DBI)
-dbdir <- file.path( tempdir() , "sendupdate" )
-con <- dbConnect(MonetDBLite::MonetDBLite(), dbdir)
-
-# create table
-dbSendUpdate(con, "CREATE TABLE foo(a INT,b VARCHAR(100))")
-# insert value, bind parameters to placeholders in statement
-dbSendUpdate(con, "INSERT INTO foo VALUES(?,?)", 42, "bar")
-
-
-dbDisconnect(con,shutdown=TRUE)
-}
 \keyword{interface}
