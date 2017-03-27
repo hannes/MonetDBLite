@@ -2,6 +2,13 @@ sudo: required
 
 language: java
 
+git:
+    depth: 1
+
+branches:
+    only:
+        - Dec2016Lite-Java
+
 addons:
     apt:
         sources:
@@ -10,15 +17,11 @@ addons:
             - oracle-java8-installer
             - gcc-6
 
-git:
-    depth: 1
-
-branches:
-    only:
-        - Dec2016Lite-Java
-
 services:
     - docker
+
+addons:
+    ssh_known_hosts: monetdb.org
 
 before_cache:
     # Clean gradle caches
@@ -32,8 +35,6 @@ cache:
 
 env:
     global:
-        # From http://stackoverflow.com/a/21841688
-        - TERM=dumb
         # Ubuntu problems...
         - LANG=en_US.utf8
         - LC_CTYPE=en_US.utf8
@@ -51,9 +52,8 @@ env:
         - CC=/usr/bin/gcc-6
 
 before_install:
-    # From http://stackoverflow.com/a/11069162
+    # Updating GCC and other libraries
     - sudo apt-get -qy update
-    # Update GCC
     - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
     - gcc -v
     - sudo apt-get install -qq -y realpath coreutils
@@ -65,7 +65,7 @@ install:
 
 script:
     - jdk_switcher use oraclejdk8
-    # Compile for the 3 operative systems! May the God be with us!
+    # Compile for the 3 operative systems! May the God be with us! We will create 3 distinct directories for each compilation
     - cd ..
     - cp -rf MonetDBLite MonetDBLiteMacOS/
     - cp -rf MonetDBLite MonetDBLiteWindows/
@@ -81,8 +81,17 @@ script:
     - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/ 
     - cd MonetDBLite/monetdb-java-lite
     - ./gradlew -i build
+    # Move to the original directory
+    - cd ..
 
 after_success:
-    # Publish to our repository
-    #- ./gradlew -i artifactoryPublish
+    # Preparing the RSA key
+    - openssl aes-256-cbc -K $encrypted_a16cc492052e_key -iv $encrypted_a16cc492052e_iv -in id_downloads.enc -out id_downloads -d
+    # Publish to our repository with rsync, but first copy the header file for the site
+    - cp HEADER.html monetdb-java-lite/build/libs/
+    - rsync -avz -e "ssh -i id_downloads" monetdb-java-lite/build/libs/ ferreira@monetdb.org:/var/www/html/downloads/Java-Experimental/
 
+notifications:
+    email:
+        on_success: never # default: change
+        on_failure: always # default: always
