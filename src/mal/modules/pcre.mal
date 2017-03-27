@@ -76,7 +76,7 @@ command batalgebra.not_ilike(s:bat[:str], pat:str, esc:str):bat[:bit] address BA
 command batalgebra.not_ilike(s:bat[:str], pat:str):bat[:bit] address BATPCREnotilike2;
 
 command algebra.likesubselect(b:bat[:str], s:bat[:oid], pat:str, esc:str, caseignore:bit, anti:bit) :bat[:oid]
-address PCRElikesubselect2
+address PCRElikeselect2
 comment "Select all head values of the first input BAT for which the
 	tail value is \"like\" the given (SQL-style) pattern and for
 	which the head value occurs in the tail of the second input
@@ -86,33 +86,33 @@ comment "Select all head values of the first input BAT for which the
 	relationship holds.  The output BAT is sorted on the tail value.";
 
 command algebra.likesubselect(b:bat[:str], cand:bat[:oid], pat:str, esc:str, anti:bit) :bat[:oid]
-address PCRElikesubselect3;
+address PCRElikeselect3;
 
 command algebra.ilikesubselect(b:bat[:str], cand:bat[:oid], pat:str, esc:str, anti:bit) :bat[:oid]
-address PCRElikesubselect1;
+address PCRElikeselect1;
 
 command algebra.likesubselect(b:bat[:str], cand:bat[:oid], pat:str, anti:bit) :bat[:oid]
-address PCRElikesubselect5;
+address PCRElikeselect5;
 
 command algebra.ilikesubselect(b:bat[:str], cand:bat[:oid], pat:str, anti:bit) :bat[:oid]
-address PCRElikesubselect4;
+address PCRElikeselect4;
 
 command algebra.likesubjoin(l:bat[:str],r:bat[:str],esc:str,sl:bat[:oid],sr:bat[:oid],nil_matches:bit,estimate:lng) (:bat[:oid],:bat[:oid])
-address LIKEsubjoin
+address LIKEjoin
 comment "Join the string bat L with the pattern bat R
 with optional candidate lists SL and SR using pattern escape string ESC
 and doing a case sensitive match.
 The result is two aligned bats with oids of matching rows.";
 
 command algebra.ilikesubjoin(l:bat[:str],r:bat[:str],esc:str,sl:bat[:oid],sr:bat[:oid],nil_matches:bit,estimate:lng) (:bat[:oid],:bat[:oid])
-address ILIKEsubjoin
+address ILIKEjoin
 comment "Join the string bat L with the pattern bat R
 with optional candidate lists SL and SR using pattern escape string ESC
 and doing a case insensitive match.
 The result is two aligned bats with oids of matching rows.";
 
 command algebra.likesubjoin(l:bat[:str],r:bat[:str],sl:bat[:oid],sr:bat[:oid],nil_matches:bit,estimate:lng) (:bat[:oid],:bat[:oid])
-address LIKEsubjoin1;
+address LIKEjoin1;
 
 command algebra.ilikesubjoin(l:bat[:str],r:bat[:str],sl:bat[:oid],sr:bat[:oid],nil_matches:bit,estimate:lng) (:bat[:oid],:bat[:oid])
-address ILIKEsubjoin1;
+address ILIKEjoin1;

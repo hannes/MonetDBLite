@@ -125,6 +125,9 @@ static Client
 MCnewClient(void)
 {
 	Client c;
+	if (!mal_clients) {
+		return NULL;
+	}
 	MT_lock_set(&mal_contextLock);
 	if (mal_clients[CONSOLE].user && mal_clients[CONSOLE].mode == FINISHCLIENT) {
 		/*system shutdown in progress */
@@ -203,6 +206,9 @@ MCinitClientRecord(Client c, oid user, bstream *fin, stream *fout)
 	c->blkmode = 0;
 
 	c->fdin = fin ? fin : bstream_create(GDKin, 0);
+	if (!c->fdin) {
+		return NULL;
+	}
 	c->yycur = 0;
 	c->bak = NULL;
 
@@ -234,11 +240,13 @@ MCinitClientRecord(Client c, oid user, bstream *fin, stream *fout)
 
 	prompt = !fin ? GDKgetenv("monet_prompt") : PROMPT1;
 	c->prompt = GDKstrdup(prompt);
+	if (!c->prompt) {
+		return NULL;
+	}
 	c->promptlength = strlen(prompt);
 
 	c->actions = 0;
 	c->totaltime = 0;
-	/* create a recycler cache */
 	c->exception_buf_initialized = 0;
 	c->error_row = c->error_fld = c->error_msg = c->error_input = NULL;
 #ifndef HAVE_EMBEDDED /* no authentication in embedded mode */
@@ -424,9 +432,12 @@ void
 MCstopClients(Client cntxt)
 {
 	Client c = mal_clients;
+	if (!mal_clients) {
+		return;
+	}
 	MT_lock_set(&mal_contextLock);
 	for (c = mal_clients + 1; c < mal_clients + MAL_MAXCLIENTS; c++) {
-		if (cntxt != c){
+		if (c && cntxt != c) {
 			if (c->mode == RUNCLIENT){
 				c->mode = FINISHCLIENT;
 			}

@@ -1507,54 +1507,6 @@ GDKvm_cursize(void)
 
 #ifndef STATIC_CODE_ANALYSIS
 
-static void
-GDKmemdump(void)
-{
-	struct Mallinfo m = MT_mallinfo();
-
-	MEMDEBUG {
-		fprintf(stderr, "\n");
-		fprintf(stderr, "#mallinfo.arena = " SZFMT "\n", m.arena);
-		fprintf(stderr, "#mallinfo.ordblks = " SZFMT "\n", m.ordblks);
-		fprintf(stderr, "#mallinfo.smblks = " SZFMT "\n", m.smblks);
-		fprintf(stderr, "#mallinfo.hblkhd = " SZFMT "\n", m.hblkhd);
-		fprintf(stderr, "#mallinfo.hblks = " SZFMT "\n", m.hblks);
-		fprintf(stderr, "#mallinfo.usmblks = " SZFMT "\n", m.usmblks);
-		fprintf(stderr, "#mallinfo.fsmblks = " SZFMT "\n", m.fsmblks);
-		fprintf(stderr, "#mallinfo.uordblks = " SZFMT "\n", m.uordblks);
-		fprintf(stderr, "#mallinfo.fordblks = " SZFMT "\n", m.fordblks);
-	}
-#ifdef GDK_MEM_KEEPHISTO
-	{
-		int i;
-
-		fprintf(stderr, "#memory histogram\n");
-		for (i = 3; i < GDK_HISTO_MAX_BIT - 1; i++) {
-			size_t j = 1 << i;
-
-			fprintf(stderr, "# " SZFMT " " SZFMT "\n", j,
-				ATOMIC_GET(GDK_nmallocs[i],
-					   mbyteslock, "GDKmemdump"));
-		}
-	}
-#endif
-#ifdef GDK_VM_KEEPHISTO
-	{
-		int i;
-
-		fprintf(stderr, "\n#virtual memory histogram\n");
-		for (i = 12; i < GDK_HISTO_MAX_BIT - 1; i++) {
-			size_t j = 1 << i;
-
-			fprintf(stderr, "# " SZFMT " " SZFMT "\n", j,
-				ATOMIC_GET(GDK_vm_nallocs[i],
-					   mbyteslock, "GDKmemdump"));
-		}
-	}
-#endif
-}
-
-
 /*
  * @+ Malloc
  * Malloc normally maps through directly to the OS provided
@@ -1594,28 +1546,6 @@ GDKmemdump(void)
  * the malloc arena small. Thus, VM redirection is now quickly
  * applied: for all mallocs > 1MB.
  */
-static void
-GDKmemfail(const char *s, size_t len)
-{
-	/* bumped your nose against the wall; try to prevent
-	 * repetition by adjusting maxsizes
-	   if (memtarget < 0.3 * GDKmem_cursize()) {
-		   size_t newmax = (size_t) (0.7 * (double) GDKmem_cursize());
-
-		   if (newmax < GDK_mem_maxsize)
-		   GDK_mem_maxsize = newmax;
-	   }
-	   if (vmtarget < 0.3 * GDKvm_cursize()) {
-		   size_t newmax = (size_t) (0.7 * (double) GDKvm_cursize());
-
-		   if (newmax < GDK_vm_maxsize)
-			   GDK_vm_maxsize = newmax;
-	   }
-	 */
-
-	fprintf(stderr, "#%s(" SZFMT ") fails, try to free up space [memory in use=" SZFMT ",virtual memory in use=" SZFMT "]\n", s, len, GDKmem_cursize(), GDKvm_cursize());
-	GDKmemdump();
-}
 
 /* the blocksize is stored in the ssize_t before it. Negative size <=>
  * VM memory */
@@ -1642,15 +1572,6 @@ GDKmalloc_prefixsize(size_t size)
 		s[-1] = (ssize_t) (size + MALLOC_EXTRA_SPACE);
 	}
 	return s;
-}
-
-void
-GDKsetmemorylimit(lng nbytes)
-{
-	(void) nbytes;
-#ifndef NDEBUG
-	GDK_mallocedbytes_limit = nbytes;
-#endif
 }
 
 
@@ -1681,7 +1602,6 @@ GDKmallocmax(size_t size, size_t *maxsize, int emergency)
 	size = (size + 7) & ~7;	/* round up to a multiple of eight */
 	s = GDKmalloc_prefixsize(size);
 	if (s == NULL) {
-		GDKmemfail("GDKmalloc", size);
 		if (emergency == 0) {
 			GDKerror("GDKmallocmax: failed for " SZFMT " bytes", size);
 			return NULL;
@@ -1789,7 +1709,6 @@ GDKreallocmax(void *blk, size_t size, size_t *maxsize, int emergency)
 	blk = realloc(((char *) blk) - MALLOC_EXTRA_SPACE,
 		      newsize + GLIBC_BUG);
 	if (blk == NULL) {
-		GDKmemfail("GDKrealloc", newsize);
 		if (emergency == 0) {
 			GDKerror("GDKreallocmax: failed for "
 				 SZFMT " bytes", newsize);
@@ -1831,8 +1750,6 @@ GDKstrdup(const char *s)
 }
 
 #else
-
-#define GDKmemfail(s, len)	/* nothing */
 
 void *
 GDKmallocmax(size_t size, size_t *maxsize, int emergency)
@@ -1906,6 +1823,15 @@ GDKstrdup(const char *s)
 
 #endif	/* STATIC_CODE_ANALYSIS */
 
+void
+GDKsetmemorylimit(lng nbytes)
+{
+	(void) nbytes;
+#ifndef NDEBUG
+	GDK_mallocedbytes_limit = nbytes;
+#endif
+}
+
 #undef GDKstrndup
 char *
 GDKstrndup(const char *s, size_t n)
@@ -1934,9 +1860,6 @@ GDKmmap(const char *path, int mode, size_t len)
 		return NULL;
 	}
 	ret = MT_mmap(path, mode, len);
-	if (ret == NULL) {
-		GDKmemfail("GDKmmap", len);
-	}
 	if (ret != NULL) {
 		meminc(len);
 	}
@@ -1967,9 +1890,6 @@ GDKmremap(const char *path, int mode, void *old_address, size_t old_size, size_t
 		return NULL;
 	}
 	ret = MT_mremap(path, mode, old_address, old_size, new_size);
-	if (ret == NULL) {
-		GDKmemfail("GDKmremap", *new_size);
-	}
 	if (ret != NULL) {
 		memdec(old_size);
 		meminc(*new_size);

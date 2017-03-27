@@ -46,7 +46,7 @@ OPTcandidatesImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 		else if( getModuleId(p) == algebraRef ){
 			if(getFunctionId(p) == subselectRef || getFunctionId(p) == thetasubselectRef)
 				setVarCList(mb,getArg(p,0));
-			else if(getFunctionId(p) == likesubselectRef || getFunctionId(p) == likethetasubselectRef)
+			else if(getFunctionId(p) == likesubselectRef)
 				setVarCList(mb,getArg(p,0));
 			else if(getFunctionId(p) == subinterRef )
 				setVarCList(mb,getArg(p,0));

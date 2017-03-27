@@ -9,6 +9,7 @@ mkdir -p $PREFIX/build
 
 (
 cd src 
+./bootstrap
 ./configure
 make distclean
 ./bootstrap

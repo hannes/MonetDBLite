@@ -46,7 +46,7 @@ dnl  configure file, whereas comments starting with dnl are elided
 dnl  (including their trailing newline).
 
 AC_PREREQ([2.63])
-AC_INIT([MonetDB], [11.25.6], [https://bugs.monetdb.org/], [MonetDB], [https://www.monetdb.org/])
+AC_INIT([MonetDB], [11.25.12], [https://bugs.monetdb.org/], [MonetDB], [https://www.monetdb.org/])
 AC_CONFIG_AUX_DIR([buildtools/conf])
 AC_CONFIG_MACRO_DIR([buildtools/conf])
 AC_CANONICAL_HOST
@@ -75,9 +75,6 @@ m4_ifndef([PKG_PROG_PKG_CONFIG],
     ./bootstrap or autoreconf again.])])
 
 PKG_PROG_PKG_CONFIG
-
-AS_VAR_IF([PKG_CONFIG], [],
-	[AC_MSG_ERROR([pkg-config is required to configure MonetDB])])
 
 # BUILD and SOURCE are *only* used for testing.
 
@@ -172,12 +169,6 @@ AS_VAR_IF([enable_mapi], [no],
 	[],
 	[AC_DEFINE([HAVE_MAPI], 1, [Enable MAPI])])
 
-dft_odbc=auto
-AC_ARG_ENABLE([odbc],
-	[AS_HELP_STRING([--enable-odbc],
-		[compile the MonetDB ODBC driver (default=auto)])],
-	[enable_odbc=$enableval],
-	[enable_odbc=$dft_odbc])
 
 dft_gdk=yes
 AC_ARG_ENABLE([gdk],
@@ -211,60 +202,6 @@ AS_CASE([$enable_monetdb5-$enable_sql],
 	enable_sql=no
 	disable_sql="(MonetDB/SQL requires MonetDB5.)"])
 
-dft_geom=auto
-AC_ARG_ENABLE([geom],
-	[AS_HELP_STRING([--enable-geom],
-		[enable support for geom module (default=auto)])],
-	[enable_geom=$enableval],
-	[enable_geom=$dft_geom])
-AS_CASE([$enable_monetdb5-$enable_geom],
-[no-yes], [
-	AC_MSG_ERROR([geom module requires MonetDB5])],
-[no-auto], [
-	enable_geom=no
-	disable_geom="(geom module requires MonetDB5)"])
-
-dft_fits=auto
-AC_ARG_ENABLE([fits],
-	[AS_HELP_STRING([--enable-fits],
-		[enable support for FITS (default=auto)])],
-	[enable_fits=$enableval],
-	[enable_fits=$dft_fits])
-
-dft_netcdf=auto
-AC_ARG_ENABLE([netcdf],
-	[AS_HELP_STRING([--enable-netcdf],
-		[enable support for netcdf (default=auto)])],
-	[enable_netcdf=$enableval],
-	[enable_netcdf=$dft_netcdf])
-
-dft_lidar=auto
-AC_ARG_ENABLE([lidar],
-	[AS_HELP_STRING([--enable-lidar],
-		[enable support for LiDAR data (default=auto)])],
-	[have_lidar=$enableval],
-	[have_lidar=$dft_lidar])
-
-dft_shp=auto
-AC_ARG_ENABLE([shp],
-	[AS_HELP_STRING([--enable-shp],
-		[enable support for ESRI Shapefiles (default=auto)])],
-	[have_shp=$enableval],
-	[have_shp=$dft_shp])
-AS_CASE([$enable_geom-$have_shp],
-[no-yes], [
-	AC_MSG_ERROR([ESRI Shapefile vault requires the geom module])],
-[no-auto], [
-	have_shp=no
-	disable_shp="(ESRI Shapefile vault requires the geom module)"])
-
-dft_gsl=auto
-AC_ARG_ENABLE([gsl],
-	[AS_HELP_STRING([--enable-gsl],
-		[enable support for GSL (default=auto)])],
-	[enable_gsl=$enableval],
-	[enable_gsl=$dft_gsl])
-
 dft_embedded=no
 AC_ARG_ENABLE([embedded],
 	[AS_HELP_STRING([--enable-embedded],
@@ -285,34 +222,7 @@ AM_CONDITIONAL([HAVE_EMBEDDED_R], [test x$enable_embedded_r != xno])
 AS_VAR_IF([enable_embedded_r], [no], [],
 	[AC_DEFINE([HAVE_EMBEDDED_R], 1, [Support for MonetDB as a library for R])])
 
-dft_rintegration=auto
-AC_ARG_ENABLE([rintegration],
-	[AS_HELP_STRING([--enable-rintegration],
-		[enable support for R integration into MonetDB (default=auto)])],
-	[enable_rintegration=$enableval],
-	[enable_rintegration=$dft_rintegration])
 
-dft_pyintegration=auto
-AC_ARG_ENABLE([pyintegration],
-	[AS_HELP_STRING([--enable-pyintegration],
-		[enable support for Python integration into MonetDB (default=auto)])],
-	[enable_pyintegration=$enableval],
-	[enable_pyintegration=$dft_pyintegration])
-
-# The console is a direct client hooked onto the kernel with full
-# administrative privileges, bypassing any security checks.  It is
-# handy only during development.
-# We simply can't disable it for now because Testing gets hopelessly
-# upset about it, but we can offer to the user to disable it for
-# increased security.
-dft_console=yes
-AC_ARG_ENABLE([console],
-	[AS_HELP_STRING([--enable-console],
-		[enables direct console on the server (involves security risks) (default=yes)])],
-	[enable_console="$enableval"],
-	[enable_console=$dft_console])
-AS_VAR_IF([enable_console], [no], [],
-	[AC_DEFINE([HAVE_CONSOLE], 1, [If the console should be used])])
 
 dft_int128=auto
 AC_ARG_ENABLE([int128],
@@ -352,9 +262,6 @@ AC_ARG_ENABLE([sanitizer],
 	[enable_sanitizer=$enableval],
 	[enable_sanitizer=$dft_sanitizer])
 
-AC_ARG_ENABLE([static-analysis],
-	[AS_HELP_STRING([--enable-static-analysis], [configure for static code analysis (use only if you know what you are doing)])],
-	AC_DEFINE([STATIC_CODE_ANALYSIS], 1, [compiling for static code analysis]))
 
 need_profile=no
 dft_profile=$need_profile
@@ -375,16 +282,7 @@ AC_ARG_ENABLE([instrument],
 # can't use it by default, as that would exclude JDBC usage (Java
 # doesn't natively support RIPEMD160).
 MONETDB5_PASSWDHASH="SHA512"
-AC_ARG_WITH([password-backend],
-	[AS_HELP_STRING([--with-password-backend=HASHALG],
-		[password hash algorithm, one of MD5, SHA1, RIPEMD160, SHA224, SHA256, SHA384, SHA512, defaults to SHA512])],
-	[password_backend="$withval"])
-AS_CASE([$password_backend],
-	[yes|no|auto|""],
-		[],
-	[MD5|SHA1|RIPEMD160|SHA224|SHA256|SHA384|SHA512],
-		[MONETDB5_PASSWDHASH="$password_backend"],
-	[AC_MSG_ERROR(['$password_backend' invalid, choose one of MD5, SHA1, RIPEMD160, SHA224, SHA256, SHA384, SHA512])])
+
 AC_DEFINE_UNQUOTED([MONETDB5_PASSWDHASH], ["$MONETDB5_PASSWDHASH"],
 	[The used password hash algorithm])
 AC_DEFINE_UNQUOTED([MONETDB5_PASSWDHASH_TOKEN], [$MONETDB5_PASSWDHASH],
@@ -727,6 +625,7 @@ AS_VAR_IF([enable_strict], [yes], [
 		# #2259: non-pointer conversion from "." to "." may lose significant bits
 	])
 ])
+
 AS_VAR_IF([enable_sanitizer], [no], [], [
 	AS_CASE([$GCC],
 		[yes], [
@@ -1082,192 +981,6 @@ AC_PATH_PROG([BASH], [bash], [/usr/bin/bash], [$PATH])
 AC_CHECK_PROG([RM], [rm], [rm -f])
 AC_CHECK_PROG([MV], [mv], [mv -f])
 AC_PROG_LN_S
-AC_CHECK_PROGS([DIFF], [gdiff diff])
-AC_DEFINE_UNQUOTED([DIFF], ["$DIFF"], [Program to perform diffs])
-
-AC_CHECK_PROGS([RPMBUILD], [rpmbuild])
-
-# check major version of python
-# check if python2 and python3 exist
-# if python2 or python3 doesn't exist, use python if major matches
-
-org_have_python2=auto
-have_python2=$org_have_python2
-PYTHON2=python2
-org_have_python3=auto
-have_python3=$org_have_python3
-PYTHON3=python3
-
-AC_ARG_WITH([python2],
-	[AS_HELP_STRING([--with-python2=FILE], [python2 is installed as FILE])],
-	[have_python2="$withval"])
-
-AS_CASE([$have_python2],
-	[yes|no|auto], [],
-	[
-		PYTHON2="$have_python2"])
-
-AC_ARG_WITH([python3],
-	[AS_HELP_STRING([--with-python3=FILE], [python3 is installed as FILE])],
-	[have_python3="$withval"])
-
-AS_CASE([$have_python3],
-	[yes|no|auto], [],
-	[
-		PYTHON3="$have_python3"])
-
-AC_ARG_WITH([pyconfig],
-	[AS_HELP_STRING([--with-pyconfig=FILE], [python-config is installed as FILE])],
-	[have_pyconfig="$withval"])
-
-AC_ARG_WITH([pyversion],
-	[AS_HELP_STRING([--with-pyversion=FILE], [python is installed as FILE])],
-	[have_pyversion="$withval"])
-
-# Figure out a default for PYTHON2 or PYTHON3
-AC_PATH_PROG([PYTHON], [python], [no], [$PATH])
-PYTHON_MAJ=unknown
-AS_VAR_IF([PYTHON], [no], [], [
-	AC_MSG_CHECKING([major version of $PYTHON])
-	AS_CASE([`"$PYTHON" -V 2>&1`],
-		["Python 2."[[67]]*], [
-			PYTHON_MAJ=2],
-		["Python 3."*], [
-			PYTHON_MAJ=3])
-	AC_MSG_RESULT([$PYTHON_MAJ])])
-
-AS_VAR_IF([have_python2], [no],
-	[],
-	[AS_VAR_IF([cross_compiling], [yes],
-		[],
-		[AC_PATH_PROG([PYTHON2], [$PYTHON2], [no], [$PATH])
-		 AS_VAR_IF([PYTHON2], [no],
-			[AS_IF([( test "x$have_python2" = xyes || test "x$have_python2" = xauto ) && test "x$PYTHON_MAJ" = x2],
-				[PYTHON2="$PYTHON"
-				 have_python2=yes],
-				[AS_VAR_IF([have_python], [auto],
-					[have_python2=no
-				 	 why_have_python2="(Python 2 executable not found)"],
-					[AC_MSG_ERROR([Python 2 executable not found])])])],
-			[AS_CASE([`"$PYTHON2" -V 2>&1`],
-				["Python 2."[[67]]*], [],
-				[AS_VAR_IF([have_python2], [auto], [
-					have_python2=no
-					why_have_python2="(Python 2 executable too old)"], [
-					AC_MSG_ERROR([Python 2 executable too old])])])])])])
-
-AS_VAR_IF([have_python2], [no],
-	[# no Python 2 implies no Python 2 libraries
-	 have_python2_libdir=no
-	 PYTHON2_LIBDIR=""
-	 # and no interpreter
-	 PYTHON2=false],
-	[have_python2_libdir=auto
-	 AC_ARG_WITH([python2-libdir],
-		[AS_HELP_STRING([--with-python2-libdir=DIR],
-			[relative path for Python 2 library directory (where Python 2 modules should be installed)])],
-		[have_python2_libdir="$withval"])
-	 AS_CASE([$have_python2_libdir],
-		[yes|auto], [
-			AS_VAR_IF([cross_compiling], [yes],
-				[AC_MSG_ERROR([Must specify --with-python2-libdir when cross compiling])])
-			AS_CASE([$host_os-`"$PYTHON2" -V 2>&1`],
-				[darwin9*-*2.5.1], [
-					# This is the Python installed on OSX Leopard, in
-					# later versions of OSX, Python is fixed to return
-					# standard output
-					PYTHON2_LIBDIR=`"$PYTHON2" -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib(0,1,"'"$Qprefix"'")' 2>/dev/null`/site-packages],
-				[
-					# Use prefix field for Ubuntu Python, bug #3207
-					PYTHON2_LIBDIR=`"$PYTHON2" -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib(0,0,"'"$Qprefix"'")' 2>/dev/null`])
-			PYTHON2_LIBDIR=`echo "$PYTHON2_LIBDIR" | sed "s|^$Qprefix/||"`],
-		[no], [],
-		[$Qprefix/*], [ # dubious
-			PYTHON2_LIBDIR=`echo "$have_python2_libdir" | sed "s|^$Qprefix/||"`
-			have_python2_libdir=yes],
-		[	PYTHON2_LIBDIR="$have_python2_libdir"
-			have_python2_libdir=yes])])
-
-AC_SUBST([PYTHON2])
-QPYTHON2="$PYTHON2"
-XPYTHON2=`$translatepath "$QPYTHON2"`
-QXPYTHON2=`echo "$XPYTHON2" | sed 's/\\\\/\\\\\\\\/g'`
-AC_SUBST([QXPYTHON2])
-AM_CONDITIONAL([HAVE_PYTHON2], [test x"$have_python2" != xno])
-AC_SUBST([PYTHON2_LIBDIR])
-QPYTHON2_LIBDIR="$PYTHON2_LIBDIR"
-XPYTHON2_LIBDIR=`$translatepath "$QPYTHON2_LIBDIR"`
-QXPYTHON2_LIBDIR=`echo "$XPYTHON2_LIBDIR" | sed 's/\\\\/\\\\\\\\/g'`
-AC_SUBST([QXPYTHON2_LIBDIR])
-
-AS_VAR_IF([have_python3], [no],
-	[],
-	[AS_VAR_IF([cross_compiling], [yes],
-		[],
-		[AC_PATH_PROG([PYTHON3], [$PYTHON3], [no], [$PATH])
-		 AS_VAR_IF([PYTHON3], [no],
-		 	[AS_IF([( test "x$have_python3" = xyes || test "x$have_python3" = xauto ) && test "x$PYTHON_MAJ" = x3],
-				[PYTHON3="$PYTHON"
-				 have_python3=yes],
-				[AS_VAR_IF([have_python3], [auto],
-					[have_python3=no
-				 	 why_have_python3="(Python 3 executable not found)"],
-					[AC_MSG_ERROR([Python3 executable not found])])])])])])
-
-AS_VAR_IF([have_python3], [no],
-	[# no Python 3 implies no Python 3 libraries
-	 have_python3_libdir=no
-	 PYTHON3_LIBDIR=""
-	 # and no interpreter
-	 PYTHON3=false],
-	[have_python3_libdir=auto
-
-	 AC_ARG_WITH([python3-libdir],
-		[AS_HELP_STRING([--with-python3-libdir=DIR],
-			[relative path for Python 3 library directory (where Python 3 modules should be installed)])],
-		[have_python3_libdir="$withval"])
-
-	 AS_CASE([$have_python3_libdir],
-		[yes|auto], [
-			AS_VAR_IF([cross_compiling], [yes],
-				[AC_MSG_ERROR([Must specify --with-python3-libdir when cross compiling])])
-			# Use prefix field for Ubuntu Python, bug #3207
-			PYTHON3_LIBDIR=`"$PYTHON3" -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib(0,0,"'"$Qprefix"'"))' 2>/dev/null`
-			PYTHON3_LIBDIR=`echo "$PYTHON3_LIBDIR" | sed "s|^$Qprefix/||"`],
-		[no], [],
-		[$Qprefix/*], [ # dubious
-			PYTHON3_LIBDIR=`echo "$have_python3_libdir" | sed "s|^$Qprefix/||"`
-			have_python3_libdir=yes],
-		[	PYTHON3_LIBDIR="$have_python3_libdir"
-			have_python3_libdir=yes])])
-
-AC_SUBST([PYTHON3])
-QPYTHON3="$PYTHON3"
-XPYTHON3=`$translatepath "$QPYTHON3"`
-QXPYTHON3=`echo "$XPYTHON3" | sed 's/\\\\/\\\\\\\\/g'`
-AC_SUBST([QXPYTHON3])
-AM_CONDITIONAL([HAVE_PYTHON3], [test x"$have_python3" != xno])
-AC_SUBST([PYTHON3_LIBDIR])
-QPYTHON3_LIBDIR="$PYTHON3_LIBDIR"
-XPYTHON3_LIBDIR=`$translatepath "$QPYTHON3_LIBDIR"`
-QXPYTHON3_LIBDIR=`echo "$XPYTHON3_LIBDIR" | sed 's/\\\\/\\\\\\\\/g'`
-AC_SUBST([QXPYTHON3_LIBDIR])
-
-AM_CONDITIONAL([HAVE_PYTHON], [test x"$have_python2" != xno -o x"$have_python3" != xno])
-
-AS_VAR_IF([PYTHON], [no],
-	[AS_VAR_IF([PYTHON2], [no],
-		[AS_VAR_IF([PYTHON3], [no],
-			[]
-			[PYTHON="$PYTHON3"])],
-		[PYTHON="$PYTHON2"])])
-AC_SUBST([PYTHON])
-
-# Mtest/Mfilter currently require Python 2
-AS_VAR_IF([enable_testing], [no],
-	[],
-	[AS_VAR_IF([PYTHON2], [false],
-		[enable_testing=no])])
 
 AC_PROG_YACC
 AS_CASE([$YACC],
@@ -1367,32 +1080,6 @@ AS_CASE([$have_bz2],
 		BZ_CFLAGS="-I$withval/include"
 		BZ_LIBS="-L$withval/lib"])
 
-AC_MSG_CHECKING([for bzip2])
-AS_VAR_IF([have_bz2], [no], [], [
-	save_CPPFLAGS="$CPPFLAGS"
-	CPPFLAGS="$CPPFLAGS $BZ_CFLAGS"
-	save_LIBS="$LIBS"
-	LIBS="$LIBS $BZ_LIBS -lbz2"
-	AC_LINK_IFELSE([AC_LANG_PROGRAM([[@%:@include <stdio.h>
-@%:@include <bzlib.h>]], [[(void)BZ2_bzopen("","");]])],
-		BZ_LIBS="$BZ_LIBS -lbz2",
-		[AS_VAR_IF([have_bz2], [auto], [], [
-			AC_MSG_ERROR([bz2 library not found])])
-		  have_bz2=no
-		  why_have_bz2="(bz2 library not found)" ])
-	LIBS="$save_LIBS"
-	CPPFLAGS="$save_CPPFLAGS"])
-
-AS_VAR_IF([have_bz2], [no],
-	[BZ_CFLAGS=""
-	 BZ_LIBS=""
-	 AC_MSG_RESULT([no])],
-	[AC_DEFINE([HAVE_LIBBZ2], 1, [Define if you have the bz2 library])
-	 AC_MSG_RESULT([yes: $BZ_LIBS])])
-
-AC_SUBST([BZ_CFLAGS])
-AC_SUBST([BZ_LIBS])
-AM_CONDITIONAL([HAVE_LIBBZ2], [test x$have_bz2 != xno])
 
 DL_LIBS=""
 AC_CHECK_LIB([dl], [dlopen], [DL_LIBS="-ldl" ] )
@@ -1526,82 +1213,6 @@ AS_VAR_IF([have_pthread], [no],
 AC_SUBST([PTHREAD_LIBS])
 AC_SUBST([PTHREAD_INCS])
 
-# libreadline
-org_have_readline=auto
-have_readline=$org_have_readline
-READLINE_LIBS=""
-READLINE_INCS=""
-AC_ARG_WITH([readline],
-	[AS_HELP_STRING([--with-readline=DIR],
-		[readline library is installed in DIR])],
-	[have_readline="$withval"])
-
-AS_CASE([$have_readline],
-	[yes|no|auto], [],
-	[
-		READLINE_LIBS="-L$have_readline/lib"
-		READLINE_INCS="-I$have_readline/include"])
-
-save_LIBS="$LIBS"
-LIBS="$LIBS $READLINE_LIBS"
-save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS $READLINE_INCS"
-AS_VAR_IF([have_readline], [no], [], [
-	# use different functions in the cascade of AC_CHECK_LIB
-	# calls since configure may cache the results
-	AC_CHECK_HEADER([readline/readline.h],
-		AC_CHECK_LIB([readline], [readline],
-			[READLINE_LIBS="$READLINE_LIBS -lreadline"],
-			[AC_CHECK_LIB([readline], [rl_history_search_forward],
-				[READLINE_LIBS="$READLINE_LIBS -lreadline -ltermcap"],
-				[AC_CHECK_LIB([readline], [rl_reverse_search_history],
-					[READLINE_LIBS="$READLINE_LIBS -lreadline -lncurses"],
-					[AS_VAR_IF([have_readline], [yes], [
-						AC_MSG_ERROR([readline library not found])])
-					  have_readline=no
-					  why_have_readline="(readline library not found)" ],
-					[-lncurses])],
-				[-ltermcap])],
-			),
-		[AS_VAR_IF([have_readline], [yes], [
-			AC_MSG_ERROR([readline header file not found])])
-		  have_readline=no
-		  why_have_readline="(readline header file not found)" ])])
-
-AS_VAR_IF([have_readline], [no],
-	[],
-	[
-	 # provide an ACTION-IF-FOUND, or else all subsequent checks
-	 # that involve linking will fail!
-	 AC_CHECK_LIB([readline], [rl_completion_matches],
-		[AC_MSG_CHECKING([whether rl_completion_func_t exists])
-		 AC_COMPILE_IFELSE(
-		 	[AC_LANG_PROGRAM(
-				[[$ac_includes_default
-				  @%:@include <readline/readline.h>]],
-		 		[[rl_completion_func_t *func = NULL;]])],
-			[AC_MSG_RESULT([yes])],
-			[AS_VAR_IF([have_readline], [auto],
-				[AC_MSG_RESULT([no])
-				 have_readline=no
-				 why_have_readline="(readline/readline.h does not contain rl_completion_func_t, is it GNU readline?)"],
-				[AC_MSG_ERROR([readline/readline.h does not contain rl_completion_func_t, is it GNU readline?])])])],
-		[AS_VAR_IF([have_readline], [auto], [], [
-			AC_MSG_ERROR([readline library does not contain rl_completion_matches])])
-		 have_readline=no
-		 why_have_readline="(readline library does not contain rl_completion_matches)" ],
-		[$READLINE_LIBS])])
-CPPFLAGS="$save_CPPFLAGS"
-LIBS="$save_LIBS"
-
-AS_VAR_IF([have_readline], [no],
-	[READLINE_LIBS=""
-	 READLINE_INCS=""],
-	[AC_DEFINE([HAVE_LIBREADLINE], 1,
-		[Define if you have the readline library])])
-AC_SUBST([READLINE_LIBS])
-AC_SUBST([READLINE_INCS])
-
 m4_ifndef([AM_ICONV],
   [m4_fatal([Could not locate the iconv autoconf
 	macros. These are usually located in /usr/share/aclocal/iconv.m4 and
@@ -1612,138 +1223,22 @@ m4_ifndef([AM_ICONV],
 
 AM_ICONV
 
-org_have_uuid=yes
-have_uuid=$org_have_uuid
-AC_ARG_WITH([uuid],
-	[AS_HELP_STRING([--with-uuid],
-		[include UUID support (default=yes)])],
-	[have_uuid=$withval])
-AS_VAR_IF([have_uuid], [no], [], [
-	# UUID: remember that most UNIX systems have uuid_* functions in their
-	#      libc, not as separate library, such as from util-linux.  We
-	#      can't just use pkg-config check because of that.
-	save_LIBS="$LIBS"
-	LIBS=
-	AC_SEARCH_LIBS([uuid_generate], [uuid], [AC_DEFINE([HAVE_UUID], 1, [uuid])])
-	UUID_LIBS="$LIBS"
-	LIBS="$save_LIBS"
-	AC_SUBST([UUID_LIBS])])
-AM_CONDITIONAL([HAVE_UUID], [test x"$have_uuid" != xno])
 
+have_gnuregex=yes
+AC_RUN_IFELSE([AC_LANG_PROGRAM(
+	[[@%:@include <regex.h>]],
+	[[regex_t re; regcomp(&re, "hello", REG_EXTENDED|REG_NOSUB);]])],
+	[AC_MSG_RESULT([yes])],
+	[have_gnuregex=no],
+	[have_gnuregex=no])
 
-# OpenSSL or CommonCrypto library
-AS_CASE([$host],
-[*-darwin*], [
-	AC_DEFINE([HAVE_COMMONCRYPTO], 1, [Define if you have the CommonCrypto library])
-	AC_CHECK_FUNC([CC_MD5_Update], [AC_DEFINE([HAVE_MD5_UPDATE], 1, [Define to 1 if you have the `MD5_Update' function.])])
-	AC_CHECK_FUNC([CC_RIPEMD160_Update], [AC_DEFINE([HAVE_RIPEMD160_UPDATE], 1, [Define to 1 if you have the `RIPEMD160_Update' function.])])
-	AC_CHECK_FUNC([CC_SHA1_Update], [AC_DEFINE([HAVE_SHA1_UPDATE], 1, [Define to 1 if you have the `SHA1_Update' function.])])
-	AC_CHECK_FUNC([CC_SHA224_Update], [AC_DEFINE([HAVE_SHA224_UPDATE], 1, [Define to 1 if you have the `SHA224_Update' function.])])
-	AC_CHECK_FUNC([CC_SHA256_Update], [AC_DEFINE([HAVE_SHA256_UPDATE], 1, [Define to 1 if you have the `SHA256_Update' function.])])
-	AC_CHECK_FUNC([CC_SHA384_Update], [AC_DEFINE([HAVE_SHA384_UPDATE], 1, [Define to 1 if you have the `SHA384_Update' function.])])
-	AC_CHECK_FUNC([CC_SHA512_Update], [AC_DEFINE([HAVE_SHA512_UPDATE], 1, [Define to 1 if you have the `SHA512_Update' function.])])],
-[
-	org_have_openssl=yes
-	have_openssl=$org_have_openssl
-	AC_ARG_WITH([openssl],
-		[AS_HELP_STRING([--with-openssl],
-			[include OpenSSL support (default=yes)])],
-		[have_openssl=$withval])
-	AS_VAR_IF([have_openssl], [no], [], [
-		PKG_CHECK_MODULES([openssl], [openssl],
-				[have_openssl=yes],
-				[have_openssl=no; why_have_openssl="(OpenSSL library not found)"])
-		AS_CASE([$enable_monetdb5-$have_openssl],
-		[yes-no], [
-			AC_MSG_ERROR([OpenSSL library not found but required for MonetDB5])],
-		[auto-no], [
-			enable_monetdb5=no
-			AS_VAR_IF([disable_monetdb5], [], [
-				disable_monetdb5="(OpenSSL library not found but required for MonetDB5)"])],
-		[*-yes], [
-			save_LIBS="$LIBS"
-			LIBS="$LIBS $openssl_LIBS"
-			AC_CHECK_FUNCS([MD5_Update RIPEMD160_Update SHA1_Update SHA224_Update SHA256_Update SHA384_Update SHA512_Update])
-			LIBS="$save_LIBS"
-			AS_IF([eval test \"x\$ac_cv_func_${MONETDB5_PASSWDHASH}_Update\" != x"yes"], [
-				AS_CASE([$enable_monetdb5],
-				[yes], [
-					AC_MSG_ERROR([OpenSSL library found but checksum algorithm required for MonetDB5 not found])],
-				[auto], [
-					enable_monetdb5=no
-					AS_VAR_IF([disable_monetdb5], [], [
-						disable_monetdb5="(OpenSSL library found but checksum algorithm required for MonetDB5 not found)"])],
-				[
-					AC_MSG_WARN([OpenSSL library found but required checksum algorithm not found, so disabling])])
-				have_openssl=no
-				why_have_openssl="(OpenSSL library found but required checksum algorithm not found)"])])
-		AS_VAR_IF([have_openssl], [yes], [
-			AC_DEFINE([HAVE_OPENSSL], 1, [Define if you have the OpenSSL library])])])])
-
-
-# PCRE library
-# required for MonetDB5 (and SQL), optional otherwise
-req_pcre_ver='4.5'
-PKG_CHECK_MODULES([pcre], [libpcre >= $req_pcre_ver],
-	[have_pcre=yes], [have_pcre=no; why_have_pcre="(libpcre >= $req_pcre_ver not found)"])
-AS_VAR_IF([have_pcre], [yes], [
-	AC_MSG_CHECKING([whether pcre comes with UTF-8 support])
-	save_LIBS="$LIBS"
-	LIBS="$LIBS $pcre_LIBS"
-	save_CFLAGS="$CFLAGS"
-	CFLAGS="$CFLAGS $pcre_CFLAGS"
-	AC_RUN_IFELSE([AC_LANG_PROGRAM(
-		[[@%:@include <pcre.h>]],
-		[[int rc; pcre_config(PCRE_CONFIG_UTF8, &rc); exit(!rc);]])],
-		[AC_MSG_RESULT([yes])],
-		[have_pcre=no; why_have_pcre="(libpcre found but no UTF-8 support)"; AC_MSG_RESULT([no])],
-		[AC_MSG_RESULT([assuming yes])])
-	LIBS="$save_LIBS"
-	CFLAGS="$save_CFLAGS"])
-AS_VAR_IF([have_pcre], [yes], [
-	AC_DEFINE([HAVE_LIBPCRE], 1, [Define if you have the pcre library])])
-AM_CONDITIONAL([HAVE_PCRE], [test x"$have_pcre" != xno])
-AS_CASE([$enable_monetdb5-$have_pcre],
-[yes-no], [
-	AC_MSG_ERROR([PCRE library not found but required for MonetDB5])],
-[auto-no], [
+AS_CASE([$enable_monetdb5-$have_gnuregex],
+[yes-no-no], [
+	AC_MSG_ERROR([GNU regex library not found but required for MonetDB5])],
+[auto-no-no], [
 	enable_monetdb5=no
 	AS_VAR_IF([disable_monetdb5], [], [
-		disable_monetdb5="(PCRE library not found but required for MonetDB5)"])])
-
-org_have_libxml2=yes
-have_libxml2=$org_have_libxml2
-AC_ARG_WITH([libxml2],
-	[AS_HELP_STRING([--with-libxml2],
-		[include libxml2 support (default=yes)])],
-	[have_libxml2=$withval])
-AS_VAR_IF([have_libxml2], [no], [], [
-	PKG_CHECK_MODULES([libxml2], [libxml-2.0], [have_libxml2="yes"], [have_libxml2="no"; why_have_libxml2="(libxml2 not found)"])
-	AS_CASE([$enable_monetdb5-$have_libxml2],
-	[yes-no], [
-		AC_MSG_ERROR([libxml2 library not found but required for MonetDB5])],
-	[auto-no], [
-		enable_monetdb5=no
-		AS_VAR_IF([disable_monetdb5], [], [
-			disable_monetdb5="(libxml2 library not found but required for MonetDB5)"])])
-	AS_VAR_IF([have_libxml2], [yes], [
-		AC_DEFINE([HAVE_LIBXML], 1, [Define if you have the xml library])])])
-AM_CONDITIONAL([HAVE_LIBXML], [test x"$have_liblxml2" != xno])
-
-
-org_have_curl=yes
-have_curl=$org_have_curl
-AC_ARG_WITH([curl],
-	[AS_HELP_STRING([--with-curl],
-		[include cURL support (default=yes)])],
-	[have_curl=$withval])
-AS_VAR_IF([have_curl], [no], [], [
-	PKG_CHECK_MODULES([curl], [libcurl], [have_curl="yes"], [have_curl="no"; why_have_curl="(libcurl not found)"])
-	AS_VAR_IF([have_curl], [yes], [
-		AC_DEFINE([HAVE_CURL], 1, [Define if you have the cURL library])
-		AC_SUBST([PKG_CURL], [libcurl])])])
-AM_CONDITIONAL([HAVE_CURL], [test x"$have_curl" != xno])
-
+		disable_monetdb5="(GNU regex library not found but required for MonetDB5)"])])
 
 PKG_CHECK_MODULES([zlib], [zlib], [have_zlib="yes"], [have_zlib="no"; why_have_zlib="(zlib not found)"])
 AS_CASE([$have_zlib],
@@ -1756,150 +1251,6 @@ AS_VAR_IF([have_zlib], [yes], [
 	AC_DEFINE([HAVE_LIBZ], 1, [Define if you have the z library])])
 AM_CONDITIONAL([HAVE_LIBZ], [test x"$have_zlib" != xno])
 
-org_have_lzma=yes
-have_lzma=$org_have_lzma
-AC_ARG_WITH([lzma],
-	[AS_HELP_STRING([--with-lzma],
-		[include lzma support (default=yes)])],
-	[have_lzma=$withval])
-AS_VAR_IF([have_lzma], [no], [], [
-	PKG_CHECK_MODULES([liblzma], [liblzma], [have_liblzma="yes"], [have_liblzma="no"; why_have_liblzma="(liblzma not found, install xz-libs and xz-devel)"])
-	AS_VAR_IF([have_liblzma], [yes], [
-		AC_SUBST([PKG_LIBLZMA], [liblzma])])
-	AS_VAR_IF([have_liblzma], [yes], [
-		AC_DEFINE([HAVE_LIBLZMA], 1, [Define if you have the lzma library])])])
-AM_CONDITIONAL([HAVE_LIBLZMA], [test x"$have_liblzma" != xno])
-
-org_have_valgrind=no
-have_valgrind=$org_have_valgrind
-AC_ARG_WITH([valgrind],
-	[AS_HELP_STRING([--with-valgrind],
-		[include valgrind support (default=no)])],
-	[have_valgrind=$withval])
-AS_VAR_IF([have_valgrind], [no], [], [
-	PKG_CHECK_MODULES([valgrind], [valgrind],
-		[AC_DEFINE([HAVE_VALGRIND], 1, [Define if you have valgrind installed and want to use it])],
-		[AS_VAR_IF([have_valgrind], [yes], [AC_MSG_ERROR([no valgrind support found])])])])
-
-# check for sphinxclient
-org_have_sphinxclient="auto"
-have_sphinxclient=$org_have_sphinxclient
-AC_ARG_WITH([sphinxclient],
-    [AS_HELP_STRING([--with-sphinxclient=DIR], [sphinxclient library is installed in DIR])],
-    [have_sphinxclient="$withval"])
-AS_VAR_IF([have_sphinxclient], [no], [], [
-	AS_CASE([$have_sphinxclient],
-	[auto|yes], [],
-	[
-	    SPHINXCLIENT_CFLAGS="-I$have_sphinxclient/include"
-	    SPHINXCLIENT_LIBS="-L$have_sphinxclient/lib"])
-
-	save_CPPFLAGS="$CPPFLAGS"
-	save_LDFLAGS="$LDFLAGS"
-	CPPFLAGS="$CPPFLAGS $SPHINXCLIENT_CFLAGS"
-	LDFLAGS="$LDFLAGS $SPHINXCLIENT_LIBS"
-	AC_CHECK_HEADER([sphinxclient.h],
-		AC_CHECK_LIB([sphinxclient], [sphinx_create],
-			[AC_DEFINE([HAVE_SPHINXCLIENT], 1, [Define if you have the sphinxclient library])]
-			[have_sphinxclient=yes]
-			[SPHINXCLIENT_LIBS="$SPHINXCLIENT_LIBS -lsphinxclient"],
-			[AS_VAR_IF([have_sphinxclient], [auto], [], [AC_MSG_ERROR([-lsphinxclient library not found])])
-			  have_sphinxclient=no; why_have_sphinxclient="(sphinxclient library not found)" ]),
-		[AS_VAR_IF([have_sphinxclient], [auto], [], [AC_MSG_ERROR([sphinxclient.h header not found])])
-		  have_sphinxclient=no; why_have_sphinxclient="(sphinxclient.h header not found)" ])
-	LDFLAGS="$save_LDFLAGS"
-	CPPFLAGS="$save_CPPFLAGS"])
-AC_SUBST([SPHINXCLIENT_CFLAGS], [$SPHINXCLIENT_CFLAGS])
-AC_SUBST([SPHINXCLIENT_LIBS], [$SPHINXCLIENT_LIBS])
-AM_CONDITIONAL([HAVE_SPHINXCLIENT], [test x"$have_sphinxclient" != xno])
-
-# R API (R UDFs)
-have_libr=no
-AS_VAR_IF([enable_rintegration], [no], [], [
-	AS_CASE([$enable_rintegration],
-		[yes|auto], [XPATH="$PATH"],
-		[/*],  [XPATH="$enable_rintegration"
-			enable_rintegration=yes],
-		[AC_MSG_ERROR([--enable-rintegration value must be yes|no|auto|absolute path of R cmd])])
-   	AC_PATH_PROG([RCMD], [R], [], [$XPATH])
-   	AS_VAR_IF([RCMD], [],
-		[AS_VAR_IF([enable_rintegration], [yes],
-			[AC_MSG_ERROR([libR library required for R integration support])],
-			[have_libr="no"
-			 why_have_libr="(libR library not found)"
-			 enable_rintegration=no
-			 disable_rintegration="(libR library not found)"])],
-		[AS_IF([RHOME=`$RCMD RHOME` && libr_CFLAGS=`$RCMD CMD config --cppflags` && libr_LIBS=`$RCMD CMD config --ldflags`],
-			[have_libr=yes
-			 AC_DEFINE([HAVE_LIBR], 1, [Define if you have libR installed])
-			 AC_SUBST([libr_CFLAGS], [$libr_CFLAGS])
-			 AC_SUBST([libr_LIBS], [$libr_LIBS])
-			 AC_SUBST([RHOME], [$RHOME])
-			 AC_DEFINE_UNQUOTED([RHOME], ["$RHOME"], [The home of R])])])])
-AM_CONDITIONAL([HAVE_LIBR], [test x"$have_libr" != xno])
-
-# Python API (Python UDFs)
-have_libpy=no
-AS_VAR_IF([enable_pyintegration], [no], [], [
-	AS_CASE([$enable_pyintegration],
-		[yes|auto], [XPATH="$PATH"],
-		[/*], [XPATH="$enable_pyintegration"
-		       enable_pyintegration=yes],
-		[AC_MSG_ERROR([--enable-pyintegration value must be yes|no|auto|absolute path of python-config])])
-	AS_VAR_IF([have_pyconfig], [], [
-	   	AC_PATH_PROG([PYCMD], [python2-config], [no], [$PATH])
-	   	AS_VAR_IF([PYCMD], [no], [
-		   	AC_PATH_PROG([PYCMD2], [python-config], [no], [$PATH])
-		   	AS_VAR_IF([PYCMD2], [no], [
-		   		AS_VAR_IF([enable_pyintegration], [yes],
-				[AC_MSG_ERROR([python-config library required for Python integration support])],
-				[have_libpy="no"
-			 	why_have_libpy="(python-config command not found)"
-				enable_pyintegration="no"
-				disable_pyintegration="(python-config command not found)"
-				])
-			], [PYCMD="$PYCMD2"])
-	   	], [])
-	], [PYCMD="$have_pyconfig"])
-	AS_VAR_IF([have_pyversion], [],
-		[PYTHON_CMD=$PYTHON2],
-		[PYTHON_CMD=$have_pyversion])
-	NUMPYVER=`$PYTHON_CMD -c "import numpy; print(int(numpy.__version__.split('.').__getitem__(1)) >= 7)"`
-	# check numpyconfig.h because autoconf tests includes by
-	# compiling a small C program, and other numpy headers do
-	# not compile without Python.h
-	AC_CHECK_HEADER([numpy/numpyconfig.h],
-		[NUMPYHEADERS=True],
-		[NUMPYHEADERS=`$PYTHON_CMD -c "import numpy, os; print(os.path.isfile(os.path.join(numpy.get_include(), 'numpy/arrayobject.h')))"`])
-	AS_IF([test "x$NUMPYVER" = x || test "x$NUMPYVER" = xFalse],
-		[AS_VAR_IF([enable_pyintegration], [yes],
-			[AC_MSG_ERROR([numpy version >= 1.7.0 required for Python integration support])],
-			[have_libpy="no"
-			 why_have_libpy="(numpy version >= 1.7.0 not found)"
-			 enable_pyintegration="no"
-			 disable_pyintegration="(numpy version >= 1.7.0 not found)"])],
-		[test "x$NUMPYHEADERS" = xFalse ],
-		[AS_VAR_IF([enable_pyintegration], [yes],
-			[AC_MSG_ERROR([numpy/arrayobject.h not found])],
-			[have_libpy="no"
-			 why_have_libpy="(numpy/arrayobject.h not found)"
-			 enable_pyintegration="no"
-			 disable_pyintegration="(numpy/arrayobject.h not found)"])],
-		[libpy_CFLAGS=`$PYTHON_CMD -c "from distutils.sysconfig import get_python_inc; import numpy; print(' -I' + get_python_inc() + ' -I' + numpy.get_include());"`
-		 libpy_LIBS=`$PYCMD --ldflags`
-		 HAVEPYTHONHEADER=`$PYTHON_CMD -c "import distutils.sysconfig, os; print(os.path.isfile(os.path.join(distutils.sysconfig.get_python_inc(), 'Python.h')))"`
-		 AS_VAR_IF([HAVEPYTHONHEADER], [True],
-		 	[have_libpy=yes
-			 AC_DEFINE([HAVE_LIBPY], 1, [Define if we can link to python])
-			 AC_SUBST([libpy_CFLAGS], [$libpy_CFLAGS])
-			 AC_SUBST([libpy_LIBS], [$libpy_LIBS])],
-			[AS_VAR_IF([enable_pyintegration], [yes],
-				[AC_MSG_ERROR([Python.h not found])],
-				[have_libpy="no"
-			 	 why_have_libpy="Python.h not found"
-				 enable_pyintegration="no"
-				 disable_pyintegration="Python.h not found"])])])])
-AM_CONDITIONAL([HAVE_LIBPY], [test x"$have_libpy" != xno])
 
 AC_CHECK_HEADER([sys/sem.h], [SEMOP=True], [SEMOP=False])
 AS_VAR_IF([SEMOP], [True],
@@ -1908,408 +1259,6 @@ AS_VAR_IF([SEMOP], [True],
 	 AC_CHECK_FUNC([fork],
 	 	[AC_DEFINE([HAVE_FORK], 1, [Define if fork exists])])])
 
-# ODBC, only used by ODBC driver
-AS_VAR_IF([enable_odbc], [no],
-	[have_unixodbc=no
-	 why_have_unixodbc="(ODBC disabled)"],
-	[have_unixodbc=auto
-	 ODBC_INCS=''
-	 ODBCINST_LIBS=''
-	 ODBC_LIBS=''
-	 AC_ARG_WITH([unixodbc],
-		[AS_HELP_STRING([--with-unixodbc=DIR],
-			[unixODBC library is installed in DIR])],
-		[have_unixodbc="$withval"])
-	 AS_VAR_IF([have_unixodbc], [no], [], [
-		AS_CASE([$have_unixodbc],
-		[yes|auto], [],
-		[
-			ODBC_INCS="-I$have_unixodbc/include"
-			ODBCINST_LIBS="-L$have_unixodbc/lib"
-			ODBC_LIBS="-L$have_unixodbc/lib"])
-		save_CPPFLAGS="$CPPFLAGS"
-		CPPFLAGS="$CPPFLAGS $ODBC_INCS"
-		AC_CHECK_HEADER([odbcinst.h],
-			[AC_DEFINE([HAVE_ODBCINST_H], 1, [Define to 1 if you have the <odbcinst.h> header file.])],
-			[AS_VAR_IF([have_unixodbc], [auto], [], [AC_MSG_ERROR([odbcinst.h not found])])
-			 have_unixodbc=no; why_have_unixodbc="(odbcinst.h not found)"])
-		CPPFLAGS="$save_CPPFLAGS"])
-	 AS_VAR_IF([have_unixodbc], [no], [], [
-		save_LIBS="$LIBS"
-		LIBS="$LIBS $ODBCINST_LIBS"
-		AC_CHECK_LIB([odbcinst],
-			[SQLGetPrivateProfileString], [:],
-			[AS_VAR_IF([have_unixodbc], [auto], [], [AC_MSG_ERROR([-lodbcinst not found])])
-			 have_unixodbc=no; why_have_unixodbc="(odbcinst library not found)"])
-		LIBS="$save_LIBS"])
-	 AS_VAR_IF([have_unixodbc], [no], [], [
-		save_LIBS="$LIBS"
-		LIBS="$LIBS $ODBC_LIBS"
-		AC_CHECK_LIB([odbc],
-			[SQLGetDiagRec], [:],
-			[AS_VAR_IF([have_unixodbc], [auto], [], [AC_MSG_ERROR([-lodbc not found])])
-			 have_unixodbc=no; why_have_unixodbc="(odbc library not found)"])
-		LIBS="$save_LIBS"])
-	 AS_VAR_IF([have_unixodbc], [no], [], [
-		ODBCINST_LIBS="$ODBCINST_LIBS -lodbcinst"
-		ODBC_LIBS="$ODBC_LIBS -lodbc"
-		AC_DEFINE([HAVE_SQLGETPRIVATEPROFILESTRING], 1,
-			[Define if you have the SQLGetPrivateProfileString function])])
-	 AS_VAR_IF([have_unixodbc], [no], [], [
-		AC_MSG_CHECKING([checking whether SQLColAttribute uses SQLLEN * or SQLPOINTER])
-		save_CPPFLAGS="$CPPFLAGS"
-		CPPFLAGS="$CPPFLAGS $ODBC_INCS"
-		AC_COMPILE_IFELSE([
-			AC_LANG_PROGRAM([[
-				@%:@include <sql.h>
-				SQLRETURN SQL_API
-				SQLColAttribute(SQLHSTMT hStmt, SQLUSMALLINT nCol, SQLUSMALLINT nFieldIdentifier, SQLPOINTER pszValue, SQLSMALLINT nValueLengthMax, SQLSMALLINT *pnValueLength, SQLLEN *pnValue) {
-					(void) hStmt;
-					(void) nCol;
-					(void) nFieldIdentifier;
-					(void) pszValue;
-					(void) nValueLengthMax;
-					(void) pnValueLength;
-					(void) pnValue;
-					return SQL_SUCCESS;}]],
-				[[SQLColAttribute(0,0,0,0,0,0,0);]])],
-			[lenp_or_pointer_t='SQLLEN *'],
-			[lenp_or_pointer_t=SQLPOINTER])
-		CPPFLAGS="$save_CPPFLAGS"
-		AC_MSG_RESULT([using "$lenp_or_pointer_t"])
-		AC_DEFINE_UNQUOTED([LENP_OR_POINTER_T], [$lenp_or_pointer_t],
-			[Define as SQLLEN * or SQLPOINTER depending on the include file])])
-	 AC_SUBST([ODBC_INCS])
-	 AC_SUBST([ODBCINST_LIBS])
-	 AC_SUBST([ODBC_LIBS])
-	 AS_CASE([x${enable_odbc}x${have_unixodbc}],
-		[xautoxno], [
-			enable_odbc=no
-			disable_odbc="(unixODBC library required for ODBC driver)"],
-		[xyesxno], [
-			AC_MSG_ERROR([unixODBC required for building ODBC driver])])])
-AM_CONDITIONAL([HAVE_ODBC], [test x$have_unixodbc != xno])
-
-# proj only used in geom module
-org_have_proj="auto"
-have_proj=$org_have_proj
-PROJ_INCS=''
-PROJ_LIBS=''
-AC_ARG_WITH([proj],
-	[AS_HELP_STRING([--with-proj=DIR],
-		[proj library is installed in DIR])],
-	[have_proj="$withval"])
-AS_VAR_IF([have_proj], [no], [], [
-	AS_CASE([$have_proj],
-	[auto|yes], [],
-	[
-		PROJ_INCS="-I$have_proj/include"
-		PROJ_LIBS="-L$have_proj/lib -lproj"])
-	save_CPPFLAGS="$CPPFLAGS"
-	save_LDFLAGS="$LDFLAGS"
-	CPPFLAGS="$CPPFLAGS $PROJ_INCS"
-	LDFLAGS="$LDFLAGS $PROJ_LIBS"
-	AC_CHECK_HEADER([proj_api.h],
-		AC_CHECK_LIB([proj], [pj_init_plus],
-			[AC_DEFINE([HAVE_PROJ], 1, [Define if the proj library exists])],
-			[AS_VAR_IF([have_proj], [auto], [], [AC_MSG_ERROR([-lproj library not found])])
-			have_proj=no; why_have_proj="(proj library not found)" ], ),
-		[AS_VAR_IF([have_proj], [auto], [], [AC_MSG_ERROR([proj_api.h header not found])])
-		have_proj=no; why_have_proj="(proj_api.h header not found)" ])
-	LDFLAGS="$save_LDFLAGS"
-	CPPFLAGS="$save_CPPFLAGS"
-	AS_IF([test "x$have_proj" = "xyes" -o "x$have_proj" = "xauto"], [
-	    PROJ_INCS=
-	    PROJ_LIBS="-lproj"])])
-AC_SUBST([PROJ_INCS])
-AC_SUBST([PROJ_LIBS])
-AM_CONDITIONAL([HAVE_PROJ], [test x"$have_proj" != xno])
-
-
-# samtools, only used by sql
-org_have_samtools="auto"
-have_samtools=$org_have_samtools
-AC_ARG_WITH([samtools],
-	[AS_HELP_STRING([--with-samtools=DIR],
-		[samtools (providing bam library) are installed in DIR])],
-	[have_samtools="$withval"])
-AS_VAR_IF([have_samtools], [no], [], [
-	AS_CASE([$have_samtools],
-	[auto|yes], [],
-	[
-		SAMTOOLS_CFLAGS="-I$have_samtools/include"
-		SAMTOOLS_LIBS="-L$have_samtools/lib -lbam"])
-
-	save_CPPFLAGS="$CPPFLAGS"
-	save_LDFLAGS="$LDFLAGS"
-	CPPFLAGS="$CPPFLAGS $SAMTOOLS_CFLAGS"
-	LDFLAGS="$LDFLAGS $SAMTOOLS_LIBS"
-
-	AC_CHECK_HEADER([samtools/bam.h],
-		[why_have_samtools=; AC_DEFINE([HAVE_SAMTOOLS_BAM_H], 1, [Define to 1 if you have the <samtools/bam.h> header file.]) ],
-		[why_have_samtools="bam.h header not found" ])
-	AS_VAR_IF([why_have_samtools], [],
-		[],
-		[AC_CHECK_HEADER([bam/bam.h],
-			[why_have_samtools=; AC_DEFINE([HAVE_BAM_BAM_H], 1, [Define to 1 if you have the <bam/bam.h> header file.]) ],
-			[why_have_samtools="Neither samtools/bam.h nor bam/bam.h header found" ])])
-
-	AS_VAR_IF([why_have_samtools], [],
-		[AC_CHECK_HEADER([samtools/sam.h],
-			[why_have_samtools=; AC_DEFINE([HAVE_SAMTOOLS_SAM_H], 1, [Define to 1 if you have the <samtools/sam.h> header file.]) ],
-			[why_have_samtools="samtools/sam.h header not found" ])])
-	AS_VAR_IF([why_have_samtools], [],
-		[],
-		[AC_CHECK_HEADER([bam/sam.h],
-			[why_have_samtools=; AC_DEFINE([HAVE_BAM_SAM_H], 1, [Define to 1 if you have the <bam/sam.h> header file.]) ],
-			[why_have_samtools="Neither samtools/sam.h nor bam/sam.h header found" ])])
-
-	AS_VAR_IF([why_have_samtools], [],
-		[AC_CHECK_HEADER([samtools/bgzf.h],
-			[why_have_samtools=; AC_DEFINE([HAVE_SAMTOOLS_BGZF_H], 1, [Define to 1 if you have the <samtools/bgzf.h> header file.]) ],
-			[why_have_samtools="samtools/bgzf.h header not found" ])])
-	AS_VAR_IF([why_have_samtools], [],
-		[],
-		[AC_CHECK_HEADER([bam/bgzf.h],
-			[why_have_samtools=; AC_DEFINE([HAVE_BAM_BGZF_H], 1, [Define to 1 if you have the <bam/bgzf.h> header file.]) ],
-			[why_have_samtools="Neither samtool/bgzf.h nor bam/bgzf.h header found" ])])
-
-	AS_VAR_IF([why_have_samtools], [],
-		[AC_CHECK_LIB([bam], [bam_header_read],
-			[AC_DEFINE([HAVE_SAMTOOLS], 1, [Define if you have the samtools version 0.1.x (providing the bam library)])],
-			[why_have_samtools="bam library not found" ],
-			[-lm -lpthread -lz])])
-
-	AS_VAR_IF([why_have_samtools], [],
-		[],
-		[AS_VAR_IF([have_samtools], [auto],
-			[],
-			[AC_MSG_ERROR([$why_have_samtools])])
-		 have_samtools=no
-		 why_have_samtools="($why_have_samtools)"])
-	LDFLAGS="$save_LDFLAGS"
-	CPPFLAGS="$save_CPPFLAGS"
-	AS_IF([test "x$have_samtools" = "xyes" -o "x$have_samtools" = "xauto"], [
-		SAMTOOLS_CFLAGS=
-		SAMTOOLS_LIBS="-lbam"
-		AC_CHECK_HEADERS([samtools/kstring.h bam/kstring.h])])])
-AC_SUBST([SAMTOOLS_CFLAGS], [$SAMTOOLS_CFLAGS])
-AC_SUBST([SAMTOOLS_LIBS], [$SAMTOOLS_LIBS])
-AM_CONDITIONAL([HAVE_SAMTOOLS], [test x"$have_samtools" != xno])
-
-# geos, only used in geom module
-org_have_geos=auto
-have_geos=$org_have_geos
-GEOS_INCS=''
-GEOS_LIBS=''
-AC_ARG_WITH([geos],
-	[AS_HELP_STRING([--with-geos=DIR],
-		[geos library is installed in DIR])],
-	[have_geos="$withval"])
-AS_CASE([$enable_geom],
-[yes|auto], [
-	# geos >= 3.4.0 required for (a.o.) GEOSDelaunayTriangulation()
-	GEOS_VERSION_REQUIRED_MIN=3.4.0
-	GEOS_CONFIG=''
-	AS_VAR_IF([have_geos], [no], [], [
-		AS_CASE([$have_geos],
-		[yes|auto], [
-			XPATH="$PATH"],
-		[
-			XPATH="$have_geos/bin"
-			have_geos=yes])
-		AC_PATH_PROG([GEOS_CONFIG], [geos-config], [], [$XPATH])
-		AS_VAR_IF([GEOS_CONFIG], [], [
-			AS_VAR_IF([have_geos], [yes], [
-				AC_MSG_ERROR([geos-config not found in $XPATH])], [
-				have_geos=no
-				why_have_geos="(geos-config not found)"])])])
-	AS_VAR_IF([have_geos], [no], [], [
-		AC_MSG_CHECKING([for geos >= $GEOS_VERSION_REQUIRED_MIN])
-		GEOS_VERSION=`$GEOS_CONFIG --version`
-		AC_MSG_RESULT([found $GEOS_VERSION])
-		AS_VERSION_COMPARE([$GEOS_VERSION], [$GEOS_VERSION_REQUIRED_MIN],
-			[AS_VAR_IF([have_geos], [yes],
-				[AC_MSG_ERROR([geos version $GEOS_VERSION is too old])],
-				[have_geos=no
-				why_have_geos="(geos version $GEOS_VERSION is older than required version $GEOS_VERSION_REQUIRED_MIN)"])])])
-	AS_VAR_IF([have_geos], [no], [], [
-		GEOS_INCS=`$GEOS_CONFIG --cflags`
-		AS_IF([GEOS_LIBS=`$GEOS_CONFIG --clibs 2> /dev/null`],
-			[],
-			[GEOS_LIBS=`$GEOS_CONFIG --libs | sed 's:-lgeos:-lgeos_c:'`])])
-	AS_VAR_IF([have_geos], [no], [
-		AS_VAR_IF([enable_geom], [yes], [
-			AC_MSG_ERROR([geos library required for geom module])])
-		# no geos, so don't compile geom
-		enable_geom=no
-		AS_VAR_IF([disable_geom], [], [
-			disable_geom=${why_have_geos:-"(geos library required for geom module)"}])])])
-AC_SUBST([GEOS_INCS])
-AC_SUBST([GEOS_LIBS])
-
-# fits, only used by sql
-org_have_fits=no
-have_fits=$org_have_fits
-AS_VAR_IF([enable_fits], [no], [], [
-	PKG_CHECK_MODULES([cfitsio], [cfitsio],
-		[have_fits="yes"; AC_DEFINE([HAVE_FITS], 1, [Define if the fits module is to be enabled])],
-		[have_fits="no"; why_have_fits="(cfitsio library not found)"
-		 AS_VAR_IF([enable_fits], [yes], [AC_MSG_ERROR([cfitsio library required for FITS support])]);
-		 enable_fits=no; disable_fits="(cfitsio library not found)"])])
-AM_CONDITIONAL([HAVE_FITS], [test x"$have_fits" != xno])
-
-# netcdf, only used by sql
-org_have_netcdf=no
-have_netcdf=$org_have_netcdf
-AS_VAR_IF([enable_netcdf], [no], [], [
-	req_netcdf='4.2'
-	PKG_CHECK_MODULES([netcdf], [netcdf],
-		[have_netcdf="yes"; AC_DEFINE([HAVE_NETCDF], 1, [Define if the netcdf module is to be enabled])],
-		[have_netcdf="no"; why_have_netcdf="(netcdf library not found)"
-		 AS_VAR_IF([enable_netcdf], [yes], [AC_MSG_ERROR([netcdf library required for NetCDF support])])
-		 enable_netcdf=no; disable_netcdf="(netcdf library not found)"])])
-AM_CONDITIONAL([HAVE_NETCDF], [test x"$have_netcdf" != xno])
-
-# liblas, only used in lidar module
-org_have_liblas=auto
-have_liblas=$org_have_liblas
-LIBLAS_INCS=''
-LIBLAS_LIBS=''
-AC_ARG_WITH([liblas],
-	[AS_HELP_STRING([--with-liblas=DIR],
-		[liblas library is installed in DIR])],
-	[have_liblas="$withval"])
-AS_CASE([$have_lidar],
-[yes|auto], [
-	# liblas >= 1.8.0 required
-	LIBLAS_VERSION_REQUIRED_MIN=1.8.0
-	LIBLAS_CONFIG=''
-	# locate liblas-config
-	AS_VAR_IF([have_liblas], [no], [], [
-		AS_CASE([$have_liblas],
-		[yes|auto], [XPATH="$PATH"],
-		[
-			XPATH="$have_liblas/bin"
-			have_liblas=yes])
-		AC_PATH_PROG([LIBLAS_CONFIG], [liblas-config], [], [$XPATH])
-		AS_VAR_IF([LIBLAS_CONFIG], [],
-			[AS_VAR_IF([have_liblas], [yes],
-				[AC_MSG_ERROR([liblas-config not found in $XPATH])],
-				[have_liblas=no
-				 why_have_liblas="(liblas-config not found)"])])])
-	# check the version if liblas
-	AS_VAR_IF([have_liblas], [no], [], [
-		AC_MSG_CHECKING([for liblas >= $LIBLAS_VERSION_REQUIRED_MIN])
-		LIBLAS_VERSION=`$LIBLAS_CONFIG --version`
-		AC_MSG_RESULT([found $LIBLAS_VERSION])
-		AS_VERSION_COMPARE([$LIBLAS_VERSION], [$LIBLAS_VERSION_REQUIRED_MIN],
-			[AS_VAR_IF([have_liblas], [yes],
-				[AC_MSG_ERROR([liblas version $LIBLAS_VERSION is too old])],
-				[have_liblas=no
-				 why_have_liblas="(liblas version $LIBLAS_VERSION is older than required version $LIBLAS_VERSION_REQUIRED_MIN)"])])])
-	# read include dirs, libs and cflags
-	AS_VAR_IF([have_liblas], [no], [], [
-		LIBLAS_INCS=`$LIBLAS_CONFIG --includes`
-		LIBLAS_LIBS=`$LIBLAS_CONFIG --libs`])
-	# if lidar is enabled and liblas was not found abort
-	AS_VAR_IF([have_liblas], [no], [
-		AS_VAR_IF([have_lidar], [yes],
-			[AC_MSG_ERROR([liblas library required for lidar module])])
-		# no liblas, so don't compile lidar
-		have_lidar=no
-		AS_VAR_IF([disable_lidar], [],
-			[disable_lidar=${why_have_liblas:-"(liblas library required for lidar module)"}])])],
-[no], [
-	have_lidar=no
-	have_liblas=no
-	why_have_liblas="(lidar module is disabled)"])
-AS_VAR_IF([have_lidar], [no],
-	[LIBLAS_RPM=without],
-	[LIBLAS_RPM=with])
-# this is only used in rpm.mk.in to maybe avoid building MonetDB-lidar
-AC_SUBST([LIBLAS_RPM])
-
-AC_SUBST([LIBLAS_INCS])
-AC_SUBST([LIBLAS_LIBS])
-AC_MSG_CHECKING([enable lidar: $have_lidar])
-
-AM_CONDITIONAL([HAVE_LIDAR], [test "x$have_lidar" = xyes -o "x$have_lidar" = xauto])
-
-AC_MSG_CHECKING(['enable lidar: $have_lidar'])
-
-# gdal
-org_have_gdal="auto"
-have_gdal=$org_have_gdal
-AC_ARG_WITH([gdal],
-	[AS_HELP_STRING([--with-gdal=DIR],
-		[gdal library is installed in DIR])],
-		[have_gdal="$withval"], [have_gdal="auto"])
-# first autoconf for distributions that added a .pc file themselves (Fedora)
-AS_VAR_IF([have_gdal], [no], [], [
-	AS_CASE([$have_gdal],
-	[auto|yes], [
-		PKG_CHECK_MODULES([GDAL], [gdal], [have_gdal="pkgconf"], [have_gdal="$have_gdal"])],
-	[
-		GDAL_CFLAGS="-I$have_gdal/include"
-		GDAL_LIBS="-L$have_gdal/lib"])])
-# try to detect it manually like upstream provides it
-AS_VAR_IF([have_gdal], [no],
-	[],
-	[AS_VAR_IF([have_gdal], [pkgconf],
-		[],
-		[save_CPPFLAGS="$CPPFLAGS"
-		 save_LDFLAGS="$LDFLAGS"
-		 save_LIBS="$LIBS"
-		 CPPFLAGS="$CPPFLAGS $GDAL_CFLAGS"
-		 LDFLAGS="$LDFLAGS $GDAL_LIBS"
-		 LIBS=""
-		 found_gdal_h=yes
-		 AC_CHECK_HEADER([gdal.h], [],
-			[AC_CHECK_HEADER([gdal/gdal.h],
-				[AS_VAR_IF([GDAL_CFLAGS], [],
-					[GDAL_CFLAGS="-I/usr/include/gdal"],
-					[GDAL_CFLAGS="$GDAL_CFLAGS/gdal"])
-				 CPPFLAGS="$save_CPPFLAGS $GDAL_CFLAGS"],
-				[found_gdal_h=no])])
-		 AS_VAR_IF([found_gdal_h], [yes],
-		 	[AC_CHECK_LIB([gdal], [GDALAllRegister],
-				[AC_DEFINE([HAVE_GDAL], 1, [Define if you have the gdal library])
-					have_gdal=yes
-					LIBS="$LIBS -lgdal"],
-				[AS_VAR_IF([have_gdal], [auto],
-					[],
-					[AC_MSG_ERROR([-lgdal library not found])])
-				 have_gdal=no
-				 why_have_gdal="(gdal library not found)"],
-				[$MATH_LIBS])],
-			[AS_VAR_IF([have_gdal], [auto],
-				[],
-				[AC_MSG_ERROR([gdal.h header not found])])
-			 have_gdal=no
-			 why_have_gdal="(gdal.h header not found)"])
-		 GDAL_LIBS="$GDAL_LIBS $LIBS"
-		 LDFLAGS="$save_LDFLAGS"
-		 CPPFLAGS="$save_CPPFLAGS"
-		 LIBS="$save_LIBS"
-		 AS_VAR_IF([have_gdal], [yes],
-		 	[],
-			[GDAL_CFLAGS=""
-			 GDAL_LIBS=""])])])
-
-AC_SUBST([gdal_CFLAGS], [$GDAL_CFLAGS])
-AC_SUBST([gdal_LIBS], [$GDAL_LIBS])
-AM_CONDITIONAL([HAVE_GDAL], [test x"$have_gdal" != xno])
-
-# if shp is enabled and gdal was not found abort
-AS_VAR_IF([have_gdal], [no], [
-	AS_VAR_IF([have_shp], [yes], [
-		AC_MSG_ERROR([gdal library required for ESRI Shapefile vault])])
-	# no gdal, so don't compile shp
-	have_shp=no
-	AS_VAR_IF([disable_shp], [], [
-		disable_shp=${why_have_shp:-"(gdal library required for ESRI Shapefile vault)"}])])
-AM_CONDITIONAL([HAVE_SHP], [test x"$have_shp" != xno])
 
 PKG_CHECK_MODULES([atomic_ops], [atomic_ops], [have_atomic_ops="yes"],
 	[have_atomic_ops="no"; why_have_atomic_ops="(atomic_ops library not found)"])
@@ -2336,17 +1285,6 @@ AS_VAR_IF([have_atomic_ops], [yes], [
 			AC_DEFINE([HAVE_LIBATOMIC_OPS], 1, [Define if you have the libatomic_ops library])
 			CFLAGS="$CFLAGS $atomic_ops_CFLAGS"
 			LIBS="$LIBS $atomic_ops_LIBS"])])])
-
-# Check for gsl library for statistical functions
-org_have_gsl=no
-have_gsl=$org_have_gsl
-AS_VAR_IF([enable_gsl], [no], [], [
-	PKG_CHECK_MODULES([gsl], [gsl],
-		[have_gsl=yes],
-		[have_gsl=no; why_have_gsl="(gsl library not found)"
-		 AS_VAR_IF([enable_gsl], [yes], [AC_MSG_ERROR([gsl library required for GSL support])])
-		 enable_gsl=no; disable_gsl="(gsl library not found)"])])
-AM_CONDITIONAL([HAVE_GSL], [test x"$have_gsl" != xno])
 
 #    checks for header files
 AC_HEADER_STDBOOL
@@ -2664,16 +1602,12 @@ AC_SUBST([compilercall], ["$CC $CFLAGS $X_CFLAGS"])
 AC_SUBST([linkercall], ["$LD $LDFLAGS"])
 AC_SUBST([builtby], ["${USER}@`hostname`"])
 pcreversion="not linked to any PCRE library"
-AS_VAR_IF([have_pcre], [yes], [
-        pcreversion="compiled with `pkg-config --modversion libpcre 2>/dev/null`"])
 AC_SUBST([pcreversion])
 opensslversion="not linked to any openssl library"
 AS_VAR_IF([have_openssl], [yes], [
         opensslversion="compiled with `openssl version 2>/dev/null`"])
 AC_SUBST([opensslversion])
 libxml2version="not linked to any libxml2 library"
-AS_VAR_IF([have_libxml2], [yes], [
-        libxml2version="compiled with `pkg-config --modversion libxml-2.0 2>/dev/null`"])
 AC_SUBST([libxml2version])
 
 # provide different versions of the paths derived above
@@ -3050,12 +1984,6 @@ for comp in \
 	'gdk         ' \
 	'monetdb5    ' \
 	'sql         ' \
-	'geom        ' \
-	'console     ' \
-	'pyintegration' \
-	'rintegration' \
-	'odbc        ' \
-	'testing     ' \
 	'embedded    ' \
 ; do
 	eval "dft=\$dft_$comp"
@@ -3071,29 +1999,7 @@ echo
 echo "* Available features/extensions:"
 for comp in \
 	'atomic_ops   ' \
-	'bz2          ' \
-	'curl         ' \
-	'fits         ' \
-	'getaddrinfo  ' \
-	'gdal         ' \
-	'gsl          ' \
-	'liblas       ' \
-	'liblzma      ' \
-	'libxml2      ' \
-	'lidar        ' \
-	'netcdf       ' \
-	'openssl      ' \
-	'pcre         ' \
-	'proj         ' \
 	'pthread      ' \
-	'python2      ' \
-	'python3      ' \
-	'readline     ' \
-	'samtools     ' \
-	'shp          ' \
-	'sphinxclient ' \
-	'unixodbc     ' \
-	'valgrind     ' \
 	'zlib         ' \
 ; do
 	eval "org=\$org_have_$comp"

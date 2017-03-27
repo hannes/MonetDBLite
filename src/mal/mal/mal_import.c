@@ -196,6 +196,10 @@ malInclude(Client c, str name, int listing)
 		size_t mal_init_len = strlen(mal_init_inline);
 		buffer mal_init_buf;
 		stream* mal_init_stream = buffer_rastream(&mal_init_buf, name);
+		if (!mal_init_stream) {
+			restoreClient;
+			return createException(MAL,"mal.eval", "WARNING: could not setup init script.");
+		}
 		mal_init_buf.pos = 0;
 		mal_init_buf.len = mal_init_len;
 		mal_init_buf.buf = mal_init_inline;
@@ -203,6 +207,10 @@ malInclude(Client c, str name, int listing)
 		c->yycur = 0;
 		c->bak = NULL;
 		c->fdin = bstream_create(mal_init_stream, mal_init_len);
+		if (!c->fdin) {
+			restoreClient;
+			return createException(MAL,"mal.eval", "WARNING: could not setup init script.");
+		}
 		bstream_next(c->fdin);
 		parseMAL(c, c->curprg, 1);
 		bstream_destroy(c->fdin);
@@ -222,7 +230,7 @@ malInclude(Client c, str name, int listing)
 				parseMAL(c, c->curprg, 1);
 				bstream_destroy(c->fdin);
 			} else {
-				GDKfree(s); // not interested in error here
+				freeException(s); // not interested in error here
 				s = MAL_SUCCEED;
 			}
 			if (p)

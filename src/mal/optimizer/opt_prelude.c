@@ -118,9 +118,7 @@ str languageRef;
 str projectionRef;
 str projectionpathRef;
 str likesubselectRef;
-str likethetasubselectRef;
 str ilikesubselectRef;
-str ilikethetasubselectRef;
 str likeRef;
 str ilikeRef;
 str not_likeRef;
@@ -354,8 +352,6 @@ void optimizerInit(void)
 	likeRef = putName("like");
 	ilikeRef = putName("ilike");
 	ilikesubselectRef = putName("ilikesubselect");
-	likethetasubselectRef = putName("likethetasubselect");
-	ilikethetasubselectRef = putName("ilikethetasubselect");
 	not_likeRef = putName("not_like");
 	not_ilikeRef = putName("not_ilike");
 	lockRef = putName("lock");

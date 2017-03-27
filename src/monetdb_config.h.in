@@ -14,9 +14,6 @@
 /* read-only architecture-independent data */
 #undef DATA_DIR
 
-/* Program to perform diffs */
-#undef DIFF
-
 /* Directory separator */
 #undef DIR_SEP
 
@@ -44,35 +41,14 @@
 /* Define to 1 if you have the `backtrace' function. */
 #undef HAVE_BACKTRACE
 
-/* Define to 1 if you have the <bam/bam.h> header file. */
-#undef HAVE_BAM_BAM_H
-
-/* Define to 1 if you have the <bam/bgzf.h> header file. */
-#undef HAVE_BAM_BGZF_H
-
-/* Define to 1 if you have the <bam/kstring.h> header file. */
-#undef HAVE_BAM_KSTRING_H
-
-/* Define to 1 if you have the <bam/sam.h> header file. */
-#undef HAVE_BAM_SAM_H
-
 /* Define to 1 if you have the `clock_gettime' function. */
 #undef HAVE_CLOCK_GETTIME
-
-/* Define if you have the CommonCrypto library */
-#undef HAVE_COMMONCRYPTO
-
-/* If the console should be used */
-#undef HAVE_CONSOLE
 
 /* Define to 1 if you have the `ctime_r' function. */
 #undef HAVE_CTIME_R
 
 /* Define if you have ctime_r(time_t*,char *buf,size_t s) */
 #undef HAVE_CTIME_R3
-
-/* Define if you have the cURL library */
-#undef HAVE_CURL
 
 /* Define to 1 if you have the declaration of `tzname', and to 0 if you don't.
    */
@@ -112,9 +88,6 @@
 /* Define to 1 if you have the <fenv.h> header file. */
 #undef HAVE_FENV_H
 
-/* Define if the fits module is to be enabled */
-#undef HAVE_FITS
-
 /* Define if fork exists */
 #undef HAVE_FORK
 
@@ -132,9 +105,6 @@
 
 /* Define to 1 if you have the `ftime' function. */
 #undef HAVE_FTIME
-
-/* Define if you have the gdal library */
-#undef HAVE_GDAL
 
 /* Define to 1 if you have the `getaddrinfo' function. */
 #undef HAVE_GETADDRINFO
@@ -190,35 +160,14 @@
 /* Define if you have the libatomic_ops library */
 #undef HAVE_LIBATOMIC_OPS
 
-/* Define if you have the bz2 library */
-#undef HAVE_LIBBZ2
-
 /* Define to 1 if you have the <libgen.h> header file. */
 #undef HAVE_LIBGEN_H
 
 /* Define to 1 if you have the <libintl.h> header file. */
 #undef HAVE_LIBINTL_H
 
-/* Define if you have the lzma library */
-#undef HAVE_LIBLZMA
-
-/* Define if you have the pcre library */
-#undef HAVE_LIBPCRE
-
 /* Define if you have the pthread library */
 #undef HAVE_LIBPTHREAD
-
-/* Define if we can link to python */
-#undef HAVE_LIBPY
-
-/* Define if you have libR installed */
-#undef HAVE_LIBR
-
-/* Define if you have the readline library */
-#undef HAVE_LIBREADLINE
-
-/* Define if you have the xml library */
-#undef HAVE_LIBXML
 
 /* Define if you have the z library */
 #undef HAVE_LIBZ
@@ -262,9 +211,6 @@
 /* Enable MAPI */
 #undef HAVE_MAPI
 
-/* Define to 1 if you have the `MD5_Update' function. */
-#undef HAVE_MD5_UPDATE
-
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
@@ -273,9 +219,6 @@
 
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #undef HAVE_NDIR_H
-
-/* Define if the netcdf module is to be enabled */
-#undef HAVE_NETCDF
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #undef HAVE_NETDB_H
@@ -288,12 +231,6 @@
 
 /* Define to 1 if you have the `nl_langinfo' function. */
 #undef HAVE_NL_LANGINFO
-
-/* Define to 1 if you have the <odbcinst.h> header file. */
-#undef HAVE_ODBCINST_H
-
-/* Define if you have the OpenSSL library */
-#undef HAVE_OPENSSL
 
 /* Define to 1 if you have the `popen' function. */
 #undef HAVE_POPEN
@@ -309,9 +246,6 @@
 
 /* Define to 1 if you have the <procfs.h> header file. */
 #undef HAVE_PROCFS_H
-
-/* Define if the proj library exists */
-#undef HAVE_PROJ
 
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H
@@ -331,27 +265,8 @@
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
 
-/* Define to 1 if you have the `RIPEMD160_Update' function. */
-#undef HAVE_RIPEMD160_UPDATE
-
 /* Define to 1 if you have the `round' function. */
 #undef HAVE_ROUND
-
-/* Define if you have the samtools version 0.1.x (providing the bam library)
-   */
-#undef HAVE_SAMTOOLS
-
-/* Define to 1 if you have the <samtools/bam.h> header file. */
-#undef HAVE_SAMTOOLS_BAM_H
-
-/* Define to 1 if you have the <samtools/bgzf.h> header file. */
-#undef HAVE_SAMTOOLS_BGZF_H
-
-/* Define to 1 if you have the <samtools/kstring.h> header file. */
-#undef HAVE_SAMTOOLS_KSTRING_H
-
-/* Define to 1 if you have the <samtools/sam.h> header file. */
-#undef HAVE_SAMTOOLS_SAM_H
 
 /* Define to 1 if you have the <sched.h> header file. */
 #undef HAVE_SCHED_H
@@ -371,21 +286,6 @@
 /* Define to 1 if you have the `setsid' function. */
 #undef HAVE_SETSID
 
-/* Define to 1 if you have the `SHA1_Update' function. */
-#undef HAVE_SHA1_UPDATE
-
-/* Define to 1 if you have the `SHA224_Update' function. */
-#undef HAVE_SHA224_UPDATE
-
-/* Define to 1 if you have the `SHA256_Update' function. */
-#undef HAVE_SHA256_UPDATE
-
-/* Define to 1 if you have the `SHA384_Update' function. */
-#undef HAVE_SHA384_UPDATE
-
-/* Define to 1 if you have the `SHA512_Update' function. */
-#undef HAVE_SHA512_UPDATE
-
 /* Define to 1 if you have the `shutdown' function. */
 #undef HAVE_SHUTDOWN
 
@@ -397,12 +297,6 @@
 
 /* Define to 1 if the system has the type `socklen_t'. */
 #undef HAVE_SOCKLEN_T
-
-/* Define if you have the sphinxclient library */
-#undef HAVE_SPHINXCLIENT
-
-/* Define if you have the SQLGetPrivateProfileString function */
-#undef HAVE_SQLGETPRIVATEPROFILESTRING
 
 /* Define to 1 if stdbool.h conforms to C99. */
 #undef HAVE_STDBOOL_H
@@ -543,14 +437,8 @@
 /* Define if you have mallinfo */
 #undef HAVE_USEFUL_MALLINFO
 
-/* uuid */
-#undef HAVE_UUID
-
 /* Define to 1 if you have the <uuid/uuid.h> header file. */
 #undef HAVE_UUID_UUID_H
-
-/* Define if you have valgrind installed and want to use it */
-#undef HAVE_VALGRIND
 
 /* Define to 1 if you have the <winsock.h> header file. */
 #undef HAVE_WINSOCK_H
@@ -584,9 +472,6 @@
 
 /* Define as const if the declaration of iconv() needs const. */
 #undef ICONV_CONST
-
-/* Define as SQLLEN * or SQLPOINTER depending on the include file */
-#undef LENP_OR_POINTER_T
 
 /* location where libraries are installed */
 #undef LIBDIR
@@ -642,9 +527,6 @@
 /* Compiler flag */
 #undef PROFILE
 
-/* The home of R */
-#undef RHOME
-
 /* The size of `char', as computed by sizeof. */
 #undef SIZEOF_CHAR
 
@@ -692,9 +574,6 @@
 
 /* Shared Object prefix */
 #undef SO_PREFIX
-
-/* compiling for static code analysis */
-#undef STATIC_CODE_ANALYSIS
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

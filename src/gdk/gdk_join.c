@@ -117,10 +117,17 @@ joininitresults(BAT **r1p, BAT **r2p, BUN lcnt, BUN rcnt, int lkey, int rkey,
 	*r1p = NULL;
 	if (r2p)
 		*r2p = NULL;
-	if (rkey | semi | only_misses) {
+	if (lcnt == 0) {
+		/* there is nothing to match */
+		maxsize = 0;
+	} else if (!only_misses && !nil_on_miss && rcnt == 0) {
+		/* if right is empty, we have no hits, so if we don't
+		 * want misses, the result is empty */
+		maxsize = 0;
+	} else if (rkey | semi | only_misses) {
 		/* each entry left matches at most one on right, in
 		 * case nil_on_miss is also set, each entry matches
-		 * exactly one */
+		 * exactly one (see below) */
 		maxsize = lcnt;
 	} else if (lkey) {
 		/* each entry on right is matched at most once */
@@ -147,6 +154,25 @@ joininitresults(BAT **r1p, BAT **r2p, BUN lcnt, BUN rcnt, int lkey, int rkey,
 		/* see comment above: each entry left matches exactly
 		 * once */
 		size = maxsize;
+	}
+
+	if (maxsize == 0) {
+		r1 = COLnew(0, TYPE_void, 0, TRANSIENT);
+		if (r1 == NULL) {
+			return BUN_NONE;
+		}
+		BATtseqbase(r1, 0);
+		if (r2p) {
+			r2 = COLnew(0, TYPE_void, 0, TRANSIENT);
+			if (r2 == NULL) {
+				BBPreclaim(r1);
+				return BUN_NONE;
+			}
+			BATtseqbase(r2, 0);
+			*r2p = r2;
+		}
+		*r1p = r1;
+		return 0;
 	}
 
 	r1 = COLnew(0, TYPE_oid, size, TRANSIENT);
@@ -3191,69 +3217,69 @@ thetajoin(BAT *r1, BAT *r2, BAT *l, BAT *r, BAT *sl, BAT *sr, int opcode, BUN ma
 			}
 			lo = lstart++ + l->hseqbase;
 		}
-		if (cmp(vl, nil) == 0)
-			continue;
 		nr = 0;
-		p = rcand;
-		n = rstart;
-		for (;;) {
-			if (rcand) {
-				if (p == rcandend)
-					break;
-				ro = *p++;
-				vr = VALUE(r, ro - r->hseqbase);
-			} else {
-				if (n == rend)
-					break;
-				if (rvals) {
-					vr = VALUE(r, n);
-					if (roff != 0) {
-						rval = (oid) (*(const oid *)vr + roff);
+		if (cmp(vl, nil) != 0) {
+			p = rcand;
+			n = rstart;
+			for (;;) {
+				if (rcand) {
+					if (p == rcandend)
+						break;
+					ro = *p++;
+					vr = VALUE(r, ro - r->hseqbase);
+				} else {
+					if (n == rend)
+						break;
+					if (rvals) {
+						vr = VALUE(r, n);
+						if (roff != 0) {
+							rval = (oid) (*(const oid *)vr + roff);
+							vr = (const char *) &rval;
+						}
+					} else {
+						rval = n + r->tseqbase;
 						vr = (const char *) &rval;
 					}
-				} else {
-					rval = n + r->tseqbase;
-					vr = (const char *) &rval;
+					ro = n++ + r->hseqbase;
 				}
-				ro = n++ + r->hseqbase;
-			}
-			if (cmp(vr, nil) == 0)
-				continue;
-			c = cmp(vl, vr);
-			if (!((opcode & MASK_LT && c < 0) ||
-			      (opcode & MASK_GT && c > 0) ||
-			      (opcode & MASK_EQ && c == 0)))
-				continue;
-			if (BUNlast(r1) == BATcapacity(r1)) {
-				newcap = BATgrows(r1);
-				if (newcap > maxsize)
-					newcap = maxsize;
-				BATsetcount(r1, BATcount(r1));
-				BATsetcount(r2, BATcount(r2));
-				if (BATextend(r1, newcap) != GDK_SUCCEED ||
-				    BATextend(r2, newcap) != GDK_SUCCEED)
-					goto bailout;
-				assert(BATcapacity(r1) == BATcapacity(r2));
-			}
-			if (BATcount(r2) > 0) {
-				if (lastr + 1 != ro)
-					r2->tdense = 0;
-				if (nr == 0) {
-					r1->trevsorted = 0;
-					if (lastr > ro) {
-						r2->tsorted = 0;
-						r2->tkey = 0;
-					} else if (lastr < ro) {
-						r2->trevsorted = 0;
-					} else {
-						r2->tkey = 0;
+				if (cmp(vr, nil) == 0)
+					continue;
+				c = cmp(vl, vr);
+				if (!((opcode & MASK_LT && c < 0) ||
+				      (opcode & MASK_GT && c > 0) ||
+				      (opcode & MASK_EQ && c == 0)))
+					continue;
+				if (BUNlast(r1) == BATcapacity(r1)) {
+					newcap = BATgrows(r1);
+					if (newcap > maxsize)
+						newcap = maxsize;
+					BATsetcount(r1, BATcount(r1));
+					BATsetcount(r2, BATcount(r2));
+					if (BATextend(r1, newcap) != GDK_SUCCEED ||
+					    BATextend(r2, newcap) != GDK_SUCCEED)
+						goto bailout;
+					assert(BATcapacity(r1) == BATcapacity(r2));
+				}
+				if (BATcount(r2) > 0) {
+					if (lastr + 1 != ro)
+						r2->tdense = 0;
+					if (nr == 0) {
+						r1->trevsorted = 0;
+						if (lastr > ro) {
+							r2->tsorted = 0;
+							r2->tkey = 0;
+						} else if (lastr < ro) {
+							r2->trevsorted = 0;
+						} else {
+							r2->tkey = 0;
+						}
 					}
 				}
+				APPEND(r1, lo);
+				APPEND(r2, ro);
+				lastr = ro;
+				nr++;
 			}
-			APPEND(r1, lo);
-			APPEND(r2, ro);
-			lastr = ro;
-			nr++;
 		}
 		if (nr > 1) {
 			r1->tkey = 0;
@@ -3797,6 +3823,8 @@ subleftjoin(BAT **r1p, BAT **r2p, BAT *l, BAT *r, BAT *sl, BAT *sr,
 	*r1p = r1;
 	if (r2p)
 		*r2p = r2;
+	if (maxsize == 0)
+		return GDK_SUCCEED;
 	if (BATtdense(r) && (sr == NULL || BATtdense(sr)) && lcount > 0 && rcount > 0) {
 		/* use special implementation for dense right-hand side */
 		return mergejoin_void(r1, r2, l, r, sl, sr,
@@ -3907,6 +3935,8 @@ BATthetajoin(BAT **r1p, BAT **r2p, BAT *l, BAT *r, BAT *sl, BAT *sr, int op, int
 		return GDK_FAIL;
 	*r1p = r1;
 	*r2p = r2;
+	if (maxsize == 0)
+		return GDK_SUCCEED;
 
 	return thetajoin(r1, r2, l, r, sl, sr, opcode, maxsize, t0);
 }
@@ -3957,6 +3987,8 @@ BATjoin(BAT **r1p, BAT **r2p, BAT *l, BAT *r, BAT *sl, BAT *sr, int nil_matches,
 		return GDK_FAIL;
 	*r1p = r1;
 	*r2p = r2;
+	if (maxsize == 0)
+		return GDK_SUCCEED;
 	swap = 0;
 
 	/* some statistics to help us decide */
@@ -4085,6 +4117,8 @@ BATbandjoin(BAT **r1p, BAT **r2p, BAT *l, BAT *r, BAT *sl, BAT *sr,
 		return GDK_FAIL;
 	*r1p = r1;
 	*r2p = r2;
+	if (maxsize == 0)
+		return GDK_SUCCEED;
 
 	return bandjoin(r1, r2, l, r, sl, sr, c1, c2, li, hi, maxsize, t0);
 }
@@ -4104,6 +4138,8 @@ BATrangejoin(BAT **r1p, BAT **r2p, BAT *l, BAT *rl, BAT *rh,
 		return GDK_FAIL;
 	*r1p = r1;
 	*r2p = r2;
+	if (maxsize == 0)
+		return GDK_SUCCEED;
 
 	/* note, the rangejoin implementation is in gdk_select.c since
 	 * it uses the imprints code there */

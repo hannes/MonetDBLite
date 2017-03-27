@@ -37,8 +37,6 @@ sh src/embedded/windows/pmc.sh
 cp windows-buildfiles/msvcr100-$BITS.dll msvcr100.dll
 
 
-# TODO: unzip PCRE
-
 cd src
 
 rm config.status
@@ -55,7 +53,7 @@ fi
 
 OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
 
-$CC $ADD_CFLAGS -shared -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi -Lembedded/windows/pcre-8.37/libs/$ARCH/ -lpcre 
+$CC $ADD_CFLAGS -shared -o libmonetdb5.dll $OFILES -lws2_32 -lpthread -lpsapi
 
 if [ ! -s libmonetdb5.dll ]
 then
@@ -66,8 +64,6 @@ fi
 mv libmonetdb5.dll ..
 
 cd ../
-cp src/embedded/windows/pcre-8.37/libs/$ARCH/pcre.dll .
-
 
 
 gcc test.c -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/gdk -Isrc/mal/mal -Isrc/mal/modules/atoms -Isrc/mal/modules/mal -Isrc/sql/include -Isrc/sql/backends/monet5 -Isrc/sql/server -Isrc/sql/common -Isrc/sql/storage  -Isrc/embedded -lmonetdb5 -L. -o test

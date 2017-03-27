@@ -78,10 +78,11 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	void* res = NULL;
 	void* c;
 
-	if (setlocale(LC_CTYPE, "") == NULL) {
-		retval = GDKstrdup("setlocale() failed");
-		goto cleanup;
-	}
+// we probably don't want this.
+//	if (setlocale(LC_CTYPE, "") == NULL) {
+//		retval = GDKstrdup("setlocale() failed");
+//		goto cleanup;
+//	}
 	GDKfataljumpenable = 1;
 	if(setjmp(GDKfataljump) != 0) {
 		retval = GDKfatalmsg;
@@ -155,7 +156,7 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 
 	// we do not want to jump after this point, since we cannot do so between threads
 	// sanity check, run a SQL query
-	sqres = monetdb_query(c, "SELECT * FROM tables;", 1, &res);
+	sqres = monetdb_query(c, "SELECT * FROM tables;", 1, &res, NULL);
 	if (sqres != NULL) {
 		monetdb_embedded_initialized = false;
 		retval = sqres;
@@ -173,7 +174,7 @@ int monetdb_is_initialized(void) {
 }
 
 
-char* monetdb_query(void* conn, char* query, char execute, void** result) {
+char* monetdb_query(void* conn, char* query, char execute, void** result, long* affected_rows) {
 	str res = MAL_SUCCEED;
 	Client c = (Client) conn;
 	mvc* m;
@@ -204,6 +205,9 @@ char* monetdb_query(void* conn, char* query, char execute, void** result) {
 		res = GDKstrdup("Current transaction is aborted (please ROLLBACK)");
 	} else {
 		res = SQLstatementIntern(c, &query, "main", execute, 0, (res_table **) result);
+		if (!*result && m->rowcnt >= 0 && affected_rows) {
+			*affected_rows = m->rowcnt;
+		}
 	}
 	SQLautocommit(c, m);
 	return res;

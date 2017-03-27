@@ -1665,10 +1665,11 @@ mvc_export_affrows(backend *b, stream *s, lng val, str w)
 	 * If we would fail on having no stream here, those internal commands
 	 * fail too.
 	 */
+	m->rowcnt = val;
+
 	if (!s)
 		return 0;
 
-	m->rowcnt = val;
 	stack_set_number(m, "rowcnt", m->rowcnt);
 	if (mnstr_write(s, "&2 ", 3, 1) != 1 || !mvc_send_lng(s, val) || mnstr_write(s, " ", 1, 1) != 1 || !mvc_send_lng(s, m->last_id) || mnstr_write(s, "\n", 1, 1) != 1)
 		return -1;
