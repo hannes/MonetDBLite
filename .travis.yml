@@ -11,11 +11,8 @@ branches:
 
 addons:
     apt:
-        sources:
-            - ubuntu-toolchain-r-test
         packages:
             - oracle-java8-installer
-            - gcc-6
 
 services:
     - docker
@@ -48,11 +45,9 @@ env:
         - LC_IDENTIFICATION=en_US.utf8
 
 before_install:
-    # Updating GCC and other libraries
+    # Updating libraries
     - sudo apt-get -qy update
     - sudo apt-get install -qq -y realpath coreutils
-    - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-6 /usr/bin/gcc
-    - gcc --version
 
 install:
     # Disable default "./gradlew assemble" command.
@@ -66,7 +61,7 @@ script:
     - cp -rf MonetDBLite MonetDBLiteMacOS/
     - cp -rf MonetDBLite MonetDBLiteWindows/
     - cd MonetDBLite
-    - bash compile.sh linux
+    - docker run -it --rm -v $(pwd):/workdir --privileged=true -e CROSS_TRIPLE=x86_64-linux-gnu -e TRAVIS=1 multiarch/crossbuild bash compile.sh linux
     - cd ../MonetDBLiteMacOS
     - docker run -it --rm -v $(pwd):/workdir --privileged=true -e CROSS_TRIPLE=x86_64-apple-darwin -e TRAVIS=1 multiarch/crossbuild bash compile.sh macos
     - cd ../MonetDBLiteWindows

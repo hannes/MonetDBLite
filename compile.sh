@@ -2,17 +2,20 @@
 
 set -ev
 
-# for OSXcross in the Dockerfile
-if [ ! -z $TRAVIS  ] && [ $1 == "macos" ] ; then
-    apt-get -qq update && apt-get -qq -y install pkg-config pkgconf flex bison byacc
-fi
+if [ ! -z $TRAVIS  ] ; then
+    case "$1" in
+        windows)
+            # Fix broken header files
+            \cp src/embedded/windows/mingwheaders/intrin.h /usr/x86_64-w64-mingw32/include/intrin.h
+            \cp src/embedded/windows/mingwheaders/stdlib.h /usr/x86_64-w64-mingw32/include/stdlib.h
+            \cp src/embedded/windows/mingwheaders/time.h /usr/x86_64-w64-mingw32/include/time.h
+            \cp src/embedded/windows/mingwheaders/intrin-impl.h /usr/x86_64-w64-mingw32/include/psdk_inc/intrin-impl.h
+            ;;
 
-# for yakkety in the Dockerfile
-if [ ! -z $TRAVIS  ] && [ $1 == "windows" ] ; then
-    \cp src/embedded/windows/mingwheaders/intrin.h /usr/x86_64-w64-mingw32/include/intrin.h
-    \cp src/embedded/windows/mingwheaders/stdlib.h /usr/x86_64-w64-mingw32/include/stdlib.h
-    \cp src/embedded/windows/mingwheaders/time.h /usr/x86_64-w64-mingw32/include/time.h
-    \cp src/embedded/windows/mingwheaders/intrin-impl.h /usr/x86_64-w64-mingw32/include/psdk_inc/intrin-impl.h
+        *)
+            # Install MonetDB compilation dependencies
+            apt-get -qq update && apt-get -qq -y install pkg-config pkgconf flex bison byacc
+    esac
 fi
 
 PREVDIRECTORY=`pwd`
