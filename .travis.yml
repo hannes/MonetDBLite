@@ -20,9 +20,6 @@ addons:
 services:
     - docker
 
-addons:
-    ssh_known_hosts: monetdb.org
-
 before_cache:
     # Clean gradle caches
     - rm -f  $HOME/monetdb-java-lite/.gradle/caches/modules-2/modules-2.lock
@@ -49,14 +46,13 @@ env:
         - LC_TELEPHONE=en_US.utf8
         - LC_MEASUREMENT=en_US.utf8
         - LC_IDENTIFICATION=en_US.utf8
-        - CC=/usr/bin/gcc-6
 
 before_install:
     # Updating GCC and other libraries
     - sudo apt-get -qy update
-    - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
-    - gcc -v
     - sudo apt-get install -qq -y realpath coreutils
+    - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-6 /usr/bin/gcc
+    - gcc --version
 
 install:
     # Disable default "./gradlew assemble" command.
@@ -81,15 +77,26 @@ script:
     - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/ 
     - cd MonetDBLite/monetdb-java-lite
     - ./gradlew -i build
-    # Move to the original directory
+    # Move to the original directory and copy the header file
     - cd ..
-
-after_success:
-    # Preparing the RSA key
-    - openssl aes-256-cbc -K $encrypted_a16cc492052e_key -iv $encrypted_a16cc492052e_iv -in id_downloads.enc -out id_downloads -d
-    # Publish to our repository with rsync, but first copy the header file for the site
     - cp HEADER.html monetdb-java-lite/build/libs/
-    - rsync -avz -e "ssh -i id_downloads" monetdb-java-lite/build/libs/ ferreira@monetdb.org:/var/www/html/downloads/Java-Experimental/
+
+addons:
+    ssh_known_hosts: monetdb.org
+
+before_deploy:
+    # Preparing the RSA key
+    - openssl aes-256-cbc -K $encrypted_a16cc492052e_key -iv $encrypted_a16cc492052e_iv -in id_downloads.enc -out /tmp/id_downloads -d
+    - eval "$(ssh-agent -s)"
+    - chmod 600 /tmp/id_downloads
+    - ssh-add /tmp/id_downloads
+
+deploy:
+    provider: script
+    skip_cleanup: true
+    script: rsync -aqz monetdb-java-lite/build/libs/ ferreira@monetdb.org:/var/www/html/downloads/Java-Experimental/
+    on:
+        branch: Dec2016Lite-Java
 
 notifications:
     email:
