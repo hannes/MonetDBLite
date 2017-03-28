@@ -26,9 +26,6 @@
   All of the \code{MonetDBLite::MonetDB.R()} external server connection functions are deprecated in favor of \code{\link[=MonetDBLite]{MonetDBLite::MonetDBLite()}}.
 
   This package aims to provide a reasonably complete implementation of the DBI. 
-  A number of additional methods are provided: \code{\link{dbSendUpdate}} for database-altering 
-  statements, \code{\link{dbSendUpdateAsync}} for cleanup operations and 
-  \code{\link{monetdb.read.csv}} for database CSV import.
 }
 \seealso{
   \code{\link[DBI]{dbConnect}} for documentation how to invoke the driver  

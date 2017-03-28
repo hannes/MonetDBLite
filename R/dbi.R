@@ -486,7 +486,7 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
     } else {
       ct <- paste0("CREATE TABLE ", qname, " (", fdef, ")")
     }
-    dbSendUpdate(conn, ct)
+    dbExecute(conn, ct)
   }
   if (length(value[[1]])) {
     classes <- unlist(lapply(value, function(v){
@@ -539,7 +539,7 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
           function(valueck) {
           bvins <- c()
           for (j in 1:length(valueck[[1]])) bvins <- c(bvins,.bindParameters(vins, as.list(valueck[j, ])))
-          dbSendUpdate(conn, paste0("INSERT INTO ", qname, " VALUES ",paste0(bvins, collapse=", ")))
+          dbExecute(conn, paste0("INSERT INTO ", qname, " VALUES ",paste0(bvins, collapse=", ")))
         })
       }
     }
@@ -564,7 +564,7 @@ setMethod("dbDataType", signature(dbObj="MonetDBConnection", obj = "ANY"), def =
 setMethod("dbRemoveTable", signature(conn="MonetDBConnection", name = "character"), def=function(conn, name, ...) {
   name <- quoteIfNeeded(conn, name)
   if (!dbExistsTable(conn, name)) stop("No such table: ", name)
-  dbSendUpdate(conn, paste("DROP TABLE", name))
+  dbExecute(conn, paste("DROP TABLE", name))
   return(invisible(TRUE))
 })
 
@@ -1043,7 +1043,7 @@ monet.read.csv <- monetdb.read.csv <- function(conn, files, tablename, header=TR
   
   for(i in seq_along(files)) {
     thefile <- encodeString(normalizePath(files[i]))
-    dbSendUpdate(conn, paste("COPY", if(header) "OFFSET 2", "INTO", 
+    dbExecute(conn, paste("COPY", if(header) "OFFSET 2", "INTO", 
       tablename, "FROM", paste("'", thefile, "'", sep=""), delimspec, "NULL as", paste("'", 
       na.strings[1], "'", sep=""), if(locked) "LOCKED", if(best.effort) "BEST EFFORT"))
   }
