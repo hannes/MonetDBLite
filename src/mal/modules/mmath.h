@@ -17,7 +17,7 @@
 
 #ifdef WIN32
 # include <float.h>
-#if _MSC_VER <= 1600
+#if _MSC_VER <= 1600 && !defined(__MINGW64__) //MonetDBJavaLite compilation fix
 /* Windows spells these differently */
 # define isnan(x)	_isnan(x)
 #endif

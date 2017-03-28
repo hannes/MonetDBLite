@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Show all the build steps, plus exist when we find an error
 set -ev
 
 if [ ! -z $TRAVIS  ] ; then
@@ -18,6 +19,7 @@ if [ ! -z $TRAVIS  ] ; then
     esac
 fi
 
+# Save the previous directory
 PREVDIRECTORY=`pwd`
 BASEDIR=$(realpath `dirname $0`)
 cd $BASEDIR
@@ -28,6 +30,7 @@ BITS=64
 cd src
 SOURCEDIR=`pwd`
 
+# Set the compiler to use, plus the name of the library
 case "$1" in
     windows)
         BUILDSYS=windows
@@ -59,10 +62,10 @@ BUILDDIR=`pwd`
 # Prepare the compilation flags depending on the target BUILD
 case "$1" in
     windows)
-        ADD_CFLAGS="-O3 -m64 -std=c99 -DPIC -D_XPG6 -D_FORTIFY_SOURCE=2 -I/usr/x86_64-w64-mingw32/include -I$SOURCEDIR/embedded/incwindows -Wl,-rpath=/usr/x86_64-w64-mingw32/lib"
+        ADD_CFLAGS="-O3 -m64 -std=c99 -fPIC -DPIC -D_XPG6 -I$SOURCEDIR/embedded/incwindows"
         if [ ! -z $MONETDBLITE_DEBUG ] ; then
-	     echo "Using debug flags"
-	     ADD_CFLAGS="-O0 -g -m64"
+	        echo "Using debug flags"
+	        ADD_CFLAGS="-O0 -g -m64"
         fi
         ;;
 
@@ -70,9 +73,9 @@ case "$1" in
         OPTFLAG="--enable-optimize"
         LINKFLAG=""
         if [ ! -z $MONETDBLITE_DEBUG ] ; then
-	    echo "Using debug flags"
-	    OPTFLAG="--enable-debug --enable-assert --enable-strict"
-	    LINKFLAG="-g"
+	        echo "Using debug flags"
+	        OPTFLAG="--enable-debug --enable-assert --enable-strict"
+	        LINKFLAG="-g"
         fi
         CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -std=c99 -fPIC -DPIC -D_XPG6 -I$SOURCEDIR/embedded/incmacos" \
         $SOURCEDIR/configure --config-cache --enable-embedded --host=x86_64-apple-darwin13 \
@@ -83,16 +86,16 @@ case "$1" in
         OPTFLAG="--enable-optimize"
         LINKFLAG=""
         if [ ! -z $MONETDBLITE_DEBUG ] ; then
-	    echo "Using debug flags"
-	    OPTFLAG="--enable-debug --enable-assert --enable-strict"
-	    LINKFLAG="-g"
+	        echo "Using debug flags"
+	        OPTFLAG="--enable-debug --enable-assert --enable-strict"
+	        LINKFLAG="-g"
         fi
         CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -std=c99 -fPIC -DPIC -D_XPG6 -I$SOURCEDIR/embedded/inclinux" \
         $SOURCEDIR/configure --config-cache --enable-embedded \
         $OPTFLAG --enable-silent-rules --disable-int128
 esac
 
-# Prepare the compilation
+# Do the compilation
 case "$1" in
     windows)
         # On Windows the compilation is more complicated...
@@ -112,7 +115,7 @@ case "$1" in
         if [ $? -ne 0 ] ; then
 	        echo "build failure"
         fi
-        OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded mapisplit -name "*.lo" | tr "\n" " "`
+        OFILES=`find common gdk mal/mal mal/modules mal/optimizer sql embedded -name "*.lo" | tr "\n" " "`
         $CC $ADD_CFLAGS -shared -fPIC -Wl,--export-all-symbols -o $BUILDDIR/$BUILDLIBRARY $OFILES -lws2_32 -lpthread -lpsapi
         if [ ! -s $BUILDDIR/$BUILDLIBRARY ] ; then
 	        echo "library file was not created, something went wrong"
@@ -120,6 +123,7 @@ case "$1" in
         ;;
 
     *)
+        # For POSIX we just add a new rule for the main Makefile
         echo '
         ' $BUILDLIBRARY ':
 	     $(CC) -shared -o ' $BUILDLIBRARY ' $(pthread_LIBS) $(zlib_LIBS) $(LIBICONV) $(MATH_LIBS) $(DL_LIBS) `find $(SUBDIRS) -name "*.o" | xargs echo` 
@@ -134,13 +138,12 @@ esac
 
 # Move the compiled library to the Gradle directory
 cd $BASEDIR
-
 mkdir -p monetdb-java-lite/src/main/resources/libs/$BUILDSYS
 mv $BUILDDIR/$BUILDLIBRARY monetdb-java-lite/src/main/resources/libs/$BUILDSYS
 
 # Windows again damm!
 if [ $1 == "windows" ] ; then
-    cp -rf $SOURCEDIR/embedded/windows/msvcr100.win$BITS/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
+    cp -rf $SOURCEDIR/embedded/windows/msvcr100win$BITS/msvcr100-$BITS.dll monetdb-java-lite/src/main/resources/libs/windows/msvcr100.dll
     cd $SOURCEDIR
     make distclean
     cd $BASEDIR
