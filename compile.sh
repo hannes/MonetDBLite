@@ -7,10 +7,10 @@ if [ ! -z $TRAVIS  ] ; then
     case "$1" in
         windows)
             # Fix broken header files
-            \cp src/embedded/windows/mingwheaders/intrin.h /usr/x86_64-w64-mingw32/include/intrin.h
-            \cp src/embedded/windows/mingwheaders/stdlib.h /usr/x86_64-w64-mingw32/include/stdlib.h
-            \cp src/embedded/windows/mingwheaders/time.h /usr/x86_64-w64-mingw32/include/time.h
-            \cp src/embedded/windows/mingwheaders/intrin-impl.h /usr/x86_64-w64-mingw32/include/psdk_inc/intrin-impl.h
+            \cp src/embedded/windows/mingwheaders/intrin.h /usr/x86_64-w64-mingw32/sys-root/mingw/include/intrin.h
+            \cp src/embedded/windows/mingwheaders/stdlib.h /usr/x86_64-w64-mingw32/sys-root/mingw/include/stdlib.h
+            \cp src/embedded/windows/mingwheaders/time.h /usr/x86_64-w64-mingw32/sys-root/mingw/include/time.h
+            \cp src/embedded/windows/mingwheaders/intrin-impl.h /usr/x86_64-w64-mingw32/sys-root/mingw/include/psdk_inc/intrin-impl.h
             ;;
 
         *)
@@ -62,7 +62,7 @@ BUILDDIR=`pwd`
 # Prepare the compilation flags depending on the target BUILD
 case "$1" in
     windows)
-        ADD_CFLAGS="-O3 -m64 -std=c99 -fPIC -DPIC -D_XPG6 -I$SOURCEDIR/embedded/incwindows"
+        ADD_CFLAGS="-O3 -m64 -std=c99 -DPIC -D_XPG6 -I$SOURCEDIR/embedded/incwindows"
         if [ ! -z $MONETDBLITE_DEBUG ] ; then
 	        echo "Using debug flags"
 	        ADD_CFLAGS="-O0 -g -m64"

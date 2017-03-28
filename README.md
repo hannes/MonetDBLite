@@ -32,8 +32,8 @@ connections, the second jar is also required in the `CLASSPATH`.
 
 The **`monetdb-jdbc-new-<version>.jar` is still compatible with JVM 7**, however the **`monetdb-java-lite-<version>.jar`
 requires JVM 8 to run**, as we found problems running in the JVM 8 when we compiled to target JVM 7
-(the problem might be related to the JVM rather than us). Currently the `monetdb-java-lite-<version>.jar`
-**only supports 64-bit architectures**.
+(the problem might be related to the JVM rather than us). Currently the **`monetdb-java-lite-<version>.jar`
+only supports 64-bit architectures**.
 
 As this software is still experimental, we haven't made it available in a public Maven repository yet. Both jars can be
 obtained through the Download section of our [website](https://www.monetdb.org/downloads/Java-Experimental/). 
