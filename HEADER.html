@@ -7,8 +7,8 @@
 
 <blockquote>
   <p><strong>IMPORTANT</strong> Before any further reading, remember that this software is still experimental, and it might crash
-  sometimes, although some testing was already been done on it :) To be 100% safe you can run MonetDBJavaLite in a
-  subprocess inside the JVM, so if it crashes, your application in the main process will still be up!</p>
+  sometimes, although testing has been made on it :) To be 100% safe you can run MonetDBJavaLite in a sub-process inside
+  the JVM, so if it crashes, your application in the main process will still be up!</p>
 </blockquote>
 
 <p>MonetDBJavaLite is a Java library that allows the integration of MonetDB, a column-wise and high-scale OLAP relational database in the JVM.</p>
@@ -42,11 +42,11 @@ requires JVM 8 to run</strong>, as we found problems running in the JVM 8 when w
 (the problem might be related to the JVM rather than us). Currently the <strong><code>monetdb-java-lite-&lt;version&gt;.jar</code>
 only supports 64-bit architectures</strong>.</p>
 
+<p>The <code>monetdb-jdbc-new-&lt;version&gt;.jar</code> is both CPU and Operating System independent. ON the other hand, the
+  <code>monetdb-java-lite-&lt;version&gt;.jar</code> contains the JNI code for 64-bit Linux, Windows and Mac OS X.</p>
+
 <p>As this software is still experimental, we haven't made it available in a public Maven repository yet. Both jars can be
 obtained through the Download section of our <a href="https://www.monetdb.org/downloads/Java-Experimental/">website</a>. </p>
-
-<p>The <code>monetdb-jdbc-new-&lt;version&gt;.jar</code> is both CPU and Operating System independent. ON the other hand, the
-<code>monetdb-java-lite-&lt;version&gt;.jar</code> contains the JNI code for 64-bit Linux, Windows and Mac OS X.</p>
 
 <h2 id="libraries">Libraries</h2>
 

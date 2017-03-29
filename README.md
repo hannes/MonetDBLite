@@ -3,8 +3,8 @@
 [![Build Status](https://travis-ci.org/hannesmuehleisen/MonetDBLite.svg?branch=Dec2016Lite-Java)](https://travis-ci.org/hannesmuehleisen/MonetDBLite)
 
 > **IMPORTANT** Before any further reading, remember that this software is still experimental, and it might crash
-sometimes, although some testing was already been made on it :) To be 100% safe you can run MonetDBJavaLite in a
-subprocess inside the JVM, so if it crashes, your application in the main process will still be up!
+sometimes, although testing has been made on it :) To be 100% safe you can run MonetDBJavaLite in a sub-process inside
+the JVM, so if it crashes, your application in the main process will still be up!
 
 After the MonetDBLite, MonetDBRLite and MonetDBPythonLite, MonetDBJavaLite is here! This project allows the integration
 of MonetDB, a column-wise and high-scale OLAP relational database in the JVM! Unlike a traditional socket connection,
@@ -35,11 +35,11 @@ requires JVM 8 to run**, as we found problems running in the JVM 8 when we compi
 (the problem might be related to the JVM rather than us). Currently the **`monetdb-java-lite-<version>.jar`
 only supports 64-bit architectures**.
 
-As this software is still experimental, we haven't made it available in a public Maven repository yet. Both jars can be
-obtained through the Download section of our [website](https://www.monetdb.org/downloads/Java-Experimental/). 
-
 The `monetdb-jdbc-new-<version>.jar` is both CPU and Operating System independent. ON the other hand, the
 `monetdb-java-lite-<version>.jar` contains the JNI code for 64-bit Linux, Windows and Mac OS X.
+
+As this software is still experimental, we haven't made it available in a public Maven repository yet. Both jars can be
+obtained through the Download section of our [website](https://www.monetdb.org/downloads/Java-Experimental/). 
 
 ## Libraries
 
@@ -108,30 +108,31 @@ classes/primitives was made. We favored the usage of Java primitives for the mos
 less object allocations. However for the more complex SQL types, we mapped them to Java Classes, while matching the JDBC
 specification.
 
-One important feature of MonetDB is that the SQL `NULL` values are mapped into the system's minimum values (e.g. MonetDB
-Integer - 2^31 - 1 in a 64-bit machine). In MonetDBJavaLite, this feature persists for primitive types.
-**However for the Java Classes mapping, SQL NULL values are translated into null objects, so be careful!**
+One important feature of MonetDB is that the SQL `NULL` values are mapped into the system's minimum values
+(check the table for details). In MonetDBJavaLite, this feature persists for primitive types.
+**However for the Java Classes mapping, SQL NULL values are translated into null objects, so be careful!** Down bellow
+there is a explanation on how to easily check for SQL NULL values in query result sets (`NullMappings` class).
 
-| MonetDB Type                         | Java Primitive/Class                                                                        | Null Value                     |
-| :----------------------------------- | :------------------------------------------------------------------------------------------ | :----------------------------- |
-| boolean                              | boolean                                                                                     | System's minimum byte value    |
-| tinyint                              | byte                                                                                        | System's minimum C byte value  |
-| smallint                             | short                                                                                       | System's minimum short value   |
-| integer                              | int                                                                                         | System's minimum integer value |
-| bigint                               | long                                                                                        | System's minimum long value    |
-| real                                 | float                                                                                       | System's minimum float value   |
-| double                               | double                                                                                      | System's minimum double value  |
-| decimal/numeric                      | [java.math.BigDecimal](https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html) | Null pointer                   |
-| char/varchar/clob                    | [java.lang.String](https://docs.oracle.com/javase/8/docs/api/java/lang/String.html)         | Null pointer                   |
-| date                                 | [java.sql.Date](https://docs.oracle.com/javase/8/docs/api/java/sql/Date.html)               | Null pointer                   |
-| time (with or without timezone)      | [java.sql.Time](https://docs.oracle.com/javase/8/docs/api/java/sql/Time.html)               | Null pointer                   |
-| timestamp (with or without timezone) | [java.sql.Timestamp](https://docs.oracle.com/javase/8/docs/api/java/sql/Timestamp.html)     | Null pointer                   |
-| month interval                       | int                                                                                         | System's minimum integer value |
-| second interval                      | long                                                                                        | System's minimum long value    |
-| blob                                 | byte&#91;&#93; &#40;an object&#33;&#41;                                                     | Null pointer                   |
+| MonetDB Type                         | Java Primitive/Class                                                                        | Null Value                                                                                                   |
+| :----------------------------------- | :------------------------------------------------------------------------------------------ | :----------------------------------------------------------------------------------------------------------- |
+| boolean                              | boolean                                                                                     | System's [SCHAR_MIN](http://en.cppreference.com/w/c/types/limits#Limits_of_integer_types) value              |
+| tinyint                              | byte                                                                                        | Same as boolean                                                                                              |
+| smallint                             | short                                                                                       | System's [SHRT_MIN](http://en.cppreference.com/w/c/types/limits#Limits_of_integer_types) value               |
+| integer                              | int                                                                                         | System's [INT_MIN](http://en.cppreference.com/w/c/types/limits#Limits_of_integer_types) value                |
+| bigint                               | long                                                                                        | System's [LLONG_MIN](http://en.cppreference.com/w/c/types/limits#Limits_of_integer_types) value              |
+| real                                 | float                                                                                       | Inverse system's [FLT_MAX](http://en.cppreference.com/w/c/types/limits#Limits_of_floating_point_types) value |
+| double                               | double                                                                                      | Inverse system's [DBL_MAX](http://en.cppreference.com/w/c/types/limits#Limits_of_floating_point_types) value |
+| decimal/numeric                      | [java.math.BigDecimal](https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html) | Null pointer                                                                                                 |
+| char/varchar/clob                    | [java.lang.String](https://docs.oracle.com/javase/8/docs/api/java/lang/String.html)         | Null pointer                                                                                                 |
+| date                                 | [java.sql.Date](https://docs.oracle.com/javase/8/docs/api/java/sql/Date.html)               | Null pointer                                                                                                 |
+| time (with or without timezone)      | [java.sql.Time](https://docs.oracle.com/javase/8/docs/api/java/sql/Time.html)               | Null pointer                                                                                                 |
+| timestamp (with or without timezone) | [java.sql.Timestamp](https://docs.oracle.com/javase/8/docs/api/java/sql/Timestamp.html)     | Null pointer                                                                                                 |
+| month interval                       | int                                                                                         | Same as integer                                                                                              |
+| second interval                      | long                                                                                        | Same as bigint                                                                                               |
+| blob                                 | byte&#91;&#93; &#40;an object&#33;&#41;                                                     | Null pointer                                                                                                 |
 
-Notice that other more rare data types like `geometry`, `json` and `hugeint` are still missing, because they were taken
-off from MonetDBLite to shrink the size of the library.
+Notice that other more rare data types such as `geometry`, `json` and `hugeint` are still missing, because they were
+taken off from MonetDBLite to shrink the size of the library.
 
 ## Just the Embedded API
 
@@ -359,6 +360,9 @@ con.close(); //Don't forget! ;)
 In the original MonetDBLite, some less important features of MonetDB were turned off in order to shrink its size. This
 also means that some features of the MonetDB JDBC driver won't be available in a JDBC Embedded connection at the moment.
 
+* As mentioned before, the authentication scheme is nonexistent in the Embedded connection.
+* [Batch Processing](https://www.tutorialspoint.com/jdbc/jdbc-batch-processing.htm) is not possible in a Embedded
+connection, due to constraints of MonetDBLite.
 * In the JDBC specification a [Fetch Size](https://docs.oracle.com/cd/A87860_01/doc/java.817/a83724/resltse5.htm)
 attribute allows to fetch a result set in blocks. This feature is favorable in a socket connection (MAPI) where the
 client and the server might not be in the same machine, thus fetching the results incrementally in blocks. However in
@@ -367,14 +371,15 @@ Therefore the result set is always retrieved with a single block, making the
 [`void setFetchSize(int rows)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#getFetchSize) and
 [`int getFetchSize()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Statement.html#setFetchSize-int-) methods
 depreciated in a Embedded connection (they do nothing).
-* As mentioned before, some MonetDB data types are not featured in MonetDBLite, so existing queries with those types in
-a MAPI connection can't be ported to the Embedded connection version of it.
-* As mentioned before, the authentication scheme is nonexistent in the Embedded connection.
 * The methods [`void setNetworkTimeout(Executor executor, int millis)`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#setNetworkTimeout-java.util.concurrent.Executor-int-)
 and [`int getNetworkTimeout()`](https://docs.oracle.com/javase/8/docs/api/java/sql/Connection.html#getNetworkTimeout--)
 are insignificant as there is no network involved in the Embedded connection.
-* [Batch Processing](https://www.tutorialspoint.com/jdbc/jdbc-batch-processing.htm) is not possible in a Embedded
-connection, due to constraints of MonetDBLite.
+* As mentioned before, some MonetDB data types are not featured in MonetDBLite, so existing queries with those types in
+a MAPI connection can't be ported to the Embedded connection version of it.
+* In the JDBC specification [BLOBs](https://docs.oracle.com/javase/8/docs/api/java/sql/Blob.html) and
+[CLOBs](https://docs.oracle.com/javase/8/docs/api/java/sql/Clob.html) have wrapper interfaces for incremental
+processing. In a MAPI connection, the MonetBlob and MonetClob classes provide this implementation, however in the
+Embedded connection, these wrappers are not used, so only Strings and byte[] are used in favor for more performance.
 
 ## FAQs
 
@@ -418,14 +423,14 @@ method to handle the exceptions.
 
 ### 4. Floating-point values are not being correctly parsed on SQL queries.
 
-I found out on Linux Debian distributions, that the locales setting may not be set properly. Just set them to
-`en_US.utf8` and you will be fine,
-[click here for details](https://askubuntu.com/questions/193251/how-to-set-all-locale-settings-in-ubuntu).
+I found out on Linux Debian distributions, that the locales setting may not be set properly :( Just set them to
+`en_US.utf8` and you will be fine.
+[Click here for details](https://askubuntu.com/questions/193251/how-to-set-all-locale-settings-in-ubuntu).
 
 ### 5. I am getting very low negative numbers and/or NullPointer exceptions in the QueryResultSet!
 
 You are getting SQL `NULL` values in your query result sets. As explained above, for the primitive MonetDB SQL types we
-map them to the JVM minimum values. For the more complex MonetDB SQL types like `CHAR` and `DATE` we map to Java
+map them to the JVM minimum values. For the more complex MonetDB SQL types such as `CHAR` and `DATE` we map to Java
 Objects, and thus in SQL `NULL` values are represented with null Java Objects. The `NullMappings` class contains static
 methods to check if a value is null or not. At the same time, the SQL standard has the
 [COALESCE](https://www.w3schools.com/sql/sql_isnull.asp) function to return a default value when a value is null in the
@@ -477,8 +482,8 @@ boolean isEmbedded = (embeddedString != null && embeddedString.equals("true"));
 
 ### 9. I don't like Java that much, can I use this for another programming languages for the JVM?
 
-Yes you can! You can easily import Java libraries for other JVM programming languages like Scala. The following example
-creates a JDBC Embedded connection in Scala:
+Yes you can! You can easily import Java libraries for other JVM programming languages such as Scala. The following
+example creates a JDBC Embedded connection in Scala:
 
 ```scala
 var connection:Connection = null
@@ -512,7 +517,7 @@ remember that the best setting may vary with the underlying JVM, and MonetDBJava
 application. One possible optimization is to run the JVM in `server` mode instead of `client` mode, although it should
 be benchmarked as it might not provide better performance results in some applications. You can check the Stack Overflow
 question [here](https://stackoverflow.com/questions/198577/real-differences-between-java-server-and-java-client).
-Don't forget to check the options to JVM like the garbage collection algorithm and the size of the heap 
+Don't forget to check the options to JVM such as the garbage collection algorithm and the size of the heap 
 [here](https://docs.oracle.com/cd/E13222_01/wls/docs81/perform/JVMTuning.html).
 
 ## License
