@@ -70,7 +70,7 @@ public final class JDBCEmbeddedConnection extends MonetDBEmbeddedConnection {
     public void close() {
         if(!this.isConnectionClosed()) {
             this.closeConnectionImplementation();
-            MonetDBEmbeddedDatabase.RemoveConnection(this, true);
+            MonetDBEmbeddedDatabase.removeConnection(this, true);
         }
     }
 

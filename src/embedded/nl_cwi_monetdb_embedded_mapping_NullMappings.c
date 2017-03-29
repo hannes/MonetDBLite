@@ -10,49 +10,49 @@
 
 #include "converters.h"
 
-JNIEXPORT jbyte JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetBooleanNullConstant
+JNIEXPORT jbyte JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getBooleanNullConstant
         (JNIEnv *env, jclass jClass) {
     (void) env;
     (void) jClass;
     return (jbyte) bit_nil;
 }
 
-JNIEXPORT jbyte JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetByteNullConstant
+JNIEXPORT jbyte JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getByteNullConstant
         (JNIEnv *env, jclass jClass) {
     (void) env;
     (void) jClass;
     return (jbyte) bte_nil;
 }
 
-JNIEXPORT jshort JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetShortNullConstant
+JNIEXPORT jshort JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getShortNullConstant
         (JNIEnv *env, jclass jClass) {
     (void) env;
     (void) jClass;
     return (jshort) sht_nil;
 }
 
-JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetIntNullConstant
+JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getIntNullConstant
         (JNIEnv *env, jclass jClass) {
     (void) env;
     (void) jClass;
     return (jint) int_nil;
 }
 
-JNIEXPORT jlong JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetLongNullConstant
+JNIEXPORT jlong JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getLongNullConstant
         (JNIEnv *env, jclass jClass) {
     (void) env;
     (void) jClass;
     return (jlong) lng_nil;
 }
 
-JNIEXPORT jfloat JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetFloatNullConstant
+JNIEXPORT jfloat JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getFloatNullConstant
         (JNIEnv *env, jclass jClass) {
     (void) env;
     (void) jClass;
     return (jfloat) flt_nil;
 }
 
-JNIEXPORT jdouble JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetDoubleNullConstant
+JNIEXPORT jdouble JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getDoubleNullConstant
         (JNIEnv *env, jclass jClass) {
     (void) env;
     (void) jClass;

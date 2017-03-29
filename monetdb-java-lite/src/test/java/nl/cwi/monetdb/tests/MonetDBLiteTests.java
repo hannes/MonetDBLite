@@ -23,13 +23,13 @@ public class MonetDBLiteTests extends MonetDBJavaLiteTesting {
     void databaseEnv() throws MonetDBEmbeddedException {
         //Cannot have two MonetDBEmbeddedDatabase instances
         try {
-            MonetDBEmbeddedDatabase.StartDatabase("/", true, false);
+            MonetDBEmbeddedDatabase.startDatabase("/", true, false);
             Assertions.fail("The MonetDBEmbeddedException should be thrown!");
         } catch (MonetDBEmbeddedException ignored) {
             //I was getting unexpected results with this inside of a Assertions.assertThrows, so I made this...
         }
 
-        MonetDBEmbeddedConnection con1 = MonetDBEmbeddedDatabase.CreateConnection();
+        MonetDBEmbeddedConnection con1 = MonetDBEmbeddedDatabase.createConnection();
 
         QueryResultSet rs = con1.sendQuery("SELECT 1;");
         //A query result set cannot do any further statements after is closed
@@ -52,7 +52,7 @@ public class MonetDBLiteTests extends MonetDBJavaLiteTesting {
         for (int i = 0; i < stress; i++) {
             Thread t = new Thread(() -> {
                 try {
-                    MonetDBEmbeddedConnection con = MonetDBEmbeddedDatabase.CreateConnection();
+                    MonetDBEmbeddedConnection con = MonetDBEmbeddedDatabase.createConnection();
                     QueryResultSet rs = con.sendQuery("SELECT * from tables;");
                     rs.close();
                     con.close();
@@ -72,7 +72,7 @@ public class MonetDBLiteTests extends MonetDBJavaLiteTesting {
     @Test
     @DisplayName("Empty result sets")
     void stringsWithExoticCharacters() throws MonetDBEmbeddedException {
-        MonetDBEmbeddedConnection con1 = MonetDBEmbeddedDatabase.CreateConnection();
+        MonetDBEmbeddedConnection con1 = MonetDBEmbeddedDatabase.createConnection();
         QueryResultSet rs = con1.sendQuery("SELECT * from types WHERE 1=0;");
         Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> rs.getIntegerByColumnIndexAndRow(1, 1));
         rs.close();
@@ -82,7 +82,7 @@ public class MonetDBLiteTests extends MonetDBJavaLiteTesting {
     @Test
     @DisplayName("SELECT NULL")
     void selectNull() throws MonetDBEmbeddedException {
-        MonetDBEmbeddedConnection con1 = MonetDBEmbeddedDatabase.CreateConnection();
+        MonetDBEmbeddedConnection con1 = MonetDBEmbeddedDatabase.createConnection();
         QueryResultSet rs = con1.sendQuery("SELECT NULL AS stresser;");
         rs.close();
         con1.close();

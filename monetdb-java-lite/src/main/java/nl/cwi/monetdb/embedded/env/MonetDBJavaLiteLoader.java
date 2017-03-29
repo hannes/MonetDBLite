@@ -32,7 +32,7 @@ public final class MonetDBJavaLiteLoader {
      */
     public enum OSLibraries {
         /* Please don't change the order!!! */
-        Windows("/libs/windows", "libmonetdb5.dll"), MacOS("/libs/macos", "libmonetdb5.jnilib"),
+        Windows("/libs/windows", "libmonetdb5.dll"), MacOSX("/libs/macosx", "libmonetdb5.jnilib"),
         Linux("/libs/linux", "libmonetdb5.so");
 
         OSLibraries(String libraryFilePath, String libraryFileName) {
@@ -73,20 +73,20 @@ public final class MonetDBJavaLiteLoader {
     /**
      * The current loaded library's path.
      */
-    private static String LoadedLibraryFullPath = null;
+    private static String loadedLibraryFullPath = null;
 
     /**
      * The temporary directory to load the embedded library.
      */
-    private static final String TempDirectory = new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
+    private static final String tempDirectory = new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
 
     /**
      * The String representation of the latest version of the MonetDB JDBC driver.
      */
-    private static final String MonetDBJDBCDriverString;
+    private static final String monetDBJDBCDriverString;
 
     static {
-        MonetDBJDBCDriverString = MonetDriver.getDriverMajorVersion() + "-" + MonetDriver.getDriverMinorVersion();
+        monetDBJDBCDriverString = MonetDriver.getDriverMajorVersion() + "-" + MonetDriver.getDriverMinorVersion();
     }
 
     /**
@@ -94,8 +94,8 @@ public final class MonetDBJavaLiteLoader {
      *
      * @return A boolean indicating if the MonetDBJavaLite native library was loaded or not
      */
-    public static synchronized boolean IsLoaded() {
-        return LoadedLibraryFullPath != null;
+    public static synchronized boolean isNativeLibraryLoaded() {
+        return loadedLibraryFullPath != null;
     }
 
     /**
@@ -104,7 +104,7 @@ public final class MonetDBJavaLiteLoader {
      * @return The library path and file indication
      * @throws MonetDBEmbeddedException If the running operative system could not be detected
      */
-    private static OSLibraries DetectRunningOperatingSystemAndLoadLibrary() throws MonetDBEmbeddedException {
+    private static OSLibraries detectRunningOperatingSystemAndLoadLibrary() throws MonetDBEmbeddedException {
         String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
 
         //Check the CPU architecture
@@ -122,7 +122,7 @@ public final class MonetDBJavaLiteLoader {
         //Check the running OS
         //http://stackoverflow.com/questions/228477/how-do-i-programmatically-determine-operating-system-in-java#answer-18417382
         if ((OS.contains("mac")) || (OS.contains("darwin"))) {
-            return OSLibraries.MacOS;
+            return OSLibraries.MacOSX;
         } else if (OS.contains("win")) {
             return OSLibraries.Windows;
         } else if (OS.contains("nux")) {
@@ -140,7 +140,7 @@ public final class MonetDBJavaLiteLoader {
      * @return The file's SHA-256 digest
      * @throws MonetDBEmbeddedException If the SHA-256 algorithm fails to load
      */
-    private static byte[] MakeSHA256Digest(InputStream input) throws MonetDBEmbeddedException {
+    private static byte[] makeSHA256Digest(InputStream input) throws MonetDBEmbeddedException {
         try {
             byte[] buffer = new byte[8192];
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -160,7 +160,7 @@ public final class MonetDBJavaLiteLoader {
      * @param libraryFileName The library's name
      * @return The loaded library full path or null if failed
      */
-    private static String LoadNativeLibrary(String libraryFilePath, String libraryFileName) {
+    private static String loadNativeLibrary(String libraryFilePath, String libraryFileName) {
         File libPath = new File(libraryFilePath, libraryFileName);
         if (libPath.exists()) { //load the file
             System.load(new File(libraryFilePath, libraryFileName).getAbsolutePath());
@@ -180,19 +180,19 @@ public final class MonetDBJavaLiteLoader {
      * @return The loaded library full path or null if failed
      * @throws MonetDBEmbeddedException If an IO error occurred
      */
-    private static String LoadLibraryIntoDirectory(String libraryFilePath, String prefix, String libraryFileName,
-                                                    String destinationDirectory) throws MonetDBEmbeddedException {
+    private static String loadLibraryIntoDirectory(String libraryFilePath, String prefix, String libraryFileName,
+                                                   String destinationDirectory) throws MonetDBEmbeddedException {
         try {
             String nativeLibraryFilePath = libraryFilePath + "/" + libraryFileName;
             String extractedLibFileName = prefix + libraryFileName;
             File extractedLibFile = new File(destinationDirectory, extractedLibFileName);
 
             if (extractedLibFile.exists()) { //if the file exists check if it needs to be updated
-                byte[] digest1 = MakeSHA256Digest(MonetDBJavaLiteLoader.class.getResourceAsStream(nativeLibraryFilePath));
-                byte[] digest2 = MakeSHA256Digest(new FileInputStream(extractedLibFile));
+                byte[] digest1 = makeSHA256Digest(MonetDBJavaLiteLoader.class.getResourceAsStream(nativeLibraryFilePath));
+                byte[] digest2 = makeSHA256Digest(new FileInputStream(extractedLibFile));
 
                 if (Arrays.equals(digest1, digest2)) {
-                    return LoadNativeLibrary(destinationDirectory, extractedLibFileName);
+                    return loadNativeLibrary(destinationDirectory, extractedLibFileName);
                 } else {
                     if (!extractedLibFile.delete()) { // delete the old file
                         throw new IOException("failed to remove existing native library file: "
@@ -211,7 +211,7 @@ public final class MonetDBJavaLiteLoader {
             }
             writer.close();
             reader.close();
-            return LoadNativeLibrary(destinationDirectory, extractedLibFileName);
+            return loadNativeLibrary(destinationDirectory, extractedLibFileName);
         } catch (IOException ex) {
             throw new MonetDBEmbeddedException(ex);
         }
@@ -222,27 +222,28 @@ public final class MonetDBJavaLiteLoader {
      *
      * @throws MonetDBEmbeddedException If an IO error occurred
      */
-    static synchronized void LoadMonetDBJavaLite() throws MonetDBEmbeddedException {
-        if (LoadedLibraryFullPath != null) {
+    static synchronized void loadMonetDBJavaLite() throws MonetDBEmbeddedException {
+        if (loadedLibraryFullPath != null) {
             return;
         }
 
-        OSLibraries toLoad = DetectRunningOperatingSystemAndLoadLibrary();
+        OSLibraries toLoad = detectRunningOperatingSystemAndLoadLibrary();
         String nativeLibraryPath = toLoad.getLibraryFilePath();
         String nativeLibraryName = toLoad.getLibraryFileName();
 
         if (MonetDBJavaLiteLoader.class.getResource(nativeLibraryPath + "/" + nativeLibraryName) == null) {
-            LoadedLibraryFullPath = null;
+            loadedLibraryFullPath = null;
             throw new MonetDBEmbeddedException("Error while loading library: " + nativeLibraryPath + "/" +
                     nativeLibraryName);
         }
 
-        int OSORdinal = toLoad.ordinal();
+        int ordinalOSEnumValue = toLoad.ordinal();
         // Extract the libraries from the jar
-        if(OSORdinal == 0) { //Windows dammit!!
-            LoadLibraryIntoDirectory(nativeLibraryPath, "", "msvcr100.dll", TempDirectory);
+        if(ordinalOSEnumValue == 0) { //On Windows we have to extract the Visual C/C++ Runtime library dependency
+            //Check https://msdn.microsoft.com/en-us/library/ms235299.aspx for details
+            loadLibraryIntoDirectory(nativeLibraryPath, "", "msvcr100.dll", tempDirectory);
         }
-        String prefix = "MonetDBJavaLite-" + MonetDBJDBCDriverString + "-"; //the prefix will be this
-        LoadedLibraryFullPath = LoadLibraryIntoDirectory(nativeLibraryPath, prefix, nativeLibraryName, TempDirectory);
+        String prefix = "MonetDBJavaLite-" + monetDBJDBCDriverString + "-";
+        loadedLibraryFullPath = loadLibraryIntoDirectory(nativeLibraryPath, prefix, nativeLibraryName, tempDirectory);
     }
 }

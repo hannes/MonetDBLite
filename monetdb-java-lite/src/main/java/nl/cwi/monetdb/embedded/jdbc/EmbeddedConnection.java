@@ -73,7 +73,7 @@ public final class EmbeddedConnection extends MonetConnection {
     @Override
     public List<String> connect(String user, String pass) throws IOException, ProtocolException, MCLException {
         try {
-            this.protocol = new EmbeddedProtocol(MonetDBEmbeddedDatabase.CreateJDBCEmbeddedConnection(this.directory));
+            this.protocol = new EmbeddedProtocol(MonetDBEmbeddedDatabase.createJDBCEmbeddedConnection(this.directory));
         } catch (MonetDBEmbeddedException ex) {
             throw new MCLException(ex);
         }

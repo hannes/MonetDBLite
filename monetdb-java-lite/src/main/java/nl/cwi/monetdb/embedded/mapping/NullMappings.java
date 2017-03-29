@@ -10,18 +10,18 @@ public final class NullMappings {
     private NullMappings() {}
 
     /**
-     * Gets MonetDB's boolean null constant
+     * Gets MonetDB's boolean null constant.
      *
      * @return MonetDB's boolean null constant
      */
-    public static native byte GetBooleanNullConstant();
+    public static native byte getBooleanNullConstant();
 
     /**
-     * Gets MonetDB's byte null constant
+     * Gets MonetDB's byte null constant.
      *
      * @return MonetDB's byte null constant
      */
-    public static native byte GetByteNullConstant();
+    public static native byte getByteNullConstant();
 
     /**
      * Tests if a byte is a null value.
@@ -29,14 +29,14 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckByteIsNull(byte value) { return value == GetByteNullConstant(); }
+    public static boolean checkByteIsNull(byte value) { return value == getByteNullConstant(); }
 
     /**
-     * Gets MonetDB's short null constant
+     * Gets MonetDB's short null constant.
      *
      * @return MonetDB's short null constant
      */
-    public static native short GetShortNullConstant();
+    public static native short getShortNullConstant();
 
     /**
      * Tests if a short is a null value.
@@ -44,14 +44,14 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckShortIsNull(short value) { return value == GetShortNullConstant(); }
+    public static boolean checkShortIsNull(short value) { return value == getShortNullConstant(); }
 
     /**
-     * Gets MonetDB's int null constant
+     * Gets MonetDB's int null constant.
      *
      * @return MonetDB's int null constant
      */
-    public static native int GetIntNullConstant();
+    public static native int getIntNullConstant();
 
     /**
      * Tests if an integer is a null value.
@@ -59,14 +59,14 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckIntIsNull(int value) { return value == GetIntNullConstant(); }
+    public static boolean checkIntIsNull(int value) { return value == getIntNullConstant(); }
 
     /**
-     * Gets MonetDB's long null constant
+     * Gets MonetDB's long null constant.
      *
      * @return MonetDB's long null constant
      */
-    public static native long GetLongNullConstant();
+    public static native long getLongNullConstant();
 
     /**
      * Tests if a long is a null value.
@@ -74,14 +74,14 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckLongIsNull(long value) { return value == GetLongNullConstant(); }
+    public static boolean checkLongIsNull(long value) { return value == getLongNullConstant(); }
 
     /**
-     * Gets MonetDB's float null constant
+     * Gets MonetDB's float null constant.
      *
      * @return MonetDB's float null constant
      */
-    public static native float GetFloatNullConstant();
+    public static native float getFloatNullConstant();
 
     /**
      * Tests if a float is a null value.
@@ -89,14 +89,14 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckFloatIsNull(float value) { return value == GetFloatNullConstant(); }
+    public static boolean checkFloatIsNull(float value) { return value == getFloatNullConstant(); }
 
     /**
-     * Gets MonetDB's double null constant
+     * Gets MonetDB's double null constant.
      *
      * @return MonetDB's double null constant
      */
-    public static native double GetDoubleNullConstant();
+    public static native double getDoubleNullConstant();
 
     /**
      * Tests if a double is a null value.
@@ -104,7 +104,7 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static boolean CheckDoubleIsNull(double value) { return value == GetDoubleNullConstant(); }
+    public static boolean checkDoubleIsNull(double value) { return value == getDoubleNullConstant(); }
 
     /**
      * A null pointer returning method.
@@ -112,7 +112,7 @@ public final class NullMappings {
      * @param <T> The Java class of the mapped MonetDB column
      * @return A null pointer
      */
-    public static <T> T GetObjectNullConstant() { return null; }
+    public static <T> T getObjectNullConstant() { return null; }
 
     /**
      * Tests if an object is a null value.
@@ -121,5 +121,5 @@ public final class NullMappings {
      * @param value The value to test
      * @return A boolean indicating if the value is null
      */
-    public static <T> boolean CheckObjectIsNull(T value) { return value == null; }
+    public static <T> boolean checkObjectIsNull(T value) { return value == null; }
 }

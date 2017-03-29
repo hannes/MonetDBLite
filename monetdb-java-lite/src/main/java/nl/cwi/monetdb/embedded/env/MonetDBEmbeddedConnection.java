@@ -36,7 +36,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
 
 	protected MonetDBEmbeddedConnection(long connectionPointer) {
 	    this.connectionPointer = connectionPointer;
-        this.randomIdentifier = Randomizer.GenerateNextLong();
+        this.randomIdentifier = Randomizer.generateNextLong();
 	}
 
     /**
@@ -81,7 +81,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
      */
     public void setCurrentSchema(String newSchema) throws MonetDBEmbeddedException {
         this.checkConnectionIsNotClosed();
-        newSchema = StringEscaper.SQLStringEscape(newSchema);
+        newSchema = StringEscaper.sqlStringEscape(newSchema);
         this.sendUpdate("SET SCHEMA " + newSchema + ";");
     }
 
@@ -203,8 +203,8 @@ public class MonetDBEmbeddedConnection implements Closeable {
      */
     public boolean checkIfTableExists(String schemaName, String tableName) throws MonetDBEmbeddedException {
         this.checkConnectionIsNotClosed();
-        schemaName = StringEscaper.SQLStringEscape(schemaName);
-        tableName = StringEscaper.SQLStringEscape(tableName);
+        schemaName = StringEscaper.sqlStringEscape(schemaName);
+        tableName = StringEscaper.sqlStringEscape(tableName);
         String query =
                 "select schemas.name as sn, tables.name as tn from sys.tables join sys.schemas on sys.tables.schema_id=schemas.id where tables.system=true order by sn, tn and schemas.name ='" +
                         schemaName + "' and tables.name ='" + tableName + "';";
@@ -222,8 +222,8 @@ public class MonetDBEmbeddedConnection implements Closeable {
      */
     public void removeTable(String schemaName, String tableName) throws MonetDBEmbeddedException {
         this.checkConnectionIsNotClosed();
-        schemaName = StringEscaper.SQLStringEscape(schemaName);
-        tableName = StringEscaper.SQLStringEscape(tableName);
+        schemaName = StringEscaper.sqlStringEscape(schemaName);
+        tableName = StringEscaper.sqlStringEscape(tableName);
         String query = "drop table " + schemaName + "." + tableName + ";";
         this.sendUpdate(query);
     }
@@ -249,7 +249,7 @@ public class MonetDBEmbeddedConnection implements Closeable {
     public void close() {
         if(!this.isConnectionClosed()) {
             this.closeConnectionImplementation();
-            MonetDBEmbeddedDatabase.RemoveConnection(this, false);
+            MonetDBEmbeddedDatabase.removeConnection(this, false);
         }
     }
 

@@ -38,8 +38,8 @@ case "$1" in
         CC=x86_64-w64-mingw32-gcc
         ;;
 
-    macos)
-        BUILDSYS=macos
+    macosx)
+        BUILDSYS=macosx
         BUILDLIBRARY=libmonetdb5.jnilib
         CC=o64-gcc
         ;;
@@ -69,7 +69,7 @@ case "$1" in
         fi
         ;;
 
-    macos)
+    macosx)
         OPTFLAG="--enable-optimize"
         LINKFLAG=""
         if [ ! -z $MONETDBLITE_DEBUG ] ; then
@@ -77,7 +77,7 @@ case "$1" in
 	        OPTFLAG="--enable-debug --enable-assert --enable-strict"
 	        LINKFLAG="-g"
         fi
-        CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -std=c99 -fPIC -DPIC -D_XPG6 -I$SOURCEDIR/embedded/incmacos" \
+        CFLAGS="$CPPFLAGS $CFLAGS $CPICFLAGS -std=c99 -fPIC -DPIC -D_XPG6 -I$SOURCEDIR/embedded/incmacosx" \
         $SOURCEDIR/configure --config-cache --enable-embedded --host=x86_64-apple-darwin13 \
         $OPTFLAG --enable-silent-rules --disable-int128
         ;;

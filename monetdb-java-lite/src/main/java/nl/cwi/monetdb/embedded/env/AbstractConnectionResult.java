@@ -29,7 +29,7 @@ public abstract class AbstractConnectionResult implements Closeable {
 
     protected AbstractConnectionResult(MonetDBEmbeddedConnection connection) {
         this.connection = connection;
-        this.randomIdentifier = Randomizer.GenerateNextLong();
+        this.randomIdentifier = Randomizer.generateNextLong();
     }
 
     /**

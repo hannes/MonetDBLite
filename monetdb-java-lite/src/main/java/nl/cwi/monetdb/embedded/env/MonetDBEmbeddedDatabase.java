@@ -25,22 +25,22 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public final class MonetDBEmbeddedDatabase {
 
     /** The MonetDBEmbeddedDatabase instance as only one database is allowed per JVM process. */
-    private static MonetDBEmbeddedDatabase MonetDBEmbeddedDatabase = null;
+    private static MonetDBEmbeddedDatabase monetDBEmbeddedDatabase = null;
 
     private static volatile boolean isClosed = true;
 
     /**  A ReadWriteLock to avoid racing conditions. */
-    private static final ReentrantReadWriteLock Locker = new ReentrantReadWriteLock();
+    private static final ReentrantReadWriteLock locker = new ReentrantReadWriteLock();
 
     /**
      * Check if the database is still running or not.
      *
      * @return A boolean indicating if the database is running
      */
-    public static boolean IsDatabaseRunning() {
-        Locker.readLock().lock();
+    public static boolean isDatabaseRunning() {
+        locker.readLock().lock();
         boolean res = !isClosed;
-        Locker.readLock().unlock();
+        locker.readLock().unlock();
         return res;
     }
 
@@ -52,20 +52,20 @@ public final class MonetDBEmbeddedDatabase {
      * @param sequentialFlag A boolean indicating if the sequential pipeline will be set or not
      * @throws MonetDBEmbeddedException If the JNI library has not been loaded yet or an error in the database occurred
      */
-    public static void StartDatabase(String dbDirectory, boolean silentFlag, boolean sequentialFlag)
+    public static void startDatabase(String dbDirectory, boolean silentFlag, boolean sequentialFlag)
             throws MonetDBEmbeddedException {
-        Locker.writeLock().lock();
+        locker.writeLock().lock();
         try {
-            if(MonetDBEmbeddedDatabase != null) {
+            if(monetDBEmbeddedDatabase != null) {
                 throw new MonetDBEmbeddedException("The MonetDB Embedded database is still running!");
             } else {
-                MonetDBJavaLiteLoader.LoadMonetDBJavaLite();
-                MonetDBEmbeddedDatabase = StartDatabaseInternal(dbDirectory, silentFlag, sequentialFlag);
+                MonetDBJavaLiteLoader.loadMonetDBJavaLite();
+                monetDBEmbeddedDatabase = startDatabaseInternal(dbDirectory, silentFlag, sequentialFlag);
                 isClosed = false;
             }
-            Locker.writeLock().unlock();
+            locker.writeLock().unlock();
         } catch (Exception ex) {
-            Locker.writeLock().unlock();
+            locker.writeLock().unlock();
             throw ex;
         }
     }
@@ -76,17 +76,17 @@ public final class MonetDBEmbeddedDatabase {
      * @throws MonetDBEmbeddedException If the database is not running
      * @return A String representing the database's farm directory
      */
-    public static String GetDatabaseDirectory() throws MonetDBEmbeddedException {
-        Locker.readLock().lock();
+    public static String getDatabaseDirectory() throws MonetDBEmbeddedException {
+        locker.readLock().lock();
         try {
-            if(MonetDBEmbeddedDatabase == null) {
+            if(monetDBEmbeddedDatabase == null) {
                 throw new MonetDBEmbeddedException("The MonetDB Embedded database is not running!");
             }
-            String res = MonetDBEmbeddedDatabase.databaseDirectory;
-            Locker.readLock().unlock();
+            String res = monetDBEmbeddedDatabase.databaseDirectory;
+            locker.readLock().unlock();
             return res;
         } catch (Exception ex) {
-            Locker.readLock().unlock();
+            locker.readLock().unlock();
             throw ex;
         }
     }
@@ -97,17 +97,17 @@ public final class MonetDBEmbeddedDatabase {
      * @throws MonetDBEmbeddedException If the database is not running
      * @return The total number of connections to the database
      */
-    public static int GetNumberOfConnections() throws MonetDBEmbeddedException {
-        Locker.readLock().lock();
+    public static int getNumberOfConnections() throws MonetDBEmbeddedException {
+        locker.readLock().lock();
         try {
-            if(MonetDBEmbeddedDatabase == null) {
+            if(monetDBEmbeddedDatabase == null) {
                 throw new MonetDBEmbeddedException("The MonetDB Embedded database is not running!");
             }
-            int res = MonetDBEmbeddedDatabase.connections.size();
-            Locker.readLock().unlock();
+            int res = monetDBEmbeddedDatabase.connections.size();
+            locker.readLock().unlock();
             return res;
         } catch (Exception ex) {
-            Locker.readLock().unlock();
+            locker.readLock().unlock();
             throw ex;
         }
     }
@@ -118,17 +118,17 @@ public final class MonetDBEmbeddedDatabase {
      * @throws MonetDBEmbeddedException If the database is not running
      * @return The Silent Flag
      */
-    public static boolean IsSilentFlagSet() throws MonetDBEmbeddedException {
-        Locker.readLock().lock();
+    public static boolean isSilentFlagSet() throws MonetDBEmbeddedException {
+        locker.readLock().lock();
         try {
-            if(MonetDBEmbeddedDatabase == null) {
+            if(monetDBEmbeddedDatabase == null) {
                 throw new MonetDBEmbeddedException("The MonetDB Embedded database is not running!");
             }
-            boolean res = MonetDBEmbeddedDatabase.silentFlag;
-            Locker.readLock().unlock();
+            boolean res = monetDBEmbeddedDatabase.silentFlag;
+            locker.readLock().unlock();
             return res;
         } catch (Exception ex) {
-            Locker.readLock().unlock();
+            locker.readLock().unlock();
             throw ex;
         }
     }
@@ -139,17 +139,17 @@ public final class MonetDBEmbeddedDatabase {
      * @throws MonetDBEmbeddedException If the database is not running
      * @return The Sequential Flag
      */
-    public static boolean IsSequentialFlagSet() throws MonetDBEmbeddedException {
-        Locker.readLock().lock();
+    public static boolean isSequentialFlagSet() throws MonetDBEmbeddedException {
+        locker.readLock().lock();
         try {
-            if(MonetDBEmbeddedDatabase == null) {
+            if(monetDBEmbeddedDatabase == null) {
                 throw new MonetDBEmbeddedException("The MonetDB Embedded database is not running!");
             }
-            boolean res = MonetDBEmbeddedDatabase.sequentialFlag;
-            Locker.readLock().unlock();
+            boolean res = monetDBEmbeddedDatabase.sequentialFlag;
+            locker.readLock().unlock();
             return res;
         } catch (Exception ex) {
-            Locker.readLock().unlock();
+            locker.readLock().unlock();
             throw ex;
         }
     }
@@ -159,25 +159,25 @@ public final class MonetDBEmbeddedDatabase {
      *
      * @throws MonetDBEmbeddedException If the database is not running or an error in the database occurred
      */
-    public static void StopDatabase() throws MonetDBEmbeddedException {
-        Locker.writeLock().lock();
+    public static void stopDatabase() throws MonetDBEmbeddedException {
+        locker.writeLock().lock();
         try {
-            if(MonetDBEmbeddedDatabase == null) {
+            if(monetDBEmbeddedDatabase == null) {
                 throw new MonetDBEmbeddedException("The MonetDB Embedded database is not running!");
             } else {
-                for(MonetDBEmbeddedConnection mdbec : MonetDBEmbeddedDatabase.connections.values()) {
+                for(MonetDBEmbeddedConnection mdbec : monetDBEmbeddedDatabase.connections.values()) {
                     if(!mdbec.isConnectionClosed()) {
                         mdbec.closeConnectionImplementation();
                     }
                 }
-                MonetDBEmbeddedDatabase.connections.clear();
-                MonetDBEmbeddedDatabase.stopDatabaseInternal();
-                MonetDBEmbeddedDatabase = null;
+                monetDBEmbeddedDatabase.connections.clear();
+                monetDBEmbeddedDatabase.stopDatabaseInternal();
+                monetDBEmbeddedDatabase = null;
                 isClosed = true;
             }
-            Locker.writeLock().unlock();
+            locker.writeLock().unlock();
         } catch (Exception ex) {
-            Locker.writeLock().unlock();
+            locker.writeLock().unlock();
             throw ex;
         }
     }
@@ -188,19 +188,19 @@ public final class MonetDBEmbeddedDatabase {
      * @return A MonetDBEmbeddedConnection instance
      * @throws MonetDBEmbeddedException If the database is not running or an error in the database occurred
      */
-    public static MonetDBEmbeddedConnection CreateConnection() throws MonetDBEmbeddedException {
-        Locker.writeLock().lock();
+    public static MonetDBEmbeddedConnection createConnection() throws MonetDBEmbeddedException {
+        locker.writeLock().lock();
         try {
-            if(MonetDBEmbeddedDatabase == null) {
+            if(monetDBEmbeddedDatabase == null) {
                 throw new MonetDBEmbeddedException("The MonetDB Embedded database is not running!");
             } else {
-                MonetDBEmbeddedConnection con = MonetDBEmbeddedDatabase.createConnectionInternal();
-                MonetDBEmbeddedDatabase.connections.put(con.getRandomIdentifier(), con);
-                Locker.writeLock().unlock();
+                MonetDBEmbeddedConnection con = monetDBEmbeddedDatabase.createConnectionInternal();
+                monetDBEmbeddedDatabase.connections.put(con.getRandomIdentifier(), con);
+                locker.writeLock().unlock();
                 return con;
             }
         } catch (Exception ex) {
-            Locker.writeLock().unlock();
+            locker.writeLock().unlock();
             throw ex;
         }
     }
@@ -212,22 +212,22 @@ public final class MonetDBEmbeddedDatabase {
      * @return A JDBCEmbeddedConnection instance
      * @throws MonetDBEmbeddedException If the database is not running or an error in the database occurred
      */
-    public static JDBCEmbeddedConnection CreateJDBCEmbeddedConnection(String directory) throws MonetDBEmbeddedException {
-        Locker.writeLock().lock();
+    public static JDBCEmbeddedConnection createJDBCEmbeddedConnection(String directory) throws MonetDBEmbeddedException {
+        locker.writeLock().lock();
         try {
-            if(MonetDBEmbeddedDatabase != null && !MonetDBEmbeddedDatabase.databaseDirectory.equals(directory)) {
+            if(monetDBEmbeddedDatabase != null && !monetDBEmbeddedDatabase.databaseDirectory.equals(directory)) {
                 throw new MonetDBEmbeddedException("The embedded database is already running in a different directory!");
             }
-            if(MonetDBEmbeddedDatabase == null) {
-                MonetDBJavaLiteLoader.LoadMonetDBJavaLite();
-                MonetDBEmbeddedDatabase = StartDatabaseInternal(directory, true, false);
+            if(monetDBEmbeddedDatabase == null) {
+                MonetDBJavaLiteLoader.loadMonetDBJavaLite();
+                monetDBEmbeddedDatabase = startDatabaseInternal(directory, true, false);
             }
-            JDBCEmbeddedConnection con = MonetDBEmbeddedDatabase.createJDBCEmbeddedConnectionInternal();
-            MonetDBEmbeddedDatabase.connections.put(con.getRandomIdentifier(), con);
-            Locker.writeLock().unlock();
+            JDBCEmbeddedConnection con = monetDBEmbeddedDatabase.createJDBCEmbeddedConnectionInternal();
+            monetDBEmbeddedDatabase.connections.put(con.getRandomIdentifier(), con);
+            locker.writeLock().unlock();
             return con;
         } catch (Exception ex) {
-            Locker.writeLock().unlock();
+            locker.writeLock().unlock();
             throw ex;
         }
     }
@@ -239,15 +239,15 @@ public final class MonetDBEmbeddedDatabase {
      * @param toShutDown If true, if there are no more connections in the database after the removal, the database is
      *                   shut down.
      */
-    public static void RemoveConnection(MonetDBEmbeddedConnection con, boolean toShutDown) {
-        Locker.writeLock().lock();
-        MonetDBEmbeddedDatabase.connections.remove(con.getRandomIdentifier());
-        if(toShutDown && MonetDBEmbeddedDatabase.connections.isEmpty()) {
-            MonetDBEmbeddedDatabase.stopDatabaseInternal();
-            MonetDBEmbeddedDatabase = null;
+    public static void removeConnection(MonetDBEmbeddedConnection con, boolean toShutDown) {
+        locker.writeLock().lock();
+        monetDBEmbeddedDatabase.connections.remove(con.getRandomIdentifier());
+        if(toShutDown && monetDBEmbeddedDatabase.connections.isEmpty()) {
+            monetDBEmbeddedDatabase.stopDatabaseInternal();
+            monetDBEmbeddedDatabase = null;
             isClosed = true;
         }
-        Locker.writeLock().unlock();
+        locker.writeLock().unlock();
     }
 
     /** The database's farm directory */
@@ -284,7 +284,7 @@ public final class MonetDBEmbeddedDatabase {
     /**
      * Internal implementation to start a database.
      */
-    private static native MonetDBEmbeddedDatabase StartDatabaseInternal(String dbDirectory, boolean silentFlag,
+    private static native MonetDBEmbeddedDatabase startDatabaseInternal(String dbDirectory, boolean silentFlag,
                                                                         boolean sequentialFlag)
             throws MonetDBEmbeddedException;
 

@@ -30,29 +30,29 @@ public enum MonetDBToJavaMapping {
     /**
      * The mapping between MonetDB data types and enum values.
      */
-    private static final HashMap<String, MonetDBToJavaMapping> MonetDBMappings;
+    private static final HashMap<String, MonetDBToJavaMapping> monetDBMappings;
 
     static {
-        MonetDBMappings = new HashMap<>();
-        MonetDBMappings.put("boolean", Boolean);
-        MonetDBMappings.put("char", Char);
-        MonetDBMappings.put("varchar", Varchar);
-        MonetDBMappings.put("clob", Clob);
-        MonetDBMappings.put("tinyint", Tinyint);
-        MonetDBMappings.put("smallint", Smallint);
-        MonetDBMappings.put("int", Int);
-        MonetDBMappings.put("bigint", Bigint);
-        MonetDBMappings.put("decimal", Decimal);
-        MonetDBMappings.put("real", Real);
-        MonetDBMappings.put("double", Double);
-        MonetDBMappings.put("month_interval", MonthInterval);
-        MonetDBMappings.put("sec_interval", SecondInterval);
-        MonetDBMappings.put("time", Time);
-        MonetDBMappings.put("timetz", TimeTz);
-        MonetDBMappings.put("date", Date);
-        MonetDBMappings.put("timestamp", Timestamp);
-        MonetDBMappings.put("timestamptz", TimestampTz);
-        MonetDBMappings.put("blob", Blob);
+        monetDBMappings = new HashMap<>();
+        monetDBMappings.put("boolean", Boolean);
+        monetDBMappings.put("char", Char);
+        monetDBMappings.put("varchar", Varchar);
+        monetDBMappings.put("clob", Clob);
+        monetDBMappings.put("tinyint", Tinyint);
+        monetDBMappings.put("smallint", Smallint);
+        monetDBMappings.put("int", Int);
+        monetDBMappings.put("bigint", Bigint);
+        monetDBMappings.put("decimal", Decimal);
+        monetDBMappings.put("real", Real);
+        monetDBMappings.put("double", Double);
+        monetDBMappings.put("month_interval", MonthInterval);
+        monetDBMappings.put("sec_interval", SecondInterval);
+        monetDBMappings.put("time", Time);
+        monetDBMappings.put("timetz", TimeTz);
+        monetDBMappings.put("date", Date);
+        monetDBMappings.put("timestamp", Timestamp);
+        monetDBMappings.put("timestamptz", TimestampTz);
+        monetDBMappings.put("blob", Blob);
     }
 
     /**
@@ -61,8 +61,8 @@ public enum MonetDBToJavaMapping {
      * @param sqlName The MonetDB's data type SQL name
      * @return A MonetDBToJavaMapping enum value, or null if it has no mapping
      */
-    public static MonetDBToJavaMapping GetJavaMappingFromMonetDBString(String sqlName) {
-        return MonetDBMappings.get(sqlName);
+    public static MonetDBToJavaMapping getJavaMappingFromMonetDBString(String sqlName) {
+        return monetDBMappings.get(sqlName);
     }
 
     /**

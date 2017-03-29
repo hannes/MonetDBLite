@@ -313,7 +313,7 @@ void initializeIDS(JNIEnv *env) {
     mappingEnumID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
     (*env)->DeleteLocalRef(env, tempLocalRef);
 
-    getEnumValueID = (*env)->GetStaticMethodID(env, mappingEnumID, "GetJavaMappingFromMonetDBString", "(Ljava/lang/String;)Lnl/cwi/monetdb/embedded/mapping/MonetDBToJavaMapping;");
+    getEnumValueID = (*env)->GetStaticMethodID(env, mappingEnumID, "getJavaMappingFromMonetDBString", "(Ljava/lang/String;)Lnl/cwi/monetdb/embedded/mapping/MonetDBToJavaMapping;");
     tableClass = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/tables/MonetDBTable");
     getConnectionID = (*env)->GetFieldID(env, tableClass, "connection", "Lnl/cwi/monetdb/embedded/env/MonetDBEmbeddedConnection;");
     getConnectionLongID = (*env)->GetFieldID(env, monetDBEmbeddedConnectionClassID, "connectionPointer", "J");

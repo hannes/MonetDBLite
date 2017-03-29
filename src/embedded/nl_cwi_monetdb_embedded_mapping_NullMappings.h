@@ -9,58 +9,58 @@ extern "C" {
 #endif
 /*
  * Class:     nl_cwi_monetdb_embedded_mapping_NullMappings
- * Method:    GetBooleanNullConstant
+ * Method:    getBooleanNullConstant
  * Signature: ()B
  */
-JNIEXPORT jbyte JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetBooleanNullConstant
+JNIEXPORT jbyte JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getBooleanNullConstant
   (JNIEnv *, jclass);
 
 /*
  * Class:     nl_cwi_monetdb_embedded_mapping_NullMappings
- * Method:    GetByteNullConstant
+ * Method:    getByteNullConstant
  * Signature: ()B
  */
-JNIEXPORT jbyte JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetByteNullConstant
+JNIEXPORT jbyte JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getByteNullConstant
   (JNIEnv *, jclass);
 
 /*
  * Class:     nl_cwi_monetdb_embedded_mapping_NullMappings
- * Method:    GetShortNullConstant
+ * Method:    getShortNullConstant
  * Signature: ()S
  */
-JNIEXPORT jshort JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetShortNullConstant
+JNIEXPORT jshort JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getShortNullConstant
   (JNIEnv *, jclass);
 
 /*
  * Class:     nl_cwi_monetdb_embedded_mapping_NullMappings
- * Method:    GetIntNullConstant
+ * Method:    getIntNullConstant
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetIntNullConstant
+JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getIntNullConstant
   (JNIEnv *, jclass);
 
 /*
  * Class:     nl_cwi_monetdb_embedded_mapping_NullMappings
- * Method:    GetLongNullConstant
+ * Method:    getLongNullConstant
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetLongNullConstant
+JNIEXPORT jlong JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getLongNullConstant
   (JNIEnv *, jclass);
 
 /*
  * Class:     nl_cwi_monetdb_embedded_mapping_NullMappings
- * Method:    GetFloatNullConstant
+ * Method:    getFloatNullConstant
  * Signature: ()F
  */
-JNIEXPORT jfloat JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetFloatNullConstant
+JNIEXPORT jfloat JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getFloatNullConstant
   (JNIEnv *, jclass);
 
 /*
  * Class:     nl_cwi_monetdb_embedded_mapping_NullMappings
- * Method:    GetDoubleNullConstant
+ * Method:    getDoubleNullConstant
  * Signature: ()D
  */
-JNIEXPORT jdouble JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_GetDoubleNullConstant
+JNIEXPORT jdouble JNICALL Java_nl_cwi_monetdb_embedded_mapping_NullMappings_getDoubleNullConstant
   (JNIEnv *, jclass);
 
 #ifdef __cplusplus

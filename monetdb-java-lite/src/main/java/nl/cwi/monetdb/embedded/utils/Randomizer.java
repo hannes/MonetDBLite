@@ -19,7 +19,7 @@ public final class Randomizer {
      *
      * @return An incrementally generated long value
      */
-    public static long GenerateNextLong() {
+    public static long generateNextLong() {
         return ResultSetCounter.incrementAndGet();
     }
 }

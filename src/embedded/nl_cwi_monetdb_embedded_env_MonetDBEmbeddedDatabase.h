@@ -9,10 +9,10 @@ extern "C" {
 #endif
 /*
  * Class:     nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase
- * Method:    StartDatabaseInternal
+ * Method:    startDatabaseInternal
  * Signature: (Ljava/lang/String;ZZ)Lnl/cwi/monetdb/embedded/env/MonetDBEmbeddedDatabase;
  */
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_StartDatabaseInternal
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_startDatabaseInternal
   (JNIEnv *, jclass, jstring, jboolean, jboolean);
 
 /*

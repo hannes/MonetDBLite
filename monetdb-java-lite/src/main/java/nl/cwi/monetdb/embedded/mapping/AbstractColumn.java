@@ -36,7 +36,7 @@ public abstract class AbstractColumn {
     private final int columnScale;
 
     protected AbstractColumn(String columnType, String columnName, int columnDigits, int columnScale) {
-        this.mapping = MonetDBToJavaMapping.GetJavaMappingFromMonetDBString(columnType);
+        this.mapping = MonetDBToJavaMapping.getJavaMappingFromMonetDBString(columnType);
         this.columnName = columnName;
         this.columnDigits = columnDigits;
         this.columnScale = columnScale;

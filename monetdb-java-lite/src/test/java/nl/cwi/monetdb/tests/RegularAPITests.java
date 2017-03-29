@@ -236,22 +236,22 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertEquals(null, second, "String nulls not working!");
 
         byte third = qrs.getByteByColumnIndexAndRow(3,1);
-        Assertions.assertEquals(NullMappings.GetByteNullConstant(), third, "Byte nulls not working!");
+        Assertions.assertEquals(NullMappings.getByteNullConstant(), third, "Byte nulls not working!");
 
         short fourth = qrs.getShortByColumnIndexAndRow(4, 1);
-        Assertions.assertEquals(NullMappings.GetShortNullConstant(), fourth, "Short nulls not working!");
+        Assertions.assertEquals(NullMappings.getShortNullConstant(), fourth, "Short nulls not working!");
 
         int fifth = qrs.getIntegerByColumnIndexAndRow(5, 1);
-        Assertions.assertEquals(NullMappings.GetIntNullConstant(), fifth, "Integer nulls not working!");
+        Assertions.assertEquals(NullMappings.getIntNullConstant(), fifth, "Integer nulls not working!");
 
         long sixth = qrs.getLongByColumnIndexAndRow(6, 1);
-        Assertions.assertEquals(NullMappings.GetLongNullConstant(), sixth, "Long nulls not working!");
+        Assertions.assertEquals(NullMappings.getLongNullConstant(), sixth, "Long nulls not working!");
 
         float seventh = qrs.getFloatByColumnIndexAndRow(7, 1);
-        Assertions.assertEquals(NullMappings.GetFloatNullConstant(), seventh, "Float nulls not working!");
+        Assertions.assertEquals(NullMappings.getFloatNullConstant(), seventh, "Float nulls not working!");
 
         double eighth = qrs.getDoubleByColumnIndexAndRow(8, 1);
-        Assertions.assertEquals(NullMappings.GetDoubleNullConstant(), eighth, "Double nulls not working!");
+        Assertions.assertEquals(NullMappings.getDoubleNullConstant(), eighth, "Double nulls not working!");
 
         qrs.close();
         connection.sendUpdate("DROP TABLE testnullsa;");
@@ -277,10 +277,10 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertEquals(null, thirteenth, "Timestamp nulls not working!");
 
         int fourteenth = qrs2.getIntegerByColumnIndexAndRow(6, 1);
-        Assertions.assertEquals(NullMappings.GetIntNullConstant(), fourteenth, "Month interval nulls not working!");
+        Assertions.assertEquals(NullMappings.getIntNullConstant(), fourteenth, "Month interval nulls not working!");
 
         long fifteenth = qrs2.getLongByColumnIndexAndRow(7, 1);
-        Assertions.assertEquals(NullMappings.GetLongNullConstant(), fifteenth, "Second interval nulls not working!");
+        Assertions.assertEquals(NullMappings.getLongNullConstant(), fifteenth, "Second interval nulls not working!");
 
         qrs2.close();
         connection.sendUpdate("DROP TABLE testnullsb;");
@@ -359,14 +359,14 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         connection.sendUpdate("CREATE TABLE test5 (a boolean, b text, c tinyint, d smallint, e int, f bigint, h real, i double);");
         MonetDBTable test5 = connection.getMonetDBTable("sys", "test5");
 
-        byte[] append1 = new byte[]{1, 1, 0, 0, NullMappings.GetBooleanNullConstant()};
-        String[] append2 = new String[]{"eerlijk", "lekker", "smullen", "ñsmañakñ", NullMappings.GetObjectNullConstant()};
-        byte[] append3 = new byte[]{-1, 54, -65, 1 , NullMappings.GetByteNullConstant() };
-        short[] append4 = new short[]{-9808, 54, 99, 5233, NullMappings.GetShortNullConstant() };
-        int[] append5 = new int[]{2, 3, -1122100, -23123, NullMappings.GetIntNullConstant()};
-        long[] append6 = new long[]{635L, 123L, -1122343100L, -2312433L, NullMappings.GetLongNullConstant()};
-        float[] append7 = new float[]{635.2f, 123.1f, -1.4f, -2.33f, NullMappings.GetFloatNullConstant()};
-        double[] append8 = new double[]{635.2d, 123.1d, -1.4d, -2.23d, NullMappings.GetDoubleNullConstant()};
+        byte[] append1 = new byte[]{1, 1, 0, 0, NullMappings.getBooleanNullConstant()};
+        String[] append2 = new String[]{"eerlijk", "lekker", "smullen", "ñsmañakñ", NullMappings.getObjectNullConstant()};
+        byte[] append3 = new byte[]{-1, 54, -65, 1 , NullMappings.getByteNullConstant() };
+        short[] append4 = new short[]{-9808, 54, 99, 5233, NullMappings.getShortNullConstant() };
+        int[] append5 = new int[]{2, 3, -1122100, -23123, NullMappings.getIntNullConstant()};
+        long[] append6 = new long[]{635L, 123L, -1122343100L, -2312433L, NullMappings.getLongNullConstant()};
+        float[] append7 = new float[]{635.2f, 123.1f, -1.4f, -2.33f, NullMappings.getFloatNullConstant()};
+        double[] append8 = new double[]{635.2d, 123.1d, -1.4d, -2.23d, NullMappings.getDoubleNullConstant()};
         Object[] appends = new Object[]{append1, append2, append3, append4, append5, append6, append7, append8};
         test5.appendColumns(appends);
 
@@ -420,7 +420,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         MonetDBTable test5 = connection.getMonetDBTable("sys", "test5");
 
         BigDecimal[] append1 = new BigDecimal[]{new BigDecimal("1.600"), new BigDecimal("12.000"),
-                NullMappings.GetObjectNullConstant(), new BigDecimal("900.000"), new BigDecimal("-1.232") };
+                NullMappings.getObjectNullConstant(), new BigDecimal("900.000"), new BigDecimal("-1.232") };
         Object[] appends = new Object[]{append1};
         test5.appendColumns(appends);
 
@@ -452,36 +452,36 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
                 new Date(dateFormater.parse("1998-10-27").getTime()),
                 new Date(dateFormater.parse("2014-02-02").getTime()),
                 new Date(dateFormater.parse("1971-12-12").getTime()),
-                NullMappings.GetObjectNullConstant()};
+                NullMappings.getObjectNullConstant()};
 
         Time[] append2 = new Time[]{new Time(timeFormater.parse("23:10:47").getTime()),
                 new Time(timeFormater.parse("00:10:47").getTime()),
                 new Time(timeFormater.parse("10:10:47").getTime()),
                 new Time(timeFormater.parse("20:10:47").getTime()),
-                NullMappings.GetObjectNullConstant()};
+                NullMappings.getObjectNullConstant()};
 
         Time[] append3 = new Time[]{new Time(timeFormater.parse("20:10:47").getTime()),
                 new Time(timeFormater.parse("21:10:47").getTime()),
                 new Time(timeFormater.parse("11:10:47").getTime()),
                 new Time(timeFormater.parse("02:10:47").getTime()),
-                NullMappings.GetObjectNullConstant()};
+                NullMappings.getObjectNullConstant()};
 
         Timestamp[] append4 = new Timestamp[]{
                 new Timestamp(timestampFormater.parse("2016-11-04 08:59:44").getTime()),
                 new Timestamp(timestampFormater.parse("2016-11-04 08:59:44").getTime()),
                 new Timestamp(timestampFormater.parse("2016-11-04 08:59:44Z").getTime()),
                 new Timestamp(timestampFormater.parse("2016-11-04 08:59:44").getTime()),
-                NullMappings.GetObjectNullConstant()};
+                NullMappings.getObjectNullConstant()};
 
         Timestamp[] append5 = new Timestamp[]{
                 new Timestamp(timestampFormater.parse("2016-11-04 08:59:44").getTime()),
                 new Timestamp(timestampFormater.parse("2016-11-04 08:59:44").getTime()),
                 new Timestamp(timestampFormater.parse("2016-11-04 08:59:44").getTime()),
                 new Timestamp(timestampFormater.parse("2016-11-04 08:59:44").getTime()),
-                NullMappings.GetObjectNullConstant()};
+                NullMappings.getObjectNullConstant()};
 
-        int[] append6 = new int[]{2, 3, -1122100, -23123, NullMappings.GetIntNullConstant()};
-        long[] append7 = new long[]{635L, 123L, -11400L, -23133L, NullMappings.GetLongNullConstant()};
+        int[] append6 = new int[]{2, 3, -1122100, -23123, NullMappings.getIntNullConstant()};
+        long[] append7 = new long[]{635L, 123L, -11400L, -23133L, NullMappings.getLongNullConstant()};
         Object[] appends = new Object[]{append1, append2, append3, append4, append5, append6, append7};
         test6.appendColumns(appends);
 
@@ -529,7 +529,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         MonetDBTable test7 = connection.getMonetDBTable("sys", "test7");
 
         byte[][] append1 = new byte[][]{new byte[]{1,2,-3,4,5,6,7,8,-90,10,13,14,15,16}, new byte[]{-1,-2,-3,-4,-5,-6},
-                new byte[]{127}, new byte[]{0,0,0,0,0,34,66,0,0,0,0}, NullMappings.GetObjectNullConstant()};
+                new byte[]{127}, new byte[]{0,0,0,0,0,34,66,0,0,0,0}, NullMappings.getObjectNullConstant()};
         Object[] appends = new Object[]{append1};
         test7.appendColumns(appends);
 

@@ -71,7 +71,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
     @Override
     public boolean getBooleanValue(int column) {
         byte b = this.getByteValueInternal(this.structPointer, column, this.blockLine);
-        if(b == NullMappings.GetByteNullConstant()) {
+        if(b == NullMappings.getByteNullConstant()) {
             this.lastReadWasNull = true;
             return false;
         } else {
@@ -83,42 +83,42 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
     @Override
     public byte getByteValue(int column) {
         byte b = this.getByteValueInternal(this.structPointer, column, this.blockLine);
-        this.lastReadWasNull = b == NullMappings.GetByteNullConstant();
+        this.lastReadWasNull = b == NullMappings.getByteNullConstant();
         return b;
     }
 
     @Override
     public short getShortValue(int column) {
         short s = this.getShortValueInternal(this.structPointer, column, this.blockLine);
-        this.lastReadWasNull = s == NullMappings.GetShortNullConstant();
+        this.lastReadWasNull = s == NullMappings.getShortNullConstant();
         return s;
     }
 
     @Override
     public int getIntValue(int column) {
         int i = this.getIntValueInternal(this.structPointer, column, this.blockLine);
-        this.lastReadWasNull = i == NullMappings.GetIntNullConstant();
+        this.lastReadWasNull = i == NullMappings.getIntNullConstant();
         return i;
     }
 
     @Override
     public long getLongValue(int column) {
         long j = this.getLongValueInternal(this.structPointer, column, this.blockLine);
-        this.lastReadWasNull = j == NullMappings.GetLongNullConstant();
+        this.lastReadWasNull = j == NullMappings.getLongNullConstant();
         return j;
     }
 
     @Override
     public float getFloatValue(int column) {
         float f = this.getFloatValueInternal(this.structPointer, column, this.blockLine);
-        this.lastReadWasNull = f == NullMappings.GetFloatNullConstant();
+        this.lastReadWasNull = f == NullMappings.getFloatNullConstant();
         return f;
     }
 
     @Override
     public double getDoubleValue(int column) {
         double d = this.getDoubleValueInternal(this.structPointer, column, this.blockLine);
-        this.lastReadWasNull = d == NullMappings.GetDoubleNullConstant();
+        this.lastReadWasNull = d == NullMappings.getDoubleNullConstant();
         return d;
     }
 
@@ -132,7 +132,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
         switch (this.jdbcSQLTypes[column]) {
             case Types.BOOLEAN:
                 byte b = this.getByteValueInternal(this.structPointer, column, this.blockLine);
-                if(b == NullMappings.GetByteNullConstant()) {
+                if(b == NullMappings.getByteNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -141,7 +141,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.TINYINT:
                 byte bbb = this.getByteValueInternal(this.structPointer, column, this.blockLine);
-                if(bbb == NullMappings.GetByteNullConstant()) {
+                if(bbb == NullMappings.getByteNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -150,7 +150,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.SMALLINT:
                 short sss = this.getShortValueInternal(this.structPointer, column, this.blockLine);
-                if(sss == NullMappings.GetShortNullConstant()) {
+                if(sss == NullMappings.getShortNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -159,7 +159,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.INTEGER:
                 int in = this.getIntValueInternal(this.structPointer, column, this.blockLine);
-                if(in == NullMappings.GetIntNullConstant()) {
+                if(in == NullMappings.getIntNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -168,7 +168,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.BIGINT:
                 long lon = this.getLongValueInternal(this.structPointer, column, this.blockLine);
-                if(lon == NullMappings.GetLongNullConstant()) {
+                if(lon == NullMappings.getLongNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -177,7 +177,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.REAL:
                 float floa = this.getFloatValueInternal(this.structPointer, column, this.blockLine);
-                if(floa == NullMappings.GetFloatNullConstant()) {
+                if(floa == NullMappings.getFloatNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -186,7 +186,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.DOUBLE:
                 double doa = this.getDoubleValueInternal(this.structPointer, column, this.blockLine);
-                if(doa == NullMappings.GetDoubleNullConstant()) {
+                if(doa == NullMappings.getDoubleNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -345,7 +345,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.BOOLEAN:
                 byte b = this.getByteValueInternal(this.structPointer, column, this.blockLine);
-                if(b == NullMappings.GetByteNullConstant()) {
+                if(b == NullMappings.getByteNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -354,7 +354,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.TINYINT:
                 byte bbb = this.getByteValueInternal(this.structPointer, column, this.blockLine);
-                if(bbb == NullMappings.GetByteNullConstant()) {
+                if(bbb == NullMappings.getByteNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -363,7 +363,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.SMALLINT:
                 short sss = this.getShortValueInternal(this.structPointer, column, this.blockLine);
-                if(sss == NullMappings.GetShortNullConstant()) {
+                if(sss == NullMappings.getShortNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -372,7 +372,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.INTEGER:
                 int in = this.getIntValueInternal(this.structPointer, column, this.blockLine);
-                if(in == NullMappings.GetIntNullConstant()) {
+                if(in == NullMappings.getIntNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -381,7 +381,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.BIGINT:
                 long lon = this.getLongValueInternal(this.structPointer, column, this.blockLine);
-                if(lon == NullMappings.GetLongNullConstant()) {
+                if(lon == NullMappings.getLongNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -390,7 +390,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.REAL:
                 float floa = this.getFloatValueInternal(this.structPointer, column, this.blockLine);
-                if(floa == NullMappings.GetFloatNullConstant()) {
+                if(floa == NullMappings.getFloatNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {
@@ -399,7 +399,7 @@ public strictfp final class EmbeddedDataBlockResponse extends AbstractDataBlockR
                 }
             case Types.DOUBLE:
                 double doa = this.getDoubleValueInternal(this.structPointer, column, this.blockLine);
-                if(doa == NullMappings.GetDoubleNullConstant()) {
+                if(doa == NullMappings.getDoubleNullConstant()) {
                     this.lastReadWasNull = true;
                     return null;
                 } else {

@@ -12,7 +12,7 @@
 #include "converters.h"
 #include "embedded.h"
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_StartDatabaseInternal
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase_startDatabaseInternal
     (JNIEnv *env, jclass monetDBEmbeddedDatabase, jstring dbDirectory, jboolean silentFlag, jboolean sequentialFlag) {
     const char *dbdir_string_tmp;
     const char *loadPath_tmp;
@@ -34,7 +34,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDataba
 
         //because of the dlopen stuff, this step has to be done before the monetdb_startup call
         loaderCls = (*env)->FindClass(env, "nl/cwi/monetdb/embedded/env/MonetDBJavaLiteLoader");
-        pathID = (*env)->GetStaticFieldID(env, loaderCls, "LoadedLibraryFullPath", "Ljava/lang/String;");
+        pathID = (*env)->GetStaticFieldID(env, loaderCls, "loadedLibraryFullPath", "Ljava/lang/String;");
         loadPath = (jstring) (*env)->GetStaticObjectField(env, loaderCls, pathID);
         loadPath_tmp = (*env)->GetStringUTFChars(env, loadPath, NULL);
         if(!loadPath_tmp) {

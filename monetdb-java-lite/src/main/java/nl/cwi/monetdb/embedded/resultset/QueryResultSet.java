@@ -271,25 +271,25 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 return this.getByteByColumnAndRowInternal(this.structPointer, column, row);
             case 3:
                 short aux1 = this.getShortByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux1 == NullMappings.GetShortNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux1;
+                return (aux1 == NullMappings.getShortNullConstant()) ? NullMappings.getByteNullConstant() : (byte) aux1;
             case 4:
                 int aux2 = this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux2 == NullMappings.GetIntNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux2;
+                return (aux2 == NullMappings.getIntNullConstant()) ? NullMappings.getByteNullConstant() : (byte) aux2;
             case 5:
                 long aux3 = this.getLongByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux3 == NullMappings.GetLongNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux3;
+                return (aux3 == NullMappings.getLongNullConstant()) ? NullMappings.getByteNullConstant() : (byte) aux3;
             case 6:
                 float aux4 = this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux4 == NullMappings.GetFloatNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) Math.round(aux4);
+                return (aux4 == NullMappings.getFloatNullConstant()) ? NullMappings.getByteNullConstant() : (byte) Math.round(aux4);
             case 7:
                 double aux5 = this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux5 == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) Math.round(aux5);
+                return (aux5 == NullMappings.getDoubleNullConstant()) ? NullMappings.getByteNullConstant() : (byte) Math.round(aux5);
             case 8:
                 String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
-                return aux6 == null ? NullMappings.GetByteNullConstant() : Byte.parseByte(aux6);
+                return aux6 == null ? NullMappings.getByteNullConstant() : Byte.parseByte(aux6);
             case 13:
                 BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
-                return aux7 == null ? NullMappings.GetByteNullConstant() : aux7.byteValue();
+                return aux7 == null ? NullMappings.getByteNullConstant() : aux7.byteValue();
             default:
                 throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to byte!");
         }
@@ -310,27 +310,27 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
             case 1:
             case 2:
                 byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux1 == NullMappings.GetByteNullConstant()) ? NullMappings.GetShortNullConstant() : aux1;
+                return (aux1 == NullMappings.getByteNullConstant()) ? NullMappings.getShortNullConstant() : aux1;
             case 3:
                 return this.getShortByColumnAndRowInternal(this.structPointer, column, row);
             case 4:
                 int aux2 = this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux2 == NullMappings.GetIntNullConstant()) ? NullMappings.GetShortNullConstant() : (short) aux2;
+                return (aux2 == NullMappings.getIntNullConstant()) ? NullMappings.getShortNullConstant() : (short) aux2;
             case 5:
                 long aux3 = this.getLongByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux3 == NullMappings.GetLongNullConstant()) ? NullMappings.GetShortNullConstant() : (short) aux3;
+                return (aux3 == NullMappings.getLongNullConstant()) ? NullMappings.getShortNullConstant() : (short) aux3;
             case 6:
                 float aux4 = this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux4 == NullMappings.GetFloatNullConstant()) ? NullMappings.GetShortNullConstant() : (short) Math.round(aux4);
+                return (aux4 == NullMappings.getFloatNullConstant()) ? NullMappings.getShortNullConstant() : (short) Math.round(aux4);
             case 7:
                 double aux5 = this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux5 == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetShortNullConstant() : (short) Math.round(aux5);
+                return (aux5 == NullMappings.getDoubleNullConstant()) ? NullMappings.getShortNullConstant() : (short) Math.round(aux5);
             case 8:
                 String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
-                return aux6 == null ? NullMappings.GetShortNullConstant() : Short.parseShort(aux6);
+                return aux6 == null ? NullMappings.getShortNullConstant() : Short.parseShort(aux6);
             case 13:
                 BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
-                return aux7 == null ? NullMappings.GetShortNullConstant() : aux7.shortValue();
+                return aux7 == null ? NullMappings.getShortNullConstant() : aux7.shortValue();
             default:
                 throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to short!");
         }
@@ -351,27 +351,27 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
             case 1:
             case 2:
                 byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux1 == NullMappings.GetByteNullConstant()) ? NullMappings.GetIntNullConstant() : aux1;
+                return (aux1 == NullMappings.getByteNullConstant()) ? NullMappings.getIntNullConstant() : aux1;
             case 3:
                 short aux2 = this.getShortByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux2 == NullMappings.GetShortNullConstant()) ? NullMappings.GetIntNullConstant() : aux2;
+                return (aux2 == NullMappings.getShortNullConstant()) ? NullMappings.getIntNullConstant() : aux2;
             case 4:
                 return this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
             case 5:
                 long aux3 = this.getLongByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux3 == NullMappings.GetLongNullConstant()) ? NullMappings.GetIntNullConstant() : (int) aux3;
+                return (aux3 == NullMappings.getLongNullConstant()) ? NullMappings.getIntNullConstant() : (int) aux3;
             case 6:
                 float aux4 = this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux4 == NullMappings.GetFloatNullConstant()) ? NullMappings.GetIntNullConstant() : Math.round(aux4);
+                return (aux4 == NullMappings.getFloatNullConstant()) ? NullMappings.getIntNullConstant() : Math.round(aux4);
             case 7:
                 double aux5 = this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux5 == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetIntNullConstant() : (int) Math.round(aux5);
+                return (aux5 == NullMappings.getDoubleNullConstant()) ? NullMappings.getIntNullConstant() : (int) Math.round(aux5);
             case 8:
                 String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
-                return aux6 == null ? NullMappings.GetIntNullConstant() : Integer.parseInt(aux6);
+                return aux6 == null ? NullMappings.getIntNullConstant() : Integer.parseInt(aux6);
             case 13:
                 BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
-                return aux7 == null ? NullMappings.GetIntNullConstant() : aux7.intValue();
+                return aux7 == null ? NullMappings.getIntNullConstant() : aux7.intValue();
             default:
                 throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to int!");
         }
@@ -392,27 +392,27 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
             case 1:
             case 2:
                 byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux1 == NullMappings.GetByteNullConstant()) ? NullMappings.GetLongNullConstant() : aux1;
+                return (aux1 == NullMappings.getByteNullConstant()) ? NullMappings.getLongNullConstant() : aux1;
             case 3:
                 short aux2 = this.getShortByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux2 == NullMappings.GetShortNullConstant()) ? NullMappings.GetLongNullConstant() : aux2;
+                return (aux2 == NullMappings.getShortNullConstant()) ? NullMappings.getLongNullConstant() : aux2;
             case 4:
                 int aux3 = this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux3 == NullMappings.GetIntNullConstant()) ? NullMappings.GetLongNullConstant() : aux3;
+                return (aux3 == NullMappings.getIntNullConstant()) ? NullMappings.getLongNullConstant() : aux3;
             case 5:
                 return this.getLongByColumnAndRowInternal(this.structPointer, column, row);
             case 6:
                 float aux4 = this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux4 == NullMappings.GetFloatNullConstant()) ? NullMappings.GetLongNullConstant() : Math.round(aux4);
+                return (aux4 == NullMappings.getFloatNullConstant()) ? NullMappings.getLongNullConstant() : Math.round(aux4);
             case 7:
                 double aux5 = this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux5 == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetLongNullConstant() : Math.round(aux5);
+                return (aux5 == NullMappings.getDoubleNullConstant()) ? NullMappings.getLongNullConstant() : Math.round(aux5);
             case 8:
                 String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
-                return aux6 == null ? NullMappings.GetLongNullConstant() : Long.parseLong(aux6);
+                return aux6 == null ? NullMappings.getLongNullConstant() : Long.parseLong(aux6);
             case 13:
                 BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
-                return aux7 == null ? NullMappings.GetLongNullConstant() : aux7.longValue();
+                return aux7 == null ? NullMappings.getLongNullConstant() : aux7.longValue();
             default:
                 throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to long!");
         }
@@ -433,27 +433,27 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
             case 1:
             case 2:
                 byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux1 == NullMappings.GetByteNullConstant()) ? NullMappings.GetFloatNullConstant() : aux1;
+                return (aux1 == NullMappings.getByteNullConstant()) ? NullMappings.getFloatNullConstant() : aux1;
             case 3:
                 short aux2 = this.getShortByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux2 == NullMappings.GetShortNullConstant()) ? NullMappings.GetFloatNullConstant() : aux2;
+                return (aux2 == NullMappings.getShortNullConstant()) ? NullMappings.getFloatNullConstant() : aux2;
             case 4:
                 int aux3 = this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux3 == NullMappings.GetIntNullConstant()) ? NullMappings.GetFloatNullConstant() : aux3;
+                return (aux3 == NullMappings.getIntNullConstant()) ? NullMappings.getFloatNullConstant() : aux3;
             case 5:
                 long aux4 = this.getLongByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux4 == NullMappings.GetLongNullConstant()) ? NullMappings.GetFloatNullConstant() : aux4;
+                return (aux4 == NullMappings.getLongNullConstant()) ? NullMappings.getFloatNullConstant() : aux4;
             case 6:
                 return this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
             case 7:
                 double aux5 = this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux5 == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetFloatNullConstant() : (float) aux5;
+                return (aux5 == NullMappings.getDoubleNullConstant()) ? NullMappings.getFloatNullConstant() : (float) aux5;
             case 8:
                 String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
-                return aux6 == null ? NullMappings.GetFloatNullConstant() : Float.parseFloat(aux6);
+                return aux6 == null ? NullMappings.getFloatNullConstant() : Float.parseFloat(aux6);
             case 13:
                 BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
-                return aux7 == null ? NullMappings.GetFloatNullConstant() : aux7.floatValue();
+                return aux7 == null ? NullMappings.getFloatNullConstant() : aux7.floatValue();
             default:
                 throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to float!");
         }
@@ -474,27 +474,27 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
             case 1:
             case 2:
                 byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux1 == NullMappings.GetByteNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux1;
+                return (aux1 == NullMappings.getByteNullConstant()) ? NullMappings.getDoubleNullConstant() : aux1;
             case 3:
                 short aux2 = this.getShortByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux2 == NullMappings.GetShortNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux2;
+                return (aux2 == NullMappings.getShortNullConstant()) ? NullMappings.getDoubleNullConstant() : aux2;
             case 4:
                 int aux3 = this.getIntegerByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux3 == NullMappings.GetIntNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux3;
+                return (aux3 == NullMappings.getIntNullConstant()) ? NullMappings.getDoubleNullConstant() : aux3;
             case 5:
                 long aux4 = this.getLongByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux4 == NullMappings.GetLongNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux4;
+                return (aux4 == NullMappings.getLongNullConstant()) ? NullMappings.getDoubleNullConstant() : aux4;
             case 6:
                 double aux5 = this.getFloatByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux5 == NullMappings.GetFloatNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux5;
+                return (aux5 == NullMappings.getFloatNullConstant()) ? NullMappings.getDoubleNullConstant() : aux5;
             case 7:
                 return this.getDoubleByColumnAndRowInternal(this.structPointer, column, row);
             case 8:
                 String aux6 = this.getStringByColumnAndRowInternal(this.structPointer, column, row);
-                return aux6 == null ? NullMappings.GetDoubleNullConstant() : Double.parseDouble(aux6);
+                return aux6 == null ? NullMappings.getDoubleNullConstant() : Double.parseDouble(aux6);
             case 13:
                 BigDecimal aux7 = this.getDecimalByColumnAndRowInternal(this.structPointer, column, row);
-                return aux7 == null ? NullMappings.GetDoubleNullConstant() : aux7.doubleValue();
+                return aux7 == null ? NullMappings.getDoubleNullConstant() : aux7.doubleValue();
             default:
                 throw new ClassCastException("Cannot convert " + TypeIDToString(this.typesIDs[column]) + " to double!");
         }
@@ -516,22 +516,22 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
             case 1:
             case 2:
                 byte aux1 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux1 == NullMappings.GetByteNullConstant()) ? null : Byte.toString(aux1);
+                return (aux1 == NullMappings.getByteNullConstant()) ? null : Byte.toString(aux1);
             case 3:
                 short aux2 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux2 == NullMappings.GetShortNullConstant()) ? null : Short.toString(aux2);
+                return (aux2 == NullMappings.getShortNullConstant()) ? null : Short.toString(aux2);
             case 4:
                 int aux3 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux3 == NullMappings.GetIntNullConstant()) ? null : Integer.toString(aux3);
+                return (aux3 == NullMappings.getIntNullConstant()) ? null : Integer.toString(aux3);
             case 5:
                 long aux4 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux4 == NullMappings.GetLongNullConstant()) ? null : Long.toString(aux4);
+                return (aux4 == NullMappings.getLongNullConstant()) ? null : Long.toString(aux4);
             case 6:
                 float aux5 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux5 == NullMappings.GetFloatNullConstant()) ? null : Float.toString(aux5);
+                return (aux5 == NullMappings.getFloatNullConstant()) ? null : Float.toString(aux5);
             case 7:
                 double aux6 = this.getByteByColumnAndRowInternal(this.structPointer, column, row);
-                return (aux6 == NullMappings.GetDoubleNullConstant()) ? null : Double.toString(aux6);
+                return (aux6 == NullMappings.getDoubleNullConstant()) ? null : Double.toString(aux6);
             case 8:
                 return this.getStringByColumnAndRowInternal(this.structPointer, column, row);
             case 12:
@@ -910,35 +910,35 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 short[] aux2 = new short[length];
                 this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = aux2[i] != 0 && aux2[i] != NullMappings.GetShortNullConstant();
+                    input[i] = aux2[i] != 0 && aux2[i] != NullMappings.getShortNullConstant();
                 }
                 break;
             case 4:
                 int[] aux3 = new int[length];
                 this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = aux3[i] != 0 && aux3[i] != NullMappings.GetIntNullConstant();
+                    input[i] = aux3[i] != 0 && aux3[i] != NullMappings.getIntNullConstant();
                 }
                 break;
             case 5:
                 long[] aux4 = new long[length];
                 this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = aux4[i] != 0 && aux4[i] != NullMappings.GetLongNullConstant();
+                    input[i] = aux4[i] != 0 && aux4[i] != NullMappings.getLongNullConstant();
                 }
                 break;
             case 6:
                 float[] aux5 = new float[length];
                 this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = aux5[i] != 0.0f && aux5[i] != NullMappings.GetFloatNullConstant();
+                    input[i] = aux5[i] != 0.0f && aux5[i] != NullMappings.getFloatNullConstant();
                 }
                 break;
             case 7:
                 double[] aux6 = new double[length];
                 this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = aux6[i] != 0.0d && aux6[i] != NullMappings.GetDoubleNullConstant();
+                    input[i] = aux6[i] != 0.0d && aux6[i] != NullMappings.getDoubleNullConstant();
                 }
                 break;
             case 8:
@@ -980,49 +980,49 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 short[] aux2 = new short[length];
                 this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux2[i];
+                    input[i] = (aux2[i] == NullMappings.getShortNullConstant()) ? NullMappings.getByteNullConstant() : (byte) aux2[i];
                 }
                 break;
             case 4:
                 int[] aux3 = new int[length];
                 this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux3[i];
+                    input[i] = (aux3[i] == NullMappings.getIntNullConstant()) ? NullMappings.getByteNullConstant() : (byte) aux3[i];
                 }
                 break;
             case 5:
                 long[] aux4 = new long[length];
                 this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) aux4[i];
+                    input[i] = (aux4[i] == NullMappings.getLongNullConstant()) ? NullMappings.getByteNullConstant() : (byte) aux4[i];
                 }
                 break;
             case 6:
                 float[] aux5 = new float[length];
                 this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) Math.round(aux5[i]);
+                    input[i] = (aux5[i] == NullMappings.getFloatNullConstant()) ? NullMappings.getByteNullConstant() : (byte) Math.round(aux5[i]);
                 }
                 break;
             case 7:
                 double[] aux6 = new double[length];
                 this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetByteNullConstant() : (byte) Math.round(aux6[i]);
+                    input[i] = (aux6[i] == NullMappings.getDoubleNullConstant()) ? NullMappings.getByteNullConstant() : (byte) Math.round(aux6[i]);
                 }
                 break;
             case 8:
                 String[] aux7 = new String[length];
                 this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux7[i] != null) ? Byte.parseByte(aux7[i]) : NullMappings.GetByteNullConstant();
+                    input[i] = (aux7[i] != null) ? Byte.parseByte(aux7[i]) : NullMappings.getByteNullConstant();
                 }
                 break;
             case 13:
                 BigDecimal[] aux8 = new BigDecimal[length];
                 this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
                 for(int i = 0 ; i < length ; i++) {
-                    input[i] = (aux8[i] != null) ? aux8[i].byteValue() : NullMappings.GetByteNullConstant();
+                    input[i] = (aux8[i] != null) ? aux8[i].byteValue() : NullMappings.getByteNullConstant();
                 }
                 break;
             default:
@@ -1047,7 +1047,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 byte[] aux1 = new byte[length];
                 this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? NullMappings.GetShortNullConstant() : aux1[i];
+                    input[i] = (aux1[i] == NullMappings.getByteNullConstant()) ? NullMappings.getShortNullConstant() : aux1[i];
                 }
                 break;
             case 3:
@@ -1057,42 +1057,42 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 int[] aux3 = new int[length];
                 this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? NullMappings.GetShortNullConstant() : (short) aux3[i];
+                    input[i] = (aux3[i] == NullMappings.getIntNullConstant()) ? NullMappings.getShortNullConstant() : (short) aux3[i];
                 }
                 break;
             case 5:
                 long[] aux4 = new long[length];
                 this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? NullMappings.GetShortNullConstant() : (short) aux4[i];
+                    input[i] = (aux4[i] == NullMappings.getLongNullConstant()) ? NullMappings.getShortNullConstant() : (short) aux4[i];
                 }
                 break;
             case 6:
                 float[] aux5 = new float[length];
                 this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? NullMappings.GetShortNullConstant() : (short) Math.round(aux5[i]);
+                    input[i] = (aux5[i] == NullMappings.getFloatNullConstant()) ? NullMappings.getShortNullConstant() : (short) Math.round(aux5[i]);
                 }
                 break;
             case 7:
                 double[] aux6 = new double[length];
                 this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetShortNullConstant() : (short) Math.round(aux6[i]);
+                    input[i] = (aux6[i] == NullMappings.getDoubleNullConstant()) ? NullMappings.getShortNullConstant() : (short) Math.round(aux6[i]);
                 }
                 break;
             case 8:
                 String[] aux7 = new String[length];
                 this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux7[i] != null) ? Short.parseShort(aux7[i]) : NullMappings.GetShortNullConstant();
+                    input[i] = (aux7[i] != null) ? Short.parseShort(aux7[i]) : NullMappings.getShortNullConstant();
                 }
                 break;
             case 13:
                 BigDecimal[] aux8 = new BigDecimal[length];
                 this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
                 for(int i = 0 ; i < length ; i++) {
-                    input[i] = (aux8[i] != null) ? aux8[i].shortValue() : NullMappings.GetShortNullConstant();
+                    input[i] = (aux8[i] != null) ? aux8[i].shortValue() : NullMappings.getShortNullConstant();
                 }
                 break;
             default:
@@ -1117,14 +1117,14 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 byte[] aux1 = new byte[length];
                 this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? NullMappings.GetIntNullConstant() : aux1[i];
+                    input[i] = (aux1[i] == NullMappings.getByteNullConstant()) ? NullMappings.getIntNullConstant() : aux1[i];
                 }
                 break;
             case 3:
                 short[] aux2 = new short[length];
                 this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? NullMappings.GetIntNullConstant() : aux2[i];
+                    input[i] = (aux2[i] == NullMappings.getShortNullConstant()) ? NullMappings.getIntNullConstant() : aux2[i];
                 }
                 break;
             case 4:
@@ -1134,35 +1134,35 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 long[] aux4 = new long[length];
                 this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? NullMappings.GetIntNullConstant() : (int) aux4[i];
+                    input[i] = (aux4[i] == NullMappings.getLongNullConstant()) ? NullMappings.getIntNullConstant() : (int) aux4[i];
                 }
                 break;
             case 6:
                 float[] aux5 = new float[length];
                 this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? NullMappings.GetIntNullConstant() : Math.round(aux5[i]);
+                    input[i] = (aux5[i] == NullMappings.getFloatNullConstant()) ? NullMappings.getIntNullConstant() : Math.round(aux5[i]);
                 }
                 break;
             case 7:
                 double[] aux6 = new double[length];
                 this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetIntNullConstant() : (int) Math.round(aux6[i]);
+                    input[i] = (aux6[i] == NullMappings.getDoubleNullConstant()) ? NullMappings.getIntNullConstant() : (int) Math.round(aux6[i]);
                 }
                 break;
             case 8:
                 String[] aux7 = new String[length];
                 this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux7[i] != null) ? Integer.parseInt(aux7[i]) : NullMappings.GetIntNullConstant();
+                    input[i] = (aux7[i] != null) ? Integer.parseInt(aux7[i]) : NullMappings.getIntNullConstant();
                 }
                 break;
             case 13:
                 BigDecimal[] aux8 = new BigDecimal[length];
                 this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
                 for(int i = 0 ; i < length ; i++) {
-                    input[i] = (aux8[i] != null) ? aux8[i].intValue() : NullMappings.GetIntNullConstant();
+                    input[i] = (aux8[i] != null) ? aux8[i].intValue() : NullMappings.getIntNullConstant();
                 }
                 break;
             default:
@@ -1187,21 +1187,21 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 byte[] aux1 = new byte[length];
                 this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? NullMappings.GetLongNullConstant() : aux1[i];
+                    input[i] = (aux1[i] == NullMappings.getByteNullConstant()) ? NullMappings.getLongNullConstant() : aux1[i];
                 }
                 break;
             case 3:
                 short[] aux2 = new short[length];
                 this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? NullMappings.GetLongNullConstant() : aux2[i];
+                    input[i] = (aux2[i] == NullMappings.getShortNullConstant()) ? NullMappings.getLongNullConstant() : aux2[i];
                 }
                 break;
             case 4:
                 int[] aux3 = new int[length];
                 this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? NullMappings.GetLongNullConstant() : aux3[i];
+                    input[i] = (aux3[i] == NullMappings.getIntNullConstant()) ? NullMappings.getLongNullConstant() : aux3[i];
                 }
                 break;
             case 5:
@@ -1211,28 +1211,28 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 float[] aux5 = new float[length];
                 this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? NullMappings.GetLongNullConstant() : Math.round(aux5[i]);
+                    input[i] = (aux5[i] == NullMappings.getFloatNullConstant()) ? NullMappings.getLongNullConstant() : Math.round(aux5[i]);
                 }
                 break;
             case 7:
                 double[] aux6 = new double[length];
                 this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetLongNullConstant() : Math.round(aux6[i]);
+                    input[i] = (aux6[i] == NullMappings.getDoubleNullConstant()) ? NullMappings.getLongNullConstant() : Math.round(aux6[i]);
                 }
                 break;
             case 8:
                 String[] aux7 = new String[length];
                 this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux7[i] != null) ? Long.parseLong(aux7[i]) : NullMappings.GetLongNullConstant();
+                    input[i] = (aux7[i] != null) ? Long.parseLong(aux7[i]) : NullMappings.getLongNullConstant();
                 }
                 break;
             case 13:
                 BigDecimal[] aux8 = new BigDecimal[length];
                 this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
                 for(int i = 0 ; i < length ; i++) {
-                    input[i] = (aux8[i] != null) ? aux8[i].longValue() : NullMappings.GetLongNullConstant();
+                    input[i] = (aux8[i] != null) ? aux8[i].longValue() : NullMappings.getLongNullConstant();
                 }
                 break;
             default:
@@ -1257,28 +1257,28 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 byte[] aux1 = new byte[length];
                 this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? NullMappings.GetFloatNullConstant() : aux1[i];
+                    input[i] = (aux1[i] == NullMappings.getByteNullConstant()) ? NullMappings.getFloatNullConstant() : aux1[i];
                 }
                 break;
             case 3:
                 short[] aux2 = new short[length];
                 this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? NullMappings.GetFloatNullConstant() : aux2[i];
+                    input[i] = (aux2[i] == NullMappings.getShortNullConstant()) ? NullMappings.getFloatNullConstant() : aux2[i];
                 }
                 break;
             case 4:
                 int[] aux3 = new int[length];
                 this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? NullMappings.GetFloatNullConstant() : aux3[i];
+                    input[i] = (aux3[i] == NullMappings.getIntNullConstant()) ? NullMappings.getFloatNullConstant() : aux3[i];
                 }
                 break;
             case 5:
                 long[] aux4 = new long[length];
                 this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? NullMappings.GetFloatNullConstant() : aux4[i];
+                    input[i] = (aux4[i] == NullMappings.getLongNullConstant()) ? NullMappings.getFloatNullConstant() : aux4[i];
                 }
                 break;
             case 6:
@@ -1288,21 +1288,21 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 double[] aux6 = new double[length];
                 this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? NullMappings.GetFloatNullConstant() : (float) aux6[i];
+                    input[i] = (aux6[i] == NullMappings.getDoubleNullConstant()) ? NullMappings.getFloatNullConstant() : (float) aux6[i];
                 }
                 break;
             case 8:
                 String[] aux7 = new String[length];
                 this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux7[i] != null) ? Float.parseFloat(aux7[i]) : NullMappings.GetFloatNullConstant();
+                    input[i] = (aux7[i] != null) ? Float.parseFloat(aux7[i]) : NullMappings.getFloatNullConstant();
                 }
                 break;
             case 13:
                 BigDecimal[] aux8 = new BigDecimal[length];
                 this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
                 for(int i = 0 ; i < length ; i++) {
-                    input[i] = (aux8[i] != null) ? aux8[i].floatValue() : NullMappings.GetFloatNullConstant();
+                    input[i] = (aux8[i] != null) ? aux8[i].floatValue() : NullMappings.getFloatNullConstant();
                 }
                 break;
             default:
@@ -1327,35 +1327,35 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 byte[] aux1 = new byte[length];
                 this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux1[i];
+                    input[i] = (aux1[i] == NullMappings.getByteNullConstant()) ? NullMappings.getDoubleNullConstant() : aux1[i];
                 }
                 break;
             case 3:
                 short[] aux2 = new short[length];
                 this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? NullMappings.GetFloatNullConstant() : aux2[i];
+                    input[i] = (aux2[i] == NullMappings.getShortNullConstant()) ? NullMappings.getFloatNullConstant() : aux2[i];
                 }
                 break;
             case 4:
                 int[] aux3 = new int[length];
                 this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux3[i];
+                    input[i] = (aux3[i] == NullMappings.getIntNullConstant()) ? NullMappings.getDoubleNullConstant() : aux3[i];
                 }
                 break;
             case 5:
                 long[] aux4 = new long[length];
                 this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux4[i];
+                    input[i] = (aux4[i] == NullMappings.getLongNullConstant()) ? NullMappings.getDoubleNullConstant() : aux4[i];
                 }
                 break;
             case 6:
                 float[] aux5 = new float[length];
                 this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? NullMappings.GetDoubleNullConstant() : aux5[i];
+                    input[i] = (aux5[i] == NullMappings.getFloatNullConstant()) ? NullMappings.getDoubleNullConstant() : aux5[i];
                 }
                 break;
             case 7:
@@ -1365,14 +1365,14 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 String[] aux7 = new String[length];
                 this.getStringColumnByIndexInternal(this.structPointer, column, aux7, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux7[i] != null) ? Double.parseDouble(aux7[i]) : NullMappings.GetDoubleNullConstant();
+                    input[i] = (aux7[i] != null) ? Double.parseDouble(aux7[i]) : NullMappings.getDoubleNullConstant();
                 }
                 break;
             case 13:
                 BigDecimal[] aux8 = new BigDecimal[length];
                 this.getDecimalColumnByIndexInternal(this.structPointer, column, aux8, offset, length);
                 for(int i = 0 ; i < length ; i++) {
-                    input[i] = (aux8[i] != null) ? aux8[i].doubleValue() : NullMappings.GetDoubleNullConstant();
+                    input[i] = (aux8[i] != null) ? aux8[i].doubleValue() : NullMappings.getDoubleNullConstant();
                 }
                 break;
             default:
@@ -1397,42 +1397,42 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 byte[] aux1 = new byte[length];
                 this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? null : Byte.toString(aux1[i]);
+                    input[i] = (aux1[i] == NullMappings.getByteNullConstant()) ? null : Byte.toString(aux1[i]);
                 }
                 break;
             case 3:
                 short[] aux2 = new short[length];
                 this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? null : Short.toString(aux2[i]);
+                    input[i] = (aux2[i] == NullMappings.getShortNullConstant()) ? null : Short.toString(aux2[i]);
                 }
                 break;
             case 4:
                 int[] aux3 = new int[length];
                 this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? null : Integer.toString(aux3[i]);
+                    input[i] = (aux3[i] == NullMappings.getIntNullConstant()) ? null : Integer.toString(aux3[i]);
                 }
                 break;
             case 5:
                 long[] aux4 = new long[length];
                 this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? null : Long.toString(aux4[i]);
+                    input[i] = (aux4[i] == NullMappings.getLongNullConstant()) ? null : Long.toString(aux4[i]);
                 }
                 break;
             case 6:
                 float[] aux5 = new float[length];
                 this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? null : Float.toString(aux5[i]);
+                    input[i] = (aux5[i] == NullMappings.getFloatNullConstant()) ? null : Float.toString(aux5[i]);
                 }
                 break;
             case 7:
                 double[] aux6 = new double[length];
                 this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? null : Double.toString(aux6[i]);
+                    input[i] = (aux6[i] == NullMappings.getDoubleNullConstant()) ? null : Double.toString(aux6[i]);
                 }
                 break;
             case 8:
@@ -1624,42 +1624,42 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                 byte[] aux1 = new byte[length];
                 this.getByteColumnByIndexInternal(this.structPointer, column, aux1, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux1[i] == NullMappings.GetByteNullConstant()) ? null : new BigDecimal(aux1[i]);
+                    input[i] = (aux1[i] == NullMappings.getByteNullConstant()) ? null : new BigDecimal(aux1[i]);
                 }
                 break;
             case 3:
                 short[] aux2 = new short[length];
                 this.getShortColumnByIndexInternal(this.structPointer, column, aux2, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux2[i] == NullMappings.GetShortNullConstant()) ? null : new BigDecimal(aux2[i]);
+                    input[i] = (aux2[i] == NullMappings.getShortNullConstant()) ? null : new BigDecimal(aux2[i]);
                 }
                 break;
             case 4:
                 int[] aux3 = new int[length];
                 this.getIntColumnByIndexInternal(this.structPointer, column, aux3, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux3[i] == NullMappings.GetIntNullConstant()) ? null : new BigDecimal(aux3[i]);
+                    input[i] = (aux3[i] == NullMappings.getIntNullConstant()) ? null : new BigDecimal(aux3[i]);
                 }
                 break;
             case 5:
                 long[] aux4 = new long[length];
                 this.getLongColumnByIndexInternal(this.structPointer, column, aux4, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux4[i] == NullMappings.GetLongNullConstant()) ? null : new BigDecimal(aux4[i]);
+                    input[i] = (aux4[i] == NullMappings.getLongNullConstant()) ? null : new BigDecimal(aux4[i]);
                 }
                 break;
             case 6:
                 float[] aux5 = new float[length];
                 this.getFloatColumnByIndexInternal(this.structPointer, column, aux5, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux5[i] == NullMappings.GetFloatNullConstant()) ? null : new BigDecimal(aux5[i]);
+                    input[i] = (aux5[i] == NullMappings.getFloatNullConstant()) ? null : new BigDecimal(aux5[i]);
                 }
                 break;
             case 7:
                 double[] aux6 = new double[length];
                 this.getDoubleColumnByIndexInternal(this.structPointer, column, aux6, offset, length);
                 for(int i = 0 ; i < length; i++) {
-                    input[i] = (aux6[i] == NullMappings.GetDoubleNullConstant()) ? null : new BigDecimal(aux6[i]);
+                    input[i] = (aux6[i] == NullMappings.getDoubleNullConstant()) ? null : new BigDecimal(aux6[i]);
                 }
                 break;
             case 13:
@@ -2136,7 +2136,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
             throw new ClassCastException("The column is not a boolean!");
         }
         return this.getByteByColumnAndRowInternal(this.structPointer, column - 1, row - 1)
-                == NullMappings.GetByteNullConstant();
+                == NullMappings.getByteNullConstant();
     }
 
     private void checkRowArray(int column, Object input) throws MonetDBEmbeddedException {

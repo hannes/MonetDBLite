@@ -36,7 +36,7 @@ requires JVM 8 to run**, as we found problems running in the JVM 8 when we compi
 only supports 64-bit architectures**.
 
 The `monetdb-jdbc-new-<version>.jar` is both CPU and Operating System independent. ON the other hand, the
-`monetdb-java-lite-<version>.jar` contains the JNI code for 64-bit Linux, Windows and Mac OS X.
+`monetdb-java-lite-<version>.jar` contains the JNI code for 64-bit Linux, Windows and MacOS X.
 
 As this software is still experimental, we haven't made it available in a public Maven repository yet. Both jars can be
 obtained through the Download section of our [website](https://www.monetdb.org/downloads/Java-Experimental/). 
@@ -82,23 +82,23 @@ To start the database:
 ```java
 Path directoryPath = Files.createTempDirectory("monetdbjavalite");
 boolean silentFlag = true, sequentialFlag = false;
-MonetDBEmbeddedDatabase.StartDatabase(directoryPath.toString(), silentFlag, sequentialFlag);
+MonetDBEmbeddedDatabase.startDatabase(directoryPath.toString(), silentFlag, sequentialFlag);
 ```
 
 The `silent` and `sequential` flags are left for debugging purposes. They should be left as `true` and `false`
 respectively. After the database is loaded, connections can be performed to the database.
 
 ```java
-MonetDBEmbeddedConnection connection = MonetDBEmbeddedDatabase.CreateConnection();
+MonetDBEmbeddedConnection connection = MonetDBEmbeddedDatabase.createConnection();
 //the session goes...
 //Don't forget to close the connection at the end!!
 connection.close();
 ```
 
 **Before exiting the JVM it is VERY important to shutdown the database, otherwise the program will cause many memory
-leaks!** The `void MonetDBEmbeddedDatabase.StopDatabase()` class method shuts down the embedded database and any pending
-connections if existing. The class method `boolean MonetDBEmbeddedDatabase.IsDatabaseRunning()` checks if the database
-is running and `int MonetDBEmbeddedDatabase.GetNumberOfConnections()` retrieves the number of connections in the
+leaks!** The `void MonetDBEmbeddedDatabase.stopDatabase()` class method shuts down the embedded database and any pending
+connections if existing. The class method `boolean MonetDBEmbeddedDatabase.isDatabaseRunning()` checks if the database
+is running and `int MonetDBEmbeddedDatabase.getNumberOfConnections()` retrieves the number of connections in the
 database.
 
 ### MonetDB to Java Mappings 
@@ -280,7 +280,7 @@ iterateMe.iterateTable(new IMonetDBTableCursor() {
 
 To append new data to the table, the method `int appendColumns(Object[] data)` is used. The `data` is an array of
 columns, where each column has the same number of rows, and each array class corresponds to the mapping defined above.
-To insert null values, use the `T Get#Type#NullConstant()` constant in the `NullMappings` class. Due to the limitations
+To insert null values, use the `T get#Type#NullConstant()` constant in the `NullMappings` class. Due to the limitations
 of the representation of `booleans` in Java, to append to a `boolean` column, a `byte` array should be used instead, as
 shown in the example. For all the other types, there are no changes.
 
@@ -291,10 +291,10 @@ that purpose [click here for details](https://docs.oracle.com/javase/7/docs/api/
 connection.sendUpdate("CREATE TABLE interactWithMe (dutchGoodies text, justNumbers int, truth boolean, huge blob)");
 MonetDBTable interactWithMe = connection.getMonetDBTable("interactWithMe");
 
-String[] goodies = new String[]{"eerlijk", "lekker", "smullen", "smaak", NullMappings.GetObjectNullConstant<String>() };
-int[] numbers = new int[]{2, 3, NullMappings.GetIntNullConstant(), -1122100, -23123};
-byte[] truths = new byte[]{NullMappings.GetBooleanNullConstant(), 1, 1, 0, 0};
-byte[][] justBlobs = new byte[][]{new byte[]{1,2,5,7}, NullMappings.GetObjectNullConstant<byte[]>(),
+String[] goodies = new String[]{"eerlijk", "lekker", "smullen", "smaak", NullMappings.getObjectNullConstant<String>() };
+int[] numbers = new int[]{2, 3, NullMappings.getIntNullConstant(), -1122100, -23123};
+byte[] truths = new byte[]{NullMappings.getBooleanNullConstant(), 1, 1, 0, 0};
+byte[][] justBlobs = new byte[][]{new byte[]{1,2,5,7}, NullMappings.getObjectNullConstant<byte[]>(),
                                   new byte[]{-1,-2,-3,-4,-5,-6}, new byte[]{127}, new byte[]{0,0,0,0,0}};
 Object[] appends = new Object[]{goodies, numbers, truths, justBlobs};
 interactWithMe.appendColumns(appends);
@@ -321,7 +321,7 @@ where directory is the location of the database.** The following example shows h
 JDBC MAPI connection URL has the format `jdbc:monetdb://<host>[:<port>]/<database>[query]`.
 
 ```java
-Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm") //Unix
+//Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm") //Unix
 //Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:C:\\user\\myfarm") //Windows
 
 //just a JDBC statement and result set

@@ -45,9 +45,9 @@ class MonetDBJavaLiteTesting {
             return;
         }
         directoryPath = Files.createTempDirectory("monetdbtest");
-        MonetDBEmbeddedDatabase.StartDatabase(directoryPath.toString(), true, false);
-        Assertions.assertTrue(MonetDBEmbeddedDatabase::IsDatabaseRunning);
-        connection = MonetDBEmbeddedDatabase.CreateConnection();
+        MonetDBEmbeddedDatabase.startDatabase(directoryPath.toString(), true, false);
+        Assertions.assertTrue(MonetDBEmbeddedDatabase::isDatabaseRunning);
+        connection = MonetDBEmbeddedDatabase.createConnection();
         setUpIsDone = true;
     }
 
@@ -56,18 +56,18 @@ class MonetDBJavaLiteTesting {
     static void shutdownDatabase() throws MonetDBEmbeddedException, IOException {
         counter--;
         if(counter == 0) {
-            MonetDBEmbeddedDatabase.StopDatabase();
-            Assertions.assertFalse(MonetDBEmbeddedDatabase::IsDatabaseRunning);
+            MonetDBEmbeddedDatabase.stopDatabase();
+            Assertions.assertFalse(MonetDBEmbeddedDatabase::isDatabaseRunning);
             //If the database is closed, then the connection will close as well
             Assertions.assertThrows(MonetDBEmbeddedException.class, () -> connection.sendQuery("SELECT 1;"));
             //Stop the database again also shouldn't work
-            Assertions.assertThrows(MonetDBEmbeddedException.class, MonetDBEmbeddedDatabase::StopDatabase);
+            Assertions.assertThrows(MonetDBEmbeddedException.class, MonetDBEmbeddedDatabase::stopDatabase);
 
             //start again the database and stop it
             Path otherPath = Files.createTempDirectory("monetdbtestother");
-            MonetDBEmbeddedDatabase.StartDatabase(otherPath.toString(), true, false);
-            MonetDBEmbeddedDatabase.CreateConnection();
-            MonetDBEmbeddedDatabase.StopDatabase();
+            MonetDBEmbeddedDatabase.startDatabase(otherPath.toString(), true, false);
+            MonetDBEmbeddedDatabase.createConnection();
+            MonetDBEmbeddedDatabase.stopDatabase();
         }
     }
 }

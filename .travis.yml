@@ -58,17 +58,17 @@ script:
     - jdk_switcher use oraclejdk8
     # Compile for the 3 operative systems! May the God be with us! We will create 3 distinct directories for each compilation
     - cd ..
-    - cp -rf MonetDBLite MonetDBLiteMacOS/
+    - cp -rf MonetDBLite MonetDBLiteMacOSX/
     - cp -rf MonetDBLite MonetDBLiteWindows/
     - cd MonetDBLite
     - docker run -it --rm -v $(pwd):/workdir --privileged=true -e CROSS_TRIPLE=x86_64-linux-gnu -e TRAVIS=1 multiarch/crossbuild bash compile.sh linux
-    - cd ../MonetDBLiteMacOS
-    - docker run -it --rm -v $(pwd):/workdir --privileged=true -e CROSS_TRIPLE=x86_64-apple-darwin -e TRAVIS=1 multiarch/crossbuild bash compile.sh macos
+    - cd ../MonetDBLiteMacOSX
+    - docker run -it --rm -v $(pwd):/workdir --privileged=true -e CROSS_TRIPLE=x86_64-apple-darwin -e TRAVIS=1 multiarch/crossbuild bash compile.sh macosx
     - cd ../MonetDBLiteWindows
     - docker run -it --rm -v $(pwd):/workdir --privileged=true -e TRAVIS=1 pedrotadim/compilemonetdblite bash compile.sh windows
     # Assemble everything with Gradle, but move the generated binaries first
     - cd ..
-    - mv MonetDBLiteMacOS/monetdb-java-lite/src/main/resources/libs/macos/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
+    - mv MonetDBLiteMacOSX/monetdb-java-lite/src/main/resources/libs/macosx/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
     - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/ 
     - cd MonetDBLite/monetdb-java-lite
     - ./gradlew -i build

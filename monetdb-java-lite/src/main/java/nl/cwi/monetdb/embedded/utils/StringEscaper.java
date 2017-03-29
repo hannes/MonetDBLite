@@ -23,7 +23,8 @@ public final class StringEscaper {
      * @param input The String to escape
      * @return The input String escaped
      */
-    public static String SQLStringEscape(String input) {
-        return "'" + input.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'") + "'";
+    public static String sqlStringEscape(String input) {
+        return "'" + input.replaceAll("\\\\", "\\\\\\\\").replaceAll("'", "\\\\'")
+                + "'";
     }
 }
