@@ -421,10 +421,10 @@ QueryResultSet resultSet = asyncFetch.join();
 [`CompletableFuture<T> exceptionally(Function<Throwable,? extends T> fn)`](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html#exceptionally-java.util.function.Function-)
 method to handle the exceptions.
 
-### 4. Floating-point values are not being correctly parsed on SQL queries.
+### 4. Floating-point values are not correctly retrieved from queries! 
 
-I found out on Linux Debian distributions, that the locales setting may not be set properly :( Just set them to
-`en_US.utf8` and you will be fine.
+I found out that on Linux Debian distributions, the locales setting may not be set properly :( Just set them to
+`en_US.UTF-8` and you will be fine.
 [Click here for details](https://askubuntu.com/questions/193251/how-to-set-all-locale-settings-in-ubuntu).
 
 ### 5. I am getting very low negative numbers and/or NullPointer exceptions in the QueryResultSet!

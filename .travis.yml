@@ -42,12 +42,14 @@ script:
     # Assemble everything with Gradle, but move the generated binaries first
     - cd ..
     - mv MonetDBLiteMacOSX/monetdb-java-lite/src/main/resources/libs/macosx/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
-    - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/ 
+    - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
+    # Assemble everything! Gradle will run tests, so we should still be away of Ubuntu!
     - cd MonetDBLite/monetdb-java-lite
-    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e TRAVIS=1 pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_121 ; ./gradlew -i build; chmod -R 777 build'
-    # Move to the original directory and copy the header file
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_121 ; ./gradlew -i build ; chmod -R 777 build'
+    # Copy the header file for our Downloads section and fix this weird renaming bug
+    - cp ../HEADER.html build/libs
+    - mv build/libs/workdir-2.24.jar build/libs/monetdb-java-lite-2.24.jar
     - cd ..
-    - cp HEADER.html monetdb-java-lite/build/libs/
 
 addons:
     ssh_known_hosts: monetdb.org
@@ -62,7 +64,7 @@ before_deploy:
 deploy:
     provider: script
     skip_cleanup: true
-    script: rsync -aqz monetdb-java-lite/build/libs/ ferreira@monetdb.org:/var/www/html/downloads/Java-Experimental/
+    script: rsync -aqz --ignore-times monetdb-java-lite/build/libs/ ferreira@monetdb.org:/var/www/html/downloads/Java-Experimental/
     on:
         branch: Dec2016Lite-Java
 
