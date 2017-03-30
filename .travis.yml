@@ -17,61 +17,34 @@ addons:
 services:
     - docker
 
-before_cache:
-    # Clean gradle caches
-    - rm -f  $HOME/monetdb-java-lite/.gradle/caches/modules-2/modules-2.lock
-    - rm -rf $HOME/monetdb-java-lite/.gradle/caches/*/plugin-resolution/
-
-cache:
-    directories:
-        - $HOME/monetdb-java-lite/.gradle/caches/
-        - $HOME/monetdb-java-lite/.gradle/wrapper/
-
-env:
-    global:
-        # Ubuntu problems...
-        - LANG=en_US.utf8
-        - LC_CTYPE=en_US.utf8
-        - LC_NUMERIC=en_US.utf8
-        - LC_TIME=en_US.utf8
-        - LC_COLLATE=en_US.utf8
-        - LC_MONETARY=en_US.utf8
-        - LC_MESSAGES=en_US.utf8
-        - LC_PAPER=en_US.utf8
-        - LC_NAME=en_US.utf8
-        - LC_ADDRESS=en_US.utf8
-        - LC_TELEPHONE=en_US.utf8
-        - LC_MEASUREMENT=en_US.utf8
-        - LC_IDENTIFICATION=en_US.utf8
-
 before_install:
-    # Updating libraries
+    # Update repository and install additional utilities
     - sudo apt-get -qy update
     - sudo apt-get install -qq -y realpath coreutils
 
 install:
     # Disable default "./gradlew assemble" command.
-    # See http://stackoverflow.com/a/23416671
     - true
 
 script:
     - jdk_switcher use oraclejdk8
-    # Compile for the 3 operative systems! May the God be with us! We will create 3 distinct directories for each compilation
+    # Compile for the 3 operative systems! May the God be with us! We will create 3 distinct directories for each compilation!
+    # We are using Docker containers to protect ourselves from Ubuntu's evil locales! :(
     - cd ..
     - cp -rf MonetDBLite MonetDBLiteMacOSX/
     - cp -rf MonetDBLite MonetDBLiteWindows/
     - cd MonetDBLite
-    - docker run -it --rm -v $(pwd):/workdir --privileged=true -e CROSS_TRIPLE=x86_64-linux-gnu -e TRAVIS=1 multiarch/crossbuild bash compile.sh linux
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e CROSS_TRIPLE=x86_64-linux-gnu -e TRAVIS=1 multiarch/crossbuild bash compile.sh linux
     - cd ../MonetDBLiteMacOSX
-    - docker run -it --rm -v $(pwd):/workdir --privileged=true -e CROSS_TRIPLE=x86_64-apple-darwin -e TRAVIS=1 multiarch/crossbuild bash compile.sh macosx
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e CROSS_TRIPLE=x86_64-apple-darwin -e TRAVIS=1 multiarch/crossbuild bash compile.sh macosx
     - cd ../MonetDBLiteWindows
-    - docker run -it --rm -v $(pwd):/workdir --privileged=true -e TRAVIS=1 pedrotadim/compilemonetdblite bash compile.sh windows
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e TRAVIS=1 pedrotadim/compilemonetdblite bash compile.sh windows
     # Assemble everything with Gradle, but move the generated binaries first
     - cd ..
     - mv MonetDBLiteMacOSX/monetdb-java-lite/src/main/resources/libs/macosx/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
     - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/ 
     - cd MonetDBLite/monetdb-java-lite
-    - ./gradlew -i build
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e TRAVIS=1 pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_121 ; ./gradlew -i build'
     # Move to the original directory and copy the header file
     - cd ..
     - cp HEADER.html monetdb-java-lite/build/libs/
