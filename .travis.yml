@@ -44,7 +44,7 @@ script:
     - mv MonetDBLiteMacOSX/monetdb-java-lite/src/main/resources/libs/macosx/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
     - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/ 
     - cd MonetDBLite/monetdb-java-lite
-    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e TRAVIS=1 pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_121 ; ./gradlew -i build'
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e TRAVIS=1 pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_121 ; ./gradlew -i build; chmod -R 777 build'
     # Move to the original directory and copy the header file
     - cd ..
     - cp HEADER.html monetdb-java-lite/build/libs/
