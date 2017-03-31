@@ -1,3 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0.  If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
+ */
+
 package nl.cwi.monetdb.tests;
 
 import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedConnection;
@@ -72,19 +80,24 @@ public class MonetDBLiteTests extends MonetDBJavaLiteTesting {
     @Test
     @DisplayName("Empty result sets")
     void stringsWithExoticCharacters() throws MonetDBEmbeddedException {
-        MonetDBEmbeddedConnection con1 = MonetDBEmbeddedDatabase.createConnection();
-        QueryResultSet rs = con1.sendQuery("SELECT * from types WHERE 1=0;");
-        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> rs.getIntegerByColumnIndexAndRow(1, 1));
-        rs.close();
-        con1.close();
+        MonetDBEmbeddedConnection con = MonetDBEmbeddedDatabase.createConnection();
+        QueryResultSet qrs = con.sendQuery("SELECT id from types WHERE 1=0;");
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> qrs.getIntegerByColumnIndexAndRow(1, 1));
+        int numberOfRows = qrs.getNumberOfRows();
+        Assertions.assertEquals(0, numberOfRows, "The number of rows should be 0, got " + numberOfRows + " instead!");
+        qrs.close();
+        con.close();
     }
 
     @Test
     @DisplayName("SELECT NULL")
     void selectNull() throws MonetDBEmbeddedException {
-        MonetDBEmbeddedConnection con1 = MonetDBEmbeddedDatabase.createConnection();
-        QueryResultSet rs = con1.sendQuery("SELECT NULL AS stresser;");
-        rs.close();
-        con1.close();
+        MonetDBEmbeddedConnection con = MonetDBEmbeddedDatabase.createConnection();
+        QueryResultSet qrs = con.sendQuery("SELECT NULL AS stresser;");
+        int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
+        Assertions.assertEquals(1, numberOfRows, "The number of rows should be 1, got " + numberOfRows + " instead!");
+        Assertions.assertEquals(1, numberOfColumns, "The number of columns should be 1, got " + numberOfColumns + " instead!");
+        qrs.close();
+        con.close();
     }
 }

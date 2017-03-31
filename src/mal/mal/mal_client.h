@@ -160,7 +160,8 @@ typedef struct CLIENT {
 
 	int lastQueryType; //Added for MonetDBJavaLite If you have something better tell me ok? :)
 	int lastNumberOfRows; //Same thing as the previous one
-    int lastResultSetID; //Same thing as the previous one
+	int querySpecialType; //Same thing as the previous one
+	int lastResultSetID; //Same thing as the previous one
     int lastAutoCommitStatus;
 	/*
 	 * Here are pointers to scenario backends contexts.  For the time

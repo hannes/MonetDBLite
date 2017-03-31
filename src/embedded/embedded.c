@@ -26,6 +26,7 @@
 
 #include "decompress.c"
 #include "inlined_scripts.c"
+#include "../sql/server/sql_mvc.h"
 
 //#include <locale.h>
 
@@ -172,7 +173,7 @@ int monetdb_is_initialized(void) {
 char* monetdb_query(Client conn, char* query, char execute, void** result) {
 	str res = MAL_SUCCEED;
 	mvc* m;
-    conn->lastResultSetID = -1;
+	conn->querySpecialType = 0;
 	conn->lastNumberOfRows = -2; //Keep consistence with the JDBC driver
     *result = NULL;
 	if (!monetdb_is_initialized()) {
@@ -209,6 +210,8 @@ char* monetdb_query(Client conn, char* query, char execute, void** result) {
 	} else if (strncasecmp(query, "SHIBBOLEET", 10) == 0) {
 		res = GDKstrdup("\x46\x6f\x72\x20\x69\x6d\x6d\x65\x64\x69\x61\x74\x65\x20\x74\x65\x63\x68\x6e\x69\x63\x61\x6c\x20\x73\x75\x70\x70\x6f\x72\x74\x20\x63\x61\x6c\x6c\x20\x2b\x33\x31\x20\x32\x30\x20\x35\x39\x32\x20\x34\x30\x33\x39");
 	} else if (strncasecmp(query, "PREPARE", 7) == 0 || strncasecmp(query, "EXEC", 4) == 0) {
+		conn->querySpecialType = 1;
+
 		// prepared statements are VERY COMPLICATED indeed. First we use the SQLPreparedStatementParser to check
         // the query string and prepare the engine
         // Then we execute the query. It it's a PREPARE, we get the res_table*, and set the lastQueryType to Q_PREPARE
@@ -226,6 +229,9 @@ char* monetdb_query(Client conn, char* query, char execute, void** result) {
             }
         }
 	} else {
+        if(strncasecmp(query, "COPY", 7)) {
+			conn->querySpecialType = 2; //more engineering
+        }
 		res = SQLstatementIntern(conn, &query, "main", execute, 0, (res_table **) result);
 	}
     //It's important to set the last auto_commit for the JDBC embedded connection

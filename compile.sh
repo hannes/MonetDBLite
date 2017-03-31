@@ -40,7 +40,7 @@ case "$1" in
 
     macosx)
         BUILDSYS=macosx
-        BUILDLIBRARY=libmonetdb5.jnilib
+        BUILDLIBRARY=libmonetdb5.dylib
         CC=o64-gcc
         ;;
          

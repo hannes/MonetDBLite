@@ -218,7 +218,7 @@ public class JDBCTests extends MonetDBJavaLiteTesting {
     }
 
     @Test
-    @DisplayName("Test transactions management in JDBC")
+    @DisplayName("Test transaction management in JDBC")
     void testTransaction() throws SQLException {
         Connection conn = createJDBCEmbeddedConnection();
         Statement stmt = conn.createStatement();

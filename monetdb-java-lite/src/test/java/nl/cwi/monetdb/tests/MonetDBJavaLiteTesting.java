@@ -27,7 +27,7 @@ import java.nio.file.Path;
  */
 class MonetDBJavaLiteTesting {
 
-    //TODO In JUnit you can't have a method run only once before all the test classes, so do this...
+    //In JUnit you can't have a method run only once before all the test classes, so do this...
 
     private static boolean setUpIsDone = false;
 
@@ -46,7 +46,7 @@ class MonetDBJavaLiteTesting {
         }
         directoryPath = Files.createTempDirectory("monetdbtest");
         MonetDBEmbeddedDatabase.startDatabase(directoryPath.toString(), true, false);
-        Assertions.assertTrue(MonetDBEmbeddedDatabase::isDatabaseRunning);
+        Assertions.assertTrue(MonetDBEmbeddedDatabase::isDatabaseRunning, "The database should be running!");
         connection = MonetDBEmbeddedDatabase.createConnection();
         setUpIsDone = true;
     }
@@ -57,13 +57,15 @@ class MonetDBJavaLiteTesting {
         counter--;
         if(counter == 0) {
             MonetDBEmbeddedDatabase.stopDatabase();
-            Assertions.assertFalse(MonetDBEmbeddedDatabase::isDatabaseRunning);
+            Assertions.assertFalse(MonetDBEmbeddedDatabase::isDatabaseRunning, "The database should be closed!");
+            Assertions.assertTrue(connection::isConnectionClosed, "The connection should be closed!");
+
             //If the database is closed, then the connection will close as well
             Assertions.assertThrows(MonetDBEmbeddedException.class, () -> connection.sendQuery("SELECT 1;"));
             //Stop the database again also shouldn't work
             Assertions.assertThrows(MonetDBEmbeddedException.class, MonetDBEmbeddedDatabase::stopDatabase);
 
-            //start again the database and stop it
+            //start again the database in another directory and stop it
             Path otherPath = Files.createTempDirectory("monetdbtestother");
             MonetDBEmbeddedDatabase.startDatabase(otherPath.toString(), true, false);
             MonetDBEmbeddedDatabase.createConnection();

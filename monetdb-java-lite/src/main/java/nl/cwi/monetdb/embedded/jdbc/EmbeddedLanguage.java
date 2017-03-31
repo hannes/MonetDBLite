@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 package nl.cwi.monetdb.embedded.jdbc;
@@ -58,6 +58,12 @@ public enum EmbeddedLanguage implements IMonetDBLanguage {
         return representation;
     }
 
+    /**
+     * This method is used to keep compatibility with the MAPI JDBC connection. (Only SQL supported)
+     *
+     * @param language The language to retrieve the corresponding String
+     * @return The language String
+     */
     public static EmbeddedLanguage GetLanguageFromString(String language) {
         switch (language) {
             case "sql":

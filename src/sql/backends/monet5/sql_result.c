@@ -1841,9 +1841,11 @@ mvc_export_result(Client cntxt, backend *b, stream *s, int res_id) //Changed in 
         return 0;
 
     //Added for MonetDBJavaLite check monetdb_query in embedded.c
-    if(cntxt->lastResultSetID == -1) {
+    if(cntxt->querySpecialType != 1) {
         /* Proudly supporting SQLstatementIntern's output flag */
-        if (b->output_format == OFMT_NONE) {
+        if(cntxt->querySpecialType == 2) { //It's a copy
+			b->output_format = OFMT_CSV;
+		} else if (b->output_format == OFMT_NONE) {
             return 0;
         }
         /* we shouldn't have anything else but Q_TABLE here */

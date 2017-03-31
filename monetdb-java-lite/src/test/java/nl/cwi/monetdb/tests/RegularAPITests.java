@@ -8,19 +8,32 @@
 
 package nl.cwi.monetdb.tests;
 
+import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedDatabase;
 import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
 import nl.cwi.monetdb.embedded.mapping.NullMappings;
 import nl.cwi.monetdb.embedded.resultset.QueryResultSet;
 import nl.cwi.monetdb.embedded.tables.IMonetDBTableCursor;
 import nl.cwi.monetdb.embedded.tables.MonetDBTable;
 import nl.cwi.monetdb.embedded.tables.RowIterator;
+import nl.cwi.monetdb.embedded.utils.ForkJavaProcess;
+import nl.cwi.monetdb.tests.helpers.TryStartMonetDBEmbeddedDatabase;
 import org.junit.jupiter.api.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Test the regular API. Just that :)
@@ -49,6 +62,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertEquals("monetdb", monetDB, "The sum is not 2?");
         Assertions.assertEquals(2.3, avg, 0.01, "The avg is not right?");
         qrs.close();
+        Assertions.assertTrue(qrs::isQueryResultSetClosed, "The query result set should be closed!");
     }
 
     @Test
@@ -547,6 +561,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
     }
 
     @Test
+    @DisplayName("Test the number of rows returned by update queries")
     void testUpdates() throws MonetDBEmbeddedException {
         int rows1 = connection.sendUpdate("CREATE TABLE testupdates (val int);");
         Assertions.assertEquals(-2, rows1, "The creation should have affected no rows!");
@@ -568,10 +583,82 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
     }
 
     @Test
+    @DisplayName("Test regular expressions (we removed the pcre dependency from MonetDBLite recently)")
     void testRegexes() throws MonetDBEmbeddedException {
         QueryResultSet qrs = connection.sendQuery("SELECT name from tables where name LIKE '%chemas'");
         String schemas = qrs.getStringByColumnIndexAndRow(1,1);
         Assertions.assertEquals("schemas", schemas, "The regex is not working properly?!");
         qrs.close();
+    }
+
+    @Test
+    @DisplayName("Test another process attempting to perform a concurrent access into the database directory")
+    void testProcessConcurrentAccessIntoTheDatabase() throws MonetDBEmbeddedException, IOException, InterruptedException {
+        String databaseDirectory = MonetDBEmbeddedDatabase.getDatabaseDirectory();
+        Map<String, String> environment = new HashMap<>();
+        environment.put(TryStartMonetDBEmbeddedDatabase.DATABASE_ENV, databaseDirectory);
+
+        int status = ForkJavaProcess.exec(TryStartMonetDBEmbeddedDatabase.class, environment);
+        Assertions.assertEquals(0, status, "The other process should have failed to lock the database!");
+    }
+
+    @Test
+    @DisplayName("Test COPY FROM and COPY INTO")
+    void testCSVParser() throws MonetDBEmbeddedException, IOException, InterruptedException {
+        //For the import we are are going to create a temporary file
+        final File csvImportFile = Files.createTempFile("testingmonetdbjavaliteimport",".csv").toFile();
+        final String csvImportFilePath = csvImportFile.getAbsolutePath();
+        //For the export the file must be inexistent, so we have to delete it first
+        final String csvExportFilePath =
+                Paths.get(System.getProperty("java.io.tmpdir"), "testingmonetdbjavaliteexport.csv")
+                        .toAbsolutePath().toString();
+        Files.deleteIfExists(Paths.get(csvExportFilePath));
+
+        String[] column1 = new String[]{"testingCSVParser", null, "Great test", "Have a nice day! :)"};
+        int[] column2 = new int[]{0, -3545, NullMappings.getIntNullConstant(), 33};
+        float[] column3 = new float[]{3.75f, -7.858f, 535.432f, NullMappings.getFloatNullConstant()};
+
+        //We could use a Java 8 stream with the StringJoin aggregator, but let's be simple...
+        String csvToImport =
+                column1[0] + "," + column2[0] + "," + column3[0] + "\n" +
+                "NULL"     + "," + column2[1] + "," + column3[1] + "\n" +
+                column1[2] + "," + "NULL"     + "," + column3[2] + "\n" +
+                column1[3] + "," + column2[3] + "," + "NULL"     + "\n";
+        PrintWriter pw = new PrintWriter(csvImportFile);
+        pw.write(csvToImport);
+        pw.flush();
+        pw.close();
+
+        int rows1 = connection.sendUpdate("CREATE TABLE testCSV (a TEXT, b INT, c real);");
+        Assertions.assertEquals(-2, rows1, "The creation should have affected no rows!");
+        connection.sendUpdate("COPY INTO testCSV FROM '" + csvImportFilePath + "' USING DELIMITERS ',','\n','\"';");
+
+        QueryResultSet qrs = connection.sendQuery("SELECT * FROM testCSV;");
+        int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
+        Assertions.assertEquals(4, numberOfRows, "The number of rows should be 4, got " + numberOfRows + " instead!");
+        Assertions.assertEquals(3, numberOfColumns, "The number of columns should be 3, got " + numberOfColumns + " instead!");
+
+        String[] array1 = new String[4];
+        qrs.getStringColumnByIndex(1, array1);
+        Assertions.assertArrayEquals(column1, array1, "CSV not working with Strings!");
+
+        int[] array2 = new int[4];
+        qrs.getIntColumnByIndex(2, array2);
+        Assertions.assertArrayEquals(column2, array2, "CSV not working with Integers!");
+
+        float[] array3 = new float[4];
+        qrs.getFloatColumnByIndex(3, array3);
+        Assertions.assertArrayEquals(column3, array3, 0.01f, "CSV not working with Floats!");
+        qrs.close();
+
+        connection.sendUpdate("COPY SELECT * FROM testCSV INTO '" + csvExportFilePath + "' USING DELIMITERS ',','\n';");
+
+        //TODO Fix on the native code
+        // Compare the two files!
+        //String csvExported = new String(Files.readAllBytes(Paths.get(csvExportFilePath)), StandardCharsets.UTF_8);
+        //Assertions.assertEquals(csvToImport, csvExported, "The CSVs are not equal!");
+
+        int rows2 = connection.sendUpdate("DROP TABLE testCSV;");
+        Assertions.assertEquals(-2, rows2, "The deletion should have affected no rows!");
     }
 }

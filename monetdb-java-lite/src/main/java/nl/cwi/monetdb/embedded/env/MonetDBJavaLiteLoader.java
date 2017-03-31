@@ -3,7 +3,7 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright 2017 MonetDB B.V.
+ * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
 package nl.cwi.monetdb.embedded.env;
@@ -32,7 +32,7 @@ public final class MonetDBJavaLiteLoader {
      */
     public enum OSLibraries {
         /* Please don't change the order!!! */
-        Windows("/libs/windows", "libmonetdb5.dll"), MacOSX("/libs/macosx", "libmonetdb5.jnilib"),
+        Windows("/libs/windows", "libmonetdb5.dll"), MacOSX("/libs/macosx", "libmonetdb5.dylib"),
         Linux("/libs/linux", "libmonetdb5.so");
 
         OSLibraries(String libraryFilePath, String libraryFileName) {
