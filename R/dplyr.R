@@ -8,13 +8,11 @@ src_monetdb <- function(dbname="demo", host = "localhost", port = 50000L, user =
     con <- DBI::dbConnect(MonetDB.R(), dbname = dbname , host = host, port = port,
       user = user, password = password, ...)
   }
-  s <- dplyr::src_sql("monetdb", con, info = DBI::dbGetInfo(con))
 
   # this is a (dirty) hack so we don't need to depend on dplyr
   dplyrMt <- getNamespace("dplyr")$.__S3MethodsTable__.
 
   dplyrMt[["sql_translate_env.MonetDBConnection"]]     <- sql_translate_env.MonetDBConnection
-  dplyrMt[["src_desc.src_monetdb"]]                    <- src_desc.src_monetdb
   dplyrMt[["tbl.src_monetdb"]]                         <- tbl.src_monetdb
   dplyrMt[["sample_n.tbl_monetdb"]]                    <- sample_n.tbl_monetdb
   dplyrMt[["sample_frac.tbl_monetdb"]]                 <- sample_frac.tbl_monetdb
@@ -23,39 +21,32 @@ src_monetdb <- function(dbname="demo", host = "localhost", port = 50000L, user =
   dplyrMt[["db_create_index.MonetDBConnection"]]       <- db_create_index.MonetDBConnection
   dplyrMt[["db_analyze.MonetDBConnection"]]            <- db_analyze.MonetDBConnection
   dplyrMt[["db_explain.MonetDBEmbeddedConnection"]]    <- db_explain.MonetDBEmbeddedConnection
+  dplyrMt[["db_desc.MonetDBEmbeddedConnection"]]       <- db_desc.MonetDBEmbeddedConnection
 
-  s
+  dbplyr::src_sql("monetdb", con, info = DBI::dbGetInfo(con))
 }
 
 
 tbl.src_monetdb <- function(src, from, ...) {
   if(!grepl("^\\s*SELECT\\s+.*", as.character(from), ignore.case=T, perl=T)) {
-    from <- dplyr::build_sql("SELECT * FROM ", dplyr::ident(from))
+    from <- dbplyr::build_sql("SELECT * FROM ", dbplyr::ident(from))
   }
-  dplyr::tbl_sql("monetdb", src = src, from = from, ...)
+  dbplyr::tbl_sql("monetdb", src = src, from = from, ...)
 }
 
 sql_translate_env.MonetDBConnection <- function(con) {
-  dplyr::sql_variant(
-    scalar = dplyr::sql_translator(.parent = dplyr::base_scalar,
-      `!=` = dplyr::sql_infix("<>")
+  dbplyr::sql_variant(
+    scalar = dbplyr::sql_translator(.parent = dbplyr::base_scalar,
+      `!=` = dbplyr::sql_infix("<>")
     ),
-    aggregate = dplyr::sql_translator(.parent = dplyr::base_agg, 
-      n = function() dplyr::sql("COUNT(*)"),
-      sd =  dplyr::sql_prefix("STDDEV_SAMP"),
-      var = dplyr::sql_prefix("VAR_SAMP"),
-      median = dplyr::sql_prefix("MEDIAN")
+    aggregate = dbplyr::sql_translator(.parent = dbplyr::base_agg, 
+      n = function() dbplyr::sql("COUNT(*)"),
+      sd =  dbplyr::sql_prefix("STDDEV_SAMP"),
+      var = dbplyr::sql_prefix("VAR_SAMP"),
+      median = dbplyr::sql_prefix("MEDIAN")
     ), #FIXME n_distinct
-    window = dplyr::sql_translator(.parent = dplyr::base_win)
+    window = dbplyr::sql_translator(.parent = dbplyr::base_win)
   )
-}
-
-src_desc.src_monetdb <- function(x) {
-  if (inherits(dplyr::con_acquire(x), "MonetDBEmbeddedConnection")) {
-    paste0("MonetDBLite ", packageVersion("MonetDBLite"), " (", monetdb_embedded_env$started_dir, ")")
-  } else {
-    paste0("MonetDB ",x$info$monet_version, " (",x$info$monet_release, ")")
-  }
 }
 
 sample_n.tbl_monetdb <- function(x, size, replace = FALSE, weight = NULL) {
@@ -63,20 +54,20 @@ sample_n.tbl_monetdb <- function(x, size, replace = FALSE, weight = NULL) {
     stop("Sorry, replace and weight are not supported for MonetDB tables. \
       Consider collect()'ing first.")
   }
-  con <- dplyr::con_acquire(x$src)
+  con <- dbplyr::con_acquire(x$src)
 
-  DBI::dbGetQuery(con, dplyr::build_sql("SELECT * FROM (", dplyr::sql_render(x, con), ") AS s SAMPLE ", as.integer(size)))
+  DBI::dbGetQuery(con, dbplyr::build_sql("SELECT * FROM (", dbplyr::sql_render(x, con), ") AS s SAMPLE ", as.integer(size)))
 }
 
 sample_frac.tbl_monetdb <- function(tbl, frac=1, replace = FALSE, weight = NULL) {
   if (frac < 0 || frac > 1) {
     stop("frac must be in [0,1]")
   }
-  n <- as.data.frame(dplyr::summarize(tbl, n()))[[1,1]]
+  n <- as.data.frame(dbplyr::summarize(tbl, n()))[[1,1]]
   if (n < 1) {
     stop("not sampling 0 rows...")
   }
-  dplyr::sample_n(tbl, n, replace, weight)
+  dbplyr::sample_n(tbl, n, replace, weight)
 }
 
 db_insert_into.MonetDBConnection <- function(con, table, values, ...) {
@@ -87,14 +78,14 @@ db_insert_into.MonetDBConnection <- function(con, table, values, ...) {
 db_save_query.MonetDBConnection <- function(con, sql, name, temporary = TRUE,
                                             ...) {
   tt_sql <- if(isTRUE(temporary)){
-    dplyr::build_sql( "CREATE TEMPORARY TABLE "
-                      , dplyr::ident(name)
+    dbplyr::build_sql( "CREATE TEMPORARY TABLE "
+                      , dbplyr::ident(name)
                       , " AS ", sql, " WITH DATA ON COMMIT PRESERVE ROWS"
                       , con = con
     )
   } else {
-    dplyr::build_sql( "CREATE TABLE "
-                      , dplyr::ident(name)
+    dbplyr::build_sql( "CREATE TABLE "
+                      , dbplyr::ident(name)
                       , " AS ", sql, " WITH DATA"
                       , con = con
     )
@@ -113,11 +104,20 @@ db_analyze.MonetDBConnection <- function(con, table, ...) {
 }
 
 db_explain.MonetDBEmbeddedConnection <- function(con, sql, ...) {
-  exsql <- dplyr::build_sql("PLAN ", dplyr::sql(sql), con = con)
+  exsql <- dbplyr::build_sql("PLAN ", dbplyr::sql(sql), con = con)
   expl  <- DBI::dbGetQuery(con, exsql)
   planstr <- expl[[1]][[1]]
   planstr <- gsub("\n=", "\n", planstr, perl=T)
   planstr <- gsub("^\n", "", planstr, perl=T)
 
   planstr
+}
+
+
+db_desc.MonetDBEmbeddedConnection <- function(con) {
+  if (inherits(con, "MonetDBEmbeddedConnection")) {
+    paste0("MonetDBLite ", packageVersion("MonetDBLite"), " (", monetdb_embedded_env$started_dir, ")")
+  } else {
+    paste0("MonetDB ",con$info$monet_version, " (",con$info$monet_release, ")")
+  }
 }

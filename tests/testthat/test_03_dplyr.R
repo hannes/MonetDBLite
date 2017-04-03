@@ -1,7 +1,5 @@
 library(testthat)
 library(dplyr)
-library(nycflights13)
-library(MonetDBLite)
 
 dbdir <- file.path(tempdir(), "dplyrdir")
 my_db_sqlite <- FALSE
@@ -11,10 +9,11 @@ flights_monetdb <- FALSE
 
 test_that("we can connect", {
 	my_db_sqlite <<- src_sqlite(tempfile(), create = T)
-	my_db_monetdb <<- src_monetdblite(dbdir)
+	my_db_monetdb <<- MonetDBLite::src_monetdblite(dbdir)
 })
 
 # TEMPORARY until https://github.com/hannesmuehleisen/MonetDBLite/issues/15
+flights <- nycflights13::flights
 flights$time_hour <- as.numeric( flights$time_hour )
 
 
@@ -37,8 +36,8 @@ test_that("explain works", {
 
 test_that("dplyr tbl( sql() )", {
 	expect_equal( 
-		collect(tbl(my_db_sqlite, sql("SELECT * FROM flights"))) ,
-		collect(tbl(my_db_monetdb, sql("SELECT * FROM flights"))) 
+		collect(tbl(my_db_sqlite, dbplyr::sql("SELECT * FROM flights"))) ,
+		collect(tbl(my_db_monetdb, dbplyr::sql("SELECT * FROM flights"))) 
 	)
 })
 
@@ -170,6 +169,7 @@ test_that("dplyr summarise 2", {
 
 
 test_that("shutdown", {
-	DBI::dbDisconnect(con_acquire(my_db_monetdb), shutdown=TRUE)
+	#DBI::dbDisconnect(con_acquire(my_db_monetdb), shutdown=TRUE)
+	MonetDBLite:::monetdb_embedded_shutdown()
 })
 
