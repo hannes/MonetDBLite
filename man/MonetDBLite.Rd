@@ -25,5 +25,5 @@
 \examples{
 library(DBI)
 con <- dbConnect(MonetDBLite::MonetDBLite())
-dbDisconnect(con,shutdown=TRUE)
+dbDisconnect(con, shutdown=TRUE)
 }

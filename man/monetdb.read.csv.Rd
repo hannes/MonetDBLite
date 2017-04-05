@@ -55,6 +55,6 @@ write.table(iris, file, sep=",", row.names=FALSE)
 # create table and import CSV
 monetdb.read.csv(con, file, "iris")
 
-dbDisconnect(con,shutdown=TRUE)
+dbDisconnect(con, shutdown=TRUE)
 }
 \keyword{interface}

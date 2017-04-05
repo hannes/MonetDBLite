@@ -13,4 +13,4 @@ src/config.cache
 .cproject
 monetdb_config.h
 autom4te.cache
-MonetDBLite_*
+MonetDBLite_*gz

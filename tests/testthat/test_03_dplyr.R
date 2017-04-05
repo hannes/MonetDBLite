@@ -169,7 +169,6 @@ test_that("dplyr summarise 2", {
 
 
 test_that("shutdown", {
-	#DBI::dbDisconnect(con_acquire(my_db_monetdb), shutdown=TRUE)
-	MonetDBLite:::monetdb_embedded_shutdown()
+	MonetDBLite::monetdblite_shutdown()
 })
 

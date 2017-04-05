@@ -129,7 +129,7 @@ monetdb_embedded_disconnect <- function(conn) {
 	invisible(TRUE)
 }
 
-monetdb_embedded_shutdown <- function() {
+monetdb_embedded_shutdown <- monetdblite_shutdown <- function() {
     gc()	
         
 	if (monetdb_embedded_env$started_dir != "" && !dir.exists(monetdb_embedded_env$started_dir)) {

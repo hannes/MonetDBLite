@@ -21,3 +21,6 @@ export(monetdb.server.getpid)
 # dplyr.R
 export(src_monetdb, src_monetdblite)
 # rest of dplyr.R exported via hack in src_monetdb
+
+# embedded.R
+export(monetdblite_shutdown)
