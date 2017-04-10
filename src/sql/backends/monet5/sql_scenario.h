@@ -43,6 +43,7 @@ sql5_export str SQLstatementIntern(Client c, str *expr, str nme, bit execute, bi
 sql5_export str SQLcompile(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str SQLinclude(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str SQLCacheRemove(Client c, str nme);
+sql5_export str SQLescapeString(str s);
 
 sql5_export int SQLisInitialized(void);
 
