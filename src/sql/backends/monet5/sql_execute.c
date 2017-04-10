@@ -375,7 +375,7 @@ SQLescapeString(str s)
 {
 	str ret = NULL;
 	char *p, *q;
-	int len = 0;
+	size_t len = 0;
 
 	if(!s) {
 		return NULL;
