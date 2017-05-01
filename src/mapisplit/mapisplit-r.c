@@ -1,3 +1,5 @@
+#include "monetdb_config.h"
+
 #ifdef HAVE_EMBEDDED_R
 #include <R.h>
 #include <Rdefines.h>
