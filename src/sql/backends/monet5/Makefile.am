@@ -210,9 +210,6 @@ install-exec-local-sql_decimal_hge.mal: sql_decimal_hge.mal
 uninstall-local-sql_decimal_hge.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/sql_decimal_hge.mal
 
-dist-hook:
-	mkdir -p $(distdir)/Tests
-	cp -pR $(srcdir)/Tests/* $(distdir)/Tests
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
 EXTRA_DIST = Makefile.ag Makefile.msc 40_sql.mal 41_sql_hge.mal mal_backend.c mal_backend.h rel_bin.c rel_bin.h sql.c sql.h sql.mal sql_aggr_bte.mal sql_aggr_dbl.mal sql_aggr_flt.mal sql_aggr_hge.mal sql_aggr_int.mal sql_aggr_lng.mal sql_aggr_sht.mal sql_assert.c sql_assert.h sql_bat2time.c sql_cast.c sql_cast.h sql_cast_impl_down_from_flt.h sql_cast_impl_int.h sql_cast_impl_up_to_flt.h sql_decimal.mal sql_decimal_hge.mal sql_execute.c sql_execute.h sql_fround.c sql_fround_impl.h sql_gencode.c sql_gencode.h sql_hge.mal sql_inspect.mal sql_optimizer.c sql_optimizer.h sql_orderidx.c sql_orderidx.h sql_rank.c sql_rank.h sql_rank.mal sql_result.c sql_result.h sql_round.c sql_round_impl.h sql_scenario.c sql_scenario.h sql_statement.c sql_statement.h sql_statistics.c sql_statistics.h sql_upgrades.c sql_upgrades.h sql_user.c sql_user.h

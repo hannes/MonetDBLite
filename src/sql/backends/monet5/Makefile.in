@@ -635,9 +635,6 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
-	$(MAKE) $(AM_MAKEFLAGS) \
-	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
-	  dist-hook
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
@@ -752,11 +749,11 @@ uninstall-am: uninstall-local uninstall-sqlLTLIBRARIES
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
 	clean-libtool clean-sqlLTLIBRARIES cscopelist-am ctags \
-	ctags-am dist-hook distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-exec-local install-html \
+	ctags-am distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-exec-local install-html \
 	install-html-am install-info install-info-am install-man \
 	install-pdf install-pdf-am install-ps install-ps-am \
 	install-sqlLTLIBRARIES install-strip installcheck \
@@ -949,10 +946,6 @@ install-exec-local-sql_decimal_hge.mal: sql_decimal_hge.mal
 
 uninstall-local-sql_decimal_hge.mal: 
 	$(RM) $(DESTDIR)$(libdir)/monetdb5/sql_decimal_hge.mal
-
-dist-hook:
-	mkdir -p $(distdir)/Tests
-	cp -pR $(srcdir)/Tests/* $(distdir)/Tests
 uninstall-local: uninstall-local-$(C_41_sql_hge_mal) uninstall-local-$(C_sql_aggr_hge_mal) uninstall-local-$(C_sql_decimal_hge_mal) uninstall-local-$(C_sql_hge_mal) uninstall-local-40_sql.mal uninstall-local-sql.mal uninstall-local-sql_aggr_bte.mal uninstall-local-sql_aggr_dbl.mal uninstall-local-sql_aggr_flt.mal uninstall-local-sql_aggr_int.mal uninstall-local-sql_aggr_lng.mal uninstall-local-sql_aggr_sht.mal uninstall-local-sql_decimal.mal uninstall-local-sql_inspect.mal uninstall-local-sql_rank.mal
 install-exec-local: install-exec-local-$(C_41_sql_hge_mal) install-exec-local-$(C_sql_aggr_hge_mal) install-exec-local-$(C_sql_decimal_hge_mal) install-exec-local-$(C_sql_hge_mal) install-exec-local-40_sql.mal install-exec-local-sql.mal install-exec-local-sql_aggr_bte.mal install-exec-local-sql_aggr_dbl.mal install-exec-local-sql_aggr_flt.mal install-exec-local-sql_aggr_int.mal install-exec-local-sql_aggr_lng.mal install-exec-local-sql_aggr_sht.mal install-exec-local-sql_decimal.mal install-exec-local-sql_inspect.mal install-exec-local-sql_rank.mal
 
