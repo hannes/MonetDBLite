@@ -108,5 +108,5 @@ sql/scripts/
 embedded/
 	$(libdir)/libembedded.so
 	$(libdir)/libembeddedr.so
-mapisplit/#HAVE_EMBEDDED_R
+mapisplit/
 	$(libdir)/libmapisplit.so

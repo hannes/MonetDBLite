@@ -1,3 +1,4 @@
+#ifdef HAVE_EMBEDDED_R
 #include <R.h>
 #include <Rdefines.h>
 #include "mapisplit.h"
@@ -50,3 +51,4 @@ SEXP mapi_split(SEXP mapiLinesVector, SEXP numCols) {
 	UNPROTECT(1);
 	return colVec;
 }
+#endif
