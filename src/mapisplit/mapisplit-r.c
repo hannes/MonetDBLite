@@ -4,10 +4,9 @@
 #include <R.h>
 #include <Rdefines.h>
 #include "mapisplit.h"
+#include "mapisplit-r.h"
 
 char nullstr[] = "NULL";
-
-SEXP mapi_split(SEXP mapiLinesVector, SEXP numCols);
 
 SEXP mapi_split(SEXP mapiLinesVector, SEXP numCols) {
 	int cols = INTEGER_POINTER(AS_INTEGER(numCols))[0];

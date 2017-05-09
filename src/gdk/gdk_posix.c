@@ -733,12 +733,25 @@ MT_path_absolute(const char *pathname)
 # include <dlfcn.h>
 #endif
 
+#ifdef HAVE_EMBEDDED_R
+char* monetdb_lib_path = NULL;
+
+#endif
+
 void *
 mdlopen(const char *library, int mode)
 {
+#ifndef HAVE_EMBEDDED_R
 	(void) library;
 	return dlopen(NULL, mode);
+#else
+	(void) mode;
+	(void) library;
+	return dlopen(monetdb_lib_path, 0);
+#endif
+
 }
+
 
 #else /* WIN32 native */
 

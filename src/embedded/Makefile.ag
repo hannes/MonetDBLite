@@ -29,8 +29,7 @@ INCLUDES = ../mal/mal \
 		   ../sql/common \
 		   ../sql/storage \
 		   ../sql/storage/bat \
-		   ../sql/backends/monet5 \
-		   $(pcre_CFLAGS)
+		   ../sql/backends/monet5
 
 lib_embedded  = {
 	SOURCES = embedded.c embedded.h

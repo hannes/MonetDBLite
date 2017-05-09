@@ -4,6 +4,7 @@
 #include "embeddedr.h"
 #include "R_ext/Random.h"
 #include "R_ext/Rallocators.h"
+#include <R_ext/Rdynload.h>
 #include "monet_options.h"
 #include "mal.h"
 #include "mmath.h"
@@ -219,4 +220,28 @@ SEXP monetdb_shutdown_R(void) {
 	monetdb_shutdown();
 	return R_NilValue;
 }
+
+// ehem
+#include "../mapisplit/mapisplit-r.h"
+
+// R native routine registration
+#define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
+static const R_CallMethodDef R_CallDef[] = {
+   CALLDEF(monetdb_startup_R, 3),
+   CALLDEF(monetdb_connect_R, 0),
+   CALLDEF(monetdb_query_R, 4),
+   CALLDEF(monetdb_append_R, 4),
+   CALLDEF(monetdb_disconnect_R, 1),
+   CALLDEF(monetdb_shutdown_R, 0),
+   CALLDEF(mapi_split, 2),
+   {NULL, NULL, 0}
+};
+
+void R_init_libmonetdb5(DllInfo *dll) {
+	monetdb_lib_path = strdup(*((char**) dll)); // not evil at all
+    R_registerRoutines(dll, NULL, R_CallDef, NULL, NULL);
+	R_useDynamicSymbols(dll, TRUE);
+}
+
+
 #endif

@@ -2,12 +2,6 @@ monetdb_embedded_env <- new.env(parent=emptyenv())
 monetdb_embedded_env$is_started <- FALSE
 monetdb_embedded_env$started_dir <- ""
 
-libfilename <- "libmonetdb5"
-
-.onLoad <- function(libname, pkgname){
-	library.dynam(libfilename, pkgname, lib.loc=libname, now=T, local=F)
-}
-
 classname <- "monetdb_embedded_connection"
 
 monetdb_embedded_startup <- function(dir=tempdir(), quiet=TRUE, sequential=TRUE) {
@@ -24,8 +18,8 @@ monetdb_embedded_startup <- function(dir=tempdir(), quiet=TRUE, sequential=TRUE)
 	}
 	dir <- normalizePath(dir, mustWork=T)
 	if (!monetdb_embedded_env$is_started) {
-		res <- .Call("monetdb_startup_R", dir, quiet, 
-			getOption('monetdb.squential', sequential), PACKAGE=libfilename)
+		res <- .Call(monetdb_startup_R, dir, quiet, 
+			getOption('monetdb.squential', sequential))
 	} else {
 		if (dir != monetdb_embedded_env$started_dir) {
 			stop("MonetDBLite cannot change database directories (already started in ", monetdb_embedded_env$started_dir, ", shutdown first).")
@@ -64,7 +58,7 @@ monetdb_embedded_query <- function(conn, query, execute=TRUE, resultconvert=TRUE
 	}
 	# make sure the query is terminated
 	query <- paste(query, "\n;", sep="")
-	res <- .Call("monetdb_query_R", conn, query, execute, resultconvert, PACKAGE=libfilename)
+	res <- .Call(monetdb_query_R, conn, query, execute, resultconvert)
 
 	resp <- list()
 	if (is.character(res)) { # error
@@ -108,7 +102,8 @@ monetdb_embedded_append <- function(conn, table, tdata, schema="sys") {
 		stop("Need a data frame as tdata parameter.")
 	}
 	
-	.Call("monetdb_append_R", conn, schema, table, tdata, PACKAGE=libfilename)
+	.Call(monetdb_append_R, conn, schema, table, tdata)
+
 }
 
 
@@ -116,7 +111,8 @@ monetdb_embedded_connect <- function() {
 	if (!monetdb_embedded_env$is_started) {
 		stop("Call monetdb_embedded_startup() first")
 	}
-	conn <- .Call("monetdb_connect_R", PACKAGE=libfilename)
+	conn <- .Call(monetdb_connect_R)
+
 	class(conn) <- classname
 	return(conn)
 }
@@ -125,7 +121,8 @@ monetdb_embedded_disconnect <- function(conn) {
 	if (!inherits(conn, classname)) {
 		stop("Invalid connection")
 	}
-	.Call("monetdb_disconnect_R", conn,  PACKAGE=libfilename)
+	.Call(monetdb_disconnect_R, conn)
+
 	invisible(TRUE)
 }
 
@@ -135,7 +132,8 @@ monetdb_embedded_shutdown <- monetdblite_shutdown <- function() {
 	if (monetdb_embedded_env$started_dir != "" && !dir.exists(monetdb_embedded_env$started_dir)) {
 		stop("Somehow the database directory went missing ", monetdb_embedded_env$started_dir)
 	}
-	.Call("monetdb_shutdown_R", PACKAGE=libfilename)
+	.Call(monetdb_shutdown_R)
+
 	monetdb_embedded_env$is_started <- FALSE
 	monetdb_embedded_env$started_dir <- ""
 	invisible(TRUE)

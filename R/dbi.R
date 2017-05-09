@@ -842,7 +842,7 @@ setMethod("dbFetch", signature(res="MonetDBResult", n="numeric"), def=function(r
   
   # convert tuple string vector into matrix so we can access a single column efficiently
   # call to a faster C implementation for the annoying task of splitting everyting into fields
-  parts <- .Call("mapi_split", res@env$data[1:n], as.integer(info$cols), PACKAGE=C_LIBRARY)
+  parts <- .Call(mapi_split, res@env$data[1:n], as.integer(info$cols))
   
   # convert values column by column
   for (j in seq.int(info$cols)) {	
