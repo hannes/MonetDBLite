@@ -733,11 +733,6 @@ MT_path_absolute(const char *pathname)
 # include <dlfcn.h>
 #endif
 
-#ifdef HAVE_EMBEDDED_R
-char* monetdb_lib_path = NULL;
-
-#endif
-
 void *
 mdlopen(const char *library, int mode)
 {
@@ -1204,4 +1199,8 @@ MT_sleep_ms(unsigned int ms)
 	Sleep(ms);
 }
 
+#endif
+
+#ifdef HAVE_EMBEDDED_R
+char* monetdb_lib_path = NULL;
 #endif
