@@ -29,21 +29,15 @@ INCLUDES = ../mal/mal \
 		   ../sql/common \
 		   ../sql/storage \
 		   ../sql/storage/bat \
-		   ../sql/backends/monet5
+		   ../sql/backends/monet5 \
+		   ../mapisplit
 
 lib_embedded  = {
 	SOURCES = embedded.c embedded.h
 	VERSION = 1
-	LIBS = ../gdk/libbat \
-		$(pcre_LIBS) $(PSAPILIB) \
-		$(SOCKET_LIBS) $(MALLOC_LIBS) $(DL_LIBS) $(PTHREAD_LIBS)
 }
 
 lib_embeddedr  = {
 	SOURCES = embeddedr.c embeddedr.h
 	VERSION = 1
-	LIBS = libembedded \
-		../gdk/libbat \
-		$(pcre_LIBS) $(PSAPILIB) \
-		$(SOCKET_LIBS) $(MALLOC_LIBS) $(DL_LIBS) $(PTHREAD_LIBS)
 }

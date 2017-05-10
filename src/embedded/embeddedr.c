@@ -222,7 +222,7 @@ SEXP monetdb_shutdown_R(void) {
 }
 
 // ehem
-#include "../mapisplit/mapisplit-r.h"
+#include "mapisplit-r.h"
 
 // R native routine registration
 #define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
