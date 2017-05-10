@@ -783,7 +783,7 @@ fixwkbheap(void)
 		int srid;
 		char data[FLEXIBLE_ARRAY_MEMBER];
 	} *nwkb;
-	char *oldname, *newname;
+	char *oldname = NULL, *newname = NULL;
 
 	for (bid = 1; bid < bbpsize; bid++) {
 		if ((b = BBP_desc(bid)) == NULL)
