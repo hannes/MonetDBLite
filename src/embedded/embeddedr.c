@@ -240,6 +240,7 @@ static const R_CallMethodDef R_CallDef[] = {
 void R_init_libmonetdb5(DllInfo *dll) {
 	monetdb_lib_path = strdup(*((char**) dll)); // not evil at all
     R_registerRoutines(dll, NULL, R_CallDef, NULL, NULL);
+	R_useDynamicSymbols(dll, FALSE);
 }
 
 
