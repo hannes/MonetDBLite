@@ -9,7 +9,7 @@ r:
 r_github_packages:
   - hadley/testthat
   - hadley/dplyr
-  - hadley/dbplyr
+  - hannesmuehleisen/dbplyr
   - rstats-db/DBI
   
 addons:
