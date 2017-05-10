@@ -747,7 +747,7 @@ mdlopen(const char *library, int mode)
 #else
 	(void) mode;
 	(void) library;
-	return dlopen(monetdb_lib_path, 0);
+	return dlopen(monetdb_lib_path, RTLD_NOW | RTLD_LOCAL);
 #endif
 
 }
