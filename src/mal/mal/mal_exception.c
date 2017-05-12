@@ -117,20 +117,20 @@ dumpExceptionsToStream(stream *out, str whatever) {
 	if (whatever == NULL)
 		return;
 	len = strlen(whatever);
-	 make sure each line starts with a !
+	// make sure each line starts with a !
 	for (i = 0; i < len; i++) {
 		if (whatever[i] == '\n') {
 			whatever[i] = '\0';
-			if (i - last > 0) {  skip empty lines
-				if (whatever[last] == '!') no need for double !
+			if (i - last > 0) { // skip empty lines
+				if (whatever[last] == '!') // no need for double !
 					last++;
 				mnstr_printf(out, "!%s\n", whatever + last);
 			}
 			last = i + 1;
 		}
 	}
-	flush last part
-	if (i - last > 0) skip if empty
+	// flush last part
+	if (i - last > 0) // skip if empty
 		mnstr_printf(out, "!%s\n", whatever + last);
 }*/
 
@@ -142,7 +142,6 @@ showException(stream *out, enum malexception type, const char *fcn, const char *
 {
 	va_list ap;
 	str msg;
-	(void) out;
 
 	va_start(ap, format);
 	msg = createExceptionInternal(type, fcn, format, ap);
@@ -178,7 +177,10 @@ createScriptExceptionInternal(MalBlkPtr mb, int pc, enum malexception type, cons
 	i += vsnprintf(buf + i, GDKMAXERRLEN - 1 - i, format, ap);
 	buf[i] = '\0';
 
-	return GDKstrdup(buf);
+	s = GDKstrdup(buf);
+	if (s == NULL)				/* make sure we always return something */
+		s = M5OutOfMemory;
+	return s;
 }
 
 /**
@@ -212,14 +214,13 @@ showScriptException(stream *out, MalBlkPtr mb, int pc, enum malexception type, c
 {
 	va_list ap;
 	str msg;
-	(void) out;
 
 	va_start(ap, format);
 	msg = createScriptExceptionInternal(mb, pc, type, NULL, format, ap);
 	va_end(ap);
 
 	//dumpExceptionsToStream(out,msg);
-	GDKfree(msg);
+	freeException(msg);
 }
 
 /**

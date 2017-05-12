@@ -2112,8 +2112,6 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
         this.getDecimalColumnByIndex(index, input, 0, input.length);
     }
 
-    //TODO check if it will be worth it to use direct ByteBuffers (but I am pretty sure that it's not)
-
     /**
      * Tests if a boolean in the result set is a null value.
      *
@@ -2152,8 +2150,6 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
                     + this.numberOfRows + " != " + arrayLength);
         }
     }
-
-    //TODO check for java.util.BitSet instead of a boolean[]... it might be worth it or not
 
     private native void getColumnNullMappingsByIndexInternal(long structPointer, int column, int typeID, boolean[] input);
 
@@ -2209,7 +2205,32 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
     }
 
     /**
-     * Fetches rows from the result set.
+     * Internal query result set retrieval
+     *
+     * @param startIndex The first row index to retrieve starting from 1
+     * @param endIndex The last row index to retrieve
+     * @return The rows as {@code QueryResultRowSet}
+     * @throws MonetDBEmbeddedException If an error in the database occurred
+     */
+    private QueryResultRowSet fetchRowsInternal(int startIndex, int endIndex) throws MonetDBEmbeddedException {
+        int numberOfRowsToRetrieve = Math.max(endIndex - startIndex + 1, 0);
+        Object[][] temp = new Object[numberOfRowsToRetrieve][this.getNumberOfColumns()];
+        for (int i = 0 ; i < this.getNumberOfColumns(); i++) {
+            Object[] aux = new Object[numberOfRowsToRetrieve];
+            if(numberOfRowsToRetrieve > 0) {
+                this.mapColumnToObjectByIndex(i + 1, aux);
+            }
+            Object[] nextColumn = (numberOfRowsToRetrieve == 0) ?
+                    new Object[0] : Arrays.copyOfRange(aux, startIndex - 1, endIndex);
+            for(int j = 0; j < numberOfRowsToRetrieve; j++) {
+                temp[j][i] = nextColumn[j];
+            }
+        }
+        return new QueryResultRowSet(this, temp);
+    }
+
+    /**
+     * Fetch rows from the result set.
      *
      * @param startIndex The first row index to retrieve starting from 1
      * @param endIndex The last row index to retrieve
@@ -2229,17 +2250,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
         } else if(startIndex == endIndex) {
             throw new ArrayIndexOutOfBoundsException("Retrieving 0 rows?");
         }
-        int numberOfRowsToRetrieve = endIndex - startIndex + 1;
-        Object[][] temp = new Object[numberOfRowsToRetrieve][this.getNumberOfColumns()];
-		for (int i = 0 ; i < this.getNumberOfColumns(); i++) {
-            Object[] aux = new Object[numberOfRowsToRetrieve];
-		    this.mapColumnToObjectByIndex(i + 1, aux);
-            Object[] nextColumn = Arrays.copyOfRange(aux, startIndex - 1, endIndex);
-            for(int j = 0; j < numberOfRowsToRetrieve; j++) {
-                temp[j][i] = nextColumn[j];
-			}
-		}
-        return new QueryResultRowSet(this, temp);
+        return this.fetchRowsInternal(startIndex, endIndex);
 	}
 
     /**
@@ -2250,7 +2261,10 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public QueryResultRowSet fetchFirstNRowValues(int n) throws MonetDBEmbeddedException {
-        return this.fetchResultSetRows(1, n);
+        if (n > this.numberOfRows) {
+            throw new ArrayIndexOutOfBoundsException("The number of rows is larger the number of rows: (" + n + " > " + this.numberOfRows + ")");
+        }
+        return this.fetchRowsInternal(1, n);
     }
 
     /**
@@ -2260,7 +2274,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @throws MonetDBEmbeddedException If an error in the database occurred
      */
     public QueryResultRowSet fetchAllRowValues() throws MonetDBEmbeddedException {
-        return this.fetchResultSetRows(1, this.numberOfRows);
+        return this.fetchRowsInternal(1, this.numberOfRows);
     }
 
     @Override

@@ -309,8 +309,6 @@
 #define llabs _abs64
 #endif
 
-#undef HAVE_LOCALTIME_R
-
 /* Define to 1 if you have the <locale.h> header file. */
 #define HAVE_LOCALE_H 1
 #ifdef _MSC_VER
@@ -780,13 +778,13 @@
 #define PACKAGE_NAME "MonetDB"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "MonetDB 11.25.10"
+#define PACKAGE_STRING "MonetDB 11.25.22"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "MonetDB"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "11.25.10"
+#define PACKAGE_VERSION "11.25.22"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL ""

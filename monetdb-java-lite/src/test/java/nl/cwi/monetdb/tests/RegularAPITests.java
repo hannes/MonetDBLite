@@ -10,6 +10,7 @@ package nl.cwi.monetdb.tests;
 
 import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedDatabase;
 import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
+import nl.cwi.monetdb.embedded.mapping.MonetDBRow;
 import nl.cwi.monetdb.embedded.mapping.NullMappings;
 import nl.cwi.monetdb.embedded.resultset.QueryResultSet;
 import nl.cwi.monetdb.embedded.tables.IMonetDBTableCursor;
@@ -32,6 +33,7 @@ import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -321,6 +323,46 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
 
         qrs3.close();
         connection.sendUpdate("DROP TABLE testnullsc;");
+    }
+
+    @Test
+    @DisplayName("Test query result set rows iteration")
+    void testQueryResultSet() throws MonetDBEmbeddedException {
+        connection.sendUpdate("CREATE TABLE testresultsets (a text, b int, c real);");
+        connection.sendUpdate("INSERT INTO testresultsets VALUES ('I', 12, 234.53423);");
+        connection.sendUpdate("INSERT INTO testresultsets VALUES ('like', -13, 43.123);");
+        connection.sendUpdate("INSERT INTO testresultsets VALUES ('Java', 123, -34.43);");
+
+        QueryResultSet qrs1 = connection.sendQuery("SELECT * FROM testresultsets WHERE 1=0;");
+        ListIterator<MonetDBRow> iterator1 = qrs1.iterator();
+        Assertions.assertNotNull(iterator1, "The iterator should not be null!");
+        Assertions.assertFalse(iterator1.hasNext(), "The iterator should have no rows!");
+        qrs1.close();
+
+        QueryResultSet qrs2 = connection.sendQuery("SELECT * FROM testresultsets WHERE a='I';");
+        ListIterator<MonetDBRow> iterator2 = qrs2.iterator();
+        Assertions.assertNotNull(iterator2, "The iterator should not be null!");
+        Assertions.assertTrue(iterator2.hasNext(), "The iterator should have 1 row left!");
+
+        MonetDBRow row1 = iterator2.next();
+        Assertions.assertFalse(iterator2.hasNext(), "The iterator should have no rows!");
+
+        Assertions.assertEquals(row1.getColumnByIndex(1), "I", "Strings not correctly retrieved!");
+        Assertions.assertEquals(row1.getColumnByIndex(2), new Integer(12), "Integers not correctly retrieved!");
+        Assertions.assertEquals(row1.getColumnByIndex(3), new Float(234.53423f), "Floats not correctly retrieved!");
+
+        ListIterator<Object> cols  = row1.iterator();
+        Assertions.assertTrue(cols.hasNext(), "The iterator should have 3 rows left!");
+        Assertions.assertEquals(cols.next(), "I", "Strings not correctly retrieved!");
+        Assertions.assertTrue(cols.hasNext(), "The iterator should have 2 rows left!");
+        Assertions.assertEquals(cols.next(), 12, "Integers not correctly retrieved!");
+        Assertions.assertTrue(cols.hasNext(), "The iterator should have 1 rows left!");
+        Assertions.assertEquals(cols.next(), 234.53423f, "Floats not correctly retrieved!");
+        Assertions.assertFalse(cols.hasNext(), "The iterator should have no rows!");
+
+        qrs2.close();
+
+        connection.sendUpdate("DROP TABLE testresultsets;");
     }
 
     @Test

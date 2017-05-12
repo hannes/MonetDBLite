@@ -216,12 +216,12 @@ HEAPextend(Heap *h, size_t size, int mayshare)
 		/* try GDKrealloc if the heap size stays within
 		 * reasonable limits */
 		if (!must_mmap) {
-			void *p = h->base;
 			h->newstorage = h->storage = STORE_MEM;
 			h->base = GDKreallocmax(h->base, size, &h->size, 0);
-			HEAPDEBUG fprintf(stderr, "#HEAPextend: extending malloced heap " SZFMT " " SZFMT " " PTRFMT " " PTRFMT "\n", size, h->size, PTRFMTCAST p, PTRFMTCAST h->base);
+			HEAPDEBUG fprintf(stderr, "#HEAPextend: extending malloced heap " SZFMT " " SZFMT " " PTRFMT " " PTRFMT "\n", size, h->size, PTRFMTCAST bak.base, PTRFMTCAST h->base);
 			if (h->base)
 				return GDK_SUCCEED; /* success */
+			/* bak.base is still valid and may get restored */
 			failure = "h->storage == STORE_MEM && !must_map && !h->base";
 		}
 		/* too big: convert it to a disk-based temporary heap */
@@ -394,7 +394,7 @@ GDKupgradevarheap(BAT *b, var_t v, int copyall, int mayshare)
 	size_t i, n;
 	size_t savefree;
 	const char *filename;
-	bat bid;
+	bat bid = b->batCacheid;
 
 	assert(b->theap.parentid == 0);
 	assert(width != 0);
@@ -429,7 +429,6 @@ GDKupgradevarheap(BAT *b, var_t v, int copyall, int mayshare)
 		filename = b->theap.filename;
 	else
 		filename++;
-	bid = strtol(filename, NULL, 8);
 	if ((BBP_status(bid) & (BBPEXISTING|BBPDELETED)) &&
 	    !file_exists(b->theap.farmid, BAKDIR, filename, NULL) &&
 	    (b->theap.storage != STORE_MEM ||
@@ -504,7 +503,7 @@ GDKupgradevarheap(BAT *b, var_t v, int copyall, int mayshare)
 		break;
 	case 4:
 #ifndef NDEBUG
-		memset(ps, 0, b->theap.base + b->theap.size - (char *) pi);
+		memset(pi, 0, b->theap.base + b->theap.size - (char *) pi);
 #endif
 		switch (b->twidth) {
 		case 1:
@@ -520,7 +519,7 @@ GDKupgradevarheap(BAT *b, var_t v, int copyall, int mayshare)
 #if SIZEOF_VAR_T == 8
 	case 8:
 #ifndef NDEBUG
-		memset(ps, 0, b->theap.base + b->theap.size - (char *) pv);
+		memset(pv, 0, b->theap.base + b->theap.size - (char *) pv);
 #endif
 		switch (b->twidth) {
 		case 1:
@@ -631,7 +630,7 @@ HEAPload_intern(Heap *h, const char *nme, const char *ext, const char *suffix, i
 {
 	size_t minsize;
 	int ret = 0;
-	char *srcpath, *dstpath;
+	char *srcpath, *dstpath, *tmp;
 	int t0;
 
 	h->storage = h->newstorage = h->size < 4 * GDK_mmap_pagesize ? STORE_MEM : STORE_MMAP;
@@ -678,7 +677,14 @@ HEAPload_intern(Heap *h, const char *nme, const char *ext, const char *suffix, i
 	 * takes precedence. */
 	srcpath = GDKfilepath(h->farmid, BATDIR, nme, ext);
 	dstpath = GDKfilepath(h->farmid, BATDIR, nme, ext);
-	srcpath = GDKrealloc(srcpath, strlen(srcpath) + strlen(suffix) + 1);
+	if (srcpath == NULL ||
+	    dstpath == NULL ||
+	    (tmp = GDKrealloc(srcpath, strlen(srcpath) + strlen(suffix) + 1)) == NULL) {
+		GDKfree(srcpath);
+		GDKfree(dstpath);
+		return GDK_FAIL;
+	}
+	srcpath = tmp;
 	strcat(srcpath, suffix);
 
 	t0 = GDKms();

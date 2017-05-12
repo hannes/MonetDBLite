@@ -223,6 +223,7 @@ rel_bind_column_(mvc *sql, sql_rel **p, sql_rel *rel, const char *cname )
 		*p = rel;
 		if (rel->l)
 			return rel_bind_column_(sql, p, rel->l, cname);
+		/* fall through */
 	default:
 		return NULL;
 	}
@@ -755,9 +756,9 @@ list *
 rel_projections(mvc *sql, sql_rel *rel, const char *tname, int settname, int intern )
 {
 	list *lexps, *rexps, *exps;
-	int intern_only = (intern==2)?1:0;
+	int include_subquery = (intern==2)?1:0;
 
-	if (!rel || (is_subquery(rel) /*&& is_project(rel->op)*/ && rel->op == op_project))
+	if (!rel || (!include_subquery && is_subquery(rel) && rel->op == op_project))
 		return new_exp_list(sql->sa);
 
 	switch(rel->op) {
@@ -792,8 +793,6 @@ rel_projections(mvc *sql, sql_rel *rel, const char *tname, int settname, int int
 			for (en = rel->exps->h; en; en = en->next) {
 				sql_exp *e = en->data;
 				if (intern || !is_intern(e)) {
-					if (!is_intern(e) && intern_only && (exp_name(e)[0] != '%' && exp_name(e)[0] != 'L' && exp_relname(e)[0] != 'L')) 
-						continue;
 					append(exps, e = exp_alias_or_copy(sql, tname, exp_name(e), rel, e));
 					if (!settname) /* noname use alias */
 						exp_setrelname(sql->sa, e, label);
@@ -867,6 +866,7 @@ rel_bind_path_(sql_rel *rel, sql_exp *e, list *path )
 			assert(0);
 			break;
 		}
+		/* fall through */
 	case op_groupby:
 	case op_project:
 	case op_table:
@@ -1110,9 +1110,13 @@ rel_or(mvc *sql, sql_rel *l, sql_rel *r, list *oexps, list *lexps, list *rexps)
 	set_processed(l);
 	set_processed(r);
 	rel = rel_setop(sql->sa, l, r, op_union);
+	if (!rel)
+		return NULL;
 	rel->exps = rel_projections(sql, rel, NULL, 1, 1);
 	set_processed(rel);
 	rel = rel_distinct(rel);
+	if (!rel)
+		return NULL;
 	if (exps_card(l->exps) <= CARD_AGGR &&
 	    exps_card(r->exps) <= CARD_AGGR)
 	{

@@ -74,5 +74,5 @@ shadowJar { //Build instruction to the shadowJar (a jar which includes both the 
 }
 
 task wrapper(type: Wrapper) { //Set the gradle wrapper, so users don't have to install Gradle
-    gradleVersion = '3.4.1'
+    gradleVersion = '3.5'
 }

@@ -2282,30 +2282,39 @@ STRSubstitute(str *res, const str *arg1, const str *arg2, const str *arg3, const
 	int repeat = *g;
 	size_t lsrc = src ? strlen(src) : 0;
 	size_t ldst = dst ? strlen(dst) : 0;
-	size_t l = s ? strLen(s) : 0;
-	size_t n = l + ldst;
-	str buf, fnd, end;
+	size_t l = strLen(s);
+	size_t n;
+	char *buf;
+	const char *pfnd;
+	char *fnd;
 
+	if (s == NULL || strcmp(s, str_nil) == 0) {
+		if ((*res = GDKstrdup(str_nil)) == NULL)
+			throw(MAL, "str.substitute", MAL_MALLOC_FAIL);
+		return MAL_SUCCEED;
+	}
+
+	n = l + ldst;
 	if (repeat && ldst > lsrc && lsrc) {
 		n = (ldst * l) / lsrc;	/* max length */
 	}
 	buf = *res = GDKmalloc(n);
 	if (*res == NULL)
 		throw(MAL, "str.substitute", MAL_MALLOC_FAIL);
-	end = buf + l;
-	fnd = buf;
-	strcpy(buf, s ? s : "");
-	if (lsrc == 0)
-		return MAL_SUCCEED;
+
+	pfnd = s;
 	do {
-		fnd = strstr(fnd < buf ? buf : fnd, src);
+		fnd = strstr(pfnd, src);
 		if (fnd == NULL)
 			break;
-		memmove(fnd + ldst, fnd + lsrc, end - fnd);
-		memcpy(fnd, dst, ldst);
-		end += ldst - lsrc;
-		fnd += ldst;
+		n = fnd - pfnd;
+		strncpy(buf, pfnd, n);
+		buf += n;
+		strncpy(buf, dst, ldst);
+		buf += ldst;
+		pfnd = fnd + lsrc;
 	} while (repeat);
+	strcpy(buf, pfnd);
 	return MAL_SUCCEED;
 }
 
@@ -2376,6 +2385,8 @@ STRinsert(str *ret, const str *s, const int *start, const int *l, const str *s2)
 			throw(MAL, "str.insert", MAL_MALLOC_FAIL);
 		}
 		v= *ret = GDKmalloc((int)strlen(*s)+(int)strlen(*s2)+1 );
+		if (v == NULL)
+			throw(MAL, "str.insert", MAL_MALLOC_FAIL);
 		strncpy(v, *s,strt);
 		v[strt]=0;
 		strcat(v,*s2);

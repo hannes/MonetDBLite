@@ -210,12 +210,12 @@ allocations, hence is not recommended in low memory devices. The `MonetDBRow` cl
 retrieved row.
 
 ```java
-QueryResultSet qrs = connection.sendQuery("SELECT truth, words, counter FROM example");
+QueryResultSet qrs = connection.sendQuery("SELECT words, counter, temporal FROM example");
 
 QueryResultRowSet rows = qrs.fetchAllRowValues();
 MonetDBRow[] arrayRep = rows.getAllRows();
 for (MonetDBRow singleRow : arrayRep) {
-   System.out.println(singleRow.getColumnByIndex(1).toString() + singleRow.getColumnByIndex(2)
+   System.out.println(singleRow.getColumnByIndex(1) + singleRow.getColumnByIndex(2)
                       + singleRow.getColumnByIndex(3));
 }
 
