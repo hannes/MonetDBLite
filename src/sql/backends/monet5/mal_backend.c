@@ -18,6 +18,7 @@ backend_reset(backend *b)
 
 	b->vtop = 0;
 	b->q = NULL;
+	b->mb = NULL;
 	b->mvc_var = 0;
 	b->output_format = OFMT_CSV;
 	return b;
@@ -26,8 +27,11 @@ backend_reset(backend *b)
 backend *
 backend_create(mvc *m, Client c)
 {
+	// FIXME unchecked_malloc MNEW can return NULL
 	backend *b = MNEW(backend);
 
+	if( b== NULL)
+		return NULL;
 	b->console = isAdministrator(c);
 	b->mvc = m;
 	b->client = c;

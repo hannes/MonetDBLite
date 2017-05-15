@@ -17,6 +17,8 @@ lib_stream  =  {
 	VERSION = $(STREAM_VERSION)
 	LIBS = $(zlib_LIBS) \
 		   $(BZ_LIBS) \
+		   $(snappy_LIBS) \
+   		   $(lz4_LIBS) \
 		   $(liblzma_LIBS) \
 		   $(LTLIBICONV)
 }

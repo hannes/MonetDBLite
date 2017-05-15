@@ -41,6 +41,9 @@
 /* Define to 1 if you have the `backtrace' function. */
 #undef HAVE_BACKTRACE
 
+/* Define to 1 if you have the `cbrt' function. */
+#undef HAVE_CBRT
+
 /* Define to 1 if you have the `clock_gettime' function. */
 #undef HAVE_CLOCK_GETTIME
 
@@ -87,9 +90,6 @@
 
 /* Define to 1 if you have the <fenv.h> header file. */
 #undef HAVE_FENV_H
-
-/* Define if fork exists */
-#undef HAVE_FORK
 
 /* Define to 1 if you have the `fpclass' function. */
 #undef HAVE_FPCLASS
@@ -205,9 +205,6 @@
 /* Define to 1 if you have the <malloc.h> header file. */
 #undef HAVE_MALLOC_H
 
-/* Define to 1 if you have the `mallopt' function. */
-#undef HAVE_MALLOPT
-
 /* Enable MAPI */
 #undef HAVE_MAPI
 
@@ -273,9 +270,6 @@
 
 /* Define to 1 if you have the <semaphore.h> header file. */
 #undef HAVE_SEMAPHORE_H
-
-/* Define if semtimedop exists */
-#undef HAVE_SEMTIMEDOP
 
 /* Define to 1 if you have the `setenv' function. */
 #undef HAVE_SETENV
@@ -433,9 +427,6 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
-
-/* Define if you have mallinfo */
-#undef HAVE_USEFUL_MALLINFO
 
 /* Define to 1 if you have the <uuid/uuid.h> header file. */
 #undef HAVE_UUID_UUID_H

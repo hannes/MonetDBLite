@@ -1172,7 +1172,7 @@ rel_import(mvc *sql, sql_table *t, char *tsep, char *rsep, char *ssep, char *ns,
 	sql_subtype tpe;
 	sql_exp *import;
 	sql_schema *sys = mvc_bind_schema(sql, "sys");
-	sql_subfunc *f = sql_find_func(sql->sa, sys, "copyfrom", 10, F_UNION, NULL);
+	sql_subfunc *f = sql_find_func(sql->sa, sys, "copyfrom", 11, F_UNION, NULL);
 	char* fwf_string = NULL;
 	if (!f) /* we do expect copyfrom to be there */
 		return NULL;
@@ -1640,7 +1640,7 @@ rel_parse_val(mvc *m, char *query, char emode)
 
 	m->caching = 0;
 	m->emode = emode;
-
+	// FIXME unchecked_malloc GDKmalloc can return NULL
 	b = (buffer*)GDKmalloc(sizeof(buffer));
 	n = GDKmalloc(len + 1 + 1);
 	strncpy(n, query, len);

@@ -46,7 +46,7 @@ dnl  configure file, whereas comments starting with dnl are elided
 dnl  (including their trailing newline).
 
 AC_PREREQ([2.63])
-AC_INIT([MonetDB], [11.25.22], [https://bugs.monetdb.org/], [MonetDB], [https://www.monetdb.org/])
+AC_INIT([MonetDB], [11.27.0], [https://bugs.monetdb.org/], [MonetDB], [https://www.monetdb.org/])
 AC_CONFIG_AUX_DIR([buildtools/conf])
 AC_CONFIG_MACRO_DIR([buildtools/conf])
 AC_CANONICAL_HOST
@@ -125,6 +125,7 @@ AS_CASE([$CC],
 			[10.*], [CC="$CC -no-gcc"],
 			[11.*], [CC="$CC -no-gcc"],
 			[15.*], [CC="$CC -no-gcc"],
+			[17.*], [CC="$CC -no-gcc"],
 			[AC_MSG_WARN([icc ($CC) $icc_ver not handled, yet])])])
 
 AS_IF([test -f "$srcdir"/vertoo.data],
@@ -202,6 +203,7 @@ AS_CASE([$enable_monetdb5-$enable_sql],
 	enable_sql=no
 	disable_sql="(MonetDB/SQL requires MonetDB5.)"])
 
+
 dft_embedded=no
 AC_ARG_ENABLE([embedded],
 	[AS_HELP_STRING([--enable-embedded],
@@ -221,7 +223,6 @@ AC_ARG_ENABLE([embedded-r],
 AM_CONDITIONAL([HAVE_EMBEDDED_R], [test x$enable_embedded_r != xno])
 AS_VAR_IF([enable_embedded_r], [no], [],
 	[AC_DEFINE([HAVE_EMBEDDED_R], 1, [Support for MonetDB as a library for R])])
-
 
 
 dft_int128=auto
@@ -588,6 +589,7 @@ AS_VAR_IF([enable_strict], [yes], [
 			[10.*], [],
 			[11.*], [],
 			[15.*], [],
+			[17.*], [],
 			[CFLAGS="$CFLAGS -ansi"])
 		# Be picky; "-Werror" seems to be too rigid for autoconf...
 		CFLAGS="$CFLAGS -Wall -w2 -Wcheck"
@@ -609,7 +611,8 @@ AS_VAR_IF([enable_strict], [yes], [
 		# constants like short s = 1234, which is too much
 		AS_CASE([$icc_ver],
 			[11.*], [X_CFLAGS="$X_CFLAGS,2259"],
-			[15.*], [X_CFLAGS="$X_CFLAGS,2259"])
+			[15.*], [X_CFLAGS="$X_CFLAGS,2259"],
+			[17.*], [X_CFLAGS="$X_CFLAGS,2259"])
 		AS_CASE([$icc_ver],
 			[8.[[1-9]]*], [X_CFLAGS="$X_CFLAGS,1572"],
 			[9.[[1-9]]*], [X_CFLAGS="$X_CFLAGS,1572,1599"],
@@ -982,6 +985,7 @@ AC_CHECK_PROG([RM], [rm], [rm -f])
 AC_CHECK_PROG([MV], [mv], [mv -f])
 AC_PROG_LN_S
 
+
 AC_PROG_YACC
 AS_CASE([$YACC],
 	[bison*],
@@ -1064,22 +1068,6 @@ AS_CASE([$host_os],
 	AC_SUBST([CYGPATH_WP])])
 
 #    checks for libraries
-# check for bz2 (de)compression library
-org_have_bz2=auto
-have_bz2=$org_have_bz2
-BZ_CFLAGS=""
-BZ_LIBS=""
-AC_ARG_WITH([bz2],
-	[AS_HELP_STRING([--with-bz2=DIR],
-		[bz2 library is installed in DIR])],
-	[have_bz2="$withval"])
-
-AS_CASE([$have_bz2],
-	[yes|no|auto], [],
-	[
-		BZ_CFLAGS="-I$withval/include"
-		BZ_LIBS="-L$withval/lib"])
-
 
 DL_LIBS=""
 AC_CHECK_LIB([dl], [dlopen], [DL_LIBS="-ldl" ] )
@@ -1098,17 +1086,6 @@ AC_SUBST([MALLOC_LIBS])
 KVM_LIBS=""
 AC_CHECK_LIB([kvm], [kvm_open], [KVM_LIBS="-lkvm" ] )
 AC_SUBST([KVM_LIBS])
-
-save_LIBS="$LIBS"
-LIBS="$LIBS $MALLOC_LIBS"
-AC_CHECK_FUNCS([mallopt])
-AC_CHECK_FUNC([mallinfo],
-	[AC_COMPILE_IFELSE(
-		[AC_LANG_PROGRAM([[@%:@include <malloc.h>]],
-			[[struct mallinfo m;int x[1+sizeof(m.usmblks)-sizeof(void *)]]])],
-		[AC_DEFINE([HAVE_USEFUL_MALLINFO], 1,
-			[Define if you have mallinfo])])])
-LIBS="$save_LIBS"
 
 # libpthread
 org_have_pthread=auto
@@ -1137,7 +1114,7 @@ AS_VAR_IF([have_pthread], [no], [], [
 	save_LIBS="$LIBS"
 	save_CPPFLAGS="$CPPFLAGS"
 	AS_CASE([$GCC-$have_pthread-$CC_ver],
-		[yes-auto-clang-5.*|yes-yes-clang-5.*|yes-auto-clang-6.*|yes-yes-clang-6.*|yes-auto-clang-7.*|yes-yes-clang-7.*|yes-auto-clang-8.*|yes-yes-clang-8.*], [
+		[yes-auto-clang-*|yes-yes-clang-*], [
 			# clang 5.*/6.*/7.* (Xcode 6.0) does not
 			# seem to have / require -pthread as compiler
 			# option; on Mac OS X Yosamite, "Apple LLVM
@@ -1149,7 +1126,12 @@ AS_VAR_IF([have_pthread], [no], [], [
 			# https://www.monetdb.org/pipermail/developers-list/2014-March/004264.html
 			# a better alternative might be required but is
 			# still pending ...
-			],
+			AS_CASE([$host],
+				[*-darwin*], [], [
+			PTHREAD_INCS="-pthread"
+			PTHREAD_LIBS="-pthread"
+			CPPFLAGS="$CPPFLAGS $PTHREAD_INCS"
+			LIBS="$LIBS $PTHREAD_LIBS"])],
 		[yes-auto-*|yes-yes-*], [
 			# use GCC's knowledge about the target platform, sets flags
 			# for both the preprocessor as well as the linker
@@ -1232,13 +1214,7 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM(
 	[have_gnuregex=no],
 	[have_gnuregex=no])
 
-AS_CASE([$enable_monetdb5-$have_gnuregex],
-[yes-no-no], [
-	AC_MSG_ERROR([GNU regex library not found but required for MonetDB5])],
-[auto-no-no], [
-	enable_monetdb5=no
-	AS_VAR_IF([disable_monetdb5], [], [
-		disable_monetdb5="(GNU regex library not found but required for MonetDB5)"])])
+
 
 PKG_CHECK_MODULES([zlib], [zlib], [have_zlib="yes"], [have_zlib="no"; why_have_zlib="(zlib not found)"])
 AS_CASE([$have_zlib],
@@ -1251,13 +1227,6 @@ AS_VAR_IF([have_zlib], [yes], [
 	AC_DEFINE([HAVE_LIBZ], 1, [Define if you have the z library])])
 AM_CONDITIONAL([HAVE_LIBZ], [test x"$have_zlib" != xno])
 
-
-AC_CHECK_HEADER([sys/sem.h], [SEMOP=True], [SEMOP=False])
-AS_VAR_IF([SEMOP], [True],
-	[AC_CHECK_FUNC([semtimedop],
-		[AC_DEFINE([HAVE_SEMTIMEDOP], 1, [Define if semtimedop exists])],)
-	 AC_CHECK_FUNC([fork],
-	 	[AC_DEFINE([HAVE_FORK], 1, [Define if fork exists])])])
 
 
 PKG_CHECK_MODULES([atomic_ops], [atomic_ops], [have_atomic_ops="yes"],
@@ -1481,6 +1450,7 @@ LIBS="$LIBS $MATH_LIBS"
 AC_CHECK_FUNCS([\
 	asctime_r \
 	backtrace \
+	cbrt \
 	clock_gettime \
 	ctime_r \
 	fabsf \
@@ -2010,7 +1980,9 @@ for comp in \
 		[-no-no], [why="(by default)"],
 		[-no-*], [why="(by command line option)"])
 	echo $ECHO_N "    $comp = $ECHO_C"
-	AS_VAR_IF([have], [no], [echo "no  $why"], [echo "yes"])
+	AS_VAR_IF([have], [no],
+		[echo "no  $why"],
+		[AS_VAR_IF([have], [auto], [echo "yes"], [echo "$have"])])
 done
 AS_VAR_IF([have_hge], [yes], [
 	hge_bits='128'

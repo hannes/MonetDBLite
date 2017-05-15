@@ -344,27 +344,28 @@
      STDOUT = 560,
      FWF = 561,
      INDEX = 562,
-     AS = 563,
-     TRIGGER = 564,
-     OF = 565,
-     BEFORE = 566,
-     AFTER = 567,
-     ROW = 568,
-     STATEMENT = 569,
-     sqlNEW = 570,
-     OLD = 571,
-     EACH = 572,
-     REFERENCING = 573,
-     OVER = 574,
-     PARTITION = 575,
-     CURRENT = 576,
-     EXCLUDE = 577,
-     FOLLOWING = 578,
-     PRECEDING = 579,
-     OTHERS = 580,
-     TIES = 581,
-     RANGE = 582,
-     UNBOUNDED = 583
+     REPLACE = 563,
+     AS = 564,
+     TRIGGER = 565,
+     OF = 566,
+     BEFORE = 567,
+     AFTER = 568,
+     ROW = 569,
+     STATEMENT = 570,
+     sqlNEW = 571,
+     OLD = 572,
+     EACH = 573,
+     REFERENCING = 574,
+     OVER = 575,
+     PARTITION = 576,
+     CURRENT = 577,
+     EXCLUDE = 578,
+     FOLLOWING = 579,
+     PRECEDING = 580,
+     OTHERS = 581,
+     TIES = 582,
+     RANGE = 583,
+     UNBOUNDED = 584
    };
 #endif
 /* Tokens.  */
@@ -673,27 +674,28 @@
 #define STDOUT 560
 #define FWF 561
 #define INDEX 562
-#define AS 563
-#define TRIGGER 564
-#define OF 565
-#define BEFORE 566
-#define AFTER 567
-#define ROW 568
-#define STATEMENT 569
-#define sqlNEW 570
-#define OLD 571
-#define EACH 572
-#define REFERENCING 573
-#define OVER 574
-#define PARTITION 575
-#define CURRENT 576
-#define EXCLUDE 577
-#define FOLLOWING 578
-#define PRECEDING 579
-#define OTHERS 580
-#define TIES 581
-#define RANGE 582
-#define UNBOUNDED 583
+#define REPLACE 563
+#define AS 564
+#define TRIGGER 565
+#define OF 566
+#define BEFORE 567
+#define AFTER 568
+#define ROW 569
+#define STATEMENT 570
+#define sqlNEW 571
+#define OLD 572
+#define EACH 573
+#define REFERENCING 574
+#define OVER 575
+#define PARTITION 576
+#define CURRENT 577
+#define EXCLUDE 578
+#define FOLLOWING 579
+#define PRECEDING 580
+#define OTHERS 581
+#define TIES 582
+#define RANGE 583
+#define UNBOUNDED 584
 
 
 
@@ -711,7 +713,7 @@ typedef union YYSTYPE
 	sql_subtype	type;
 }
 /* Line 1529 of yacc.c.  */
-#line 715 "y.tab.h"
+#line 717 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

@@ -14,6 +14,7 @@
 #include "mal_interpreter.h" /* for showErrors(), runMAL(), garbageElement() */
 #include "mal_parser.h"	     /* for parseMAL() */
 #include "mal_namespace.h"
+#include "mal_builder.h"
 #include "mal_authorize.h"
 #include "mal_private.h"
 #include <gdk.h>	/* for opendir and friends */
@@ -155,7 +156,7 @@ exit_streams( bstream *fin, stream *fout )
 const char* mal_enableflag = "mal_for_all";
 
 void
-MSscheduleClient(str command, str challenge, bstream *fin, stream *fout)
+MSscheduleClient(str command, str challenge, bstream *fin, stream *fout, protocol_version protocol, size_t blocksize, int compute_column_widths)
 {
 	char *user = command, *algo = NULL, *passwd = NULL, *lang = NULL;
 	char *database = NULL, *s, *dbname;
@@ -248,7 +249,7 @@ MSscheduleClient(str command, str challenge, bstream *fin, stream *fout)
 		/* access control: verify the credentials supplied by the user,
 		 * no need to check for database stuff, because that is done per
 		 * database itself (one gets a redirect) */
-		err = AUTHcheckCredentials(&uid, root, &user, &passwd, &challenge, &algo);
+		err = AUTHcheckCredentials(&uid, root, user, passwd, challenge, algo);
 		if (err != MAL_SUCCEED) {
 			mnstr_printf(fout, "!%s\n", err);
 			exit_streams(fin, fout);
@@ -307,6 +308,11 @@ MSscheduleClient(str command, str challenge, bstream *fin, stream *fout)
 	 * demand. */
 
 	/* fork a new thread to handle this client */
+
+	c->protocol = protocol;
+	c->blocksize = blocksize;
+	c->compute_column_widths = compute_column_widths;
+
 	mnstr_settimeout(c->fdin->s, 50, GDKexiting);
 	MSserveClient(c);
 }
@@ -360,7 +366,7 @@ MSresetVariables(Client cntxt, MalBlkPtr mb, MalStkPtr glb, int start)
 	if (mb->errors == 0)
 		for (i = start; i < mb->vtop; i++) {
 			if (isVarUsed(mb,i) || !isTmpVar(mb,i)){
-				assert(!mb->var[i]->value.vtype || isVarConstant(mb, i));
+				assert(!mb->var[i].value.vtype || isVarConstant(mb, i));
 				setVarUsed(mb,i);
 			}
 			if (glb && !isVarUsed(mb,i)) {
@@ -527,7 +533,9 @@ MALparser(Client c)
 	c->curprg->def->errors = 0;
 	oldstate = *c->curprg->def;
 
-	prepareMalBlk(c->curprg->def, CURRENT(c));
+	if( prepareMalBlk(c->curprg->def, CURRENT(c))){
+		throw(MAL, "mal.parser", MAL_MALLOC_FAIL);
+	}
 	if (parseMAL(c, c->curprg, 0) || c->curprg->def->errors) {
 		/* just complete it for visibility */
 		pushEndInstruction(c->curprg->def);

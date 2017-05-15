@@ -251,7 +251,7 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	stk->stk[3].vtype = TYPE_str;
 	stk->stk[4].vtype = TYPE_str;
 	stk->stk[5].vtype = TYPE_bat;
-	mb.var[5] = &bat_varrec;
+	mb.var[5] = bat_varrec;
 	if (!m->session->active) mvc_trans(m);
 	for (i=0; i < ncols; i++) {
 		append_data ad = data[i];
@@ -318,7 +318,7 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 
 void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
-		mserver_reset();
+		mserver_reset(0);
 		fclose(embedded_stdout);
 		monetdb_embedded_initialized = 0;
 	}
