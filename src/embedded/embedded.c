@@ -17,6 +17,8 @@
 #include "monet_options.h"
 #include "mal.h"
 #include "mal_client.h"
+#include "mal_builder.h"
+
 #include "mal_linker.h"
 #include "sql_scenario.h"
 #include "gdk_utils.h"
@@ -26,6 +28,7 @@
 #include "sql_mvc.h"
 #include "res_table.h"
 #include "sql_scenario.h"
+#include "opt_prelude.h"
 
 
 #include "decompress.c"
@@ -215,14 +218,9 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 
 char* monetdb_append(void* conn, const char* schema, const char* table, append_data *data, int ncols) {
 	int i;
-	int nvar = 6; // variables we need to make up
-	MalBlkRecord mb;
-	MalStack*     stk = NULL;
-	InstrRecord*  pci = NULL;
 	str res = MAL_SUCCEED;
-	VarRecord bat_varrec;
 	Client c = (Client) conn;
-	mvc* m;
+	InstrPtr q;
 
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
@@ -233,42 +231,41 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	if (!MCvalid((Client) conn)) {
 		return GDKstrdup("Invalid connection");
 	}
-	m = ((backend *) c->sqlcontext)->mvc;
 
-	// very black MAL magic below
-	mb.var = GDKmalloc(nvar * sizeof(VarRecord*));
-	stk = GDKmalloc(sizeof(MalStack) + nvar * sizeof(ValRecord));
-	pci = GDKmalloc(sizeof(InstrRecord) + nvar * sizeof(int));
-	assert(mb.var != NULL && stk != NULL && pci != NULL); // cough, cough
-	bat_varrec.type = TYPE_bat;
-	for (i = 0; i < nvar; i++) {
-		pci->argv[i] = i;
-	}
-	stk->stk[0].vtype = TYPE_int;
-	stk->stk[2].val.sval = (str) schema;
-	stk->stk[2].vtype = TYPE_str;
-	stk->stk[3].val.sval = (str) table;
-	stk->stk[3].vtype = TYPE_str;
-	stk->stk[4].vtype = TYPE_str;
-	stk->stk[5].vtype = TYPE_bat;
-	mb.var[5] = bat_varrec;
-	if (!m->session->active) mvc_trans(m);
-	for (i=0; i < ncols; i++) {
+	backend *be = ((backend *) c->sqlcontext);
+	if (!be->mvc->session->active) mvc_trans(be->mvc);
+
+	MSinitClientPrg(c, "user", "monetdb_append");
+	be->mb = copyMalBlk(c->curprg->def);
+	q = newStmt(be->mb, sqlRef, mvcRef);
+	be->mvc_var = getDestVar(q);
+
+	for (i = 0; i < ncols; i++) {
 		append_data ad = data[i];
-		stk->stk[4].val.sval = ad.colname;
-		stk->stk[5].val.bval = ad.batid;
+		ValRecord v;
+		v.vtype = TYPE_bat;
+		v.val.bval = ad.batid;
+		q = newStmt(be->mb, sqlRef, appendRef);
+		q = pushArgument(be->mb, q, be->mvc_var);
 
-		res = mvc_append_wrap(c, &mb, stk, pci);
-		if (res != NULL) {
-			break;
-		}
+		getArg(q, 0) = be->mvc_var = newTmpVariable(be->mb, TYPE_int);
+		q = pushStr(be->mb, q, schema);
+		q = pushStr(be->mb, q, table);
+		q = pushStr(be->mb, q, ad.colname);
+		q = pushValue(be->mb, q, &v);
 	}
+	pushEndInstruction(be->mb);
+	res = optimizeMALBlock(c, be->mb);
+	if (res != MAL_SUCCEED) {
+		return res;
+	}
+	res = runMAL(c, be->mb, 0, 0);
+	freeMalBlk(be->mb);
+
 	if (res == MAL_SUCCEED) {
-		sqlcleanup(m, 0);
+		sqlcleanup(be->mvc, 0);
 	}
-	GDKfree(mb.var);
-	GDKfree(stk);
-	GDKfree(pci);
+
 	return res;
 }
 
