@@ -176,7 +176,7 @@ test_that("various parameters to dbWriteTable work as expected", {
 
 like_match <- function(pattern, data, case_insensitive) {
 	dbBegin(con)
-	dbWriteTable(con, "borat", data.frame(a=data), transaction=F)
+	dbWriteTable(con, "borat", data.frame(a=data))
 	if (!case_insensitive) 
 		res <- dbGetQuery(con, paste0("SELECT a FROM borat WHERE a LIKE '",pattern,"'"))
 	else 
@@ -278,7 +278,7 @@ test_that("parameter binding works correctly", {
 
 test_that("columns can have reserved names", {
 	dbBegin(con)
-	dbWriteTable(con, tname, data.frame(year=42, month=12, day=24, some.dot=12), transaction=F)
+	dbWriteTable(con, tname, data.frame(year=42, month=12, day=24, some.dot=12))
 	expect_true(dbExistsTable(con, tname))
 	dbRollback(con)
 })
@@ -300,7 +300,7 @@ test_that("we can have empty result sets", {
 test_that("NA's survive bulk appends", {
 	dbBegin(con)
 	tdata <- as.logical(c(NA, TRUE, FALSE))
-	dbWriteTable(con, tname, data.frame(col1 = tdata), transaction=F)
+	dbWriteTable(con, tname, data.frame(col1 = tdata))
 	# TODO: currently, booleans end up being integer columns in R
 	expect_equal(as.logical(dbReadTable(con, tname)$col1), tdata)
 	dbRollback(con)
@@ -309,12 +309,12 @@ test_that("NA's survive bulk appends", {
 
 test_that("dbWriteTable respects transactional boundaries", {
 	dbBegin(con)
-	dbWriteTable(con, tname, iris, transaction=F)
+	dbWriteTable(con, tname, iris)
 	expect_true(dbExistsTable(con, tname))
 	expect_true(tsize(con, tname) > 0)
 	dbRollback(con)
 	expect_false(dbExistsTable(con, tname))
-	dbWriteTable(con, tname, iris, transaction=F)
+	dbWriteTable(con, tname, iris)
 	expect_true(dbExistsTable(con, tname))
 	expect_true(tsize(con, tname) > 0)
 	dbBegin(con)
@@ -328,7 +328,7 @@ test_that("dbWriteTable respects transactional boundaries", {
 
 test_that("we can write raw values", {
 	dbBegin(con)
-	dbWriteTable(con, tname, data.frame(a=c(1,2), b=I(list(raw(42), raw(43)))), transaction=F)
+	dbWriteTable(con, tname, data.frame(a=c(1,2), b=I(list(raw(42), raw(43)))))
 	expect_true(dbExistsTable(con, tname))
 	dbRollback(con)
 	expect_false(dbExistsTable(con, tname))
@@ -346,5 +346,4 @@ test_that("we can disconnect", {
 	con <<- NULL
 	gc()
 })
-
 

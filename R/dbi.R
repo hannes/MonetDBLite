@@ -464,6 +464,11 @@ quoteIfNeeded <- function(conn, x, warn=T, ...) {
 
 setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character", value="ANY"), def=function(conn, name, value, overwrite=FALSE, 
   append=FALSE, csvdump=FALSE, transaction=TRUE, temporary=FALSE, ...) {
+
+  if (!missing(transaction)) {
+    .Deprecated("Setting parameter transaction to dbWriteTable is deprecated.")
+  }
+
   if (is.character(value)) {
     message("Treating character vector parameter as file name(s) for monetdb.read.csv()")
     monetdb.read.csv(conn=conn, files=value, tablename=name, ...)
@@ -479,10 +484,6 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
   }
   if (overwrite && append) {
     stop("Setting both overwrite and append to TRUE makes no sense.")
-  }
-
-  if (!missing(transaction)) {
-    .Deprecated("Setting parameter transaction to dbWriteTable is deprecated.")
   }
 
   needcommit <- FALSE
