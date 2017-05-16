@@ -135,6 +135,23 @@ test_that("fwf import works", {
 })
 
 
+test_that("transactions are on ACID", {
+	dbSendQuery(con, "create table monetdbtest (a integer)")
+	expect_true(dbExistsTable(con, tname))
+	dbBegin(con)
+	dbSendQuery(con, "INSERT INTO monetdbtest VALUES (42)")
+	expect_equal(tsize(con, tname), 1)
+	dbRollback(con)
+	expect_equal(tsize(con, tname), 0)
+	dbBegin(con)
+	dbSendQuery(con, "INSERT INTO monetdbtest VALUES (42)")
+	expect_equal(tsize(con, tname), 1)
+	dbCommit(con)
+	expect_equal(tsize(con, tname), 1)
+	dbRemoveTable(con, tname)
+})
+
+
 test_that("various parameters to dbWriteTable work as expected", {
 	dbWriteTable(con, tname, mtcars, append=F, overwrite=F)
 	expect_true(dbExistsTable(con, tname))
@@ -156,21 +173,6 @@ test_that("various parameters to dbWriteTable work as expected", {
 })
 
 
-test_that("transactions are on ACID", {
-	dbSendQuery(con, "create table monetdbtest (a integer)")
-	expect_true(dbExistsTable(con, tname))
-	dbBegin(con)
-	dbSendQuery(con, "INSERT INTO monetdbtest VALUES (42)")
-	expect_equal(tsize(con, tname), 1)
-	dbRollback(con)
-	expect_equal(tsize(con, tname), 0)
-	dbBegin(con)
-	dbSendQuery(con, "INSERT INTO monetdbtest VALUES (42)")
-	expect_equal(tsize(con, tname), 1)
-	dbCommit(con)
-	expect_equal(tsize(con, tname), 1)
-	dbRemoveTable(con, tname)
-})
 
 like_match <- function(pattern, data, case_insensitive) {
 	dbBegin(con)
@@ -315,6 +317,7 @@ test_that("dbWriteTable respects transactional boundaries", {
 	dbWriteTable(con, tname, iris, transaction=F)
 	expect_true(dbExistsTable(con, tname))
 	expect_true(tsize(con, tname) > 0)
+	dbBegin(con)
 	dbRollback(con)
 	expect_true(dbExistsTable(con, tname))
 	expect_true(tsize(con, tname) > 0)

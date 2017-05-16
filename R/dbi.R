@@ -98,6 +98,7 @@ setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="m
     connenv <- new.env(parent=emptyenv())
     connenv$conn <- monetdb_embedded_connect()
     connenv$open <- TRUE
+    connenv$autocommit <- TRUE
     conn <- new("MonetDBEmbeddedConnection", connenv=connenv)
     attr(conn, "dbPreExists") <- TRUE
     return(conn)
@@ -134,6 +135,7 @@ setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="m
   connenv$lock <- 0
   connenv$deferred <- list()
   connenv$exception <- list()
+  connenv$autocommit <- TRUE
   connenv$params <- list(drv=drv, host=host, port=port, timeout=timeout, dbname=dbname, user=user, password=password, language=language)
   connenv$socket <- .mapiConnect(host, port, timeout) 
   .mapiAuthenticate(connenv$socket, dbname, user, password, language=language)
@@ -199,17 +201,29 @@ setMethod("dbListTables", "MonetDBConnection", def=function(conn, ..., sys_table
 })
 
 setMethod("dbBegin", "MonetDBConnection", def=function(conn, ...) {
+  if (!conn@connenv$autocommit) {
+    warning("Already in transaction, can't start another one.")
+  }
   dbSendQuery(conn, "START TRANSACTION")
+  conn@connenv$autocommit <- FALSE
   invisible(TRUE)
 })
 
 setMethod("dbCommit", "MonetDBConnection", def=function(conn, ...) {
+  if (conn@connenv$autocommit) {
+    stop("No active transaction, use dbBegin() to start one.")
+  }
   dbSendQuery(conn, "COMMIT")
+  conn@connenv$autocommit <- TRUE
   invisible(TRUE)
 })
 
 setMethod("dbRollback", "MonetDBConnection", def=function(conn, ...) {
+  if (conn@connenv$autocommit) {
+    stop("No active transaction, use dbBegin() to start one.")
+  }
   dbSendQuery(conn, "ROLLBACK")
+  conn@connenv$autocommit <- TRUE
   invisible(TRUE)
 })
 
@@ -466,7 +480,14 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
   if (overwrite && append) {
     stop("Setting both overwrite and append to TRUE makes no sense.")
   }
-  if (transaction) {
+
+  if (!missing(transaction)) {
+    .Deprecated("Setting parameter transaction to dbWriteTable is deprecated.")
+  }
+
+  needcommit <- FALSE
+  if (conn@connenv$autocommit && transaction) {
+    needcommit <- TRUE
     dbBegin(conn)
     on.exit(tryCatch(dbRollback(conn), error=function(e){}))
   }
@@ -544,7 +565,7 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
       }
     }
   }
-  if (transaction) {
+  if (needcommit) {
     dbCommit(conn)
     on.exit(NULL)
   }
@@ -1019,9 +1040,13 @@ monet.read.csv <- monetdb.read.csv <- function(conn, files, tablename, header=TR
     if(!all(nms==nms[, 1])) stop("Files have different variable names")
     types <- sapply(headers, function(df) sapply(df, dbDataType, dbObj=conn))
     if(!all(types==types[, 1])) stop("Files have different variable types")
-  } 
-  dbBegin(conn)
-  on.exit(tryCatch(dbRollback(conn), error=function(e){}))
+  }
+  needcommit <- FALSE
+  if (conn@connenv$autocommit) {
+    needcommit <- TRUE
+    dbBegin(conn)
+    on.exit(tryCatch(dbRollback(conn), error=function(e){}))
+  }
   if (!dbExistsTable(conn, tablename)) {
   tablename <- quoteIfNeeded(conn, tablename)
     if(lower.case.names) names(headers[[1]]) <- tolower(names(headers[[1]]))
@@ -1048,7 +1073,9 @@ monet.read.csv <- monetdb.read.csv <- function(conn, files, tablename, header=TR
       na.strings[1], "'", sep=""), if(locked) "LOCKED", if(best.effort) "BEST EFFORT"))
   }
   dbGetQuery(conn, paste("SELECT COUNT(*) FROM", tablename))[[1]]
-  dbCommit(conn)
-  on.exit(NULL)
+  if (needcommit) {
+    dbCommit(conn)
+    on.exit(NULL)
+  }
 }
 
