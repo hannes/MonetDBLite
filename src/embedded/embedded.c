@@ -218,8 +218,11 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 
 char* monetdb_append(void* conn, const char* schema, const char* table, append_data *data, int ncols) {
 	Client c = (Client) conn;
+	mvc* m;
+
 	InstrPtr q;
 	MalBlkPtr mb;
+
 	int mvc_var;
 	int i;
 	str res = MAL_SUCCEED;
@@ -233,6 +236,14 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	if (!MCvalid((Client) conn)) {
 		return GDKstrdup("Invalid connection");
 	}
+	if ((res = getSQLContext(c, NULL, &m, NULL)) != MAL_SUCCEED) {
+		return res;
+	}
+	if (m->session->status < 0 && m->session->auto_commit == 0){
+		return GDKstrdup("Current transaction is aborted (please ROLLBACK)");
+	}
+
+	SQLtrans(m);
 
 	MSinitClientPrg(c, "user", "monetdb_append");
 	mb = copyMalBlk(c->curprg->def);
@@ -261,11 +272,17 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	res = runMAL(c, mb, 0, 0);
 	freeMalBlk(mb);
 
+	SQLautocommit(c, m);
 	return res;
 }
 
 void  monetdb_cleanup_result(void* conn, void* output) {
-	(void) conn; // not needing conn here (but perhaps someday)
+	if (!monetdb_is_initialized()) {
+		return;
+	}
+	if (!MCvalid((Client) conn)) {
+		return;
+	}
 	res_tables_destroy((res_table*) output);
 }
 
@@ -280,7 +297,7 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 
 	assert(column_count != NULL && column_names != NULL && column_types != NULL);
 
-	if ((msg = getSQLContext(c, NULL, &m, NULL)) != NULL)
+	if ((msg = getSQLContext(c, NULL, &m, NULL)) != MAL_SUCCEED)
 		return msg;
 
 	s = mvc_bind_schema(m, schema_name);
