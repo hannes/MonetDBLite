@@ -76,8 +76,7 @@ Java 8.
 **The MonetDB Embedded Database has to be loaded in order to perform all the operations!** Due to the one database
 process restriction, the `MonetDBEmbeddedDatabase` class is a singleton. The `MonetDBEmbeddedDatabase` will create the
 MonetDB's farm if it's nonexistent in the directory, otherwise it will initialize the existing one. The
-`MonetDBEmbeddedDatabase` is thread-safe to avoid to threads to start the database and corrupting the existing process.
-To start the database:
+`MonetDBEmbeddedDatabase` class is thread-safe. To start the database:
 
 ```java
 Path directoryPath = Files.createTempDirectory("monetdbjavalite");
@@ -86,14 +85,7 @@ MonetDBEmbeddedDatabase.startDatabase(directoryPath.toString(), silentFlag, sequ
 ```
 
 The `silent` and `sequential` flags are left for debugging purposes. They should be left as `true` and `false`
-respectively. After the database is loaded, connections can be performed to the database.
-
-```java
-MonetDBEmbeddedConnection connection = MonetDBEmbeddedDatabase.createConnection();
-//the session goes...
-//Don't forget to close the connection at the end!!
-connection.close();
-```
+respectively. 
 
 **Before exiting the JVM it is VERY important to shutdown the database, otherwise the program will cause many memory
 leaks!** The `void MonetDBEmbeddedDatabase.stopDatabase()` class method shuts down the embedded database and any pending
@@ -136,25 +128,41 @@ taken off from MonetDBLite to shrink the size of the library.
 
 ## Just the Embedded API
 
-After a connection is made, regular queries can be sent to the embedded database, then retrieving the results.
-The methods `void startTransaction()`, `void commit()` and `void rollback()`, can be used for the transaction
-management.
+Besides the regular JDBC interface, MonetDBJavaLite adds another more lightweight API, surpassing some layer of the
+JDBC specification. The user should use this API instead of JDBC if he intends to obtain more performance without the
+concern of portability. The javadocs for the Embedded API can be found in our
+[website](https://www.monetdb.org/downloads/Java-Experimental/javadocs/embedded/).
+
+After the database is loaded, connections can be performed to it.
+
+```java
+MonetDBEmbeddedConnection connection = MonetDBEmbeddedDatabase.createConnection();
+//the session goes...
+//Don't forget to close the connection at the end!!
+connection.close();
+```
+
+After a connection is made, regular queries can be sent to the embedded database, then retrieving the results. The
+methods `void startTransaction()`, `void commit()` and `void rollback()`, can be used for the transaction management.
+The methods `Savepoint setSavepoint()`, `Savepoint setSavepoint(String name)`,
+`void releaseSavepoint(Savepoint savepoint)` and `void rollback(Savepoint savepoint)` handle savepoints in the
+transaction.
 
 ### Update Queries
 
-For update queries (e.g. `INSERT`, `UPDATE` and `DELETE` queries), the method `int sendUpdate(String query)` is used to
-send update queries to the server and get the number of rows affected.
+For update queries (e.g. `INSERT`, `UPDATE` and `DELETE` queries), the method `int executeUpdate(String query)` is used
+to send update queries to the server and get the number of rows affected.
 
 ```java
 connection.startTransaction();
-connection.sendUpdate("CREATE TABLE example (words text, counter int, temporal timestamp)");
-int numberOfInsertions = connection.sendUpdate("INSERT INTO example VALUES ('monetdb', 1, now()), ('java', 2, now()), (null, null, null)");
+connection.executeUpdate("CREATE TABLE example (words text, counter int, temporal timestamp)");
+int numberOfInsertions = connection.executeUpdate("INSERT INTO example VALUES ('monetdb', 1, now()), ('java', 2, now()), (null, null, null)");
 connection.commit();
 ```
 
 ### Queries with result sets
 
-For queries with result sets, the method `QueryResultSet sendQuery(String query)` sends a query to the server, and
+For queries with result sets, the method `QueryResultSet executeQuery(String query)` sends a query to the server, and
 retrieves the results immediately in a `QueryResultSet` instance.
 
 The result set metadata can be retrieved with the `int getNumberOfRows()`, `int getNumberOfColumns()`,
@@ -175,7 +183,7 @@ For the `NULL` values mappings of a column, the methods `void getColumnNullMappi
 and`void getNullMappingByName(String columnName, boolean[] input)` can be used. 
 
 ```java
-QueryResultSet qrs = connection.sendQuery("SELECT * FROM example");
+QueryResultSet qrs = connection.executeQuery("SELECT * FROM example");
 int numberOfRows = qrs.getNumberOfRows();
 
 String[] columnNames =  new String[numberOfRows];
@@ -210,7 +218,7 @@ allocations, hence is not recommended in low memory devices. The `MonetDBRow` cl
 retrieved row.
 
 ```java
-QueryResultSet qrs = connection.sendQuery("SELECT words, counter, temporal FROM example");
+QueryResultSet qrs = connection.executeQuery("SELECT words, counter, temporal FROM example");
 
 QueryResultRowSet rows = qrs.fetchAllRowValues();
 MonetDBRow[] arrayRep = rows.getAllRows();
@@ -226,12 +234,14 @@ qrs.close(); //don't forget ;)
 
 In the `MonetDBEmbeddedConnection` class there are other utility methods that can used to manage the current connection.
 
-* `String getCurrentSchema()` - Returns the current schema name.
-* `void setCurrentSchema(String newSchema)` - Sets the current schema.
+* `boolean getAutoCommit()` - Checks if the autocommit mode is turned on or not.
+* `void setAutoCommit(boolean autoCommit)` - Sets the autocommit mode on and off.
+* `String getSchema()` - Returns the current schema name.
+* `void setSchema(String newSchema)` - Sets the current schema.
 * `QueryResultSet listTables(boolean listSystemTables)` - Lists the existing tables details in the SQL catalog.
 * `boolean checkIfTableExists(String schemaName, String tableName)` - Self explanatory :)
 * `void removeTable(String schemaName, String tableName)` - Self explanatory :)
-* `boolean isConnectionClosed()` - Just a check :)
+* `boolean isClosed()` - Is the connection closed? :)
 
 ## Interacting with Tables
 
@@ -252,8 +262,8 @@ the table is specified (starting from 1), `int getLastRowToIterate()` the last o
 information about the iteration itself, as well the current row.
 
 ```java
-connection.sendUpdate("CREATE TABLE iterateMe (oneValue short, information char(10), justADate date)");
-connection.sendUpdate("INSERT INTO iterateMe VALUES (1, 'iterate', now()), (2, 'a', '2014-10-02'), (3, 'table', '1950-12-12')");
+connection.executeUpdate("CREATE TABLE iterateMe (oneValue short, information char(10), justADate date)");
+connection.executeUpdate("INSERT INTO iterateMe VALUES (1, 'iterate', now()), (2, 'a', '2014-10-02'), (3, 'table', '1950-12-12')");
 
 MonetDBTable iterateMe = connection.getMonetDBTable("iterateMe");
 iterateMe.iterateTable(new IMonetDBTableCursor() {
@@ -285,10 +295,11 @@ of the representation of `booleans` in Java, to append to a `boolean` column, a 
 shown in the example. For all the other types, there are no changes.
 
 For `decimals`, a rounding mode must be set before appending. The method `void setRoundingMode(int roundingMode)` has
-that purpose [click here for details](https://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html#setScale(int,%20int)).
+that purpose
+[click here for details](https://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html#setScale(int,%20int)).
 
 ```java
-connection.sendUpdate("CREATE TABLE interactWithMe (dutchGoodies text, justNumbers int, truth boolean, huge blob)");
+connection.executeUpdate("CREATE TABLE interactWithMe (dutchGoodies text, justNumbers int, truth boolean, huge blob)");
 MonetDBTable interactWithMe = connection.getMonetDBTable("interactWithMe");
 
 String[] goodies = new String[]{"eerlijk", "lekker", "smullen", "smaak", NullMappings.getObjectNullConstant<String>() };
@@ -299,7 +310,7 @@ byte[][] justBlobs = new byte[][]{new byte[]{1,2,5,7}, NullMappings.getObjectNul
 Object[] appends = new Object[]{goodies, numbers, truths, justBlobs};
 interactWithMe.appendColumns(appends);
 
-QueryResultSet qrs = connection.sendQuery("SELECT * FROM interactWithMe");
+QueryResultSet qrs = connection.executeQuery("SELECT * FROM interactWithMe");
 //checking the values....
 ```
 
@@ -321,7 +332,7 @@ where directory is the location of the database.** The following example shows h
 JDBC MAPI connection URL has the format `jdbc:monetdb://<host>[:<port>]/<database>[query]`.
 
 ```java
-//Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm") //Unix
+//Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm") //UNIX
 //Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:C:\\user\\myfarm") //Windows
 
 //just a JDBC statement and result set
@@ -350,7 +361,7 @@ from the JDBC specification.
 ```java
 Connection con = DriverManager.getConnection("jdbc:monetdb:embedded:/home/user/myfarm")
 MonetDBEmbeddedConnection cast = ((EmbeddedConnection)con).getAsMonetDBEmbeddedConnection();
-connection.sendUpdate("SELECT * FROM somewhere WHERE field=1");
+connection.executeUpdate("SELECT * FROM somewhere WHERE field=1");
 //do as a MonetDBEmbeddedConnection...
 con.close(); //Don't forget! ;)
 ```
@@ -406,7 +417,7 @@ instead. An example to run a query asynchronously:
 ```java
 CompletableFuture<QueryResultSet> asyncFetch = CompletableFuture.supplyAsync(() -> {
     try {
-        return connection.sendQuery("SELECT * FROM exampleTable");
+        return connection.executeQuery("SELECT * FROM exampleTable");
     } catch (MonetDBEmbeddedException ex) {
         //log the exception...
         return null;

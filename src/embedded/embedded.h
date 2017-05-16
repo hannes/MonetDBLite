@@ -49,6 +49,7 @@ void sendCloseCommand(Client conn, int commandId);
 void sendReplySizeCommand(Client conn, long size);
 void getUpdateQueryData(Client conn, long* lastId, long* rowCount);
 int getAutocommitFlag(Client conn);
+void setAutocommitFlag(Client conn, int autoCommit);
 
 int setMonetDB5LibraryPathEmbedded(const char* path);
 void freeMonetDB5LibraryPathEmbedded(void);

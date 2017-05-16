@@ -166,7 +166,7 @@ public final class MonetDBEmbeddedDatabase {
                 throw new MonetDBEmbeddedException("The MonetDB Embedded database is not running!");
             } else {
                 for(MonetDBEmbeddedConnection mdbec : monetDBEmbeddedDatabase.connections.values()) {
-                    if(!mdbec.isConnectionClosed()) {
+                    if(!mdbec.isClosed()) {
                         mdbec.closeConnectionImplementation();
                     }
                 }

@@ -11,7 +11,7 @@ package nl.cwi.monetdb.embedded.jdbc;
 import nl.cwi.monetdb.mcl.connection.IMonetDBLanguage;
 
 /**
- * The embedded implementation of the available languages on a JDBC connection: just SQL.
+ * The embedded implementation of the available languages on a MonetDB JDBC connection: just SQL.
  * <br>
  * In an embedded connection there is no necessity to use delimiters, so no delimiters are added to the user's input.
  *
@@ -19,9 +19,9 @@ import nl.cwi.monetdb.mcl.connection.IMonetDBLanguage;
  */
 public enum EmbeddedLanguage implements IMonetDBLanguage {
 
-    /** the SQL language */
+    /** The SQL language */
     LANG_SQL(new String[]{null, null, ";"}, "sql"),
-    /** an unknown language */
+    /** An unknown language */
     LANG_UNKNOWN(new String[]{null, null, null}, "unknown");
 
     EmbeddedLanguage(String[] queryTemplates, String representation) {

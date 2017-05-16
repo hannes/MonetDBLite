@@ -58,10 +58,10 @@ class MonetDBJavaLiteTesting {
         if(counter == 0) {
             MonetDBEmbeddedDatabase.stopDatabase();
             Assertions.assertFalse(MonetDBEmbeddedDatabase::isDatabaseRunning, "The database should be closed!");
-            Assertions.assertTrue(connection::isConnectionClosed, "The connection should be closed!");
+            Assertions.assertTrue(connection::isClosed, "The connection should be closed!");
 
             //If the database is closed, then the connection will close as well
-            Assertions.assertThrows(MonetDBEmbeddedException.class, () -> connection.sendQuery("SELECT 1;"));
+            Assertions.assertThrows(MonetDBEmbeddedException.class, () -> connection.executeQuery("SELECT 1;"));
             //Stop the database again also shouldn't work
             Assertions.assertThrows(MonetDBEmbeddedException.class, MonetDBEmbeddedDatabase::stopDatabase);
 

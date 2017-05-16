@@ -416,15 +416,25 @@ void sendReplySizeCommand(Client conn, long size) {
 }
 
 void getUpdateQueryData(Client conn, long* lastId, long* rowCount) {
-    Client c = (Client) conn;
     mvc* m = ((backend *) conn->sqlcontext)->mvc;
 
     *lastId = m->last_id;
-    *rowCount = c->lastNumberOfRows;
+    *rowCount = conn->lastNumberOfRows;
 }
 
 int getAutocommitFlag(Client conn) {
     return conn->lastAutoCommitStatus;
+}
+
+void setAutocommitFlag(Client conn, int autoCommit) {
+    mvc* m = ((backend *) conn->sqlcontext)->mvc;
+    m->session->auto_commit = autoCommit;
+    conn->lastAutoCommitStatus = autoCommit;
+
+    if(autoCommit == 0) {
+        m->session->status = 0;
+    }
+    SQLautocommit(conn, m);
 }
 
 int setMonetDB5LibraryPathEmbedded(const char* path) {

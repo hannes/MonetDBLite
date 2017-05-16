@@ -53,7 +53,7 @@ public final class MonetDBTable extends AbstractConnectionResult {
         int res;
         try {
             String query = "SELECT COUNT(*) FROM " + this.getTableSchema() + "." + this.getTableName() + ";";
-            QueryResultSet eqr = this.getConnection().sendQuery(query);
+            QueryResultSet eqr = this.getConnection().executeQuery(query);
             res = (int) eqr.getLongByColumnIndexAndRow(1, 1);
             eqr.close();
         } catch (MonetDBEmbeddedException ex) {
@@ -222,7 +222,7 @@ public final class MonetDBTable extends AbstractConnectionResult {
         String query = "SELECT * FROM " + this.getTableSchema() + "." + this.getTableName()
                 + " LIMIT " + (limits[1] - limits[0] + 1) + " OFFSET " + (limits[0] - 1) + ";";
 
-        QueryResultSet eqr = this.getConnection().sendQuery(query);
+        QueryResultSet eqr = this.getConnection().executeQuery(query);
         MonetDBRow[] array = eqr.fetchAllRowValues().getAllRows();
         eqr.close();
         Object[][] data = new Object[eqr.getNumberOfRows()][this.getNumberOfColumns()];

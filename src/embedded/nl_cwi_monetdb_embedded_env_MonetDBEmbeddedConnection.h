@@ -9,8 +9,24 @@ extern "C" {
 #endif
 /*
  * Class:     nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection
+ * Method:    getAutoCommitInternal
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_getAutoCommitInternal
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection
+ * Method:    setAutoCommitInternal
+ * Signature: (JZ)Z
+ */
+JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_setAutoCommitInternal
+  (JNIEnv *, jobject, jlong, jboolean);
+
+/*
+ * Class:     nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection
  * Method:    sendUpdateInternal
- * Signature: (JLjava/lang/String;Z)I;
+ * Signature: (JLjava/lang/String;Z)I
  */
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_sendUpdateInternal
   (JNIEnv *, jobject, jlong, jstring, jboolean);
@@ -29,7 +45,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
  * Signature: (JLjava/lang/String;Ljava/lang/String;)Lnl/cwi/monetdb/embedded/tables/MonetDBTable;
  */
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_getMonetDBTableInternal
-(JNIEnv *, jobject, jlong, jstring, jstring);
+  (JNIEnv *, jobject, jlong, jstring, jstring);
 
 /*
  * Class:     nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection

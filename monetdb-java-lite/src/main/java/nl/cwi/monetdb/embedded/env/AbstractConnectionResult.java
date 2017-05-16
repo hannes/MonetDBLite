@@ -29,7 +29,7 @@ public abstract class AbstractConnectionResult implements Closeable {
 
     protected AbstractConnectionResult(MonetDBEmbeddedConnection connection) {
         this.connection = connection;
-        this.randomIdentifier = Randomizer.generateNextLong();
+        this.randomIdentifier = Randomizer.generateNextResultSetId();
     }
 
     /**
@@ -76,38 +76,46 @@ public abstract class AbstractConnectionResult implements Closeable {
     /**
      * Gets the columns names as a string array.
      *
-     * @param input The columns names array to fill
+     * @param input The columns names array to fill.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public abstract void getColumnNames(String[] input) throws MonetDBEmbeddedException;
 
     /**
      * Gets the columns types as a string array.
      *
-     * @param input The columns types array to fill
+     * @param input The columns types array to fill.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public abstract void getColumnTypes(String[] input) throws MonetDBEmbeddedException;
 
     /**
      * Gets the Java mappings as a MonetDBToJavaMapping array.
      *
-     * @param input The columns mappings array to fill
+     * @param input The columns mappings array to fill.
+     * @throws MonetDBEmbeddedException If an error in the database occurred..
      */
     public abstract void getMappings(MonetDBToJavaMapping[] input) throws MonetDBEmbeddedException;
 
     /**
      * Gets the column digits as an integer array.
      *
-     * @param input The columns digits array to fill
+     * @param input The columns digits array to fill.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public abstract void getColumnDigits(int[] input) throws MonetDBEmbeddedException;
 
     /**
      * Gets the column scales as an integer array.
      *
-     * @param input The columns scales array to fill
+     * @param input The columns scales array to fill.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public abstract void getColumnScales(int[] input) throws MonetDBEmbeddedException;
 
+    /**
+     * Close the result set.
+     */
     @Override
     public void close() {
         this.connection.removeQueryResult(this);

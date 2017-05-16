@@ -21,6 +21,8 @@ import nl.cwi.monetdb.jdbc.MonetDriver;
  * Class responsible to load MonetDB's embedded library. On the resources directory of the JAR inside the libs directory
  * there is present a library file for each of the operating systems MonetDBJavaLite is compiled for.
  *
+ * Currently we support Windows NT, Mac OS X and Linux on 64-bit architectures only.
+ *
  * @author <a href="mailto:pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>
  */
 public final class MonetDBJavaLiteLoader {
@@ -28,11 +30,25 @@ public final class MonetDBJavaLiteLoader {
     private MonetDBJavaLiteLoader() {}
 
     /**
-     * Operating Systems Listening and their respective MonetDB embedded libraries.
+     * Operating Systems Listening and their respective MonetDB embedded libraries locations inside the MonetDBJavaLite
+     * jar.
      */
     public enum OSLibraries {
-        /* Please don't change the order!!! */
-        Windows("/libs/windows", "libmonetdb5.dll"), MacOSX("/libs/macosx", "libmonetdb5.dylib"),
+        /* Please don't change the order and the paths without expertise! ;) */
+
+        /**
+         * Windows NT
+         */
+        Windows("/libs/windows", "libmonetdb5.dll"),
+
+        /**
+         * Mac OS X
+         */
+        MacOSX("/libs/macosx", "libmonetdb5.dylib"),
+
+        /**
+         * Linux
+         */
         Linux("/libs/linux", "libmonetdb5.so");
 
         OSLibraries(String libraryFilePath, String libraryFileName) {
@@ -47,23 +63,23 @@ public final class MonetDBJavaLiteLoader {
         private final String libraryFilePath;
 
         /**
-         * The library file name
+         * The library file name.
          */
         private final String libraryFileName;
 
         /**
-         * Get the library file path
+         * Get the library file path.
          *
-         * @return The library file path
+         * @return The library file path.
          */
         public String getLibraryFilePath() {
             return libraryFilePath;
         }
 
         /**
-         * Get the library file name
+         * Get the library file name.
          *
-         * @return The library file name
+         * @return The library file name.
          */
         public String getLibraryFileName() {
             return libraryFileName;

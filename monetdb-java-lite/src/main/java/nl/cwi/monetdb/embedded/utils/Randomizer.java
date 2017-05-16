@@ -23,11 +23,11 @@ public final class Randomizer {
     private static final AtomicLong ResultSetCounter = new AtomicLong();
 
     /**
-     * Generates and returns an incrementally long value.
+     * Generates and returns an incrementally long value for a result set
      *
-     * @return An incrementally generated long value
+     * @return An incrementally generated long value for a result set
      */
-    public static long generateNextLong() {
+    public static long generateNextResultSetId() {
         return ResultSetCounter.incrementAndGet();
     }
 }

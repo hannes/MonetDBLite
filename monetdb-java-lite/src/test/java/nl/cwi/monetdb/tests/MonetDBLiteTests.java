@@ -39,7 +39,7 @@ public class MonetDBLiteTests extends MonetDBJavaLiteTesting {
 
         MonetDBEmbeddedConnection con1 = MonetDBEmbeddedDatabase.createConnection();
 
-        QueryResultSet rs = con1.sendQuery("SELECT 1;");
+        QueryResultSet rs = con1.executeQuery("SELECT 1;");
         //A query result set cannot do any further statements after is closed
         rs.close();
         Assertions.assertThrows(MonetDBEmbeddedException.class, () -> rs.getIntegerByColumnIndexAndRow(1, 1));
@@ -47,8 +47,8 @@ public class MonetDBLiteTests extends MonetDBJavaLiteTesting {
 
         //The same happens for the connection
         con1.close();
-        Assertions.assertThrows(MonetDBEmbeddedException.class, () -> con1.sendQuery("SELECT 1;"));
-        Assertions.assertTrue(con1::isConnectionClosed);
+        Assertions.assertThrows(MonetDBEmbeddedException.class, () -> con1.executeQuery("SELECT 1;"));
+        Assertions.assertTrue(con1::isClosed);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class MonetDBLiteTests extends MonetDBJavaLiteTesting {
             Thread t = new Thread(() -> {
                 try {
                     MonetDBEmbeddedConnection con = MonetDBEmbeddedDatabase.createConnection();
-                    QueryResultSet rs = con.sendQuery("SELECT * from tables;");
+                    QueryResultSet rs = con.executeQuery("SELECT * from tables;");
                     rs.close();
                     con.close();
                 } catch (MonetDBEmbeddedException e) {
@@ -81,7 +81,7 @@ public class MonetDBLiteTests extends MonetDBJavaLiteTesting {
     @DisplayName("Empty result sets")
     void stringsWithExoticCharacters() throws MonetDBEmbeddedException {
         MonetDBEmbeddedConnection con = MonetDBEmbeddedDatabase.createConnection();
-        QueryResultSet qrs = con.sendQuery("SELECT id from types WHERE 1=0;");
+        QueryResultSet qrs = con.executeQuery("SELECT id from types WHERE 1=0;");
         Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> qrs.getIntegerByColumnIndexAndRow(1, 1));
         int numberOfRows = qrs.getNumberOfRows();
         Assertions.assertEquals(0, numberOfRows, "The number of rows should be 0, got " + numberOfRows + " instead!");
@@ -93,7 +93,7 @@ public class MonetDBLiteTests extends MonetDBJavaLiteTesting {
     @DisplayName("SELECT NULL")
     void selectNull() throws MonetDBEmbeddedException {
         MonetDBEmbeddedConnection con = MonetDBEmbeddedDatabase.createConnection();
-        QueryResultSet qrs = con.sendQuery("SELECT NULL AS stresser;");
+        QueryResultSet qrs = con.executeQuery("SELECT NULL AS stresser;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
         Assertions.assertEquals(1, numberOfRows, "The number of rows should be 1, got " + numberOfRows + " instead!");
         Assertions.assertEquals(1, numberOfColumns, "The number of columns should be 1, got " + numberOfColumns + " instead!");

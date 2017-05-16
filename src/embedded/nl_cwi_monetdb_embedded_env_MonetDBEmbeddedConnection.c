@@ -15,6 +15,22 @@
 #include "res_table.h"
 #include "mal_type.h"
 
+JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_getAutoCommitInternal
+    (JNIEnv *env, jobject jconnection, jlong connectionPointer) {
+    (void) env;
+    (void) jconnection;
+    int result = getAutocommitFlag((Client) connectionPointer);
+    return (result == 0) ? JNI_FALSE : JNI_TRUE;
+}
+
+JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_setAutoCommitInternal
+    (JNIEnv *env, jobject jconnection, jlong connectionPointer, jboolean autoCommit) {
+    (void) env;
+    (void) jconnection;
+    int toSet = (autoCommit == JNI_FALSE) ? 0 : 1;
+    setAutocommitFlag((Client) connectionPointer, toSet);
+}
+
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_sendUpdateInternal
     (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring query, jboolean execute) {
     res_table *output = NULL;

@@ -224,6 +224,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The boolean value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public boolean getBooleanByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -260,6 +261,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The byte value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public byte getByteByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -301,6 +303,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The short value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public short getShortByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -342,6 +345,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The integer value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public int getIntegerByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -383,6 +387,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The long value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public long getLongByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -424,6 +429,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The float value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public float getFloatByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -465,6 +471,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The double value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public double getDoubleByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -506,6 +513,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The String value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public String getStringByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -561,6 +569,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The Date value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public Date getDateByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -586,6 +595,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The Timestamp value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public Timestamp getTimestampByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -611,6 +621,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The Time value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public Time getTimeByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -636,6 +647,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The byte[] value (BLOB)
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public byte[] getBlobByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -658,6 +670,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index starting from 1
      * @return The BigDecimal value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public BigDecimal getDecimalByColumnIndexAndRow(int column, int row) throws MonetDBEmbeddedException {
         this.checkRangesScalars(column, row);
@@ -693,6 +706,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The boolean value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public boolean getBooleanByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -705,6 +719,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The byte value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public byte getByteByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -717,6 +732,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The short value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public short getShortByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -729,6 +745,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The integer value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public int getIntegerByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -741,6 +758,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The long value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public long getLongByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -753,6 +771,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The float value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public float getFloatByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -765,6 +784,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The double value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public double getDoubleByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -777,6 +797,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The String value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public String getStringByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -789,6 +810,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The Date value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public Date getDateByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -801,6 +823,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The Timestamp value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public Timestamp getTimestampByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -813,6 +836,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The Time value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public Time getTimeByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -825,6 +849,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The byte[] (BLOB) value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public byte[] getBlobByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -837,6 +862,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param columnName The column name
      * @param row The row index starting from 1
      * @return The decimal value
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public BigDecimal getDecimalByColumnNameAndRow(String columnName, int row) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -895,8 +921,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input boolean array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getBooleanColumnByIndex(int column, boolean[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -965,8 +992,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input byte array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getByteColumnByIndex(int column, byte[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1035,8 +1063,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input short array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getShortColumnByIndex(int column, short[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1105,8 +1134,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input integer array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getIntColumnByIndex(int column, int[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1175,8 +1205,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input long array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getLongColumnByIndex(int column, long[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1245,8 +1276,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input float array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getFloatColumnByIndex(int column, float[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1315,8 +1347,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input double array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDoubleColumnByIndex(int column, double[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1385,8 +1418,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input String array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getStringColumnByIndex(int column, String[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1483,8 +1517,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input Date array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDateColumnByIndex(int column, Date[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1517,8 +1552,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input Timestamp array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getTimestampColumnByIndex(int column, Timestamp[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1551,8 +1587,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input Time array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getTimeColumnByIndex(int column, Time[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1585,8 +1622,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input byte[] (BLOB) array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getBlobColumnByIndex(int column, byte[][] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1612,8 +1650,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input BigDecimal array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDecimalColumnByIndex(int column, BigDecimal[] input, int offset, int length) throws MonetDBEmbeddedException {
         this.checkRangesArrays(column, input, offset, length);
@@ -1675,8 +1714,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input boolean array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getBooleanColumnByName(String columnName, boolean[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1688,8 +1728,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input byte array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getByteColumnByName(String columnName, byte[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1701,8 +1742,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input short array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getShortColumnByName(String columnName, short[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1714,8 +1756,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input integer array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getIntColumnByName(String columnName, int[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1727,8 +1770,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input long array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getLongColumnByName(String columnName, long[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1740,8 +1784,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input float array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getFloatColumnByName(String columnName, float[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1753,8 +1798,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input double array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDoubleColumnByName(String columnName, double[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1766,8 +1812,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input String array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getStringColumnByName(String columnName, String[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1779,8 +1826,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input Date array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDateColumnByName(String columnName, Date[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1792,8 +1840,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input Timestamp array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getTimestampColumnByName(String columnName, Timestamp[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1805,8 +1854,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input Time array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getTimeColumnByName(String columnName, Time[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1818,8 +1868,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input byte[] (BLOB) array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getBlobColumnByName(String columnName, byte[][] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1831,8 +1882,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input BigDecimal array where the result will be copied to.
-     * @param offset - The starting offset of the array
+     * @param offset - The starting offset of the array.
      * @param length - The number of elements to copy.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDecimalColumnByName(String columnName, BigDecimal[] input, int offset, int length) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1844,6 +1896,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input boolean array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getBooleanColumnByIndex(int column, boolean[] input) throws MonetDBEmbeddedException {
         this.getBooleanColumnByIndex(column, input, 0, input.length);
@@ -1854,6 +1907,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input byte array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getByteColumnByIndex(int column, byte[] input) throws MonetDBEmbeddedException {
         this.getByteColumnByIndex(column, input, 0, input.length);
@@ -1864,6 +1918,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input short array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getShortColumnByIndex(int column, short[] input) throws MonetDBEmbeddedException {
         this.getShortColumnByIndex(column, input, 0, input.length);
@@ -1874,6 +1929,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input integer array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getIntColumnByIndex(int column, int[] input) throws MonetDBEmbeddedException {
         this.getIntColumnByIndex(column, input, 0, input.length);
@@ -1884,6 +1940,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input long array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getLongColumnByIndex(int column, long[] input) throws MonetDBEmbeddedException {
         this.getLongColumnByIndex(column, input, 0, input.length);
@@ -1894,6 +1951,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input float array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getFloatColumnByIndex(int column, float[] input) throws MonetDBEmbeddedException {
         this.getFloatColumnByIndex(column, input, 0, input.length);
@@ -1904,6 +1962,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input double array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDoubleColumnByIndex(int column, double[] input) throws MonetDBEmbeddedException {
         this.getDoubleColumnByIndex(column, input, 0, input.length);
@@ -1914,6 +1973,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input String array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getStringColumnByIndex(int column, String[] input) throws MonetDBEmbeddedException {
         this.getStringColumnByIndex(column, input, 0, input.length);
@@ -1924,6 +1984,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input Date array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDateColumnByIndex(int column, Date[] input) throws MonetDBEmbeddedException {
         this.getDateColumnByIndex(column, input, 0, input.length);
@@ -1934,6 +1995,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input Timestamp array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getTimestampColumnByIndex(int column, Timestamp[] input) throws MonetDBEmbeddedException {
         this.getTimestampColumnByIndex(column, input, 0, input.length);
@@ -1944,6 +2006,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input Time array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getTimeColumnByIndex(int column, Time[] input) throws MonetDBEmbeddedException {
         this.getTimeColumnByIndex(column, input, 0, input.length);
@@ -1954,6 +2017,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input byte[] (BLOB) array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getBlobColumnByIndex(int column, byte[][] input) throws MonetDBEmbeddedException {
         this.getBlobColumnByIndex(column, input, 0, input.length);
@@ -1964,6 +2028,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column - The index of the column starting from 1.
      * @param input - The input BigDecimal array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDecimalColumnByIndex(int column, BigDecimal[] input) throws MonetDBEmbeddedException {
         this.getDecimalColumnByIndex(column, input, 0, input.length);
@@ -1974,6 +2039,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input boolean array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getBooleanColumnByName(String columnName, boolean[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1985,6 +2051,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input byte array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getByteColumnByName(String columnName, byte[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -1996,6 +2063,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input short array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getShortColumnByName(String columnName, short[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2007,6 +2075,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input integer array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getIntColumnByName(String columnName, int[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2018,6 +2087,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input long array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getLongColumnByName(String columnName, long[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2029,6 +2099,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input float array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getFloatColumnByName(String columnName, float[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2040,6 +2111,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input double array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDoubleColumnByName(String columnName, double[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2051,6 +2123,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input String array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getStringColumnByName(String columnName, String[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2062,6 +2135,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input Date array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDateColumnByName(String columnName, Date[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2073,6 +2147,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input Timestamp array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getTimestampColumnByName(String columnName, Timestamp[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2084,6 +2159,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input Time array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getTimeColumnByName(String columnName, Time[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2095,6 +2171,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input byte[] (BLOB) array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getBlobColumnByName(String columnName, byte[][] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2106,6 +2183,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName - The name of the column.
      * @param input - The input BigDecimal array where the result will be copied to.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getDecimalColumnByName(String columnName, BigDecimal[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2118,6 +2196,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param column The column index starting from 1
      * @param row The row index in the column starting from 1
      * @return A boolean indicating if the value is null
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public boolean checkBooleanIsNull(int column, int row) throws MonetDBEmbeddedException {
         this.checkQueryResultSetIsNotClosed();
@@ -2158,6 +2237,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column The column index starting from 1
      * @param input  An array of booleans, indicating if the values of the column are null or not.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getColumnNullMappingsByIndex(int column, boolean[] input) throws MonetDBEmbeddedException {
         this.checkRowArray(column, input);
@@ -2170,6 +2250,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName The column name
      * @param input An array of booleans, indicating if the values of the column are null or not.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void getNullMappingByName(String columnName, boolean[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2186,6 +2267,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param column The column index starting from 1
      * @param input An Object array representation of the column.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void mapColumnToObjectByIndex(int column, Object[] input) throws MonetDBEmbeddedException {
         this.checkRowArray(column, input);
@@ -2198,6 +2280,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      *
      * @param columnName The column name
      * @param input An Object array representation of the column.
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public void mapColumnToObjectByName(String columnName, Object[] input) throws MonetDBEmbeddedException {
         int index = this.getColumnIndexByName(columnName);
@@ -2210,7 +2293,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param startIndex The first row index to retrieve starting from 1
      * @param endIndex The last row index to retrieve
      * @return The rows as {@code QueryResultRowSet}
-     * @throws MonetDBEmbeddedException If an error in the database occurred
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     private QueryResultRowSet fetchRowsInternal(int startIndex, int endIndex) throws MonetDBEmbeddedException {
         int numberOfRowsToRetrieve = Math.max(endIndex - startIndex + 1, 0);
@@ -2235,9 +2318,9 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * @param startIndex The first row index to retrieve starting from 1
      * @param endIndex The last row index to retrieve
      * @return The rows as {@code QueryResultRowSet}
-     * @throws MonetDBEmbeddedException If an error in the database occurred
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
-	public QueryResultRowSet fetchResultSetRows(int startIndex, int endIndex) throws MonetDBEmbeddedException {
+    public QueryResultRowSet fetchResultSetRows(int startIndex, int endIndex) throws MonetDBEmbeddedException {
         if(endIndex < startIndex) {
             startIndex ^= endIndex;
             endIndex ^= startIndex;
@@ -2251,14 +2334,14 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
             throw new ArrayIndexOutOfBoundsException("Retrieving 0 rows?");
         }
         return this.fetchRowsInternal(startIndex, endIndex);
-	}
+    }
 
     /**
      * Fetches the first N rows from the result set.
      *
      * @param n The last row index to retrieve
      * @return The rows as {@code QueryResultRowSet}
-     * @throws MonetDBEmbeddedException If an error in the database occurred
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public QueryResultRowSet fetchFirstNRowValues(int n) throws MonetDBEmbeddedException {
         if (n > this.numberOfRows) {
@@ -2271,7 +2354,7 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
      * Fetches all rows from the result set.
      *
      * @return The rows as {@code QueryResultRowSet}
-     * @throws MonetDBEmbeddedException If an error in the database occurred
+     * @throws MonetDBEmbeddedException If an error in the database occurred.
      */
     public QueryResultRowSet fetchAllRowValues() throws MonetDBEmbeddedException {
         return this.fetchRowsInternal(1, this.numberOfRows);

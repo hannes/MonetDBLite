@@ -68,7 +68,7 @@ public final class JDBCEmbeddedConnection extends MonetDBEmbeddedConnection {
 
     @Override
     public void close() {
-        if(!this.isConnectionClosed()) {
+        if(!this.isClosed()) {
             this.closeConnectionImplementation();
             MonetDBEmbeddedDatabase.removeConnection(this, true);
         }

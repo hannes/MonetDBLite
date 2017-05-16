@@ -24,10 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.text.ParseException;
@@ -47,7 +44,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
     @Test
     @DisplayName("Testing single values retrieved from a query")
     void testSingleValues() throws MonetDBEmbeddedException {
-        QueryResultSet qrs = connection.sendQuery("SELECT 1+1 AS a1, 'monetdb' AS a2, AVG(2.3) as a3;");
+        QueryResultSet qrs = connection.executeQuery("SELECT 1+1 AS a1, 'monetdb' AS a2, AVG(2.3) as a3;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
         Assertions.assertEquals(1, numberOfRows, "The number of rows should be 1, got " + numberOfRows + " instead!");
         Assertions.assertEquals(3, numberOfColumns, "The number of columns should be 3, got " + numberOfColumns + " instead!");
@@ -68,14 +65,73 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
     }
 
     @Test
+    @DisplayName("Test the autocommit mode")
+    void testAutoCommit() throws MonetDBEmbeddedException {
+        Assertions.assertTrue(connection.getAutoCommit(), "The default autocommit mode should be true!");
+        connection.setAutoCommit(false);
+        Assertions.assertFalse(connection.getAutoCommit(), "The autocommit mode should be false!");
+        connection.setAutoCommit(true);
+        Assertions.assertTrue(connection.getAutoCommit(), "The autocommit mode should be true!");
+
+        connection.startTransaction();
+        connection.executeUpdate("CREATE TABLE testcomm (a int);");
+        connection.executeUpdate("INSERT INTO testcomm VALUES (1);");
+        connection.setAutoCommit(false);
+        QueryResultSet qrs = connection.executeQuery("SELECT count(*) FROM testcomm;");
+        int nRecords = qrs.getIntegerByColumnIndexAndRow(1, 1);
+        Assertions.assertEquals(1, nRecords, "The transaction should have committed!");
+        qrs.close();
+
+        connection.executeUpdate("DROP TABLE testcomm;");
+        connection.setAutoCommit(true);
+    }
+
+    @Test
+    @Disabled("Problems with savepoints on MonetDBLite :(")
+    @DisplayName("Test savepoints")
+    void testSavepoints() throws MonetDBEmbeddedException {
+        connection.setAutoCommit(false);
+
+        connection.executeUpdate("CREATE TABLE testsave (a int);");
+        connection.executeUpdate("INSERT INTO testsave VALUES (1);");
+
+        Savepoint svp1 = connection.setSavepoint();
+
+        QueryResultSet qrs1 = connection.executeQuery("SELECT count(*) FROM testsave;");
+        int nRecords1 = qrs1.getIntegerByColumnIndexAndRow(1, 1);
+        Assertions.assertEquals(1, nRecords1, "There should be 1 row in the table!");
+        qrs1.close();
+
+        Savepoint svp2 = connection.setSavepoint();
+        connection.executeUpdate("INSERT INTO testsave VALUES (2);");
+
+        QueryResultSet qrs2 = connection.executeQuery("SELECT count(*) FROM testsave;");
+        int nRecords2 = qrs2.getIntegerByColumnIndexAndRow(1, 1);
+        Assertions.assertEquals(2, nRecords2, "There should be 2 rows in the table!");
+        qrs2.close();
+
+        connection.rollback(svp1);
+        QueryResultSet qrs3 = connection.executeQuery("SELECT count(*) FROM testsave;");
+        int nRecords3 = qrs3.getIntegerByColumnIndexAndRow(1, 1);
+        Assertions.assertEquals(1, nRecords3, "There should be 1 row in the table!");
+        qrs3.close();
+
+        connection.releaseSavepoint(svp2);
+        Assertions.assertThrows(MonetDBEmbeddedException.class, () -> connection.rollback(svp2));
+
+        connection.executeUpdate("DROP TABLE testsave;");
+        connection.setAutoCommit(true);
+    }
+
+    @Test
     @DisplayName("Retrieve the most common types from a query into arrays (Also testing foreign characters)")
     void testBasicTypes() throws MonetDBEmbeddedException {
-        connection.sendUpdate("CREATE TABLE testbasics (a boolean, b text, c tinyint, d smallint, e int, f bigint, h real, i double);");
-        connection.sendUpdate("INSERT INTO testbasics VALUES ('true', 'a1ñ212#da ', 1, 1, 1, 1, 1.22, 1.33);");
-        connection.sendUpdate("INSERT INTO testbasics VALUES ('false', 'another with spaces', -2, -2, -2, -2, -1.59, -1.69);");
-        connection.sendUpdate("INSERT INTO testbasics VALUES ('true', '0', 0, 0, 0, 0, 0, 0);");
+        connection.executeUpdate("CREATE TABLE testbasics (a boolean, b text, c tinyint, d smallint, e int, f bigint, h real, i double);");
+        connection.executeUpdate("INSERT INTO testbasics VALUES ('true', 'a1ñ212#da ', 1, 1, 1, 1, 1.22, 1.33);");
+        connection.executeUpdate("INSERT INTO testbasics VALUES ('false', 'another with spaces', -2, -2, -2, -2, -1.59, -1.69);");
+        connection.executeUpdate("INSERT INTO testbasics VALUES ('true', '0', 0, 0, 0, 0, 0, 0);");
 
-        QueryResultSet qrs = connection.sendQuery("SELECT * FROM testbasics;");
+        QueryResultSet qrs = connection.executeQuery("SELECT * FROM testbasics;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
         Assertions.assertEquals(3, numberOfRows, "The number of rows should be 3, got " + numberOfRows + " instead!");
         Assertions.assertEquals(8, numberOfColumns, "The number of columns should be 8, got " + numberOfColumns + " instead!");
@@ -113,7 +169,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertArrayEquals(new double[]{1.33d, -1.69d, 0}, array8, 0.1d, "Doubles not correctly retrieved!");
 
         qrs.close();
-        connection.sendUpdate("DROP TABLE testbasics;");
+        connection.executeUpdate("DROP TABLE testbasics;");
     }
 
     @Test
@@ -125,13 +181,13 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         SimpleDateFormat timeFormater = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
         SimpleDateFormat timestampFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
-        connection.sendUpdate("CREATE TABLE testdates (a date, b time, c time with time zone, d timestamp, e timestamp with time zone, f INTERVAL year to month, g INTERVAL minute to second);");
-        connection.sendUpdate("INSERT INTO testdates VALUES ('2016-01-01', '23:10:47', '20:10:47', '2016-01-31T00:01:44', '1986-12-31T12:10:12', 1, 1);");
-        connection.sendUpdate("INSERT INTO testdates VALUES ('1998-10-27', '0:10:47', '21:10:47', '1971-11-15T22:10:45', '1972-02-11T00:59:59', -10, -3000);");
-        connection.sendUpdate("INSERT INTO testdates VALUES ('2014-12-02', '10:10:47', '11:10:47', '2016-03-04T08:30:30', '2016-03-04T09:00:01', 1023, 12);");
-        connection.sendUpdate("INSERT INTO testdates VALUES ('1950-02-12', '20:10:47', '2:10:47', '1992-02-19T00:00:00', '1978-12-07T10:42:31', 0, 0);");
+        connection.executeUpdate("CREATE TABLE testdates (a date, b time, c time with time zone, d timestamp, e timestamp with time zone, f INTERVAL year to month, g INTERVAL minute to second);");
+        connection.executeUpdate("INSERT INTO testdates VALUES ('2016-01-01', '23:10:47', '20:10:47', '2016-01-31T00:01:44', '1986-12-31T12:10:12', 1, 1);");
+        connection.executeUpdate("INSERT INTO testdates VALUES ('1998-10-27', '0:10:47', '21:10:47', '1971-11-15T22:10:45', '1972-02-11T00:59:59', -10, -3000);");
+        connection.executeUpdate("INSERT INTO testdates VALUES ('2014-12-02', '10:10:47', '11:10:47', '2016-03-04T08:30:30', '2016-03-04T09:00:01', 1023, 12);");
+        connection.executeUpdate("INSERT INTO testdates VALUES ('1950-02-12', '20:10:47', '2:10:47', '1992-02-19T00:00:00', '1978-12-07T10:42:31', 0, 0);");
 
-        QueryResultSet qrs = connection.sendQuery("SELECT * FROM testdates;");
+        QueryResultSet qrs = connection.executeQuery("SELECT * FROM testdates;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
         Assertions.assertEquals(4, numberOfRows, "The number of rows should be 4, got " + numberOfRows + " instead!");
         Assertions.assertEquals(7, numberOfColumns, "The number of columns should be 7, got " + numberOfColumns + " instead!");
@@ -190,16 +246,16 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertArrayEquals(new long[]{1000, -3000000, 12000, 0}, array7, "Second intervals not correctly retrieved!");
 
         qrs.close();
-        connection.sendUpdate("DROP TABLE testdates;");
+        connection.executeUpdate("DROP TABLE testdates;");
     }
 
     @Test
     @DisplayName("Retrieve decimals from a query into arrays")
     void testDecimals() throws MonetDBEmbeddedException {
-        connection.sendUpdate("CREATE TABLE testDecimals (a decimal);");
-        connection.sendUpdate("INSERT INTO testDecimals VALUES (1.6), (12), (-1.42), (525636.777), (-41242.32), (0);");
+        connection.executeUpdate("CREATE TABLE testDecimals (a decimal);");
+        connection.executeUpdate("INSERT INTO testDecimals VALUES (1.6), (12), (-1.42), (525636.777), (-41242.32), (0);");
 
-        QueryResultSet qrs = connection.sendQuery("SELECT * FROM testDecimals;");
+        QueryResultSet qrs = connection.executeQuery("SELECT * FROM testDecimals;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
         Assertions.assertEquals(6, numberOfRows, "The number of rows should be 6, got " + numberOfRows + " instead!");
         Assertions.assertEquals(1, numberOfColumns, "The number of columns should be 1, got " + numberOfColumns + " instead!");
@@ -213,16 +269,16 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         }, array1, "BigDecimals not correctly retrieved!");
 
         qrs.close();
-        connection.sendUpdate("DROP TABLE testDecimals;");
+        connection.executeUpdate("DROP TABLE testDecimals;");
     }
 
     @Test
     @DisplayName("Retrieve blobs from a query into arrays")
     void testBlobs() throws MonetDBEmbeddedException {
-        connection.sendUpdate("CREATE TABLE testblobs (a blob);");
-        connection.sendUpdate("INSERT INTO testblobs VALUES ('aabbcc');");
+        connection.executeUpdate("CREATE TABLE testblobs (a blob);");
+        connection.executeUpdate("INSERT INTO testblobs VALUES ('aabbcc');");
 
-        QueryResultSet qrs = connection.sendQuery("SELECT * FROM testblobs;");
+        QueryResultSet qrs = connection.executeQuery("SELECT * FROM testblobs;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
         Assertions.assertEquals(1, numberOfRows, "The number of rows should be 1, got " + numberOfRows + " instead!");
         Assertions.assertEquals(1, numberOfColumns, "The number of columns should be 1, got " + numberOfColumns + " instead!");
@@ -234,16 +290,16 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         }, array1, "Blobs not correctly retrieved!");
 
         qrs.close();
-        connection.sendUpdate("DROP TABLE testblobs;");
+        connection.executeUpdate("DROP TABLE testblobs;");
     }
 
     @Test
     @DisplayName("Test if the null values are correctly retrieved")
     void testNulls() throws MonetDBEmbeddedException {
-        connection.sendUpdate("CREATE TABLE testnullsa (a boolean, b text, c tinyint, d smallint, e int, f bigint, h real, i double);");
-        connection.sendUpdate("INSERT INTO testnullsa VALUES (null, null, null, null, null, null, null, null);");
+        connection.executeUpdate("CREATE TABLE testnullsa (a boolean, b text, c tinyint, d smallint, e int, f bigint, h real, i double);");
+        connection.executeUpdate("INSERT INTO testnullsa VALUES (null, null, null, null, null, null, null, null);");
 
-        QueryResultSet qrs = connection.sendQuery("SELECT * FROM testnullsa;");
+        QueryResultSet qrs = connection.executeQuery("SELECT * FROM testnullsa;");
 
         boolean first = qrs.checkBooleanIsNull(1,1);
         Assertions.assertEquals(true, first, "Boolean nulls not working!");
@@ -270,12 +326,12 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertEquals(NullMappings.getDoubleNullConstant(), eighth, "Double nulls not working!");
 
         qrs.close();
-        connection.sendUpdate("DROP TABLE testnullsa;");
+        connection.executeUpdate("DROP TABLE testnullsa;");
 
-        connection.sendUpdate("CREATE TABLE testnullsb (a date, b time, c time with time zone, d timestamp, e timestamp with time zone, f INTERVAL year to month, g INTERVAL minute to second);");
-        connection.sendUpdate("INSERT INTO testnullsb VALUES (null, null, null, null, null, null, null);");
+        connection.executeUpdate("CREATE TABLE testnullsb (a date, b time, c time with time zone, d timestamp, e timestamp with time zone, f INTERVAL year to month, g INTERVAL minute to second);");
+        connection.executeUpdate("INSERT INTO testnullsb VALUES (null, null, null, null, null, null, null);");
 
-        QueryResultSet qrs2 = connection.sendQuery("SELECT * FROM testnullsb;");
+        QueryResultSet qrs2 = connection.executeQuery("SELECT * FROM testnullsb;");
 
         Date nineth = qrs2.getDateByColumnIndexAndRow(1, 1);
         Assertions.assertEquals(null, nineth, "Date nulls not working!");
@@ -299,12 +355,12 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertEquals(NullMappings.getLongNullConstant(), fifteenth, "Second interval nulls not working!");
 
         qrs2.close();
-        connection.sendUpdate("DROP TABLE testnullsb;");
+        connection.executeUpdate("DROP TABLE testnullsb;");
 
-        connection.sendUpdate("CREATE TABLE testnullsc (a blob, b decimal);");
-        connection.sendUpdate("INSERT INTO testnullsc VALUES (null, null), (null, 1), ('aa', null), ('bb', 3.0);");
+        connection.executeUpdate("CREATE TABLE testnullsc (a blob, b decimal);");
+        connection.executeUpdate("INSERT INTO testnullsc VALUES (null, null), (null, 1), ('aa', null), ('bb', 3.0);");
 
-        QueryResultSet qrs3 = connection.sendQuery("SELECT * FROM testnullsc;");
+        QueryResultSet qrs3 = connection.executeQuery("SELECT * FROM testnullsc;");
 
         byte[] sixteenth = qrs3.getBlobByColumnIndexAndRow(1, 1);
         Assertions.assertEquals(null, sixteenth, "Blob nulls not working!");
@@ -322,24 +378,24 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertArrayEquals(new boolean[]{true, false, true, false}, eighteenth, "Null mapping problem!");
 
         qrs3.close();
-        connection.sendUpdate("DROP TABLE testnullsc;");
+        connection.executeUpdate("DROP TABLE testnullsc;");
     }
 
     @Test
     @DisplayName("Test query result set rows iteration")
     void testQueryResultSet() throws MonetDBEmbeddedException {
-        connection.sendUpdate("CREATE TABLE testresultsets (a text, b int, c real);");
-        connection.sendUpdate("INSERT INTO testresultsets VALUES ('I', 12, 234.53423);");
-        connection.sendUpdate("INSERT INTO testresultsets VALUES ('like', -13, 43.123);");
-        connection.sendUpdate("INSERT INTO testresultsets VALUES ('Java', 123, -34.43);");
+        connection.executeUpdate("CREATE TABLE testresultsets (a text, b int, c real);");
+        connection.executeUpdate("INSERT INTO testresultsets VALUES ('I', 12, 234.53423);");
+        connection.executeUpdate("INSERT INTO testresultsets VALUES ('like', -13, 43.123);");
+        connection.executeUpdate("INSERT INTO testresultsets VALUES ('Java', 123, -34.43);");
 
-        QueryResultSet qrs1 = connection.sendQuery("SELECT * FROM testresultsets WHERE 1=0;");
+        QueryResultSet qrs1 = connection.executeQuery("SELECT * FROM testresultsets WHERE 1=0;");
         ListIterator<MonetDBRow> iterator1 = qrs1.iterator();
         Assertions.assertNotNull(iterator1, "The iterator should not be null!");
         Assertions.assertFalse(iterator1.hasNext(), "The iterator should have no rows!");
         qrs1.close();
 
-        QueryResultSet qrs2 = connection.sendQuery("SELECT * FROM testresultsets WHERE a='I';");
+        QueryResultSet qrs2 = connection.executeQuery("SELECT * FROM testresultsets WHERE a='I';");
         ListIterator<MonetDBRow> iterator2 = qrs2.iterator();
         Assertions.assertNotNull(iterator2, "The iterator should not be null!");
         Assertions.assertTrue(iterator2.hasNext(), "The iterator should have 1 row left!");
@@ -362,16 +418,16 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
 
         qrs2.close();
 
-        connection.sendUpdate("DROP TABLE testresultsets;");
+        connection.executeUpdate("DROP TABLE testresultsets;");
     }
 
     @Test
     @DisplayName("Test the table iteration")
     void testIterateTable() throws MonetDBEmbeddedException {
-        connection.sendUpdate("CREATE TABLE test4 (a text, b int);");
-        connection.sendUpdate("INSERT INTO test4 VALUES ('one', -40);");
-        connection.sendUpdate("INSERT INTO test4 VALUES ('more', 5);");
-        connection.sendUpdate("INSERT INTO test4 VALUES ('test', 37);");
+        connection.executeUpdate("CREATE TABLE test4 (a text, b int);");
+        connection.executeUpdate("INSERT INTO test4 VALUES ('one', -40);");
+        connection.executeUpdate("INSERT INTO test4 VALUES ('more', 5);");
+        connection.executeUpdate("INSERT INTO test4 VALUES ('test', 37);");
 
         MonetDBTable test4 = connection.getMonetDBTable("sys", "test4");
 
@@ -406,13 +462,13 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
             }
         });
 
-        connection.sendUpdate("DROP TABLE test4;");
+        connection.executeUpdate("DROP TABLE test4;");
     }
 
     @Test
     @DisplayName("Test appending basic types into a table (Also testing foreign characters)")
     void testAppendBasic() throws MonetDBEmbeddedException {
-        connection.sendUpdate("CREATE TABLE test5 (a boolean, b text, c tinyint, d smallint, e int, f bigint, h real, i double);");
+        connection.executeUpdate("CREATE TABLE test5 (a boolean, b text, c tinyint, d smallint, e int, f bigint, h real, i double);");
         MonetDBTable test5 = connection.getMonetDBTable("sys", "test5");
 
         byte[] append1 = new byte[]{1, 1, 0, 0, NullMappings.getBooleanNullConstant()};
@@ -426,7 +482,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Object[] appends = new Object[]{append1, append2, append3, append4, append5, append6, append7, append8};
         test5.appendColumns(appends);
 
-        QueryResultSet qrs = connection.sendQuery("SELECT * FROM test5;");
+        QueryResultSet qrs = connection.executeQuery("SELECT * FROM test5;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
         Assertions.assertEquals(5, numberOfRows, "The number of rows should be 5, got " + numberOfRows + " instead!");
         Assertions.assertEquals(8, numberOfColumns, "The number of columns should be 8, got " + numberOfColumns + " instead!");
@@ -466,13 +522,13 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertArrayEquals(append8, array8, 0.01d, "Doubles not correctly appended!");
 
         qrs.close();
-        connection.sendUpdate("DROP TABLE test5;");
+        connection.executeUpdate("DROP TABLE test5;");
     }
 
     @Test
     @DisplayName("Test appending decimals into a table")
     void testAppendDecimals() throws MonetDBEmbeddedException {
-        connection.sendUpdate("CREATE TABLE test5 (a decimal);");
+        connection.executeUpdate("CREATE TABLE test5 (a decimal);");
         MonetDBTable test5 = connection.getMonetDBTable("sys", "test5");
 
         BigDecimal[] append1 = new BigDecimal[]{new BigDecimal("1.600"), new BigDecimal("12.000"),
@@ -480,7 +536,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Object[] appends = new Object[]{append1};
         test5.appendColumns(appends);
 
-        QueryResultSet qrs = connection.sendQuery("SELECT * FROM test5;");
+        QueryResultSet qrs = connection.executeQuery("SELECT * FROM test5;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
         Assertions.assertEquals(5, numberOfRows, "The number of rows should be 5, got " + numberOfRows + " instead!");
         Assertions.assertEquals(1, numberOfColumns, "The number of columns should be 1, got " + numberOfColumns + " instead!");
@@ -490,7 +546,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertArrayEquals(append1, array1, "Decimals not correctly appended!");
 
         qrs.close();
-        connection.sendUpdate("DROP TABLE test5;");
+        connection.executeUpdate("DROP TABLE test5;");
     }
 
     @Test
@@ -501,7 +557,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         SimpleDateFormat timeFormater = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
         SimpleDateFormat timestampFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
-        connection.sendUpdate("CREATE TABLE test6 (a date, b time, c time with time zone, d timestamp, e timestamp with time zone, f INTERVAL year to month, g INTERVAL minute to second);");
+        connection.executeUpdate("CREATE TABLE test6 (a date, b time, c time with time zone, d timestamp, e timestamp with time zone, f INTERVAL year to month, g INTERVAL minute to second);");
         MonetDBTable test6 = connection.getMonetDBTable("sys", "test6");
 
         Date[] append1 = new Date[]{new Date(dateFormater.parse("2016-01-01").getTime()),
@@ -541,7 +597,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Object[] appends = new Object[]{append1, append2, append3, append4, append5, append6, append7};
         test6.appendColumns(appends);
 
-        QueryResultSet qrs = connection.sendQuery("SELECT * FROM test6;");
+        QueryResultSet qrs = connection.executeQuery("SELECT * FROM test6;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
         Assertions.assertEquals(5, numberOfRows, "The number of rows should be 5, got " + numberOfRows + " instead!");
         Assertions.assertEquals(7, numberOfColumns, "The number of columns should be 7, got " + numberOfColumns + " instead!");
@@ -575,13 +631,13 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertArrayEquals(append7, array7, "Second intervals not correctly appended!");
 
         qrs.close();
-        connection.sendUpdate("DROP TABLE test6;");
+        connection.executeUpdate("DROP TABLE test6;");
     }
 
     @Test
     @DisplayName("Test appending BLOBs into a table")
     void testAppendBlobs() throws Exception {
-        connection.sendUpdate("CREATE TABLE test7 (a blob);");
+        connection.executeUpdate("CREATE TABLE test7 (a blob);");
         MonetDBTable test7 = connection.getMonetDBTable("sys", "test7");
 
         byte[][] append1 = new byte[][]{new byte[]{1,2,-3,4,5,6,7,8,-90,10,13,14,15,16}, new byte[]{-1,-2,-3,-4,-5,-6},
@@ -589,7 +645,7 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Object[] appends = new Object[]{append1};
         test7.appendColumns(appends);
 
-        QueryResultSet qrs = connection.sendQuery("SELECT * FROM test7;");
+        QueryResultSet qrs = connection.executeQuery("SELECT * FROM test7;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
         Assertions.assertEquals(5, numberOfRows, "The number of rows should be 5, got " + numberOfRows + " instead!");
         Assertions.assertEquals(1, numberOfColumns, "The number of columns should be 1, got " + numberOfColumns + " instead!");
@@ -599,35 +655,35 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertArrayEquals(append1, array1, "Blobs not correctly appended!");
 
         qrs.close();
-        connection.sendUpdate("DROP TABLE test7;");
+        connection.executeUpdate("DROP TABLE test7;");
     }
 
     @Test
     @DisplayName("Test the number of rows returned by update queries")
     void testUpdates() throws MonetDBEmbeddedException {
-        int rows1 = connection.sendUpdate("CREATE TABLE testupdates (val int);");
+        int rows1 = connection.executeUpdate("CREATE TABLE testupdates (val int);");
         Assertions.assertEquals(-2, rows1, "The creation should have affected no rows!");
 
-        int rows2 = connection.sendUpdate("INSERT INTO testupdates VALUES (1), (2), (3), (4), (5), (6), (7), (8), (9);");
+        int rows2 = connection.executeUpdate("INSERT INTO testupdates VALUES (1), (2), (3), (4), (5), (6), (7), (8), (9);");
         Assertions.assertEquals(9, rows2, "It should have affected 9 rows!");
 
-        int rows3 = connection.sendUpdate("UPDATE testupdates SET val=2 WHERE val<3;");
+        int rows3 = connection.executeUpdate("UPDATE testupdates SET val=2 WHERE val<3;");
         Assertions.assertEquals(2, rows3, "It should have affected 2 rows!");
 
-        int rows4 = connection.sendUpdate("UPDATE testupdates SET val=10 WHERE val>5;");
+        int rows4 = connection.executeUpdate("UPDATE testupdates SET val=10 WHERE val>5;");
         Assertions.assertEquals(4, rows4, "It should have affected 4 rows!");
 
-        int rows5 = connection.sendUpdate("UPDATE testupdates SET val=2;");
+        int rows5 = connection.executeUpdate("UPDATE testupdates SET val=2;");
         Assertions.assertEquals(9, rows5, "It should have affected 9 rows!");
 
-        int rows6 = connection.sendUpdate("DROP TABLE testupdates;");
+        int rows6 = connection.executeUpdate("DROP TABLE testupdates;");
         Assertions.assertEquals(-2, rows6, "The deletion should have affected no rows!");
     }
 
     @Test
     @DisplayName("Test regular expressions (we removed the pcre dependency from MonetDBLite recently)")
     void testRegexes() throws MonetDBEmbeddedException {
-        QueryResultSet qrs = connection.sendQuery("SELECT name from tables where name LIKE '%chemas'");
+        QueryResultSet qrs = connection.executeQuery("SELECT name from tables where name LIKE '%chemas'");
         String schemas = qrs.getStringByColumnIndexAndRow(1,1);
         Assertions.assertEquals("schemas", schemas, "The regex is not working properly?!");
         qrs.close();
@@ -671,11 +727,11 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         pw.flush();
         pw.close();
 
-        int rows1 = connection.sendUpdate("CREATE TABLE testCSV (a TEXT, b INT, c real);");
+        int rows1 = connection.executeUpdate("CREATE TABLE testCSV (a TEXT, b INT, c real);");
         Assertions.assertEquals(-2, rows1, "The creation should have affected no rows!");
-        connection.sendUpdate("COPY INTO testCSV FROM '" + csvImportFilePath + "' USING DELIMITERS ',','\n','\"';");
+        connection.executeUpdate("COPY INTO testCSV FROM '" + csvImportFilePath + "' USING DELIMITERS ',','\n','\"';");
 
-        QueryResultSet qrs = connection.sendQuery("SELECT * FROM testCSV;");
+        QueryResultSet qrs = connection.executeQuery("SELECT * FROM testCSV;");
         int numberOfRows = qrs.getNumberOfRows(), numberOfColumns = qrs.getNumberOfColumns();
         Assertions.assertEquals(4, numberOfRows, "The number of rows should be 4, got " + numberOfRows + " instead!");
         Assertions.assertEquals(3, numberOfColumns, "The number of columns should be 3, got " + numberOfColumns + " instead!");
@@ -693,14 +749,14 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
         Assertions.assertArrayEquals(column3, array3, 0.01f, "CSV not working with Floats!");
         qrs.close();
 
-        connection.sendUpdate("COPY SELECT * FROM testCSV INTO '" + csvExportFilePath + "' USING DELIMITERS ',','\n';");
+        connection.executeUpdate("COPY SELECT * FROM testCSV INTO '" + csvExportFilePath + "' USING DELIMITERS ',','\n';");
 
         //TODO Fix on the native code
         // Compare the two files!
         //String csvExported = new String(Files.readAllBytes(Paths.get(csvExportFilePath)), StandardCharsets.UTF_8);
         //Assertions.assertEquals(csvToImport, csvExported, "The CSVs are not equal!");
 
-        int rows2 = connection.sendUpdate("DROP TABLE testCSV;");
+        int rows2 = connection.executeUpdate("DROP TABLE testCSV;");
         Assertions.assertEquals(-2, rows2, "The deletion should have affected no rows!");
     }
 }

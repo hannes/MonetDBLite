@@ -18,7 +18,7 @@ public final class StringEscaper {
     private StringEscaper() {}
 
     /**
-     * Escapes a Java String for usage in SQL queries.
+     * Escapes a Java String for usage in SQL queries to protect us against bad people! :(
      *
      * @param input The String to escape
      * @return The input String escaped
