@@ -233,6 +233,7 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	}
 
 	backend *be = ((backend *) c->sqlcontext);
+	// TODO: not sure this is required
 	if (!be->mvc->session->active) mvc_trans(be->mvc);
 
 	MSinitClientPrg(c, "user", "monetdb_append");
@@ -262,6 +263,7 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	res = runMAL(c, be->mb, 0, 0);
 	freeMalBlk(be->mb);
 
+	// TODO: not sure this is required
 	if (res == MAL_SUCCEED) {
 		sqlcleanup(be->mvc, 0);
 	}
