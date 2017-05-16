@@ -1062,7 +1062,7 @@ monet.read.csv <- monetdb.read.csv <- function(conn, files, tablename, header=TR
       }
       names(headers[[1]]) <- quoteIfNeeded(conn, col.names)
     }
-    dbWriteTable(conn, tablename, headers[[1]][FALSE, ], transaction=F)
+    dbWriteTable(conn, tablename, headers[[1]][FALSE, ])
   }
   
   delimspec <- paste0("USING DELIMITERS '", delim, "','", newline, "','", quote, "'")
