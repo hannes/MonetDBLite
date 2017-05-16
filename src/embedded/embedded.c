@@ -217,10 +217,12 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 }
 
 char* monetdb_append(void* conn, const char* schema, const char* table, append_data *data, int ncols) {
-	int i;
-	str res = MAL_SUCCEED;
 	Client c = (Client) conn;
 	InstrPtr q;
+	MalBlkPtr mb;
+	int mvc_var;
+	int i;
+	str res = MAL_SUCCEED;
 
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
@@ -232,41 +234,32 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 		return GDKstrdup("Invalid connection");
 	}
 
-	backend *be = ((backend *) c->sqlcontext);
-	// TODO: not sure this is required
-	if (!be->mvc->session->active) mvc_trans(be->mvc);
-
 	MSinitClientPrg(c, "user", "monetdb_append");
-	be->mb = copyMalBlk(c->curprg->def);
-	q = newStmt(be->mb, sqlRef, mvcRef);
-	be->mvc_var = getDestVar(q);
+	mb = copyMalBlk(c->curprg->def);
+	q = newStmt(mb, sqlRef, mvcRef);
+	mvc_var = getDestVar(q);
 
 	for (i = 0; i < ncols; i++) {
 		append_data ad = data[i];
 		ValRecord v;
 		v.vtype = TYPE_bat;
 		v.val.bval = ad.batid;
-		q = newStmt(be->mb, sqlRef, appendRef);
-		q = pushArgument(be->mb, q, be->mvc_var);
+		q = newStmt(mb, sqlRef, appendRef);
+		q = pushArgument(mb, q, mvc_var);
 
-		getArg(q, 0) = be->mvc_var = newTmpVariable(be->mb, TYPE_int);
-		q = pushStr(be->mb, q, schema);
-		q = pushStr(be->mb, q, table);
-		q = pushStr(be->mb, q, ad.colname);
-		q = pushValue(be->mb, q, &v);
+		getArg(q, 0) = mvc_var = newTmpVariable(mb, TYPE_int);
+		q = pushStr(mb, q, schema);
+		q = pushStr(mb, q, table);
+		q = pushStr(mb, q, ad.colname);
+		q = pushValue(mb, q, &v);
 	}
-	pushEndInstruction(be->mb);
-	res = optimizeMALBlock(c, be->mb);
+	pushEndInstruction(mb);
+	res = optimizeMALBlock(c, mb);
 	if (res != MAL_SUCCEED) {
 		return res;
 	}
-	res = runMAL(c, be->mb, 0, 0);
-	freeMalBlk(be->mb);
-
-	// TODO: not sure this is required
-	if (res == MAL_SUCCEED) {
-		sqlcleanup(be->mvc, 0);
-	}
+	res = runMAL(c, mb, 0, 0);
+	freeMalBlk(mb);
 
 	return res;
 }

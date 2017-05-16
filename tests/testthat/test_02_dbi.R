@@ -304,11 +304,28 @@ test_that("NA's survive bulk appends", {
 	dbRollback(con)
 })
 
-test_that("we can write raw values", {
+
+test_that("dbWriteTable respects transactional boundaries", {
 	dbBegin(con)
-	dbWriteTable(con, tname, data.frame(a=c(1,2), b=I(list(raw(42), raw(43)))))
+	dbWriteTable(con, tname, iris, transaction=F)
 	expect_true(dbExistsTable(con, tname))
 	dbRollback(con)
+	expect_false(dbExistsTable(con, tname))
+	dbWriteTable(con, tname, iris, transaction=F)
+	expect_true(dbExistsTable(con, tname))
+	dbRollback(con)
+	expect_true(dbExistsTable(con, tname))
+	dbRemoveTable(con, tname)
+	expect_false(dbExistsTable(con, tname))
+})
+
+
+test_that("we can write raw values", {
+	dbBegin(con)
+	dbWriteTable(con, tname, data.frame(a=c(1,2), b=I(list(raw(42), raw(43)))), transaction=F)
+	expect_true(dbExistsTable(con, tname))
+	dbRollback(con)
+	expect_false(dbExistsTable(con, tname))
 })
 
 
