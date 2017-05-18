@@ -1,20 +1,79 @@
-language: r
-sudo: false
-cache: packages
-r:
-  - oldrel
-  - release
-  - devel
+sudo: required
 
-r_github_packages:
-  - hadley/testthat
-  - hadley/dplyr
-  - hadley/dbplyr
-  - rstats-db/DBI
-  
+language: java
+
+git:
+    depth: 1
+
+branches:
+    only:
+        - July2017Lite-Java
+
 addons:
-  apt_packages:
-    - pandoc
+    apt:
+        packages:
+            - oracle-java8-installer
 
-after_failure:
-  - ./travis-tool.sh dump_logs
+services:
+    - docker
+
+before_install:
+    # Update repository and install additional utilities
+    - sudo apt-get -qy update
+    - sudo apt-get install -qq -y realpath coreutils
+
+install:
+    # Disable default "./gradlew assemble" command.
+    - true
+
+script:
+    - jdk_switcher use oraclejdk8
+    # Compile for the 3 operative systems! May the God be with us! We will create 3 distinct directories for each compilation!
+    # We are using Docker containers to protect ourselves from Ubuntu's evil locales! :(
+    - cd ..
+    - cp -rf MonetDBLite MonetDBLiteMacOSX/
+    - cp -rf MonetDBLite MonetDBLiteWindows/
+    - cd MonetDBLite
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e CROSS_TRIPLE=x86_64-linux-gnu -e TRAVIS=1 multiarch/crossbuild bash compile.sh linux
+    - cd ../MonetDBLiteMacOSX
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e CROSS_TRIPLE=x86_64-apple-darwin -e TRAVIS=1 multiarch/crossbuild bash compile.sh macosx
+    - cd ../MonetDBLiteWindows
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e TRAVIS=1 pedrotadim/compilemonetdblite bash compile.sh windows
+    # Assemble everything with Gradle, but move the generated binaries first
+    - cd ..
+    - mv MonetDBLiteMacOSX/monetdb-java-lite/src/main/resources/libs/macosx/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
+    - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
+    # Assemble everything! Gradle will run tests, so we should still be away of Ubuntu!
+    - cd MonetDBLite/monetdb-java-lite
+    # For now we will skip the tests because of locale problems with the JVM on Travis
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_121 && ./gradlew -i build && ./gradlew javadoc && chmod -R 777 build'
+    # Copy the header file for our Downloads section and fix this weird renaming bug
+    - cp ../HEADER.html build/libs
+    # Move the javadocs
+    - mkdir -p build/libs/javadocs/embedded
+    - cp -R build/docs/javadoc/* build/libs/javadocs/embedded/
+    # Move the libraries
+    - mv build/libs/workdir-2.25.jar build/libs/monetdb-java-lite-2.25.jar
+    - cd ..
+
+addons:
+    ssh_known_hosts: monetdb.org
+
+before_deploy:
+    # Preparing the RSA key
+    - openssl aes-256-cbc -K $encrypted_a16cc492052e_key -iv $encrypted_a16cc492052e_iv -in id_downloads.enc -out /tmp/id_downloads -d
+    - eval "$(ssh-agent -s)"
+    - chmod 600 /tmp/id_downloads
+    - ssh-add /tmp/id_downloads
+
+deploy:
+    provider: script
+    skip_cleanup: true
+    script: rsync -aqz --ignore-times monetdb-java-lite/build/libs/ ferreira@monetdb.org:/var/www/html/downloads/Java-Experimental/
+    on:
+        branch: July2017Lite-Java
+
+notifications:
+    email:
+        on_success: never # default: change
+        on_failure: always # default: always

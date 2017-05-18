@@ -95,7 +95,7 @@ am__aclocal_m4_deps = $(top_srcdir)/buildtools/conf/libtool.m4 \
 	$(top_srcdir)/buildtools/conf/ltoptions.m4 \
 	$(top_srcdir)/buildtools/conf/ltsugar.m4 \
 	$(top_srcdir)/buildtools/conf/ltversion.m4 \
-	$(top_srcdir)/buildtools/conf/lt-obsolete.m4 \
+	$(top_srcdir)/buildtools/conf/lt~obsolete.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -409,7 +409,7 @@ libbatstore_la_CFLAGS = -DLIBBATSTORE $(AM_CFLAGS)
 batstoredir = $(libdir)
 nodist_libbatstore_la_SOURCES = 
 dist_libbatstore_la_SOURCES = bat_table.c bat_storage.c bat_logger.c bat_utils.c res_table.c bat_logger.h bat_storage.h bat_table.h bat_utils.h res_table.h
-AM_CPPFLAGS = -I$(srcdir) -I.. -I$(srcdir)/.. -I../../include -I$(srcdir)/../../include -I../../common -I$(srcdir)/../../common -I../../../common/options -I$(srcdir)/../../../common/options -I../../../common/stream -I$(srcdir)/../../../common/stream -I../../../gdk -I$(srcdir)/../../../gdk -I../../../mal/modules -I$(srcdir)/../../../mal/modules -I../../../mal/mal -I$(srcdir)/../../../mal/mal -I../../../mal/optimizer -I$(srcdir)/../../../mal/optimizer -I../../../mal/scheduler -I$(srcdir)/../../../mal/scheduler
+AM_CPPFLAGS = -I$(srcdir) -I.. -I$(srcdir)/.. -I../../include -I$(srcdir)/../../include -I../../common -I$(srcdir)/../../common -I../../../common/options -I$(srcdir)/../../../common/options -I../../../common/stream -I$(srcdir)/../../../common/stream -I../../../gdk -I$(srcdir)/../../../gdk -I../../../mal/modules -I$(srcdir)/../../../mal/modules -I../../../mal/mal -I$(srcdir)/../../../mal/mal -I../../../mal/optimizer -I$(srcdir)/../../../mal/optimizer
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
 EXTRA_DIST = Makefile.ag Makefile.msc bat_logger.c bat_logger.h bat_storage.c bat_storage.h bat_table.c bat_table.h bat_utils.c bat_utils.h res_table.c res_table.h

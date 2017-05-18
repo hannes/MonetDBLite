@@ -455,7 +455,7 @@ monet5_create_relational_function(mvc *m, const char *mod, const char *name, sql
  * They have to be initialized, which is currently hacked
  * by using the SQLstatment.
  */
-static stmt *
+stmt *
 sql_relation2stmt(backend *be, sql_rel *r)
 {
 	mvc *c = be->mvc;

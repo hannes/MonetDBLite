@@ -13,7 +13,7 @@ INCLUDES = ../../common/options \
 	../mal \
 	$(pcre_CFLAGS) $(zlib_CFLAGS) $(BZIP_INCS) $(MSGCONTROL_FLAGS) $(openssl_CFLAGS)
    
-		   
+
 MTSAFE
 
 lib_modules = {
@@ -40,7 +40,8 @@ lib_modules = {
 		pcre.c \
 		tablet.c tablet.h \
 		sample.c sample.h \
-		calc.c batcalc.c
+		calc.c batcalc.c \
+		querylog.c querylog.h
 	}
 
 headers_mal = {
@@ -60,7 +61,8 @@ headers_mal = {
 		iterator.mal \
 		pcre.mal mat.mal \
 		sample.mal \
-		batmtime.mal
+		batmtime.mal \
+		querylog.mal
 	}
 		
 headers_hge = {
@@ -85,7 +87,7 @@ EXTRA_DIST = aggr.mal 00_aggr_hge.mal group.mal algebra.mal \
 	mal_init.mal mkey.mal manifold.mal pcre.mal \
 	tablet.mal tablet.h sample.mal orderidx.mal \
 	mat.mal \
-	batmtime.mal querylog.mal \
+	batmtime.mal \
 	01_calc.mal 01_batcalc.mal \
 	00_calc_hge.mal 00_batcalc_hge.mal \
 	00_iterator_hge.mal 00_language_hge.mal \

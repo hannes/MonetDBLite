@@ -11,32 +11,21 @@ libmcrypt_la-mcrypt.lo: mcrypt.c mcrypt.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmcrypt_la_CFLAGS) $(CFLAGS) $(mcrypt_CFLAGS) -c -o libmcrypt_la-mcrypt.lo `test -f 'mcrypt.c' || echo '$(srcdir)/'`mcrypt.c
 nodist_libmcrypt_la_SOURCES =
 dist_libmcrypt_la_SOURCES = mcrypt.h mcrypt.c
-muuid.o muuid.lo: muuid.c muuid.h
 mutils.o mutils.lo: mutils.c mutils.h s_nextafterf.c
 mcrypt.o mcrypt.lo: mcrypt.c mcrypt.h
-prompt.o prompt.lo: prompt.c mprompt.h
 libmutils_la_CFLAGS=-DLIBMUTILS $(AM_CFLAGS)
 mutilsdir = $(libdir)
 libmutils_la-mutils.lo: mutils.c mutils.h s_nextafterf.c
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmutils_la_CFLAGS) $(CFLAGS) $(mutils_CFLAGS) -c -o libmutils_la-mutils.lo `test -f 'mutils.c' || echo '$(srcdir)/'`mutils.c
-libmutils_la-prompt.lo: prompt.c mprompt.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmutils_la_CFLAGS) $(CFLAGS) $(prompt_CFLAGS) -c -o libmutils_la-prompt.lo `test -f 'prompt.c' || echo '$(srcdir)/'`prompt.c
 nodist_libmutils_la_SOURCES =
-dist_libmutils_la_SOURCES = mutils.h mutils.c prompt.c mprompt.h
-CFLAGS += $(THREAD_SAVE_FLAGS)
+dist_libmutils_la_SOURCES = mutils.h mutils.c
 AM_CPPFLAGS = -I$(srcdir) $(openssl_CFLAGS)
-libmuuid_la_CFLAGS=-DLIBMUUID $(AM_CFLAGS)
-muuiddir = $(libdir)
-libmuuid_la-muuid.lo: muuid.c muuid.h
-	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmuuid_la_CFLAGS) $(CFLAGS) $(muuid_CFLAGS) -c -o libmuuid_la-muuid.lo `test -f 'muuid.c' || echo '$(srcdir)/'`muuid.c
-nodist_libmuuid_la_SOURCES =
-dist_libmuuid_la_SOURCES = muuid.h muuid.c
+CFLAGS += $(THREAD_SAVE_FLAGS)
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
-EXTRA_DIST = Makefile.ag Makefile.msc math_private.h mcrypt.c mcrypt.h mprompt.h mutils.c mutils.h muuid.c muuid.h prompt.c s_nextafterf.c strptime.c
-noinst_LTLIBRARIES = libmcrypt.la libmutils.la libmuuid.la
+EXTRA_DIST = Makefile.ag Makefile.msc math_private.h mcrypt.c mcrypt.h mutils.c mutils.h s_nextafterf.c strptime.c
+noinst_LTLIBRARIES = libmcrypt.la libmutils.la
 install-mcryptLTLIBRARIES:
 install-mutilsLTLIBRARIES:
-install-muuidLTLIBRARIES:
 
   include $(top_srcdir)/buildtools/conf/rules.mk

@@ -15835,6 +15835,9 @@ fi
   # before this can be enabled.
   hardcode_into_libs=yes
 
+  # Add ABI-specific directories to the system library path.
+  sys_lib_dlsearch_path_spec="/lib64 /usr/lib64 /lib /usr/lib"
+
   # Ideally, we could use ldconfig to report *all* directores which are
   # searched for libraries, however this is still not possible.  Aside from not
   # being certain /sbin/ldconfig is available, command
@@ -15843,7 +15846,7 @@ fi
   # appending ld.so.conf contents (and includes) to the search path.
   if test -f /etc/ld.so.conf; then
     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
-    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
+    sys_lib_dlsearch_path_spec="$sys_lib_dlsearch_path_spec $lt_ld_extra"
   fi
 
   # We used to test for /lib/ld.so.1 and disable shared libraries on
@@ -22036,7 +22039,7 @@ CFLAGS="$CFLAGS \$(X_CFLAGS)"
 
 # bootstrap adds a (long) list of file names inside the
 # AC_CONFIG_FILES command
-ac_config_files="$ac_config_files Makefile common/Makefile gdk/Makefile mal/Makefile sql/Makefile embedded/Makefile mapisplit/Makefile common/stream/Makefile common/options/Makefile common/utils/Makefile mal/mal/Makefile mal/modules/Makefile mal/optimizer/Makefile sql/include/Makefile sql/common/Makefile sql/storage/Makefile sql/server/Makefile sql/backends/Makefile sql/scripts/Makefile sql/storage/bat/Makefile sql/backends/monet5/Makefile"
+ac_config_files="$ac_config_files Makefile common/Makefile gdk/Makefile mal/Makefile sql/Makefile embedded/Makefile common/stream/Makefile common/options/Makefile common/utils/Makefile mal/mal/Makefile mal/modules/Makefile mal/optimizer/Makefile sql/include/Makefile sql/common/Makefile sql/storage/Makefile sql/server/Makefile sql/backends/Makefile sql/scripts/Makefile sql/storage/bat/Makefile sql/backends/monet5/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -23135,7 +23138,6 @@ do
     "mal/Makefile") CONFIG_FILES="$CONFIG_FILES mal/Makefile" ;;
     "sql/Makefile") CONFIG_FILES="$CONFIG_FILES sql/Makefile" ;;
     "embedded/Makefile") CONFIG_FILES="$CONFIG_FILES embedded/Makefile" ;;
-    "mapisplit/Makefile") CONFIG_FILES="$CONFIG_FILES mapisplit/Makefile" ;;
     "common/stream/Makefile") CONFIG_FILES="$CONFIG_FILES common/stream/Makefile" ;;
     "common/options/Makefile") CONFIG_FILES="$CONFIG_FILES common/options/Makefile" ;;
     "common/utils/Makefile") CONFIG_FILES="$CONFIG_FILES common/utils/Makefile" ;;

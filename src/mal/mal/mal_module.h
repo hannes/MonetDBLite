@@ -32,6 +32,7 @@ mal_export Module   findModule(Module scope, str name);
 mal_export Symbol   findSymbol(Module nspace, str mod, str fcn);
 mal_export int 		isModuleDefined(Module scope, str name);
 mal_export Symbol   findSymbolInModule(Module v, str fcn);
+mal_export void     why_you_use_global_variables_without_locks(void);
 mal_export void     mal_module_reset(void);
 mal_export void     getModuleList(Module** out, int* length);
 mal_export void     freeModuleList(Module* list);

@@ -191,7 +191,7 @@ findFunctionType(stream *out, Module scope, MalBlkPtr mb, InstrPtr p, int silent
 			int limit = sig->polymorphic;
 			if (!(sig->argc == p->argc ||
 				  (sig->argc < p->argc && sig->varargs & (VARARGS | VARRETS)))
-				) {
+					) {
 				s = s->peer;
 				continue;
 			}
@@ -474,7 +474,7 @@ findFunctionType(stream *out, Module scope, MalBlkPtr mb, InstrPtr p, int silent
 	 * may reveal that we found an instruction with the proper
 	 * arguments, but that clashes with one of the target variables.
 	 */
-  wrapup:
+	wrapup:
 	if (returntype != returns)
 		GDKfree(returntype);
 	return -3;
@@ -815,7 +815,7 @@ getPolyType(malType t, int *polytype)
 		return polytype[ti];
 
 	tail = ti == 0 ? getBatType(t) : polytype[ti];
-	if (isaBatType(t)) 
+	if (isaBatType(t))
 		return newBatType(tail);
 	return tail;
 }
@@ -868,7 +868,7 @@ updateTypeMap(int formal, int actual, int polytype[MAXTYPEVAR])
 		if (!isaBatType(actual) && actual != TYPE_bat)
 			return -1;
 	}
-  updLabel:
+	updLabel:
 #ifdef DEBUG_MAL_RESOLVE
 	fprintf(stderr, "updateTypeMap returns: %d\n", ret);
 #endif

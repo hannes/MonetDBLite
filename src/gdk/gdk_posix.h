@@ -221,10 +221,4 @@ gdk_export int win_mkdir(const char *, const int mode);
 
 #endif	/* NATIVE_WIN32 */
 
-
-#ifdef HAVE_EMBEDDED_R
-	gdk_export char* monetdb_lib_path;
-#endif
-
-
 #endif /* GDK_POSIX_H */

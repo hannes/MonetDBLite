@@ -168,7 +168,7 @@ struct stream {
 	union {
 		void *p;
 		int i;
-		SOCKET s;
+		/*SOCKET s;*/
 	} stream_data;
 	int errnr;
 	ssize_t (*read) (stream *s, void *buf, size_t elmsize, size_t cnt);

@@ -158,6 +158,11 @@ typedef struct CLIENT {
 	jmp_buf	exception_buf;
 	int exception_buf_initialized;
 
+	int lastQueryType; //Added for MonetDBJavaLite If you have something better tell me ok? :)
+	int lastNumberOfRows; //Same thing as the previous one
+	int querySpecialType; //Same thing as the previous one
+	int lastResultSetID; //Same thing as the previous one
+    int lastAutoCommitStatus;
 	/*
 	 * Here are pointers to scenario backends contexts.  For the time
 	 * being just SQL.  We need a pointer for each of them, since they

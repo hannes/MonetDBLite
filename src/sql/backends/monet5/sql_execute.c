@@ -12,7 +12,7 @@
  */
 /*
  * Execution of SQL instructions.
- * Before we are can process SQL statements the global catalog should be initialized. 
+ * Before we are can process SQL statements the global catalog should be initialized.
  */
 #include "monetdb_config.h"
 #include "mal_backend.h"
@@ -146,7 +146,7 @@ SQLrun(Client c, backend *be, mvc *m){
 	InstrPtr p=0;
 	int i,j, retc;
 	ValPtr val;
-			
+
 	if ( *m->errstr)
 		return createException(PARSE, "SQLparser", "%s", m->errstr);
 	// locate and inline the query template instruction
@@ -288,7 +288,6 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
 {
 	int status = 0;
 	int err = 0;
-	lng rowcnt = 0;
 	mvc *o, *m;
 	int ac, sizevars, topvars;
 	sql_var *vars;
@@ -384,8 +383,8 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
 			m->sa = sa_create();
 		m->sym = NULL;
 		if ((err = sqlparse(m)) ||
-		    /* Only forget old errors on transaction boundaries */
-		    (mvc_status(m) && m->type != Q_TRANS) || !m->sym) {
+			/* Only forget old errors on transaction boundaries */
+			(mvc_status(m) && m->type != Q_TRANS) || !m->sym) {
 			if (!err)
 				err = mvc_status(m);
 			if (*m->errstr)
@@ -470,7 +469,7 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
 		printFunction(c->fdout, c->curprg->def, 0, LIST_MAL_NAME | LIST_MAL_VALUE  |  LIST_MAL_MAPI);
 #endif
 		if (backend_callinline(be, c) < 0 ||
-		    backend_dumpstmt(be, c->curprg->def, r, 1, 1, NULL) < 0)
+			backend_dumpstmt(be, c->curprg->def, r, 1, 1, NULL) < 0)
 			err = 1;
 #ifdef _SQL_COMPILE
 		mnstr_printf(c->fdout, "#SQLstatement:post-compile\n");
@@ -560,7 +559,8 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
 		} else {
 			if (m->results == o->results)
 				o->results = NULL;
-			res_tables_destroy(m->results);
+			if (m->results)
+				res_tables_destroy(m->results);
 		}
 		m->results = NULL;
 	}
@@ -568,6 +568,7 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
  * We are done; a MAL procedure resides in the cache.
  */
 endofcompile:
+	c->lastQueryType = m->type; //Added for MonetDBJavaLite so it guesses the right type of query output in JDBC
 	if (execute)
 		MSresetInstructions(c->curprg->def, 1);
 
@@ -585,17 +586,205 @@ endofcompile:
 	sizevars = m->sizevars;
 	topvars = m->topvars;
 	vars = m->vars;
-	rowcnt = m->rowcnt;
 	*m = *o;
 	_DELETE(o);
 	m->sizevars = sizevars;
 	m->topvars = topvars;
 	m->vars = vars;
-	m->rowcnt = rowcnt;
 	m->session->status = status;
 	m->session->auto_commit = ac;
 	if (inited)
 		SQLresetClient(c);
+	return msg;
+}
+
+str //Added for Prepared Statements in MonetDBJavaLite (Adapted from the original SQLparser)
+SQLPreparedStatementParser(Client c, str* expr, res_table **result) {
+	int err = 0, oldvtop, oldstop = 1, opt = 0;
+	mvc *m;
+	buffer *b;
+	char *n;
+	stream *buf;
+	str msg = MAL_SUCCEED;
+	backend *be = (backend *) c->sqlcontext;
+	size_t len = strlen(*expr);
+	sql_rel *r;
+	*result = NULL;
+
+	if (!be) {
+		msg = SQLinitEnvironment(c, NULL, NULL, NULL);
+		be = (backend *) c->sqlcontext;
+	}
+	if (msg) {
+		GDKfree(msg);
+		msg = createException(SQL, "SQLstatement", "Catalogue not available");
+		goto finalize;
+	}
+	initSQLreferences();
+
+	MSinitClientPrg(c, "user", "main");
+	oldvtop = c->curprg->def->vtop;
+	oldstop = c->curprg->def->stop;
+	be->vtop = oldvtop;
+
+	m = be->mvc;
+	m->type = Q_PARSE;
+	SQLtrans(m);
+
+	m->user_id = m->role_id = USER_MONETDB;
+
+	/* mimic a client channel on which the query text is received */
+	b = (buffer *) GDKmalloc(sizeof(buffer));
+	n = GDKmalloc(len + 1 + 1);
+	strncpy(n, *expr, len);
+	n[len] = '\n';
+	n[len + 1] = 0;
+	len++;
+	buffer_init(b, n, len);
+	buf = buffer_rastream(b, "sqlstatement");
+	scanner_init(&m->scanner, bstream_create(buf, b->len), NULL);
+	m->scanner.mode = LINE_N;
+	bstream_next(m->scanner.rs);
+
+	if (!m->sa)
+		m->sa = sa_create();
+	if (!m->sa) {
+		c->mode = FINISHCLIENT;
+		throw(SQL, "SQLparser", MAL_MALLOC_FAIL " for SQL allocator");
+	}
+
+	m->emode = m_normal;
+	m->emod = mod_none;
+	if ((err = sqlparse(m)) ||
+		/* Only forget old errors on transaction boundaries */
+		(mvc_status(m) && m->type != Q_TRANS) || !m->sym) {
+		if (!err &&m->scanner.started)	/* repeat old errors, with a parsed query */
+			err = mvc_status(m);
+		if (err) {
+			msg = createException(PARSE, "SQLparser", "%s", m->errstr);
+		}
+		sqlcleanup(m, err);
+		goto finalize;
+	}
+	assert(m->session->schema != NULL);
+	/*
+	 * We have dealt with the first parsing step and advanced the input reader
+	 * to the next statement (if any).
+	 * Now is the time to also perform the semantic analysis, optimize and
+	 * produce code.
+	 */
+	be->q = NULL;
+	if (m->emode == m_execute) {
+		assert(m->sym->data.lval->h->type == type_int);
+		be->q = qc_find(m->qc, m->sym->data.lval->h->data.i_val);
+		if (!be->q) {
+			err = -1;
+			msg = createException(SQL, "PREPARE", "no prepared statement with id: %d", m->sym->data.lval->h->data.i_val);
+			sqlcleanup(m, err);
+			goto finalize;
+		} else if (be->q->type != Q_PREPARE) {
+			err = -1;
+			msg = createException(SQL, "PREPARE", "is not a prepared statement: %d", m->sym->data.lval->h->data.i_val);
+			sqlcleanup(m, err);
+			goto finalize;
+		}
+		scanner_query_processed(&(m->scanner));
+	} else if (caching(m) && cachable(m, NULL) && m->emode != m_prepare && (be->q = qc_match(m->qc, m->sym, m->args, m->argc, m->scanner.key ^ m->session->schema->base.id)) != NULL) {
+		/* query template was found in the query cache */
+		scanner_query_processed(&(m->scanner));
+	} else {
+		r = sql_symbol2relation(m, m->sym);
+
+		if (!r || (err = mvc_status(m) && m->type != Q_TRANS)) {
+			msg = createException(PARSE, "SQLparser", "%s", m->errstr);
+			sqlcleanup(m, err);
+			goto finalize;
+		}
+
+		if ((!caching(m) || !cachable(m, r)) && m->emode != m_prepare) {
+			char *q = query_cleaned(QUERY(m->scanner));
+
+			/* Query template should not be cached */
+			scanner_query_processed(&(m->scanner));
+			err = 0;
+			if (backend_callinline(be, c) < 0 ||
+				backend_dumpstmt(be, c->curprg->def, r, 1, 0, q) < 0)
+				err = 1;
+			else opt = 1;
+			GDKfree(q);
+		} else {
+			/* Add the query tree to the SQL query cache
+			 * and bake a MAL program for it.
+			 */
+			char *q = query_cleaned(QUERY(m->scanner));
+			char qname[IDLENGTH];
+			(void) snprintf(qname, IDLENGTH, "%c%d_%d", (m->emode == m_prepare?'p':'s'), m->qc->id++, m->qc->clientid);
+
+			be->q = qc_insert(m->qc, m->sa,	/* the allocator */
+							  r,	/* keep relational query */
+							  qname, /* its MAL name) */
+							  m->sym,	/* the sql symbol tree */
+							  m->args,	/* the argument list */
+							  m->argc, m->scanner.key ^ m->session->schema->base.id,	/* the statement hash key */
+							  m->emode == m_prepare ? Q_PREPARE : m->type,	/* the type of the statement */
+							  sql_escape_str(q));
+			GDKfree(q);
+			scanner_query_processed(&(m->scanner));
+			be->q->code = (backend_code) backend_dumpproc(be, c, be->q, r);
+			if (!be->q->code)
+				err = 1;
+			be->q->stk = 0;
+
+			/* passed over to query cache, used during dumpproc */
+			m->sa = NULL;
+			m->sym = NULL;
+			/* register name in the namespace */
+			be->q->name = putName(be->q->name);
+		}
+	}
+	if (err)
+		m->session->status = -10;
+	if (err == 0) {
+		/* no parsing error encountered, finalize the code of the query wrapper */
+		if (be->q) {
+			if (m->emode == m_prepare){
+				/* For prepared queries, return a table with result set structure*/
+				/* optimize the code block and rename it */
+				err = mvc_export_prepare(m, be->q, result);
+			} else if( m->emode == m_execute || m->emode == m_normal || m->emode == m_plan){
+				/* call procedure generation (only in cache mode) */
+				backend_call(be, c, be->q);
+			}
+		}
+
+		pushEndInstruction(c->curprg->def);
+		/* check the query wrapper for errors */
+		chkTypes(c->fdout, c->nspace, c->curprg->def, TRUE);
+
+		/* in case we had produced a non-cachable plan, the optimizer should be called */
+		if (opt ) {
+			msg = SQLoptimizeQuery(c, c->curprg->def);
+			if (msg != MAL_SUCCEED) {
+				sqlcleanup(m, err);
+				goto finalize;
+			}
+		}
+		if (c->curprg->def->errors) {
+			/* restore the state */
+			MSresetInstructions(c->curprg->def, oldstop);
+			freeVariables(c, c->curprg->def, NULL, oldvtop);
+			c->curprg->def->errors = 0;
+			msg = createException(PARSE, "SQLparser", "M0M27!Semantic errors");
+		}
+	}
+	finalize:
+	if (msg) {
+		if(*result) {
+			res_table_destroy(*result);
+			*result = NULL;
+		}
+		sqlcleanup(m, 0);
+	}
 	return msg;
 }
 
@@ -607,10 +796,10 @@ SQLengineIntern(Client c, backend *be)
 	char oldlang = be->language;
 	mvc *m = be->mvc;
 
-	if (oldlang == 'X') {	/* return directly from X-commands */
+	/*if (oldlang == 'X') {	 return directly from X-commands
 		sqlcleanup(be->mvc, 0);
 		return MAL_SUCCEED;
-	}
+	}*/
 
 #ifdef SQL_SCENARIO_DEBUG
 	fprintf(stderr, "#Ready to execute SQL statement\n");
@@ -637,16 +826,16 @@ SQLengineIntern(Client c, backend *be)
 	 * in the context of a user global environment. We have a private
 	 * environment.
 	 */
-	if (MALcommentsOnly(c->curprg->def)) 
+	if (MALcommentsOnly(c->curprg->def))
 		msg = MAL_SUCCEED;
-	else 
+	else
 		msg = SQLrun(c,be,m);
 
 cleanup_engine:
 	if (m->type == Q_SCHEMA)
 		qc_clean(m->qc);
 	if (msg) {
-		/* don't print exception decoration, just the message */
+		/* don't print exception decoration, just the message
 		char *n = NULL;
 		char *o = msg;
 		while ((n = strchr(o, '\n')) != NULL) {
@@ -657,13 +846,13 @@ cleanup_engine:
 		}
 		if (*o != 0)
 			mnstr_printf(c->fdout, "!%s\n", getExceptionMessage(o));
-		showErrors(c);
+		showErrors(c);*/
 		m->session->status = -10;
 	}
 
 	if (m->type != Q_SCHEMA && be->q && msg) {
 		qc_delete(m->qc, be->q);
-	} 
+	}
 	be->q = NULL;
 	sqlcleanup(be->mvc, (!msg) ? 0 : -1);
 	MSresetInstructions(c->curprg->def, 1);
@@ -676,10 +865,6 @@ cleanup_engine:
 	assert(c->glb == 0 || c->glb == oldglb);	/* detect leak */
 	c->glb = oldglb;
 	return msg;
-}
-
-void SQLdestroyResult(res_table *destroy) {
-   res_table_destroy(destroy);
 }
 
 /* a hook is provided to execute relational algebra expressions */
@@ -715,7 +900,7 @@ RAstatement(Client c, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 
 		/* generate MAL code, ignoring any code generation error */
 		if (backend_callinline(b, c) < 0 ||
-		    backend_dumpstmt(b, c->curprg->def, rel, 1, 1, NULL) < 0) {
+			backend_dumpstmt(b, c->curprg->def, rel, 1, 1, NULL) < 0) {
 			msg = createException(SQL,"RAstatement","Program contains errors");
 		} else {
 			SQLaddQueryToCache(c);
@@ -758,7 +943,7 @@ RAstatement2(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 
 	//fprintf(stderr, "#(%s){{%s}}\n", *sig, *expr);
 	//fflush(stderr);
-       	ops = sa_list(m->sa);
+	ops = sa_list(m->sa);
 	snprintf(buf, BUFSIZ, "%s %s", *sig, *expr);
 	while (c && *c && !isspace(*c)) {
 		char *vnme = c, *tnme; 

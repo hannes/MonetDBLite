@@ -95,7 +95,7 @@ am__aclocal_m4_deps = $(top_srcdir)/buildtools/conf/libtool.m4 \
 	$(top_srcdir)/buildtools/conf/ltoptions.m4 \
 	$(top_srcdir)/buildtools/conf/ltsugar.m4 \
 	$(top_srcdir)/buildtools/conf/ltversion.m4 \
-	$(top_srcdir)/buildtools/conf/lt-obsolete.m4 \
+	$(top_srcdir)/buildtools/conf/lt~obsolete.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -429,7 +429,7 @@ liboptimizer_la_CFLAGS = -DLIBOPTIMIZER $(AM_CFLAGS)
 optimizerdir = $(libdir)
 nodist_liboptimizer_la_SOURCES = 
 dist_liboptimizer_la_SOURCES = optimizer.c optimizer.h optimizer_private.h opt_aliases.c opt_aliases.h opt_coercion.c opt_coercion.h opt_commonTerms.c opt_commonTerms.h opt_candidates.c opt_candidates.h opt_constants.c opt_constants.h opt_costModel.c opt_costModel.h opt_dataflow.c opt_dataflow.h opt_deadcode.c opt_deadcode.h opt_emptybind.c opt_emptybind.h opt_evaluate.c opt_evaluate.h opt_garbageCollector.c opt_garbageCollector.h opt_generator.c opt_generator.h opt_inline.c opt_inline.h opt_jit.c opt_jit.h opt_projectionpath.c opt_projectionpath.h opt_macro.c opt_macro.h opt_matpack.c opt_matpack.h opt_mergetable.c opt_mergetable.h opt_mitosis.c opt_mitosis.h opt_multiplex.c opt_multiplex.h opt_oltp.c opt_oltp.h opt_pipes.c opt_pipes.h opt_prelude.c opt_prelude.h opt_reduce.c opt_reduce.h opt_remap.c opt_remap.h opt_reorder.c opt_reorder.h opt_support.c opt_support.h opt_pushselect.c opt_pushselect.h opt_profiler.c opt_profiler.h opt_wrapper.c
-AM_CPPFLAGS = -I$(srcdir) -I../mal -I$(srcdir)/../mal -I../modules -I$(srcdir)/../modules -I../../clients/mapilib -I$(srcdir)/../../clients/mapilib -I../../common/options -I$(srcdir)/../../common/options -I../../common/stream -I$(srcdir)/../../common/stream -I../../common/utils -I$(srcdir)/../../common/utils -I../../gdk -I$(srcdir)/../../gdk
+AM_CPPFLAGS = -I$(srcdir) -I../mal -I$(srcdir)/../mal -I../modules -I$(srcdir)/../modules -I../../common/options -I$(srcdir)/../../common/options -I../../common/stream -I$(srcdir)/../../common/stream -I../../common/utils -I$(srcdir)/../../common/utils -I../../gdk -I$(srcdir)/../../gdk
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
 EXTRA_DIST = Makefile.ag Makefile.msc opt_aliases.c opt_aliases.h opt_candidates.c opt_candidates.h opt_coercion.c opt_coercion.h opt_commonTerms.c opt_commonTerms.h opt_constants.c opt_constants.h opt_costModel.c opt_costModel.h opt_dataflow.c opt_dataflow.h opt_deadcode.c opt_deadcode.h opt_emptybind.c opt_emptybind.h opt_evaluate.c opt_evaluate.h opt_garbageCollector.c opt_garbageCollector.h opt_generator.c opt_generator.h opt_inline.c opt_inline.h opt_jit.c opt_jit.h opt_macro.c opt_macro.h opt_matpack.c opt_matpack.h opt_mergetable.c opt_mergetable.h opt_mitosis.c opt_mitosis.h opt_multiplex.c opt_multiplex.h opt_oltp.c opt_oltp.h opt_pipes.c opt_pipes.h opt_prelude.c opt_prelude.h opt_profiler.c opt_profiler.h opt_projectionpath.c opt_projectionpath.h opt_pushselect.c opt_pushselect.h opt_reduce.c opt_reduce.h opt_remap.c opt_remap.h opt_reorder.c opt_reorder.h opt_support.c opt_support.h opt_wrapper.c optimizer.c optimizer.h optimizer.mal optimizer_private.h

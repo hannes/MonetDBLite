@@ -28,8 +28,10 @@ sql5_export str SQLexitClient(Client c);
 sql5_export str SQLresetClient(Client c);
 sql5_export str SQLinitClient(Client c);
 sql5_export str SQLreader(Client c);
-sql5_export str SQLparser(Client c);
-sql5_export str SQLengine(Client c);
+
+sql5_export int caching(mvc *m);
+sql5_export int cachable(mvc *m, sql_rel *s);
+
 sql5_export str SQLassert(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str SQLassertInt(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
 sql5_export str SQLassertLng(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);

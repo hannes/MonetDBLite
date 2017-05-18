@@ -12,8 +12,7 @@ INCLUDES = .. ../../include ../../common \
 		   ../../../gdk \
 		   ../../../mal/modules \
 		   ../../../mal/mal \
-		   ../../../mal/optimizer \
-		   ../../../mal/scheduler 
+		   ../../../mal/optimizer
 
 lib_batstore = {
 	NOINST

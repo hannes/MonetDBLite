@@ -12,7 +12,7 @@
 #
 # The Initial Developer of the Original Code is CWI.
 # Portions created by CWI are Copyright (C) 1997-July 2008 CWI.
-# Copyright August 2008-2015 MonetDB B.V.
+# Copyright August 2008-2017 MonetDB B.V.
 # All Rights Reserved.
 
 MTSAFE
@@ -20,7 +20,6 @@ MTSAFE
 INCLUDES = ../mal/mal \
 		   ../mal/modules \
 		   ../mal/optimizer \
-		   ../mal/extras/rapi \
 		   ../gdk \
 		   ../common/stream \
 		   ../common/utils \
@@ -30,15 +29,32 @@ INCLUDES = ../mal/mal \
 		   ../sql/common \
 		   ../sql/storage \
 		   ../sql/storage/bat \
-		   ../sql/backends/monet5 \
-		   ../mapisplit
+		   ../sql/backends/monet5
 
 lib_embedded  = {
 	SOURCES = embedded.c embedded.h
 	VERSION = 1
+	LIBS = ../gdk/libbat \
+		$(PSAPILIB) \
+		$(SOCKET_LIBS) $(MALLOC_LIBS) $(DL_LIBS) $(PTHREAD_LIBS)
 }
 
-lib_embeddedr  = {
-	SOURCES = embeddedr.c embeddedr.h
+lib_embeddedjava  = {
+	SOURCES = javaids.c javaids.h \
+			converters.c converters.h \
+			checknulls.c checknulls.h \
+			jresultset.c jresulset.h \
+			nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase.c nl_cwi_monetdb_embedded_env_MonetDBEmbeddedDatabase.h \
+			nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection.c nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection.h \
+			nl_cwi_monetdb_embedded_jdbc_EmbeddedDataBlockResponse.c nl_cwi_monetdb_embedded_jdbc_EmbeddedDataBlockResponse.h \
+			nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection.c nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection.h \
+			nl_cwi_monetdb_embedded_mapping_NullMappings.c nl_cwi_monetdb_embedded_mapping_NullMappings.h \
+			nl_cwi_monetdb_embedded_resultset_QueryResultSet.c nl_cwi_monetdb_embedded_resultset_QueryResultSet.h \
+			nl_cwi_monetdb_embedded_tables_MonetDBTable.c nl_cwi_monetdb_embedded_tables_MonetDBTable.h
+
 	VERSION = 1
+	LIBS = libembedded \
+			../gdk/libbat \
+			$(PSAPILIB) \
+			$(SOCKET_LIBS) $(MALLOC_LIBS) $(DL_LIBS) $(PTHREAD_LIBS)
 }

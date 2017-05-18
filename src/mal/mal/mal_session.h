@@ -26,4 +26,3 @@ mal_export void MSresetVariables(Client cntxt, MalBlkPtr mb, MalStkPtr glb, int 
 mal_export int MALcommentsOnly(MalBlkPtr mb);
 
 #endif /*  _MAL_SESSION_H */
-

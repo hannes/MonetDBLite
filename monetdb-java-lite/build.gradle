@@ -1,0 +1,78 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0-M3'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'org.junit.platform.gradle.plugin'
+
+ext.group = 'nl.cwi.monetdb'
+ext.packaging = 'jar'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+ext.junitPlatformVersion = '1.0.0-M3'
+ext.junitJupiterVersion  = '5.0.0-M3'
+ext.junitVintageVersion  = '4.12.0-M3'
+ext.log4jVersion         = '2.7'
+version = '2.25'
+ext.version = version
+
+def urlFile = { url, name ->
+    File file = new File("$buildDir/libs/${name}.jar")
+    file.parentFile.mkdirs()
+    if (!file.exists()) {
+        new URL(url).withInputStream { downloadStream ->
+            file.withOutputStream { fileOut ->
+                fileOut << downloadStream
+            }
+        }
+    }
+    files(file.absolutePath)
+}
+
+dependencies {
+    compile urlFile('https://www.dropbox.com/s/85155u3k8erstdf/monetdb-jdbc-new-' + version + '.jar?dl=1', 'monetdb-jdbc-new-' + version)
+
+    // JUnit Jupiter API and TestEngine implementation
+    testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+
+    //Log using log4j
+    testRuntime("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+    testRuntime("org.apache.logging.log4j:log4j-jul:${log4jVersion}")
+}
+
+junitPlatform { //configurations for JUnit5 tests
+    platformVersion "${junitPlatformVersion}"
+    logManager 'org.apache.logging.log4j.jul.LogManager'
+    reportsDir "build/test-results/junit-platform"
+    enableStandardTestTask false
+}
+
+jar {
+    manifest {
+        attributes 'Description': 'MonetDBJavaLite JAR with JDBC compatibility'
+    }
+}
+
+shadowJar { //Build instruction to the shadowJar (a jar which includes both the JDBC and MonetDBJavaLite jars)
+    manifest {
+        inheritFrom project.jar.manifest
+    }
+    destinationDir = file("./build/shadowJar")
+}
+
+task wrapper(type: Wrapper) { //Set the gradle wrapper, so users don't have to install Gradle
+    gradleVersion = '3.5'
+}

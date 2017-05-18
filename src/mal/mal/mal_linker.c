@@ -34,6 +34,25 @@
 
 #define MAXMODULES 128
 
+/* Just for the Java embedded connection */
+
+static char* monetDB5LibraryPath = NULL;
+
+void freeMonetDB5LibraryPath(void) {
+	if(monetDB5LibraryPath != NULL) {
+		GDKfree(monetDB5LibraryPath);
+        monetDB5LibraryPath = NULL;
+	}
+}
+
+int setMonetDB5LibraryPath(const char* path) {
+	if(monetDB5LibraryPath != NULL) {
+		freeMonetDB5LibraryPath();
+	}
+	monetDB5LibraryPath = GDKstrdup(path);
+	return monetDB5LibraryPath != NULL ? 1 : 0;
+}
+
 typedef struct{
 	str modname;
 	str fullname;
@@ -99,7 +118,7 @@ getAddress(stream *out, str modname, str fcnname, int silent)
 	 *
 	 * the first argument must be the same as the base name of the
 	 * library that is created in src/tools */
-	dl = mdlopen("libmonetdb5", RTLD_NOW | RTLD_GLOBAL);
+	dl = mdlopen((const char*) monetDB5LibraryPath, RTLD_NOW | RTLD_GLOBAL);
 	if (dl == NULL) {
 		/* shouldn't happen, really */
 		if (!silent)

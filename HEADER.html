@@ -1,0 +1,79 @@
+<h1 id="monetdbjavalite">MonetDBJavaLite</h1>
+
+<blockquote>
+  <p>The following documentation of MonetDBJavaLite is brief. The full details of the documentation can be found on its
+  <a href="https://github.com/hannesmuehleisen/MonetDBLite/blob/Jul2017Lite-Java/README.md">GitHub repository</a>.</p>
+</blockquote>
+
+<blockquote>
+  <p><strong>IMPORTANT</strong> Before any further reading, remember that this software is still experimental, and it might crash
+  sometimes, although testing has been made on it :) To be 100% safe you can run MonetDBJavaLite in a sub-process inside
+  the JVM, so if it crashes, your application in the main process will still be up!</p>
+</blockquote>
+
+<p>MonetDBJavaLite is a Java library that allows the integration of MonetDB, a column-wise and high-scale OLAP relational database in the JVM.</p>
+
+<p>This library allows to retrieve results from SQL statements in plain Java primitives/objects, while being JDBC compliant, as well as
+portable to other JVM programming languages.</p>
+
+<p>Unlike a traditional socket connection between a database server and client, in an embedded connection, both the client and the server share
+the same process. This approach allows the client to get the results immediately from the server without any serialization or IO, thus obtaining more
+performance.</p>
+
+<p>The embedded MonetDB database is loaded through a native C shared library by JNI at the bootstrap of the process, thus the database runs natively
+for further performance.</p>
+
+<p>At the same time, the existing JDBC driver for MonetDB was extended to accommodate both a MAPI (regular socket connection) and an embedded
+connection, while aiming at the simplicity of the integration of both connections.</p>
+
+<h2 id="deliveryandinstallation">Delivery and Installation</h2>
+
+<blockquote>
+  <p>The current version of MonetDBJavaLite is 2.25</p>
+</blockquote>
+
+<p>There are two jars distributed: The new MonetDB JDBC driver jar (<code>monetdb-jdbc-new-&lt;version&gt;.jar</code>), and the
+MonetDBJavaLite jar (<code>monetdb-java-lite-&lt;version&gt;.jar</code>). The former can be used independently, if only MAPI JDBC
+connections are desired. The latter contains the embedded server code. For both the Embedded API and the Embedded JDBC
+connections, the second jar is also required in the <code>CLASSPATH</code>.</p>
+
+<p>The <strong><code>monetdb-jdbc-new-&lt;version&gt;.jar</code> is still compatible with JVM 7</strong>, however the <strong><code>monetdb-java-lite-&lt;version&gt;.jar</code>
+requires JVM 8 to run</strong>, as we found problems running in the JVM 8 when we compiled to target JVM 7
+(the problem might be related to the JVM rather than us). Currently the <strong><code>monetdb-java-lite-&lt;version&gt;.jar</code>
+only supports 64-bit architectures</strong>.</p>
+
+<p>The <code>monetdb-jdbc-new-&lt;version&gt;.jar</code> is both CPU and Operating System independent. ON the other hand, the
+  <code>monetdb-java-lite-&lt;version&gt;.jar</code> contains the JNI code for 64-bit Linux, Windows and MacOS X.</p>
+
+<p>As this software is still experimental, we haven't made it available in a public Maven repository yet. Both jars can be
+obtained through the Download section of our <a href="https://www.monetdb.org/downloads/Java-Experimental/">website</a>. </p>
+
+<h2 id="libraries">Libraries</h2>
+
+<p>Packed in the <code>src/main/resources/libs</code> directory of the <code>monetdb-java-lite-&lt;version&gt;.jar</code> there are several
+directories, containing the C-library of MonetDB for each supported operating system. The extension of the library
+should either be the default for a dynamic libraries on the user's OS or the generic (for JNI) <code>.jnilib</code>. For this
+reason the <code>monetdb-java-lite-&lt;version&gt;.jar</code> size is much larger than the average size of a <code>.jar</code> file. If the user
+wants to save space, he might delete the unwanted versions of the native library in the <code>src/main/resources/libs</code>
+directory, although it's not recommended to do so.</p>
+
+<p>In an IDE or when Maven runs tests from the command line, the application will use the unpacked library, already present
+in the <code>src/main/resources/libs</code> directory (since there isn't a <code>.jar</code> yet). When running "in production" - from a <code>.jar</code>, the
+application will stream copy the library to a temporary directory, and load the library from there. This is needed, since one
+cannot use the packed libraries in a <code>.jar</code> directly.</p>
+
+<h2 id="license">License</h2>
+
+<p>This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not
+distributed with this file, You can obtain one at <a href="https://mozilla.org/MPL/2.0/">https://mozilla.org/MPL/2.0/</a>.</p>
+
+<p>Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.</p>
+
+<h2 id="developerandsupport">Developer and support</h2>
+
+<p>The MonetDBJavaLite is being supported by <a href="mailto://pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>, a developer
+at <a href="https://monetdbsolutions.com/">MonetDBSolutions</a>! Feel free to create an issue, a pull request or
+<a href="mailto://pedro.ferreira@monetdbsolutions.com">just send an e-mail</a>! You can also create a question on
+<a href="https://stackoverflow.com/">Stack Overflow</a> with the tag <code>monetdblite</code>.</p>
+
+<p>As you could see I like emoticons! :) Just one more :)</p>

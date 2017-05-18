@@ -1756,7 +1756,7 @@ mvc_result_set_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	b = BATdescriptor(bid);
 	if ( b == NULL)
 		throw(MAL,"sql.resultset","Failed to access order column");
-	res = *res_id = mvc_result_table(m, mb->tag, pci->argc - (pci->retc + 5), 1, b);
+	res = *res_id = mvc_result_table(cntxt, m, mb->tag, pci->argc - (pci->retc + 5), 1, b);
 	if (res < 0)
 		msg = createException(SQL, "sql.resultSet", "failed");
 	BBPunfix(b->batCacheid);
@@ -1789,7 +1789,7 @@ mvc_result_set_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 			BBPunfix(bid);
 	}
 	/* now sent it to the channel cntxt->fdout */
-	if (mvc_export_result(cntxt->sqlcontext, cntxt->fdout, res))
+	if (mvc_export_result(cntxt, cntxt->sqlcontext, cntxt->fdout, res))
 		msg = createException(SQL, "sql.resultset", "failed");
   wrapup_result_set:
 	if( tbl) BBPunfix(tblId);
@@ -1847,7 +1847,7 @@ mvc_export_table_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	order = BATdescriptor(bid);
 	if ( order == NULL)
 		throw(MAL,"sql.resultset","Failed to access order column");
-	res = *res_id = mvc_result_table(m, mb->tag, pci->argc - (pci->retc + 11), 1, order);
+	res = *res_id = mvc_result_table(cntxt, m, mb->tag, pci->argc - (pci->retc + 11), 1, order);
 	t = m->results;
 	if (res < 0){
 		msg = createException(SQL, "sql.resultSet", "failed");
@@ -1928,7 +1928,7 @@ mvc_export_table_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 				      filename?filename:"stdout", strerror(errnr));
 		goto wrapup_result_set1;
 	}
-	if (mvc_export_result(cntxt->sqlcontext, s, res))
+	if (mvc_export_result(cntxt, cntxt->sqlcontext, s, res))
 		msg = createException(SQL, "sql.resultset", "failed");
 	if( s != cntxt->fdout)
 		close_stream(s);
@@ -1966,7 +1966,7 @@ mvc_row_result_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		return msg;
 	if ((msg = checkSQLContext(cntxt)) != NULL)
 		return msg;
-	res = *res_id = mvc_result_table(m, mb->tag, pci->argc - (pci->retc + 5), 1, NULL);
+	res = *res_id = mvc_result_table(cntxt, m, mb->tag, pci->argc - (pci->retc + 5), 1, NULL);
 
 	tbl = BATdescriptor(tblId);
 	atr = BATdescriptor(atrId);
@@ -1994,7 +1994,7 @@ mvc_row_result_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		if (mvc_result_value(m, tblname, colname, tpename, *digits++, *scaledigits++, v, mtype))
 			throw(SQL, "sql.rsColumn", "failed");
 	}
-	if (mvc_export_result(cntxt->sqlcontext, cntxt->fdout, res))
+	if (mvc_export_result(cntxt, cntxt->sqlcontext, cntxt->fdout, res))
 		msg = createException(SQL, "sql.resultset", "failed");
   wrapup_result_set:
 	if( tbl) BBPunfix(tblId);
@@ -2041,7 +2041,7 @@ mvc_export_row_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		return msg;
 	if ((msg = checkSQLContext(cntxt)) != NULL)
 		return msg;
-	res = *res_id = mvc_result_table(m, mb->tag, pci->argc - (pci->retc + 11), 1, NULL);
+	res = *res_id = mvc_result_table(cntxt, m, mb->tag, pci->argc - (pci->retc + 11), 1, NULL);
 
 	t = m->results;
 	if (res < 0){
@@ -2122,7 +2122,7 @@ mvc_export_row_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 				      filename?filename:"stdout", strerror(errnr));
 		goto wrapup_result_set;
 	}
-	if (mvc_export_result(cntxt->sqlcontext, s, res))
+	if (mvc_export_result(cntxt, cntxt->sqlcontext, s, res))
 		msg = createException(SQL, "sql.resultset", "failed");
 	if( s != cntxt->fdout)
 		mnstr_close(s);
@@ -2162,7 +2162,7 @@ mvc_table_result_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if ((order = BATdescriptor(*order_bid)) == NULL) {
 		throw(SQL, "sql.resultSet", "Cannot access descriptor");
 	}
-	*res_id = mvc_result_table(m, mb->tag, *nr_cols, *qtype, order);
+	*res_id = mvc_result_table(cntxt, m, mb->tag, *nr_cols, *qtype, order);
 	if (*res_id < 0)
 		res = createException(SQL, "sql.resultSet", "failed");
 	BBPunfix(order->batCacheid);
@@ -2294,7 +2294,7 @@ mvc_affected_rows_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	assert(mtype == TYPE_lng);
 	nr = *getArgReference_lng(stk, pci, 2);
 	b = cntxt->sqlcontext;
-	error = mvc_export_affrows(b, b->out, nr, "", mb->tag);
+	error = mvc_export_affrows(cntxt, b, b->out, nr, "", mb->tag);
 	if (error)
 		throw(SQL, "sql.affectedRows", "failed");
 	return MAL_SUCCEED;
@@ -2333,9 +2333,9 @@ mvc_export_result_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	b = cntxt->sqlcontext;
 	if( pci->argc > 5){
 		res_id = getArgReference_int(stk, pci, 2);
-		if (mvc_export_result(b, cntxt->fdout, *res_id))
+		if (mvc_export_result(cntxt, b, cntxt->fdout, *res_id))
 			throw(SQL, "sql.exportResult", "failed");
-	} else if (mvc_export_result(b, *s, *res_id))
+	} else if (mvc_export_result(cntxt, b, *s, *res_id))
 		throw(SQL, "sql.exportResult", "failed");
 	return MAL_SUCCEED;
 }
@@ -2405,13 +2405,13 @@ mvc_scalar_value_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		p = *(ptr *) p;
 
 	// scalar values are single-column result sets
-	res_id = mvc_result_table(b->mvc, mb->tag, 1, 1, NULL);
+	res_id = mvc_result_table(cntxt, b->mvc, mb->tag, 1, 1, NULL);
 	if (mvc_result_value(b->mvc, *tn, *cn, *type, *digits, *scale, p, mtype))
 		throw(SQL, "sql.exportValue", "failed");
 	if (b->output_format == OFMT_NONE) {
 		return MAL_SUCCEED;
 	}
-	if (mvc_export_result(b, b->out, res_id) < 0) {
+	if (mvc_export_result(cntxt, b, b->out, res_id) < 0) {
 		throw(SQL, "sql.exportValue", "failed");
 	}
 	return MAL_SUCCEED;

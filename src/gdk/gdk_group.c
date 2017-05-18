@@ -223,21 +223,20 @@
 #define GRP_use_existing_hash_table(INIT_0,INIT_1,COMP)			\
 	do {								\
 		INIT_0;							\
-		if (grps) {						\
-			for (r = 0; r < cnt; r++) {			\
-				if (cand) {				\
-					p = cand[r] - hseqb + lo;	\
-				} else {				\
-					p = start + r;			\
-				}					\
-				assert(p < end);			\
-				INIT_1;					\
-				/* this loop is similar, but not */	\
-				/* equal, to HASHloop: the difference */ \
-				/* is that we only consider BUNs */	\
-				/* smaller than the one we're looking */ \
-				/* up (p), and that we also consider */	\
-				/* the input groups */			\
+		for (r = 0; r < cnt; r++) {				\
+			if (cand) {					\
+				p = cand[r] - hseqb + lo;		\
+			} else {					\
+				p = start + r;				\
+			}						\
+			assert(p < end);				\
+			INIT_1;						\
+			/* this loop is similar, but not equal, to */	\
+			/* HASHloop: the difference is that we only */	\
+			/* consider BUNs smaller than the one we're */	\
+			/* looking up (p), and that we also consider */	\
+			/* the input groups */				\
+			if (grps) {					\
 				for (hb = HASHgetlink(hs, p);		\
 				     hb != HASHnil(hs) && hb >= start;	\
 				     hb = HASHgetlink(hs, hb)) {	\
@@ -267,24 +266,7 @@
 						break;			\
 					}				\
 				}					\
-				if (hb == HASHnil(hs) || hb < lo) {	\
-					GRPnotfound();			\
-				}					\
-			}						\
-		} else {						\
-			for (r = 0; r < cnt; r++) {			\
-				if (cand) {				\
-					p = cand[r] - hseqb + lo;	\
-				} else {				\
-					p = start + r;			\
-				}					\
-				assert(p < end);			\
-				INIT_1;					\
-				/* this loop is similar, but not */	\
-				/* equal, to HASHloop: the difference */ \
-				/* is that we only consider BUNs */	\
-				/* smaller than the one we're looking */ \
-				/* up (p) */				\
+			} else {					\
 				for (hb = HASHgetlink(hs, p);		\
 				     hb != HASHnil(hs) && hb >= start;	\
 				     hb = HASHgetlink(hs, hb)) {	\
@@ -310,9 +292,9 @@
 						break;			\
 					}				\
 				}					\
-				if (hb == HASHnil(hs) || hb < lo) {	\
-					GRPnotfound();			\
-				}					\
+			}						\
+			if (hb == HASHnil(hs) || hb < lo) {		\
+				GRPnotfound();				\
 			}						\
 		}							\
 	} while(0)
@@ -336,16 +318,16 @@
 	do {								\
 		oid grp;						\
 		INIT_0;							\
-		if (gc) {						\
-			for (r = 0; r < cnt; r++) {			\
-				if (cand) {				\
-					p = cand[r] - b->hseqbase;	\
-				} else {				\
-					p = start + r;			\
-				}					\
-				assert(p < end);			\
-				INIT_1;					\
-				prb = HASH;				\
+		for (r = 0; r < cnt; r++) {				\
+			if (cand) {					\
+				p = cand[r] - b->hseqbase;		\
+			} else {					\
+				p = start + r;				\
+			}						\
+			assert(p < end);				\
+			INIT_1;						\
+			prb = HASH;					\
+			if (gc) {					\
 				for (hb = HASHget(hs, prb);		\
 				     hb != HASHnil(hs) && hb >= start;	\
 				     hb = HASHgetlink(hs, hb)) {	\
@@ -370,7 +352,7 @@
 						grp = ngrps[hb];	\
 					}				\
 					if (COMP) {			\
-						ngrps[r] = grp;		\
+						ngrps[r] = grp; 	\
 						if (histo)		\
 							cnts[grp]++;	\
 						if (gn->tsorted &&	\
@@ -379,24 +361,8 @@
 						break;			\
 					}				\
 				}					\
-				if (hb == HASHnil(hs) || hb < start) {	\
-					GRPnotfound();			\
-					/* enter new group into hash table */ \
-					HASHputlink(hs, p, HASHget(hs, prb)); \
-					HASHput(hs, prb, p);		\
-				}					\
-			}						\
-		} else if (grps) {					\
-			for (r = 0; r < cnt; r++) {			\
-				if (cand) {				\
-					p = cand[r] - b->hseqbase;	\
-				} else {				\
-					p = start + r;			\
-				}					\
-				assert(p < end);			\
-				INIT_1;					\
-				prb = HASH;				\
-				prb = (prb ^ (BUN) grps[r] << bits) & hs->mask;	\
+			} else if (grps) {				\
+				prb = (prb ^ (BUN) grps[r] << bits) & hs->mask; \
 				for (hb = HASHget(hs, prb);		\
 				     hb != HASHnil(hs) && hb >= start;	\
 				     hb = HASHgetlink(hs, hb)) {	\
@@ -424,23 +390,7 @@
 						break;			\
 					}				\
 				}					\
-				if (hb == HASHnil(hs) || hb < start) {	\
-					GRPnotfound();			\
-					/* enter new group into hash table */ \
-					HASHputlink(hs, p, HASHget(hs, prb)); \
-					HASHput(hs, prb, p);		\
-				}					\
-			}						\
-		} else {						\
-			for (r = 0; r < cnt; r++) {			\
-				if (cand) {				\
-					p = cand[r] - b->hseqbase;	\
-				} else {				\
-					p = start + r;			\
-				}					\
-				assert(p < end);			\
-				INIT_1;					\
-				prb = HASH;				\
+			} else {					\
 				for (hb = HASHget(hs, prb);		\
 				     hb != HASHnil(hs) && hb >= start;	\
 				     hb = HASHgetlink(hs, hb)) {	\
@@ -455,7 +405,7 @@
 						grp = ngrps[hb];	\
 					}				\
 					if (COMP) {			\
-						ngrps[r] = grp;		\
+						ngrps[r] = grp;	\
 						if (histo)		\
 							cnts[grp]++;	\
 						if (gn->tsorted &&	\
@@ -464,12 +414,12 @@
 						break;			\
 					}				\
 				}					\
-				if (hb == HASHnil(hs) || hb < start) {	\
-					GRPnotfound();			\
-					/* enter new group into hash table */ \
-					HASHputlink(hs, p, HASHget(hs, prb)); \
-					HASHput(hs, prb, p);		\
-				}					\
+			}						\
+			if (hb == HASHnil(hs) || hb < start) {		\
+				GRPnotfound();				\
+				/* enter new group into hash table */	\
+				HASHputlink(hs, p, HASHget(hs, prb));	\
+				HASHput(hs, prb, p); 			\
 			}						\
 		}							\
 	} while (0)
@@ -1004,15 +954,22 @@ BATgroup_internal(BAT **groups, BAT **extents, BAT **histo,
 			break;
 		}
 	} else {
-		bit gc = g && (BATordered(g) || BATordered_rev(g));
+		bit gc = g && (g->tsorted || g->trevsorted);
 		const char *nme;
 		size_t nmelen;
 		Heap *hp = NULL;
 		BUN prb;
-		BUN mask;
-		int bits;
+		BUN mask = HASHmask(cnt) >> 3;
+		int bits = 3;
 
 		GDKclrerr();	/* not interested in BAThash errors */
+		/* when combining value and group-id hashes,
+		 * we left-shift one of them by half the hash-mask width
+		 * to better spread bits and use the entire hash-mask,
+		 * and thus reduce collisions */
+		while (mask >>= 1)
+			bits++;
+		bits /= 2;
 
 		/* not sorted, and no pre-existing hash table: we'll
 		 * build an incomplete hash table on the fly--also see
@@ -1039,17 +996,8 @@ BATgroup_internal(BAT **groups, BAT **extents, BAT **histo,
 			mask = 1 << 16;
 			bits = 8;
 		} else {
-			/* when combining value and group-id hashes,
-			 * we left-shift one of them by half the
-			 * hash-mask width to better spread bits and
-			 * use the entire hash-mask, and thus reduce
-			 * collisions */
-			mask = HASHmask(cnt) >> 3;
-			bits = 3;
-			while (mask >>= 1)
-				bits++;
-			bits /= 2;
 			mask = HASHmask(cnt);
+			bits = 0;
 		}
 		if ((hp = GDKzalloc(sizeof(Heap))) == NULL ||
 		    (hp->farmid = BBPselectfarm(TRANSIENT, b->ttype, hashheap)) < 0 ||

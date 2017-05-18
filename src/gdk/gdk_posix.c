@@ -711,17 +711,9 @@ MT_path_absolute(const char *pathname)
 void *
 mdlopen(const char *library, int mode)
 {
-#ifndef HAVE_EMBEDDED_R
-	(void) library;
-	return dlopen(NULL, mode);
-#else
-	(void) mode;
-	(void) library;
-	return dlopen(monetdb_lib_path, RTLD_NOW | RTLD_LOCAL);
-#endif
-
+	//(void) library;
+	return dlopen(library, mode);
 }
-
 
 #else /* WIN32 native */
 
@@ -739,7 +731,7 @@ mdlopen(const char *library, int mode)
 #ifdef _MSC_VER
 #include <io.h>
 #endif /* _MSC_VER */
-#include <Psapi.h>
+#include <psapi.h>
 
 #define MT_SMALLBLOCK 256
 
@@ -1129,8 +1121,4 @@ MT_sleep_ms(unsigned int ms)
 	Sleep(ms);
 }
 
-#endif
-
-#ifdef HAVE_EMBEDDED_R
-char* monetdb_lib_path = NULL;
 #endif

@@ -3,8 +3,9 @@ if [ $# -eq 1 ]; then
 	echo $1
 	# sedscript.in created using 
 	# grep -o "@[[:alnum:]_]*@" Makefile.in | sort -f | uniq | sed -e "s/^/s|/" -e "s/$/||/" > sedscript.tpl
-	sed -f src/embedded/windows/sedscript $1 > $NN
+	sed -f embedded/windows/sedscript $1 > $NN
 else
-	touch src/config.status
-	find src -name "*.in" -type f -exec sh $0 {} \;
+	touch config.status
+	echo $0
+	find . -name "*.in" -type f -exec sh $0 {} \;
 fi

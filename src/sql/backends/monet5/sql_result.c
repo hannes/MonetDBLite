@@ -976,20 +976,18 @@ mvc_export_warning(stream *s, str w)
 	return (1);
 }
 
-int
-mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
+int //Changed a lot in MonetDBJavaLite - Now outputs a res_table* instead into writing into a stream.
+mvc_export_prepare(mvc *c, cq *q, res_table **result) //In MonetDBJavaLite I need this for prepared statements
 {
 	node *n;
-	int nparam = c->params ? list_length(c->params) : 0;
-	int nrows = nparam;
+	int nparam = c->params ? list_length(c->params) : 0, nrows = nparam, i;
 	size_t len1 = 0, len4 = 0, len5 = 0, len6 = 0;	/* column widths */
 	int len2 = 1, len3 = 1;
 	sql_arg *a;
 	sql_subtype *t;
 	sql_rel *r = q->rel;
-
-	if (!out)
-		return 0;
+	res_table *res = NULL;
+    BAT *aux1, *aux2, *aux3, *aux4, *aux5, *aux6;
 
 	if (is_topn(r->op))
 		r = r->l;
@@ -1052,18 +1050,64 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 		}
 	}
 
-	/* write header, query type: Q_PREPARE */
-	if (mnstr_printf(out, "&5 %d %d 6 %d\n"	/* TODO: add type here: r(esult) or u(pdate) */
-			 "%% .prepare,\t.prepare,\t.prepare,\t.prepare,\t.prepare,\t.prepare # table_name\n" "%% type,\tdigits,\tscale,\tschema,\ttable,\tcolumn # name\n" "%% varchar,\tint,\tint,\tstr,\tstr,\tstr # type\n" "%% " SZFMT ",\t%d,\t%d,\t"
-			 SZFMT ",\t" SZFMT ",\t" SZFMT " # length\n", q->id, nrows, nrows, len1, len2, len3, len4, len5, len6) < 0) {
-		return -1;
+	res = res_table_create(c->session->tr, q->id, 1, 6, Q_PREPARE, NULL, NULL);
+	if(res == NULL) {
+		goto cleanup;
 	}
+
+	aux1 = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	aux2 = COLnew(0, TYPE_int, nrows, TRANSIENT);
+	aux3 = COLnew(0, TYPE_int, nrows, TRANSIENT);
+	aux4 = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	aux5 = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	aux6 = COLnew(0, TYPE_str, nrows, TRANSIENT);
+
+	if(aux1 == NULL || aux2 == NULL || aux3 == NULL || aux4 == NULL || aux5 == NULL || aux6 == NULL) {
+		res_table_destroy(res);
+		res = NULL;
+		goto cleanup;
+	}
+
+	aux1->tnil = 0;
+	aux1->tnonil = 1;
+	aux1->tkey = 0;
+	aux1->tsorted = 1;
+	aux1->trevsorted = 1;
+
+	aux2->tnil = 0;
+	aux2->tnonil = 1;
+	aux2->tkey = 0;
+	aux2->tsorted = 1;
+	aux2->trevsorted = 1;
+
+	aux3->tnil = 0;
+	aux3->tnonil = 1;
+	aux3->tkey = 0;
+	aux3->tsorted = 1;
+	aux3->trevsorted = 1;
+
+	aux4->tnil = 0;
+	aux4->tnonil = 1;
+	aux4->tkey = 0;
+	aux4->tsorted = 1;
+	aux4->trevsorted = 1;
+
+	aux5->tnil = 0;
+	aux5->tnonil = 1;
+	aux5->tkey = 0;
+	aux5->tsorted = 1;
+	aux5->trevsorted = 1;
+
+	aux6->tnil = 0;
+	aux6->tnonil = 1;
+	aux6->tkey = 0;
+	aux6->tsorted = 1;
+	aux6->trevsorted = 1;
 
 	if (r && is_project(r->op) && r->exps) {
 		for (n = r->exps->h; n; n = n->next) {
 			const char *name, *rname, *schema = NULL;
 			sql_exp *e = n->data;
-
 			t = exp_subtype(e);
 			name = e->name;
 			if (!name && e->type == e_column && e->r)
@@ -1072,36 +1116,122 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 			if (!rname && e->type == e_column && e->l)
 				rname = e->l;
 
-			if (mnstr_printf(out, "[ \"%s\",\t%d,\t%d,\t\"%s\",\t\"%s\",\t\"%s\"\t]\n", t->type->sqlname, t->digits, t->scale, schema ? schema : "", rname ? rname : "", name ? name : "") < 0) {
-				return -1;
+			if (BUNappend(aux1, t->type->sqlname, FALSE) != GDK_SUCCEED) {
+				res_table_destroy(res);
+				res = NULL;
+				goto cleanup;
+			}
+			if (BUNappend(aux2, &(t->digits), FALSE) != GDK_SUCCEED) {
+				res_table_destroy(res);
+				res = NULL;
+				goto cleanup;
+			}
+			if (BUNappend(aux3, &(t->scale), FALSE) != GDK_SUCCEED) {
+				res_table_destroy(res);
+				res = NULL;
+				goto cleanup;
+			}
+			if (BUNappend(aux4, schema ? schema : str_nil, FALSE) != GDK_SUCCEED) {
+				res_table_destroy(res);
+				res = NULL;
+				goto cleanup;
+			}
+			if (BUNappend(aux5, rname ? rname : str_nil, FALSE) != GDK_SUCCEED) {
+				res_table_destroy(res);
+				res = NULL;
+				goto cleanup;
+			}
+			if (BUNappend(aux6, name ? name : str_nil, FALSE) != GDK_SUCCEED) {
+				res_table_destroy(res);
+				res = NULL;
+				goto cleanup;
+			}
+
+			if (!schema) {
+				aux4->tnil = 1;
+				aux4->tnonil = 0;
+			}
+			if (!rname) {
+				aux5->tnil = 1;
+				aux5->tnonil = 0;
+			}
+			if (!name) {
+				aux6->tnil = 1;
+				aux6->tnonil = 0;
 			}
 		}
 	}
 	if (c->params) {
-		int i;
-
 		q->paramlen = nparam;
 		q->params = SA_NEW_ARRAY(q->sa, sql_subtype, nrows);
 		for (n = c->params->h, i = 0; n; n = n->next, i++) {
 			a = n->data;
 			t = &a->type;
-
 			if (t) {
-				if (mnstr_printf(out, "[ \"%s\",\t%d,\t%d,\tNULL,\tNULL,\tNULL\t]\n", t->type->sqlname, t->digits, t->scale) < 0) {
-					return -1;
+				if (BUNappend(aux1, t->type->sqlname, FALSE) != GDK_SUCCEED) {
+					res_table_destroy(res);
+					res = NULL;
+					goto cleanup;
+				}
+				if (BUNappend(aux2, &(t->digits), FALSE) != GDK_SUCCEED) {
+					res_table_destroy(res);
+					res = NULL;
+					goto cleanup;
+				}
+				if (BUNappend(aux3, &(t->scale), FALSE) != GDK_SUCCEED) {
+					res_table_destroy(res);
+					res = NULL;
+					goto cleanup;
+				}
+				if (BUNappend(aux4, str_nil, FALSE) != GDK_SUCCEED) {
+					res_table_destroy(res);
+					res = NULL;
+					goto cleanup;
+				}
+				if (BUNappend(aux5, str_nil, FALSE) != GDK_SUCCEED) {
+					res_table_destroy(res);
+					res = NULL;
+					goto cleanup;
+				}
+				if (BUNappend(aux6, str_nil, FALSE) != GDK_SUCCEED) {
+					res_table_destroy(res);
+					res = NULL;
+					goto cleanup;
 				}
 				/* add to the query cache parameters */
+				aux4->tnil = 1;
+				aux4->tnonil = 0;
+				aux5->tnil = 1;
+				aux5->tnonil = 0;
+				aux6->tnil = 1;
+				aux6->tnonil = 0;
 				q->params[i] = *t;
 			} else {
-				return -1;
+				res_table_destroy(res);
+                res = NULL;
+				goto cleanup;
 			}
 		}
 	}
-	if (mvc_export_warning(out, w) != 1)
-		return -1;
-	return 0;
-}
 
+	BBPkeepref(aux1->batCacheid);
+	BBPkeepref(aux2->batCacheid);
+	BBPkeepref(aux3->batCacheid);
+	BBPkeepref(aux4->batCacheid);
+	BBPkeepref(aux5->batCacheid);
+	BBPkeepref(aux6->batCacheid);
+
+	res_col_create(c->session->tr, res, "", "type", "varchar", len1, 0, TYPE_bat, aux1);
+	res_col_create(c->session->tr, res, "", "digits", "int", len2, 0, TYPE_bat, aux2);
+	res_col_create(c->session->tr, res, "", "scale", "int", len3, 0, TYPE_bat, aux3);
+	res_col_create(c->session->tr, res, "", "schema", "varchar", len4, 0, TYPE_bat, aux4);
+	res_col_create(c->session->tr, res, "", "table", "varchar", len5, 0, TYPE_bat, aux5);
+	res_col_create(c->session->tr, res, "", "column", "varchar", len6, 0, TYPE_bat, aux6);
+
+	cleanup:
+	*result = res;
+	return res != NULL ? 0 : -1;
+}
 
 /*
  * improved formatting of positive integers
@@ -1997,30 +2127,33 @@ mvc_export_operation(backend *b, stream *s, str w)
 	return 0;
 }
 
-int
-mvc_export_affrows(backend *b, stream *s, lng val, str w, oid query_id)
+int //Changed for MonetDBJavaLite (need to export the number of rows for Update queries!)
+mvc_export_affrows(Client c, backend *b, stream *s, lng val, str w, oid query_id)
 {
-	mvc *m = b->mvc;
-	/* if we don't have a stream, nothing can go wrong, so we return
-	 * success.  This is especially vital for execution of internal SQL
-	 * commands, since they don't get a stream to suppress their output.
-	 * If we would fail on having no stream here, those internal commands
-	 * fail too.
-	 */
-	m->rowcnt = val;
+    mvc *m = b->mvc;
+    /* if we don't have a stream, nothing can go wrong, so we return
+     * success.  This is especially vital for execution of internal SQL
+     * commands, since they don't get a stream to suppress their output.
+     * If we would fail on having no stream here, those internal commands
+     * fail too.
+     */
+    /*if (!s)
+        return 0;*/
+    (void) query_id;
+    (void) w;
+    (void) s;
 
-	if (!s)
-		return 0;
-
-	stack_set_number(m, "rowcnt", m->rowcnt);
-	if (mnstr_write(s, "&2 ", 3, 1) != 1 || !mvc_send_lng(s, val) || mnstr_write(s, " ", 1, 1) != 1
+    c->lastNumberOfRows = val;
+    m->rowcnt = val;
+    stack_set_number(m, "rowcnt", m->rowcnt);
+    /*if (mnstr_write(s, "&2 ", 3, 1) != 1 || !mvc_send_lng(s, val) || mnstr_write(s, " ", 1, 1) != 1
 			|| !mvc_send_lng(s, m->last_id) || mnstr_write(s, " ", 1, 1) != 1
 			|| !mvc_send_lng(s, (lng) query_id) || mnstr_write(s, "\n", 1, 1) != 1)
 		return -1;
 	if (mvc_export_warning(s, w) != 1)
-		return -1;
+		return -1;*/
 
-	return 0;
+    return 0;
 }
 
 static int
@@ -2185,17 +2318,16 @@ cleanup:
 }
 
 int
-mvc_export_head(backend *b, stream *s, int res_id, int only_header, int compute_lengths)
+mvc_export_head(backend *b, stream *s, int res_id, int only_header, int compute_lengths) //In MonetDBJavaLite I just deleted the "mnstr_write"
 {
 	mvc *m = b->mvc;
-	int i, res = 0;
+	int res = 0, i = 0;
 	BUN count = 0;
 	res_table *t = res_tables_find(m->results, res_id);
 	BAT *order = NULL;
 
 	if (!s || !t)
 		return 0;
-
 
 	if (b->client->protocol == PROTOCOL_10) {
 		// export head result set 10
@@ -2349,7 +2481,7 @@ mvc_export_file(backend *b, stream *s, res_table *t)
 }
 
 int
-mvc_export_result(backend *b, stream *s, int res_id)
+mvc_export_result(Client cntxt, backend *b, stream *s, int res_id) //Changed in MonetDBJavaLite for EXEC queries!!
 {
 	mvc *m = b->mvc;
 	int clean = 0, res = 0;
@@ -2358,62 +2490,66 @@ mvc_export_result(backend *b, stream *s, int res_id)
 	BAT *order = NULL;
 	int json = (b->output_format == OFMT_JSON);
 
-	if (!s || !t)
-		return 0;
+    if (!s || !t)
+        return 0;
 
-	/* Proudly supporting SQLstatementIntern's output flag */
-	if (b->output_format == OFMT_NONE) {
-		return 0;
-	}
-	/* we shouldn't have anything else but Q_TABLE here */
-	assert(t->query_type == Q_TABLE);
-	if (t->tsep)
-		return mvc_export_file(b, s, t);
+    //Added for MonetDBJavaLite check monetdb_query in embedded.c
+    if(cntxt->querySpecialType != 1) {
+        /* Proudly supporting SQLstatementIntern's output flag */
+        if(cntxt->querySpecialType == 2) { //It's a copy
+			b->output_format = OFMT_CSV;
+		} else if (b->output_format == OFMT_NONE) {
+            return 0;
+        }
+        /* we shouldn't have anything else but Q_TABLE here */
+        assert(t->query_type == Q_TABLE);
+        if (t->tsep)
+            return mvc_export_file(b, s, t);
 
-	if (!json) {
-		mvc_export_head(b, s, res_id, TRUE, TRUE);
-	}
+        if (!json) {
+            mvc_export_head(b, s, t->id, res_id, TRUE);
+        }
+        assert(t->order);
 
-	assert(t->order);
+        order = BATdescriptor(t->order);
+        if (!order)
+            return -1;
+        count = m->reply_size;
+        if (m->reply_size != -2 && (count <= 0 || count >= BATcount(order))) {
+            count = BATcount(order);
+            clean = 1;
+        }
+        if (json) {
+            switch(count) {
+            case 0:
+                res = mvc_export_table(b, s, t, order, 0, count, "{\t", "", "}\n", "\"", "null");
+                break;
+            case 1:
+                res = mvc_export_table(b, s, t, order, 0, count, "{\n\t\"%s\" : ", ",\n\t\"%s\" : ", "\n}\n", "\"", "null");
+                break;
+            case 2:
+                res = mvc_export_table(b, s, t, order, 0, 1, "[\n\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
+                res = mvc_export_table(b, s, t, order, 1, count - 1, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t}\n]\n", "\"", "null");
+                 break;
+            default:
+                res = mvc_export_table(b, s, t, order, 0, 1, "[\n\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
+                res = mvc_export_table(b, s, t, order, 1, count - 2, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
+                res = mvc_export_table(b, s, t, order, count - 1, 1, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t}\n]\n", "\"", "null");
+            }
+        } else {
+            res = mvc_export_table(b, s, t, order, 0, count, "[ ", ",\t", "\t]\n", "\"", "NULL");
+        }
 
-	order = BATdescriptor(t->order);
-	if (!order)
-		return -1;
+        BBPunfix(order->batCacheid);
 
-	count = m->reply_size;
-	if (m->reply_size != -2 && (count <= 0 || count >= BATcount(order))) {
-		count = BATcount(order);
-		clean = 1;
-	}
-	if (json) {
-		switch(count) {
-		case 0:
-			res = mvc_export_table(b, s, t, order, 0, count, "{\t", "", "}\n", "\"", "null");
-			break;
-		case 1:
-			res = mvc_export_table(b, s, t, order, 0, count, "{\n\t\"%s\" : ", ",\n\t\"%s\" : ", "\n}\n", "\"", "null");
-			break;
-		case 2:
-			res = mvc_export_table(b, s, t, order, 0, 1, "[\n\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
-			res = mvc_export_table(b, s, t, order, 1, count - 1, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t}\n]\n", "\"", "null");
-			break;
-		default:
-			res = mvc_export_table(b, s, t, order, 0, 1, "[\n\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
-			res = mvc_export_table(b, s, t, order, 1, count - 2, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
-			res = mvc_export_table(b, s, t, order, count - 1, 1, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t}\n]\n", "\"", "null");
-		}
-	} else {
-		res = mvc_export_table(b, s, t, order, 0, count, "[ ", ",\t", "\t]\n", "\"", "NULL");
-	}
-	BBPunfix(order->batCacheid);
-	if (clean)
-		m->results = res_tables_remove(m->results, t);
+        if (clean)
+            m->results = res_tables_remove(m->results, t);
+    }
 
 	if (res > 0)
 		res = mvc_export_warning(s, "");
 	return res;
 }
-
 
 int
 mvc_export_chunk(backend *b, stream *s, int res_id, BUN offset, BUN nr)
@@ -2470,12 +2606,12 @@ mvc_export_chunk(backend *b, stream *s, int res_id, BUN offset, BUN nr)
 	return res;
 }
 
-
 int
-mvc_result_table(mvc *m, oid query_id, int nr_cols, int type, BAT *order)
+mvc_result_table(Client cntxt, mvc *m, oid query_id, int nr_cols, int type, BAT *order) //changed for MonetDBJavaLite in EXEC queries!
 {
 	res_table *t = res_table_create(m->session->tr, m->result_id++, query_id, nr_cols, type, m->results, order);
 	m->results = t;
+    cntxt->lastResultSetID = t->id;
 	return t->id;
 }
 

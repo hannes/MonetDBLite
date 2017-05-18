@@ -40,6 +40,7 @@
 #include "monetdb_config.h"
 #include "algebra.h"
 #include <math.h>
+#include <gdk.h>
 
 /*
  * Command Implementations in C
@@ -115,12 +116,12 @@ slice(BAT **retval, BAT *b, lng start, lng end)
 	return (*retval = BATslice(b, (BUN) start, (BUN) end + 1)) ? GDK_SUCCEED : GDK_FAIL;
 }
 /*
- * 
+ *
  * The remainder of this file contains the wrapper around the V4 code base
  * The BAT identifiers passed through this module may indicate
  * that the 'reverse' view applies. This should be taken into
  * account while resolving them.
- * 
+ *
  * The sum aggregate only works for int and float fields.
  * The routines below assumes that the caller knows what type
  * is large enough to prevent overflow.

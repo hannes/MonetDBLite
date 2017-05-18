@@ -95,7 +95,7 @@ am__aclocal_m4_deps = $(top_srcdir)/buildtools/conf/libtool.m4 \
 	$(top_srcdir)/buildtools/conf/ltoptions.m4 \
 	$(top_srcdir)/buildtools/conf/ltsugar.m4 \
 	$(top_srcdir)/buildtools/conf/ltversion.m4 \
-	$(top_srcdir)/buildtools/conf/lt-obsolete.m4 \
+	$(top_srcdir)/buildtools/conf/lt~obsolete.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -406,11 +406,11 @@ AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 libmoptions_la_CFLAGS = -DLIBMOPTIONS $(AM_CFLAGS)
 moptionsdir = $(libdir)
 nodist_libmoptions_la_SOURCES = 
-dist_libmoptions_la_SOURCES = monet_options.c monet_options.h monet_getopt.h
+dist_libmoptions_la_SOURCES = monet_options.c monet_options.h
 AM_CPPFLAGS = -I$(srcdir)
 BUILT_SOURCES = 
 MOSTLYCLEANFILES = 
-EXTRA_DIST = Makefile.ag Makefile.msc getopt.c getopt1.c monet_getopt.h monet_options.c monet_options.h
+EXTRA_DIST = Makefile.ag Makefile.msc getopt.c getopt1.c monet_options.c monet_options.h
 noinst_LTLIBRARIES = libmoptions.la
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -690,9 +690,9 @@ uninstall-am: uninstall-local
 
 .PRECIOUS: Makefile
 
-libmoptions_la-monet_options.lo: monet_options.c monet_options.h monet_getopt.h getopt.c getopt1.c
+libmoptions_la-monet_options.lo: monet_options.c monet_options.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmoptions_la_CFLAGS) $(CFLAGS) $(monet_options_CFLAGS) -c -o libmoptions_la-monet_options.lo `test -f 'monet_options.c' || echo '$(srcdir)/'`monet_options.c
-monet_options.o monet_options.lo: monet_options.c monet_options.h monet_getopt.h getopt.c getopt1.c
+monet_options.o monet_options.lo: monet_options.c monet_options.h
 install-exec-local-monet_options.h: monet_options.h
 	-mkdir -p $(DESTDIR)$(includedir)/monetdb
 	-$(RM) $(DESTDIR)$(includedir)/monetdb/monet_options.h
