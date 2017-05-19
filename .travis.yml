@@ -46,7 +46,7 @@ script:
     # Assemble everything! Gradle will run tests, so we should still be away of Ubuntu!
     - cd MonetDBLite/monetdb-java-lite
     # For now we will skip the tests because of locale problems with the JVM on Travis
-    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_121 && ./gradlew -i build && ./gradlew javadoc && chmod -R 777 build'
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_131 && ./gradlew -i build && ./gradlew javadoc && chmod -R 777 build'
     # Copy the header file for our Downloads section and fix this weird renaming bug
     - cp ../HEADER.html build/libs
     # Move the javadocs
