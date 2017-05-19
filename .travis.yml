@@ -7,7 +7,7 @@ git:
 
 branches:
     only:
-        - July2017Lite-Java
+        - Jul2017Lite-Java
 
 addons:
     apt:
@@ -71,7 +71,7 @@ deploy:
     skip_cleanup: true
     script: rsync -aqz --ignore-times monetdb-java-lite/build/libs/ ferreira@monetdb.org:/var/www/html/downloads/Java-Experimental/
     on:
-        branch: July2017Lite-Java
+        branch: Jul2017Lite-Java
 
 notifications:
     email:
