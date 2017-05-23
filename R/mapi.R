@@ -227,7 +227,7 @@ REPLY_SIZE    <- 100 # Apparently, -1 means unlimited, but we will start with a 
       env$rows  <- 0
       return(env)			
     }
-    
+    # FIXME
     if (typeKey == Q_TRANSACTION) {
       env$type	<- Q_UPDATE
       # no need to check the returned values, as there is none. If we get no error, all is well.
