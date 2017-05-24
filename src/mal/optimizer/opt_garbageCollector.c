@@ -25,11 +25,14 @@
 str
 OPTgarbageCollectorImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
-	int i, j, limit, slimit;
+	int i, limit, slimit;
 	InstrPtr p, *old;
 	int actions = 0;
+#ifndef HAVE_EMBEDDED
+	int j;
 	char buf[256];
 	lng usec = GDKusec();
+#endif
 	//int *varlnk, *stmtlnk;
 
 	(void) pci;
@@ -143,6 +146,7 @@ OPTgarbageCollectorImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, Ins
 	}
 #endif
 
+#ifndef HAVE_EMBEDDED
 	/* rename all temporaries for ease of debugging */
 	for( i = 0; i < mb->vtop; i++)
 	if( sscanf(getVarName(mb,i),"X_%d", &j) == 1)
@@ -150,7 +154,7 @@ OPTgarbageCollectorImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, Ins
 	else
 	if( sscanf(getVarName(mb,i),"C_%d", &j) == 1)
 		snprintf(getVarName(mb,i),IDLENGTH,"C_%d",i);
-
+#endif
 	/* leave a consistent scope admin behind */
 	setVariableScope(mb);
     /* Defense line against incorrect plans */
@@ -159,12 +163,14 @@ OPTgarbageCollectorImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, Ins
         chkFlow(cntxt->fdout, mb);
         chkDeclarations(cntxt->fdout, mb);
     }
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","garbagecollector",actions, usec);
     newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
+#endif
 
 	return MAL_SUCCEED;
 }

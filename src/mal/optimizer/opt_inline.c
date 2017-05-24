@@ -52,9 +52,10 @@ OPTinlineImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
 	int i;
 	InstrPtr q,sig;
 	int actions = 0;
+#ifndef HAVE_EMBEDDED
 	char buf[256];
 	lng usec = GDKusec();
-
+#endif
 	(void) p;
 	(void)stk;
 
@@ -97,12 +98,13 @@ OPTinlineImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
         chkFlow(cntxt->fdout, mb);
         chkDeclarations(cntxt->fdout, mb);
     }
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","inline",actions, usec);
     newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
-
+#endif
 	return MAL_SUCCEED;
 }

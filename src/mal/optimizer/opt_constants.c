@@ -28,8 +28,10 @@ OPTconstantsImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p
 	int i,k=1, n=0, fnd=0, actions=0;
 	int *alias, *index;
 	VarPtr x,y, *cst;
+#ifndef HAVE_EMBEDDED
 	char buf[256];
 	lng usec = GDKusec();
+#endif
 	str msg = MAL_SUCCEED;
 
 #ifdef DEBUG_OPT_CONSTANTS
@@ -92,13 +94,14 @@ OPTconstantsImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p
 	//chkTypes(cntxt->fdout, cntxt->nspace, mb, FALSE);
 	//chkFlow(cntxt->fdout, mb);
 	//chkDeclarations(cntxt->fdout, mb);
-    
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","constants",actions,usec);
     newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
+#endif
 
 wrapup:
 	if( alias) GDKfree(alias);

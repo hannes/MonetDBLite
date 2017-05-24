@@ -1480,8 +1480,10 @@ OPTmergetableImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 	matlist_t ml;
 	int oldtop, fm, fn, fo, fe, i, k, m, n, o, e, slimit, bailout = 0;
 	int size=0, match, actions=0, distinct_topn = 0, /*topn_res = 0,*/ groupdone = 0, *vars;
+#ifndef HAVE_EMBEDDED
 	char buf[256];
 	lng usec = GDKusec();
+#endif
 	str msg = MAL_SUCCEED;
 
 	//if( optimizerIsApplied(mb, "mergetable") || !optimizerIsApplied(mb,"mitosis"))
@@ -1873,12 +1875,13 @@ cleanup:
         chkFlow(cntxt->fdout, mb);
         chkDeclarations(cntxt->fdout, mb);
     }
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","mergetable",actions, usec);
    	newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
-
+#endif
 	return msg;
 }

@@ -465,10 +465,11 @@ OPTorcamImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
 str OPTmacro(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p){
 	Symbol t;
 	str msg,mod,fcn;
+#ifndef HAVE_EMBEDDED
 	lng clk= GDKusec();
 	char buf[256];
 	lng usec = GDKusec();
-
+#endif
 	if( p ==NULL )
 		return 0;
 	removeInstruction(mb, p);
@@ -496,6 +497,7 @@ str OPTmacro(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p){
 	chkTypes(cntxt->fdout, cntxt->nspace, mb, FALSE);
 	chkFlow(cntxt->fdout, mb);
 	chkDeclarations(cntxt->fdout, mb);
+#ifndef HAVE_EMBEDDED
 	usec += GDKusec() - clk;
 	/* keep all actions taken as a post block comment */
 	snprintf(buf,256,"%-20s actions=1 time=" LLFMT " usec","macro",usec);
@@ -503,6 +505,7 @@ str OPTmacro(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p){
 	addtoMalBlkHistory(mb);
 	if (mb->errors)
 		throw(MAL, "optimizer.macro", PROGRAM_GENERAL);
+#endif
 	return MAL_SUCCEED;
 }
 

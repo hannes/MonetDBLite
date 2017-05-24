@@ -60,7 +60,7 @@ str
 OPTgeneratorImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
 	InstrPtr p,q, *old, *series;
-	int i, k, limit, slimit, actions=0;
+	int i, k, limit, slimit;
 	str m;
 	str bteRef = getName("bte");
 	str shtRef = getName("sht");
@@ -68,9 +68,11 @@ OPTgeneratorImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p
 	str lngRef = getName("lng");
 	str fltRef = getName("flt");
 	str dblRef = getName("dbl");
+#ifndef HAVE_EMBEDDED
+	int actions = 0;
 	char buf[256];
 	lng usec= GDKusec();
-
+#endif
 	(void) cntxt;
 	(void) stk;
 	(void) pci;
@@ -169,12 +171,13 @@ OPTgeneratorImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p
 	//chkTypes(cntxt->fdout, cntxt->nspace, mb, FALSE);
 	//chkFlow(cntxt->fdout, mb);
 	//chkDeclarations(cntxt->fdout, mb);
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","generator",actions, usec);
     newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
-
+#endif
 	return MAL_SUCCEED;
 }
