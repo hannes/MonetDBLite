@@ -225,6 +225,8 @@ typedef struct MALBLK {
 	int calls;				/* number of calls */
 	lng optimize;			/* total optimizer time */
 	int activeClients;		/* load during mitosis optimization */
+	bit no_mitosis;		    /* skip mitosis on this block */
+
 } *MalBlkPtr, MalBlkRecord;
 
 #define STACKINCR   128

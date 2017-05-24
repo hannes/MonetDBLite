@@ -51,6 +51,10 @@ OPTmitosisImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
 	if (!eligible(mb))
 		return MAL_SUCCEED;
 
+	if (mb->no_mitosis) {
+		return MAL_SUCCEED;
+	}
+
 	activeClients = mb->activeClients = MCactiveClients();
 	old = mb->stmt;
 	for (i = 1; i < mb->stop; i++) {

@@ -85,7 +85,7 @@ newMalBlk(int elements)
 	MalBlkPtr mb;
 	VarRecord *v;
 
-	mb = (MalBlkPtr) GDKmalloc(sizeof(MalBlkRecord));
+	mb = (MalBlkPtr) GDKzalloc(sizeof(MalBlkRecord));
 	if (mb == NULL) {
 		return NULL;
 	}
@@ -98,29 +98,10 @@ newMalBlk(int elements)
 		return NULL;
 	}
 	mb->var = v;
-	mb->vtop = 0;
-	mb->vid = 0;
 	mb->vsize = elements;
-	mb->help = NULL;
-	mb->binding[0] = 0;
-	mb->tag = 0;
-	mb->errors = 0;
-	mb->alternative = NULL;
-	mb->history = NULL;
-	mb->keephistory = 0;
 	mb->maxarg = MAXARG;		/* the minimum for each instruction */
-	mb->typefixed = 0;
-	mb->flowfixed = 0;
-	mb->inlineProp = 0;
-	mb->unsafeProp = 0;
-	mb->sealedProp = 0;
-	mb->replica = NULL;
-	mb->trap = 0;
-	mb->runtime = 0;
-	mb->calls = 0;
-	mb->optimize = 0;
-	mb->stmt = NULL;
 	mb->activeClients = 1;
+
 	if (newMalBlkStmt(mb, elements) < 0) {
 		GDKfree(mb->var);
 		GDKfree(mb->stmt);

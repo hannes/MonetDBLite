@@ -4852,6 +4852,11 @@ output_rel_bin(backend *be, sql_rel *rel )
 	int sqltype = sql->type;
 	stmt *s = subrel_bin(be, rel, refs);
 
+	// do not use mitosis on SELECT * FROM TABLE
+	if (sql->type == Q_TABLE && rel && rel->l && rel->op == op_project && is_basetable(((sql_rel*) rel->l)->op)) {
+		be->mb->no_mitosis = TRUE;
+	}
+
 	if (sqltype == Q_SCHEMA)
 		sql->type = sqltype;  /* reset */
 
