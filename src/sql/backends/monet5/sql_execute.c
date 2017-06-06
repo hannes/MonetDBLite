@@ -233,7 +233,24 @@ SQLrun(Client c, backend *be, mvc *m){
 		}
 
 	} else {
+// this happens here and not in runMalSequence because functions
+#ifdef HAVE_EMBEDDED
+		// TODO lock
+		c->progress_done = 0;
+		c->progress_len = mb->stop - 2;
+		if (c->progress_callback) {
+			c->progress_callback(c, c->progress_data, c->progress_len, 0, 0);
+		}
+
+#endif
 		msg = runMAL(c, mb, 0, 0);
+
+		// TODO: lock?
+#ifdef HAVE_EMBEDDED
+		if (c->progress_callback) {
+			c->progress_callback(c, c->progress_data, c->progress_len, c->progress_len, 1);
+		}
+#endif
 	}
 	// release the resources
 	freeMalBlk(mb);

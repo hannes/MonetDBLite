@@ -92,13 +92,15 @@ runtimeProfileInit(Client cntxt, MalBlkPtr mb, MalStkPtr stk)
 		QRYqueue[i].query = q? GDKstrdup(q):0;
 		QRYqueue[i].status = "running";
 		QRYqueue[i].cntxt = cntxt;
+
+
 	}
 	stk->tag = QRYqueue[i].tag;
 	qtop += i == qtop;
+
 	MT_lock_unset(&mal_delayLock);
-#ifdef HAVE_EMBEDDED
-	cntxt->progress_done = 0;
-#endif
+
+
 }
 
 void
@@ -203,19 +205,31 @@ runtimeProfileExit(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, Runt
 {
 #ifdef HAVE_EMBEDDED
 	float perc;
+	(void) mb;
 	(void) stk;
 	(void) pci;
 	(void) prof;
 	if (!cntxt->progress_callback) {
 		return;
 	}
-	cntxt->progress_done++;
+// FIXME: use other lock for this, this is a disgrace
 
-	perc = cntxt->progress_done/(mb->stop-1.0);
-	if (perc > 1) perc = 1;
-	if (perc < 0) perc = 0;
 
-	cntxt->progress_callback(cntxt, cntxt->progress_data, mb->tag, mb->stop-1, cntxt->progress_done, perc);
+	if (cntxt->progress_callback) {
+		MT_lock_set(&mal_delayLock);
+		cntxt->progress_done++;
+		if (cntxt->progress_done > cntxt->progress_len) {
+			cntxt->progress_done = cntxt->progress_len;
+		}
+
+		perc = cntxt->progress_done/(cntxt->progress_len*1.0);
+		if (perc > 1) perc = 1;
+		if (perc < 0) perc = 0;
+
+		cntxt->progress_callback(cntxt, cntxt->progress_data, cntxt->progress_len, cntxt->progress_done, perc);
+		MT_lock_unset(&mal_delayLock);
+	}
+
 #else
 	int tid = THRgettid();
 
