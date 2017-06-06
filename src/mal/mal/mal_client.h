@@ -54,6 +54,11 @@ typedef struct CURRENT_INSTR{
 	InstrPtr	pci;
 } Workset;
 
+// WARNING: this is also defined in embedded.h
+#ifdef HAVE_EMBEDDED
+typedef int (*monetdb_progress_callback)(void* conn, void* data, size_t queryid, size_t num_statements, size_t num_completed_statement, float percentage_done);
+#endif
+
 typedef struct CLIENT {
 	int idx;        /* entry in mal_clients */
 	oid user;       /* user id in the auth administration */
@@ -182,6 +187,11 @@ typedef struct CLIENT {
 	size_t blocksize;
 	protocol_version protocol;
 	int compute_column_widths;
+#ifdef HAVE_EMBEDDED
+	monetdb_progress_callback progress_callback;
+	void* progress_data;
+	size_t progress_done;
+#endif
 } *Client, ClientRec;
 
 mal_export void    MCinit(void);

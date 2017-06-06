@@ -96,6 +96,9 @@ runtimeProfileInit(Client cntxt, MalBlkPtr mb, MalStkPtr stk)
 	stk->tag = QRYqueue[i].tag;
 	qtop += i == qtop;
 	MT_lock_unset(&mal_delayLock);
+#ifdef HAVE_EMBEDDED
+	cntxt->progress_done = 0;
+#endif
 }
 
 void
@@ -165,8 +168,14 @@ finishSessionProfiler(Client cntxt)
 void
 runtimeProfileBegin(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, RuntimeProfile prof)
 {
+#ifdef HAVE_EMBEDDED
+	(void) cntxt;
+	(void) mb;
+	(void) stk;
+	(void) pci;
+	(void) prof;
+#else
 	int tid = THRgettid();
-
 	assert(pci);
 	/* keep track on the instructions taken in progress */
 	cntxt->active = TRUE;
@@ -186,11 +195,28 @@ runtimeProfileBegin(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, Run
 	/* emit the instruction upon start as well */
 	if(malProfileMode > 0 )
 		profilerEvent(mb, stk, pci, TRUE, cntxt->username);
+#endif
 }
 
 void
 runtimeProfileExit(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, RuntimeProfile prof)
 {
+#ifdef HAVE_EMBEDDED
+	float perc;
+	(void) stk;
+	(void) pci;
+	(void) prof;
+	if (!cntxt->progress_callback) {
+		return;
+	}
+	cntxt->progress_done++;
+
+	perc = cntxt->progress_done/(mb->stop-1.0);
+	if (perc > 1) perc = 1;
+	if (perc < 0) perc = 0;
+
+	cntxt->progress_callback(cntxt, cntxt->progress_data, mb->tag, mb->stop-1, cntxt->progress_done, perc);
+#else
 	int tid = THRgettid();
 
 	/* keep track on the instructions in progress*/
@@ -223,6 +249,7 @@ runtimeProfileExit(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, Runt
 	/* reduce threads of non-admin long running transaction if needed */
 	if ( cntxt->idx > 1 )
 		MALresourceFairness(GDKusec()- mb->starttime);
+#endif
 }
 
 /*

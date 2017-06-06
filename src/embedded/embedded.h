@@ -29,6 +29,13 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long *
 char* monetdb_append(void* conn, const char* schema, const char* table, append_data *data, int ncols);
 void  monetdb_cleanup_result(void* conn, void* output);
 char* monetdb_get_columns(void* conn, const char* schema_name, const char *table_name, int *column_count, char ***column_names, int **column_types);
+
+// progress monitoring
+typedef int (*monetdb_progress_callback)(void* conn, void* data, size_t queryid, size_t num_statements, size_t num_completed_statement, float percentage_done);
+void monetdb_register_progress(void* conn, monetdb_progress_callback callback, void* data);
+void monetdb_unregister_progress(void* conn);
+
+
 void  monetdb_shutdown(void);
 
 

@@ -250,6 +250,10 @@ BATdense(oid hseq, oid tseq, BUN cnt)
 		return NULL;
 	BATtseqbase(bn, tseq);
 	BATsetcount(bn, cnt);
+
+	(bn)->tdense = 1;
+	(bn)->tnodense = 0;
+
 	return bn;
 }
 

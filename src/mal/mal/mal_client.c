@@ -258,6 +258,9 @@ MCinitClientRecord(Client c, oid user, bstream *fin, stream *fout)
 		if (msg)				/* shouldn't happen */
 			freeException(msg);
 	}
+#else
+	c->progress_callback = NULL;
+	c->progress_data = NULL;
 #endif
 	c->blocksize = BLOCK;
 	c->protocol = PROTOCOL_9;

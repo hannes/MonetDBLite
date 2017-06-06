@@ -40,7 +40,14 @@ static int monetdb_embedded_initialized = 0;
 
 FILE* embedded_stdout;
 FILE* embedded_stderr;
-
+/*
+static int test_my_progress(void* conn, void* data, size_t queryid, size_t num_statements, size_t num_completed_statement, float percentage_done) {
+	(void) conn;
+	(void) data;
+	fprintf(stderr, "progress %lu %lu/%lu %i%%\n", queryid, num_completed_statement, num_statements, (int) (percentage_done*100));
+	return 0;
+}
+*/
 void* monetdb_connect(void) {
 	Client conn = NULL;
 	if (!monetdb_embedded_initialized) {
@@ -54,6 +61,10 @@ void* monetdb_connect(void) {
 		return NULL;
 	}
 	((backend *) conn->sqlcontext)->mvc->session->auto_commit = 1;
+
+//	monetdb_register_progress(conn, test_my_progress, NULL);
+
+
 	return conn;
 }
 
@@ -167,6 +178,8 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	}
 	monetdb_cleanup_result(c, res);
 	monetdb_disconnect(c);
+
+
 cleanup:
 	mo_free_options(set, setlen);
 	return retval;
@@ -184,7 +197,7 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
 	}
-	if (!MCvalid((Client) conn)) {
+	if (!MCvalid(c)) {
 		return GDKstrdup("Invalid connection");
 	}
 	m = ((backend *) c->sqlcontext)->mvc;
@@ -233,7 +246,7 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	if(table == NULL || data == NULL || ncols < 1) {
 		return GDKstrdup("Invalid parameters");
 	}
-	if (!MCvalid((Client) conn)) {
+	if (!MCvalid(c)) {
 		return GDKstrdup("Invalid connection");
 	}
 	if ((res = getSQLContext(c, NULL, &m, NULL)) != MAL_SUCCEED) {
@@ -276,7 +289,7 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	return res;
 }
 
-void  monetdb_cleanup_result(void* conn, void* output) {
+void monetdb_cleanup_result(void* conn, void* output) {
 	if (!monetdb_is_initialized()) {
 		return;
 	}
@@ -324,6 +337,29 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 
 	return msg;
 }
+
+
+void monetdb_register_progress(void* conn, monetdb_progress_callback callback, void* data) {
+	Client c = (Client) conn;
+	if (!MCvalid(c)) {
+		return;
+	}
+
+	c->progress_callback = callback;
+	c->progress_data = data;
+}
+
+void monetdb_unregister_progress(void* conn) {
+	Client c = (Client) conn;
+	if (!MCvalid(c)) {
+		return;
+	}
+
+	c->progress_callback = NULL;
+	c->progress_data = NULL;
+}
+
+
 
 void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
