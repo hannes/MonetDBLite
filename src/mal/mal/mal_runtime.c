@@ -38,6 +38,7 @@ mal_runtime_reset(void)
 	qtag= 1;
 }
 
+#ifndef HAVE_EMBEDDED
 static str isaSQLquery(MalBlkPtr mb){
 	int i;
 	InstrPtr p;
@@ -49,6 +50,7 @@ static str isaSQLquery(MalBlkPtr mb){
 	}
 	return 0;
 }
+#endif
 
 /*
  * Manage the runtime profiling information
@@ -56,6 +58,11 @@ static str isaSQLquery(MalBlkPtr mb){
 void
 runtimeProfileInit(Client cntxt, MalBlkPtr mb, MalStkPtr stk)
 {
+#ifdef HAVE_EMBEDDED
+	(void) cntxt;
+	(void) mb;
+	(void) stk;
+#else
 	int i;
 	str q;
 	QueryQueue tmp;
@@ -99,13 +106,17 @@ runtimeProfileInit(Client cntxt, MalBlkPtr mb, MalStkPtr stk)
 	qtop += i == qtop;
 
 	MT_lock_unset(&mal_delayLock);
-
-
+#endif
 }
 
 void
 runtimeProfileFinish(Client cntxt, MalBlkPtr mb, MalStkPtr stk)
 {
+#ifdef HAVE_EMBEDDED
+	(void) cntxt;
+	(void) mb;
+	(void) stk;
+#else
 	int i,j;
 
 	(void) cntxt;
@@ -139,11 +150,15 @@ runtimeProfileFinish(Client cntxt, MalBlkPtr mb, MalStkPtr stk)
 	qtop = j;
 	QRYqueue[qtop].query = NULL; /* sentinel for SYSMONqueue() */
 	MT_lock_unset(&mal_delayLock);
+#endif
 }
 
 void
 finishSessionProfiler(Client cntxt)
 {
+#ifdef HAVE_EMBEDDED
+	(void) cntxt;
+#else
 	int i,j;
 
 	(void) cntxt;
@@ -165,6 +180,7 @@ finishSessionProfiler(Client cntxt)
 	}
 	qtop = j;
 	MT_lock_unset(&mal_delayLock);
+#endif
 }
 
 void
@@ -212,23 +228,18 @@ runtimeProfileExit(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, Runt
 	if (!cntxt->progress_callback) {
 		return;
 	}
-// FIXME: use other lock for this, this is a disgrace
-
-
-	if (cntxt->progress_callback) {
-		MT_lock_set(&mal_delayLock);
-		cntxt->progress_done++;
-		if (cntxt->progress_done > cntxt->progress_len) {
-			cntxt->progress_done = cntxt->progress_len;
-		}
-
-		perc = cntxt->progress_done/(cntxt->progress_len*1.0);
-		if (perc > 1) perc = 1;
-		if (perc < 0) perc = 0;
-
-		cntxt->progress_callback(cntxt, cntxt->progress_data, cntxt->progress_len, cntxt->progress_done, perc);
-		MT_lock_unset(&mal_delayLock);
+	MT_lock_set(&cntxt->progress_lock);
+	cntxt->progress_done++;
+	if (cntxt->progress_done > cntxt->progress_len) {
+		cntxt->progress_done = cntxt->progress_len;
 	}
+
+	perc = cntxt->progress_done/(cntxt->progress_len*1.0);
+	if (perc > 1) perc = 1;
+	if (perc < 0) perc = 0;
+
+	cntxt->progress_callback(cntxt, cntxt->progress_data, cntxt->progress_len, cntxt->progress_done, perc);
+	MT_lock_unset(&cntxt->progress_lock);
 
 #else
 	int tid = THRgettid();

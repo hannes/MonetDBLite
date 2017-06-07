@@ -190,6 +190,8 @@ typedef struct CLIENT {
 	void* progress_data;
 	size_t progress_done;
 	size_t progress_len;
+	MT_Lock progress_lock;
+
 } *Client, ClientRec;
 
 mal_export void    MCinit(void);

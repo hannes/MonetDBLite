@@ -40,14 +40,7 @@ static int monetdb_embedded_initialized = 0;
 
 FILE* embedded_stdout;
 FILE* embedded_stderr;
-/*
-static int test_my_progress(void* conn, void* data, size_t queryid, size_t num_statements, size_t num_completed_statement, float percentage_done) {
-	(void) conn;
-	(void) data;
-	fprintf(stderr, "progress %lu %lu/%lu %i%%\n", queryid, num_completed_statement, num_statements, (int) (percentage_done*100));
-	return 0;
-}
-*/
+
 void* monetdb_connect(void) {
 	Client conn = NULL;
 	if (!monetdb_embedded_initialized) {
@@ -61,9 +54,6 @@ void* monetdb_connect(void) {
 		return NULL;
 	}
 	((backend *) conn->sqlcontext)->mvc->session->auto_commit = 1;
-
-//	monetdb_register_progress(conn, test_my_progress, NULL);
-
 
 	return conn;
 }
