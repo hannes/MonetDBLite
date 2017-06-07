@@ -61,10 +61,10 @@ addons:
 
 before_deploy:
     # Preparing the RSA key
-    - openssl aes-256-cbc -K $encrypted_a16cc492052e_key -iv $encrypted_a16cc492052e_iv -in id_downloads.enc -out /tmp/id_downloads -d
+    - openssl aes-256-cbc -K $encrypted_e5ce453b448a_key -iv $encrypted_e5ce453b448a_iv -in id_monetdb.enc -out /tmp/id_monetdb -d
     - eval "$(ssh-agent -s)"
-    - chmod 600 /tmp/id_downloads
-    - ssh-add /tmp/id_downloads
+    - chmod 600 /tmp/id_monetdb
+    - ssh-add /tmp/id_monetdb
 
 deploy:
     provider: script
