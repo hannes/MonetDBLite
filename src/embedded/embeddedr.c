@@ -47,13 +47,12 @@ static size_t monetdb_progress_width = 0;
 
 
 static void printf_str_repeat(char* str, size_t n) {
-	size_t plen = strlen(str);
+	size_t plen = strlen(str), i;
 	char *buf = malloc(n * plen + 1);
 	if (!buf) {
 		return;
 	}
-
-	for (size_t i = 0; i < n; i++) {
+	for (i = 0; i < n; i++) {
 		memcpy(buf + plen * i, str, plen);
 	}
 	buf[n * plen] = '\0';
@@ -188,9 +187,9 @@ SEXP monetdb_startup_R(SEXP dbdirsexp, SEXP silentsexp, SEXP sequentialsexp) {
 	char* res = NULL;
 
 	char* locale = setlocale(LC_ALL, NULL);
-	if (locale && (strcasestr(locale, "UTF-8") != NULL || strcasestr(locale, "UTF8") != NULL)) {
-		monetdb_progress_boxchar = "\u2588";
-		monetdb_progress_barchar = "\u2591";
+	if (locale && (strcasestr(locale, "UTF-8") != 0 || strcasestr(locale, "UTF8") != 0)) {
+		monetdb_progress_boxchar = "\xE2\x96\x88";
+		monetdb_progress_barchar = "\xE2\x96\x91";
 	}
 
 	if (monetdb_is_initialized()) {
