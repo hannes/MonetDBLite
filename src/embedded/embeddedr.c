@@ -187,7 +187,9 @@ SEXP monetdb_startup_R(SEXP dbdirsexp, SEXP silentsexp, SEXP sequentialsexp) {
 	char* res = NULL;
 
 	char* locale = setlocale(LC_ALL, NULL);
-	if (locale && (strcasestr(locale, "UTF-8") != 0 || strcasestr(locale, "UTF8") != 0)) {
+	if (locale && (strstr(locale, "UTF-8") != 0 || strstr(locale, "UTF8") != 0 ||
+			strstr(locale, "utf-8") != 0 || strstr(locale, "utf8") != 0)) {
+
 		monetdb_progress_boxchar = "\xE2\x96\x88";
 		monetdb_progress_barchar = "\xE2\x96\x91";
 	}
