@@ -3,19 +3,11 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
-<<<<<<< HEAD
  * Copyright 2008-2017 MonetDB B.V.
  */
 
 /*
  * H. Muehleisen, M. Raasveldt, Pedro Ferreira
-=======
- * Copyright 2008-2015 MonetDB B.V.
- */
-
-/*
- * H. Muehleisen, M. Raasveldt
->>>>>>> 761c663e9e54159339f5b1dfb12d39484094f4fb
  * Inverse RAPI
  */
 #ifndef _EMBEDDED_LIB_

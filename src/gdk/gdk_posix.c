@@ -731,11 +731,7 @@ mdlopen(const char *library, int mode)
 #ifdef _MSC_VER
 #include <io.h>
 #endif /* _MSC_VER */
-<<<<<<< HEAD
-#include <psapi.h>
-=======
 #include <Psapi.h>
->>>>>>> 761c663e9e54159339f5b1dfb12d39484094f4fb
 
 #define MT_SMALLBLOCK 256
 
