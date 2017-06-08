@@ -5,6 +5,9 @@
 #include "R_ext/Random.h"
 #include "R_ext/Rallocators.h"
 #include <R_ext/Rdynload.h>
+#include <R_ext/Connections.h>
+#include <Rdefines.h>
+
 #include "monet_options.h"
 #include "mal.h"
 #include "mmath.h"
@@ -12,6 +15,9 @@
 #include "mal_linker.h"
 #include "sql_scenario.h"
 #include "gdk_utils.h"
+
+#include "locale.h"
+
 
 /* we need the BAT-SEXP-BAT conversion in two places, here and in RAPI */
 #include "converters.c.h"
@@ -35,12 +41,79 @@ static SEXP monetdb_error_R(char* err) {
 	return retVec;
 }
 
-SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resultconvertsexp) {
+static char* monetdb_progress_boxchar = "#";
+static char* monetdb_progress_barchar = "_";
+static size_t monetdb_progress_width = 0;
+
+
+static void printf_str_repeat(char* str, size_t n) {
+	size_t plen = strlen(str);
+	char *buf = malloc(n * plen + 1);
+	if (!buf) {
+		return;
+	}
+
+	for (size_t i = 0; i < n; i++) {
+		memcpy(buf + plen * i, str, plen);
+	}
+	buf[n * plen] = '\0';
+	REprintf("%s", buf);
+	free(buf);
+}
+
+static int monetdb_progress_R(void* conn, void* data, size_t num_statements, size_t num_completed_statement, float percentage_done) {
+	(void) conn;
+	(void) data;
+	(void) num_statements;
+	(void) num_completed_statement;
+	size_t barwidth = monetdb_progress_width - 7;
+	size_t bars = (size_t) round(barwidth * percentage_done);
+
+	if (!data) {
+		return 0;
+	}
+	long ts = *((long*) data);
+	if (ts <= 0) {
+		*((long*) data) = GDKusec();
+		return 0;
+	}
+	if ((GDKusec() - ts) < 500000) {
+		return 0;
+	}
+	printf_str_repeat("\b", monetdb_progress_width);
+	if (num_completed_statement >= num_statements) {
+		printf_str_repeat(" ", monetdb_progress_width);
+		printf_str_repeat("\b", monetdb_progress_width);
+		return 0;
+	}
+
+	printf_str_repeat(monetdb_progress_boxchar, bars);
+	printf_str_repeat(monetdb_progress_barchar, barwidth - bars);
+	REprintf(" %3i%% ", (int) (percentage_done*100));
+	return 0;
+}
+
+
+
+SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resultconvertsexp, SEXP progressbarsexp) {
 	res_table* output = NULL;
 	long affected_rows = 0;
 	char* err = NULL;
+	void* connptr = R_ExternalPtrAddr(connsexp);
 	GetRNGstate();
-	err = monetdb_query(R_ExternalPtrAddr(connsexp),
+	monetdb_unregister_progress(connptr);
+	if (LOGICAL(progressbarsexp)[0]) {
+		monetdb_progress_width = Rf_GetOptionWidth();
+		if (monetdb_progress_width < 20) {
+			monetdb_progress_width = 80;
+		}
+		void* tsdata = malloc(sizeof(long));
+		if (!tsdata) {
+			return monetdb_error_R("Memory allocation failed");
+		}
+		monetdb_register_progress(connptr, monetdb_progress_R, tsdata);
+	}
+	err = monetdb_query(connptr,
 			(char*)CHAR(STRING_ELT(querysexp, 0)), LOGICAL(executesexp)[0], (void**)&output, &affected_rows);
 	if (err) { // there was an error
 		PutRNGstate();
@@ -114,6 +187,12 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 SEXP monetdb_startup_R(SEXP dbdirsexp, SEXP silentsexp, SEXP sequentialsexp) {
 	char* res = NULL;
 
+	char* locale = setlocale(LC_ALL, NULL);
+	if (locale && (strcasestr(locale, "UTF-8") != NULL || strcasestr(locale, "UTF8") != NULL)) {
+		monetdb_progress_boxchar = "\u2588";
+		monetdb_progress_barchar = "\u2591";
+	}
+
 	if (monetdb_is_initialized()) {
 		error("MonetDBLite already initialized");
 	}
@@ -156,7 +235,7 @@ SEXP monetdb_append_R(SEXP connsexp, SEXP schemasexp, SEXP namesexp, SEXP tabled
 		goto wrapup;
 
 	if (t_column_count != col_ct) {
-		msg = GDKstrdup("Unequal number of columns"); // TODO: add counts here
+		msg = GDKstrdup("Unequal number of columns");
 		goto wrapup;
 	}
 
@@ -201,8 +280,11 @@ SEXP monetdb_connect_R(void) {
 	if (!llconn) {
 		error("Could not create connection.");
 	}
+	monetdb_register_progress(llconn, monetdb_progress_R, NULL);
+
 	conn = PROTECT(R_MakeExternalPtr(llconn, R_NilValue, R_NilValue));
 	R_RegisterCFinalizer(conn, (void (*)(SEXP)) monetdb_disconnect_R);
+
 	UNPROTECT(1);
 	return conn;
 }
@@ -229,7 +311,7 @@ SEXP monetdb_shutdown_R(void) {
 static const R_CallMethodDef R_CallDef[] = {
    CALLDEF(monetdb_startup_R, 3),
    CALLDEF(monetdb_connect_R, 0),
-   CALLDEF(monetdb_query_R, 4),
+   CALLDEF(monetdb_query_R, 5),
    CALLDEF(monetdb_append_R, 4),
    CALLDEF(monetdb_disconnect_R, 1),
    CALLDEF(monetdb_shutdown_R, 0),

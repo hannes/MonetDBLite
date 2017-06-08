@@ -346,6 +346,8 @@ void monetdb_unregister_progress(void* conn) {
 	}
 
 	c->progress_callback = NULL;
+	if(c->progress_data)
+		free(c->progress_data);
 	c->progress_data = NULL;
 }
 
