@@ -5,7 +5,7 @@
 		tpe v; BUN j, n = BATcount(bat);									\
 		ctype *valptr = NULL;                               \
 		tpe* p = (tpe*) Tloc(bat, 0);                       \
-		retsxp = PROTECT(newfun(BATcount(bat)));		    \
+		retsxp = PROTECT(newfun(n));		    \
 		if (!retsxp) break;                                 \
 		valptr = ptrfun(retsxp);                            \
 		if (bat->tnonil && !bat->tnil) {                    \
@@ -151,116 +151,161 @@ static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
 #endif
 
 
-static SEXP bat_to_sexp(BAT* b, int *unfix) {
+static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 	SEXP varvalue = NULL;
-	// TODO: deal with SQL types (DECIMAL/DATE/LOGICAL)
-	switch (ATOMstorage(getBatType(b->ttype))) {
-		case TYPE_void: {
-			size_t i = 0;
-			varvalue = PROTECT(NEW_LOGICAL(BATcount(b)));
-			if (!varvalue) {
-				return NULL;
-			}
-			for (i = 0; i < BATcount(b); i++) {
-				LOGICAL_POINTER(varvalue)[i] = NA_LOGICAL;
-			}
-			} break;
-		case TYPE_bte:
-			BAT_TO_INTSXP(b, bte, varvalue, 0);
-			break;
-		case TYPE_sht:
-			BAT_TO_INTSXP(b, sht, varvalue, 0);
-			break;
-		case TYPE_int:
+	int battype = getBatType(b->ttype);
+	// TODO: deal with SQL types (DECIMAL/LOGICAL)
+
+	if (battype == TYPE_bte) {
+		BAT_TO_INTSXP(b, bte, varvalue, 0);
+	} else if (battype == TYPE_void) {
+		size_t i = 0;
+		varvalue = PROTECT(NEW_LOGICAL(BATcount(b)));
+		if (!varvalue) {
+			return NULL;
+		}
+		for (i = 0; i < BATcount(b); i++) {
+			LOGICAL_POINTER(varvalue)[i] = NA_LOGICAL;
+		}
+	} else if (battype == TYPE_bit) {
+		BAT_TO_SXP(b,bte,varvalue,NEW_LOGICAL,LOGICAL_POINTER,int,NA_LOGICAL,0);
+	} else if (battype == TYPE_sht) {
+		BAT_TO_INTSXP(b, sht, varvalue, 0);
+	} else if (battype == TYPE_int) {
 #ifndef NATIVE_WIN32
-			// special case: bulk memcpy/masquerade, for ints also with NULLs
-			if (b->T.heap.storage != STORE_MMAP ||
-					BATcount(b) < 2000000 || BATcount(b) > R_SHORT_LEN_MAX) {
-				BAT_TO_INTSXP(b, int, varvalue, 1);
-			} else {
-				varvalue = monetdb_r_dressup(b, INTSXP);
-				*unfix = 0;
-			}
-#else
+		// special case: bulk memcpy/masquerade
+		if (b->T.heap.storage != STORE_MMAP ||
+				BATcount(b) < 2000000 || BATcount(b) > R_SHORT_LEN_MAX) {
 			BAT_TO_INTSXP(b, int, varvalue, 1);
+		} else {
+			varvalue = monetdb_r_dressup(b, INTSXP);
+			*unfix = 0;
+		}
+#else
+		BAT_TO_INTSXP(b, int, varvalue, 1);
 #endif
-			break;
+	}
 #ifdef HAVE_HGE
-		case TYPE_hge: /* R's integers are stored as int, so we cannot be sure hge will fit */
+	else if   (battype == TYPE_hge) { /* R's integers are stored as int, so we cannot be sure hge will fit */
 			BAT_TO_REALSXP(b, hge, varvalue, 0);
-			break;
+	}
 #endif
-		case TYPE_flt:
-			BAT_TO_REALSXP(b, flt, varvalue, 0);
-			break;
-		case TYPE_dbl:
+	else if   (battype == TYPE_flt) {
+		BAT_TO_REALSXP(b, flt, varvalue, 0);
+	} else if (battype == TYPE_dbl) {
 #ifndef NATIVE_WIN32
-			// special case: bulk memcpy/masquerade, only if there are no NULLs
-			if (!b->tnonil || b->tnil || b->T.heap.storage != STORE_MMAP ||
-					BATcount(b) < 1000000 || BATcount(b) > R_SHORT_LEN_MAX) {
-				BAT_TO_REALSXP(b, dbl, varvalue, 1);
-			} else {
-				varvalue = monetdb_r_dressup(b, REALSXP);
-				*unfix = 0;
-			}
+		// special case: bulk memcpy/masquerade, but only if there are no NULLs
+		if (!b->tnonil || b->tnil || b->T.heap.storage != STORE_MMAP ||
+				BATcount(b) < 1000000 || BATcount(b) > R_SHORT_LEN_MAX) {
+			BAT_TO_REALSXP(b, dbl, varvalue, 1);
+		} else {
+			varvalue = monetdb_r_dressup(b, REALSXP);
+			*unfix = 0;
+		}
 #else
 			BAT_TO_REALSXP(b, dbl, varvalue, 1);
 #endif
-			break;
-		case TYPE_lng: /* R's integers are stored as int, so we cannot be sure long will fit */
-			BAT_TO_REALSXP(b, lng, varvalue, 0);
-			break;
-		case TYPE_str: { // there is only one string type, thus no macro here
-			BUN j = 0, n = BATcount(b);
-			BATiter li = bat_iterator(b);
-			varvalue = PROTECT(NEW_STRING(n));
-			if (varvalue == NULL) {
+	} else if (battype == TYPE_lng) {
+		BAT_TO_REALSXP(b, lng, varvalue, 0);
+	} else if (battype == TYPE_str) {
+		BUN j = 0, n = BATcount(b);
+		BATiter li = bat_iterator(b);
+		varvalue = PROTECT(NEW_STRING(n));
+		if (varvalue == NULL) {
+			return NULL;
+		}
+		/* special case where we exploit the duplicate-eliminated string heap */
+		if (GDK_ELIMDOUBLES(b->tvheap)) {
+			size_t n_protects = 0;
+			SEXP* sexp_ptrs = GDKzalloc(b->tvheap->free * sizeof(SEXP));
+			if (!sexp_ptrs) {
 				return NULL;
 			}
-			/* special case where we exploit the duplicate-eliminated string heap */
-			if (GDK_ELIMDOUBLES(b->tvheap)) {
-				size_t n_protects = 0;
-				SEXP* sexp_ptrs = GDKzalloc(b->tvheap->free * sizeof(SEXP));
-				if (!sexp_ptrs) {
-					return NULL;
-				}
-				for (j = 0; j < n; j++) {
-					const char *t = (const char *) BUNtvar(li, j);
-					ptrdiff_t offset = t - b->tvheap->base;
-					if (!sexp_ptrs[offset]) {
-						if (strcmp(t, str_nil) == 0) {
-							sexp_ptrs[offset] = NA_STRING;
-						} else {
-							sexp_ptrs[offset] = PROTECT(RSTR(t));
-							n_protects++;
-						}
+			for (j = 0; j < n; j++) {
+				const char *t = (const char *) BUNtvar(li, j);
+				ptrdiff_t offset = t - b->tvheap->base;
+				if (!sexp_ptrs[offset]) {
+					if (strcmp(t, str_nil) == 0) {
+						sexp_ptrs[offset] = NA_STRING;
+					} else {
+						sexp_ptrs[offset] = PROTECT(RSTR(t));
+						n_protects++;
 					}
-					assert(sexp_ptrs[offset]);
-					SET_STRING_ELT(varvalue, j, sexp_ptrs[offset]);
 				}
-				UNPROTECT(n_protects);
-				GDKfree(sexp_ptrs);
+				assert(sexp_ptrs[offset]);
+				SET_STRING_ELT(varvalue, j, sexp_ptrs[offset]);
+			}
+			UNPROTECT(n_protects);
+			GDKfree(sexp_ptrs);
+		}
+		else {
+			if (b->tnonil) {
+				for (j = 0; j < n; j++) {
+					SET_STRING_ELT(varvalue, j, RSTR(
+						(const char *) BUNtvar(li, j)));
+				}
 			}
 			else {
-				if (b->tnonil) {
-					for (j = 0; j < n; j++) {
-						SET_STRING_ELT(varvalue, j, RSTR(
-							(const char *) BUNtvar(li, j)));
-					}
-				}
-				else {
-					for (j = 0; j < n; j++) {
-						const char *t = (const char *) BUNtvar(li, j);
-						if (strcmp(t, str_nil) == 0) {
-							SET_STRING_ELT(varvalue, j, NA_STRING);
-						} else {
-							SET_STRING_ELT(varvalue, j, RSTR(t));
-						}
+				for (j = 0; j < n; j++) {
+					const char *t = (const char *) BUNtvar(li, j);
+					if (strcmp(t, str_nil) == 0) {
+						SET_STRING_ELT(varvalue, j, NA_STRING);
+					} else {
+						SET_STRING_ELT(varvalue, j, RSTR(t));
 					}
 				}
 			}
-		} 	break;
+		}
+	} else if (battype == TYPE_date && ATOMstorage(battype) == TYPE_int) {
+		int v; BUN j, n = BATcount(b);
+		double *valptr = NULL;
+		int* p = (int*) Tloc(b, 0);
+		varvalue = PROTECT(NEW_NUMERIC(n));
+		if (!varvalue) {
+			return NULL;
+		}
+	    setAttrib(varvalue, R_ClassSymbol, mkString("Date"));
+		valptr = NUMERIC_POINTER(varvalue);
+		for (j = 0; j < n; j++) {
+			v = p[j];
+			if (v == int_nil)
+				valptr[j] = NA_REAL;
+			else
+				valptr[j] = (double) v - 719528; // magic value that converts dates from MonetDB to R
+		}
+	} else if (battype == TYPE_timestamp && ATOMstorage(battype) == TYPE_lng) {
+		BUN j, n = BATcount(b);
+		const timestamp *t = (const timestamp *) Tloc(b, 0);
+		double *valptr = NULL;
+	    SEXP class = PROTECT(NEW_STRING(2));
+		timestamp epoch;
+
+		varvalue = PROTECT(NEW_NUMERIC(n));
+		if (!varvalue || !class || MTIMEunix_epoch(&epoch) != MAL_SUCCEED) {
+			return NULL;
+		}
+
+		valptr = NUMERIC_POINTER(varvalue);
+	    SET_STRING_ELT(class, 0, mkChar("POSIXct"));
+	    SET_STRING_ELT(class, 1, mkChar("POSIXt"));
+		SET_CLASS(varvalue, class);
+		UNPROTECT(1);
+		setAttrib(varvalue, install("tzone"), mkString("UTC"));
+
+		for (j = 0; j < n; j++) {
+			if (ts_isnil(*t)) {
+				valptr[j] = NA_REAL;
+			} else {
+				valptr[j] = ((double) (t->days - epoch.days)) * ((lng) 24 * 60 * 60) + ((double) (t->msecs - epoch.msecs)/1000);
+			}
+			t++;
+		}
 	}
+
+	if (varvalue == NULL) {
+		fprintf(stderr, "%s %i %i\n", subtype->type->sqlname, getBatType(b->ttype), ATOMstorage(getBatType(b->ttype)));
+	}
+
 	return varvalue;
 }
 

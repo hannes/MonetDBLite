@@ -148,7 +148,7 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 			if (!LOGICAL(resultconvertsexp)[0]) {
 				BATsetcount(b, 0); // hehe
 			}
-			if (!(varvalue = bat_to_sexp(b, &unfix))) {
+			if (!(varvalue = bat_to_sexp(b, &output->cols[i].type, &unfix))) {
 				UNPROTECT(i * 2 + 4);
 				PutRNGstate();
 				return monetdb_error_R("Conversion error");
