@@ -135,9 +135,10 @@ OPTpushselectImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 	char *rslices = NULL;
 	InstrPtr p, *old;
 	subselect_t subselects;
+#ifndef HAVE_EMBEDDED
 	char buf[256];
 	lng usec = GDKusec();
-
+#endif
 	memset(&subselects, 0, sizeof(subselects));
 	if( mb->errors) 
 		return MAL_SUCCEED;
@@ -607,12 +608,13 @@ OPTpushselectImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
         chkDeclarations(cntxt->fdout, mb);
     }
 wrapup:
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","pushselect",actions, usec);
     newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
-
+#endif
 	return MAL_SUCCEED;
 }

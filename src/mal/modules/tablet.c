@@ -1015,7 +1015,7 @@ SQLload_parse_line(READERtask *task, int idx)
 				for (; i < as->nr_attrs; i++)
 					task->fields[i][idx] = NULL;
 				i--;
-			}
+			} 
 		  endoffieldcheck:
 			;
 			/* check for user defined NULL string */

@@ -25,11 +25,14 @@
 str
 OPTjitImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
-	int i,actions = 0;
+	int i;
 	int limit = mb->stop;
 	InstrPtr p, q, *old = mb->stmt;
+#ifndef HAVE_EMBEDDED
+	int actions = 0;
 	char buf[256];
 	lng usec = GDKusec();
+#endif
 
 	(void) stk;
 	(void) cntxt;
@@ -85,11 +88,13 @@ OPTjitImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	chkTypes(cntxt->fdout, cntxt->nspace, mb, FALSE);
 	chkFlow(cntxt->fdout, mb);
 	chkDeclarations(cntxt->fdout, mb);
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","jit",actions, usec);
     newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
+#endif
 	return MAL_SUCCEED;
 }

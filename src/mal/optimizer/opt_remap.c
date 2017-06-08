@@ -355,9 +355,10 @@ OPTremapImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	InstrPtr *old, p;
 	int i, limit, slimit, doit= 0;
 	Module scope = cntxt->nspace;
+#ifndef HAVE_EMBEDDED
 	lng usec = GDKusec();
 	char buf[256];
-
+#endif
 	(void) pci;
 	old = mb->stmt;
 	limit = mb->stop;
@@ -465,12 +466,13 @@ OPTremapImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
         chkFlow(cntxt->fdout, mb);
         chkDeclarations(cntxt->fdout, mb);
     }
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","remap",doit, usec);
     newComment(mb,buf);
 	if( doit >= 0)
 		addtoMalBlkHistory(mb);
-
+#endif
 	return MAL_SUCCEED;
 }

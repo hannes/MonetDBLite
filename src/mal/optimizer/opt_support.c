@@ -110,7 +110,7 @@ optimizeMALBlock(Client cntxt, MalBlkPtr mb)
 		throw(MAL, "optimizer.MALoptimizer", "Start with inconsistent MAL plan");
 
 	/* Optimizers may massage the plan in such a way that a new pass is needed.
-     * When no optimzer call is found, then terminate. */
+     * When no optimizer call is found, then terminate. */
 	do {
 		qot = 0;
 		for (pc = 0; pc < mb->stop; pc++) {

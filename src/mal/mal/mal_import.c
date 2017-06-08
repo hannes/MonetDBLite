@@ -302,7 +302,7 @@ evalFile(Client c, str fname, int listing)
 			} else
 				msg = runScenario(c);
 			if (msg != MAL_SUCCEED) {
-				//dumpExceptionsToStream(c->fdout, msg);
+				dumpExceptionsToStream(c->fdout, msg);
 				freeException(msg);
 			}
 		}

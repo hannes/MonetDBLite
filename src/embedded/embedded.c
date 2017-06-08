@@ -17,22 +17,20 @@
 #include "monet_options.h"
 #include "mal.h"
 #include "mal_client.h"
-#include "mal_module.h"
 #include "mal_builder.h"
 #include "mal_linker.h"
-#include "gdk_utils.h"
 #include "sql_scenario.h"
+#include "gdk_utils.h"
 #include "sql_execute.h"
+#include "sql.h"
 #include "sql_mvc.h"
 #include "res_table.h"
-#include "sql_scenario.h"
 #include "opt_prelude.h"
 
 #include "decompress.c"
 #include "inlined_scripts.c"
-#include "../sql/server/sql_mvc.h"
 
-//#include <locale.h>
+#include <locale.h>
 
 static int monetdb_embedded_initialized = 0;
 
@@ -153,6 +151,7 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	retval = monetdb_connect(&conn);
 	if (retval != MAL_SUCCEED) {
 		monetdb_embedded_initialized = false;
+		retval = GDKstrdup("Failed to initialize client");
 		goto cleanup;
 	}
 	GDKfataljumpenable = 0;
@@ -448,4 +447,26 @@ int setMonetDB5LibraryPathEmbedded(const char* path) {
 
 void freeMonetDB5LibraryPathEmbedded(void) {
 	freeMonetDB5LibraryPath();
+}
+
+void monetdb_register_progress(void* conn, monetdb_progress_callback callback, void* data) {
+	Client c = (Client) conn;
+	if (!MCvalid(c)) {
+		return;
+	}
+
+	c->progress_callback = callback;
+	c->progress_data = data;
+}
+
+void monetdb_unregister_progress(void* conn) {
+	Client c = (Client) conn;
+	if (!MCvalid(c)) {
+		return;
+	}
+
+	c->progress_callback = NULL;
+	if(c->progress_data)
+		free(c->progress_data);
+	c->progress_data = NULL;
 }

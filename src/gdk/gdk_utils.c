@@ -518,6 +518,12 @@ GDKinit(opt *set, int setlen)
 	GDK_mem_maxsize = (size_t) ((double) MT_npages() * (double) MT_pagesize() * 0.815);
 	BBPinit();
 
+	if (GDK_mem_maxsize / 16 < GDK_mmap_minsize_transient) {
+		GDK_mmap_minsize_transient = GDK_mem_maxsize / 16;
+		if (GDK_mmap_minsize_persistent > GDK_mmap_minsize_transient)
+			GDK_mmap_minsize_persistent = GDK_mmap_minsize_transient;
+	}
+
 	n = (opt *) malloc(setlen * sizeof(opt));
 	for (i = 0; i < setlen; i++) {
 		int done = 0;
@@ -769,7 +775,7 @@ GDKreset(int status, int exit)
 		GDK_mmap_minsize_persistent = MMAP_MINSIZE_PERSISTENT;
 		GDK_mmap_minsize_transient = MMAP_MINSIZE_TRANSIENT;
 		GDK_mmap_pagesize = MMAP_PAGESIZE;
-		GDK_mem_maxsize = GDK_VM_MAXSIZE;
+		GDK_mem_maxsize = (size_t) ((double) MT_npages() * (double) MT_pagesize() * 0.815);
 		GDK_vm_maxsize = GDK_VM_MAXSIZE;
 		GDKatomcnt = TYPE_str + 1;
 
@@ -779,6 +785,7 @@ GDKreset(int status, int exit)
 		GDK_vm_cursize = 0;
 		_MT_pagesize = 0;
 		_MT_npages = 0;
+
 		GDKnr_threads = 0;
 		GDKnrofthreads = 0;
 		close_stream((stream *) THRdata[0]);

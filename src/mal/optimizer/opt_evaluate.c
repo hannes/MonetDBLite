@@ -123,8 +123,10 @@ OPTevaluateImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 	int profiler;
 	int debugstate = cntxt->itrace, actions = 0, constantblock = 0;
 	int *assigned = 0, use; 
+#ifndef HAVE_EMBEDDED
 	char buf[256];
 	lng usec = GDKusec();
+#endif
 	str msg = MAL_SUCCEED;
 
 	cntxt->itrace = 0;
@@ -247,14 +249,14 @@ OPTevaluateImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 	//chkTypes(cntxt->fdout, cntxt->nspace, mb, FALSE);
 	//chkFlow(cntxt->fdout, mb);
 	//chkDeclarations(cntxt->fdout, mb);
-    
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","evaluate",actions,usec);
     newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
-
+#endif
 wrapup:
 	if ( env) freeStack(env);
 	if(assigned) GDKfree(assigned);

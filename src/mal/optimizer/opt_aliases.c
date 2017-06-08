@@ -25,9 +25,10 @@ OPTaliasesImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
 {
 	int i,j,k=1, limit, actions=0;
 	int *alias = 0;
+#ifndef HAVE_EMBEDDED
 	char buf[256];
 	lng usec = GDKusec();
-
+#endif
 	(void) stk;
 	(void) cntxt;
 
@@ -79,11 +80,13 @@ OPTaliasesImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
 	//
     /* keep all actions taken as a post block comment
 	 * and update statics */
+#ifndef HAVE_EMBEDDED
 	usec= GDKusec() - usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","aliases",actions,usec);
     newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
+#endif
 
 	return MAL_SUCCEED;
 }

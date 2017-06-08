@@ -3,11 +3,19 @@
  * License, v. 2.0.  If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
+<<<<<<< HEAD
  * Copyright 2008-2017 MonetDB B.V.
  */
 
 /*
  * H. Muehleisen, M. Raasveldt, Pedro Ferreira
+=======
+ * Copyright 2008-2015 MonetDB B.V.
+ */
+
+/*
+ * H. Muehleisen, M. Raasveldt
+>>>>>>> 761c663e9e54159339f5b1dfb12d39484094f4fb
  * Inverse RAPI
  */
 #ifndef _EMBEDDED_LIB_
@@ -53,6 +61,11 @@ void setAutocommitFlag(Client conn, int autoCommit);
 
 int setMonetDB5LibraryPathEmbedded(const char* path);
 void freeMonetDB5LibraryPathEmbedded(void);
+
+// progress monitoring
+typedef int (*monetdb_progress_callback)(void* conn, void* data, size_t num_statements, size_t num_completed_statement, float percentage_done);
+void monetdb_register_progress(void* conn, monetdb_progress_callback callback, void* data);
+void monetdb_unregister_progress(void* conn);
 
 #endif
 /*

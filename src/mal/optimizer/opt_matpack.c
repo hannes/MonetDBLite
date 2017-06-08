@@ -21,9 +21,10 @@ OPTmatpackImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci
 	int actions = 0;
 	InstrPtr *old;
 	char *packIncrementRef = putName("packIncrement");
+#ifndef HAVE_EMBEDDED
 	char buf[256];
 	lng usec = GDKusec();
-
+#endif
 	//if ( !optimizerIsApplied(mb,"multiplex") )
 		//return 0;
 	(void) pci;
@@ -80,11 +81,12 @@ OPTmatpackImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci
     }
     /* keep all actions taken as a post block comment */
 wrapup:
+#ifndef HAVE_EMBEDDED
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","matpack",actions, usec);
     newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
-
+#endif
 	return MAL_SUCCEED;
 }

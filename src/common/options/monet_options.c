@@ -20,12 +20,24 @@
  */
 #include "monetdb_config.h"
 #include "monet_options.h"
+#ifndef HAVE_GETOPT_LONG
+#  include "monet_getopt.h"
+#else
+# ifdef HAVE_GETOPT_H
+#  include "getopt.h"
+# endif
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifndef HAVE_GETOPT_LONG
+#  include "getopt.c"
+#  include "getopt1.c"
 #endif
 
 #ifdef NATIVE_WIN32
@@ -49,6 +61,30 @@ mo_default_set(opt **Set, int setlen)
 	}
 	return setlen;
 }
+
+void
+mo_print_options(opt *set, int setlen)
+{
+	int i = 0;
+
+	setlen = mo_default_set(&set, setlen);
+	for (i = 0; i < setlen; i++) {
+		if (set[i].kind == opt_builtin) {
+			fprintf(stderr, "# builtin opt \t%s = %s\n", set[i].name, set[i].value);
+		}
+	}
+	for (i = 0; i < setlen; i++) {
+		if (set[i].kind == opt_config) {
+			fprintf(stderr, "# config opt \t%s = %s\n", set[i].name, set[i].value);
+		}
+	}
+	for (i = 0; i < setlen; i++) {
+		if (set[i].kind == opt_cmdline) {
+			fprintf(stderr, "# cmdline opt \t%s = %s\n", set[i].name, set[i].value);
+		}
+	}
+}
+
 
 char *
 mo_find_option(opt *set, int setlen, const char *name)

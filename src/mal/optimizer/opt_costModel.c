@@ -38,9 +38,10 @@ OPTcostModelImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p
 	int i;
 	BUN c1, c2;
 	InstrPtr p;
+#ifndef HAVE_EMBEDDED
 	char buf[256];
 	lng usec = GDKusec();
-
+#endif
 	(void) cntxt;
 	(void) stk;
 	(void) pci;
@@ -148,11 +149,12 @@ OPTcostModelImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p
 	//chkTypes(cntxt->fdout, cntxt->nspace, mb, FALSE);
 	//chkFlow(cntxt->fdout, mb);
 	//chkDeclarations(cntxt->fdout, mb);
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=1 time=" LLFMT " usec","costmodel",usec);
     newComment(mb,buf);
 	addtoMalBlkHistory(mb);
-
+#endif
 	return MAL_SUCCEED;
 }

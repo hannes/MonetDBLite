@@ -1332,7 +1332,6 @@ void
 BBPresetfarms(void)
 {
 	BBPexit();
-	BBPunlock();
 	BBPsize = 0;
 	if (BBPfarms[0].dirname != NULL) {
 		GDKfree((void*) BBPfarms[0].dirname);
@@ -1464,9 +1463,9 @@ BBPexit(void)
 	/* free all memory (just for leak-checking in Purify) */
 	do {
 		skipped = 0;
-		for (i = 0; i < (bat) ATOMIC_GET(BBPsize, BBPsizeLock); i++) {
+		for (i = 0; i < (bat) BBPsize; i++) {
 			if (BBPvalid(i)) {
-				BAT *b = BBP_cache(i);
+				BAT *b = BBP_desc(i);
 
 				if (b) {
 					if (b->batSharecnt > 0) {
@@ -1483,11 +1482,11 @@ BBPexit(void)
 						bat tp = VIEWtparent(b);
 						bat vtp = VIEWvtparent(b);
 						if (tp) {
-							BBP_cache(tp)->batSharecnt--;
+							BBP_desc(tp)->batSharecnt--;
 							--BBP_lrefs(tp);
 						}
 						if (vtp) {
-							BBP_cache(vtp)->batSharecnt--;
+							BBP_desc(vtp)->batSharecnt--;
 							--BBP_lrefs(vtp);
 						}
 						VIEWdestroy(b);
@@ -1517,6 +1516,8 @@ BBPexit(void)
 	backup_files = 0;
 	backup_dir = 0;
 	backup_subdir = 0;
+
+	BBPunlock();
 
 }
 
@@ -1811,42 +1812,57 @@ BBPdump(void)
 			continue;
 		fprintf(stderr,
 			"# %d[%s]: nme='%s' refs=%d lrefs=%d "
-			"status=%d count=" BUNFMT " "
-			"Theap=[" SZFMT "," SZFMT "] "
-			"Tvheap=[" SZFMT "," SZFMT "] "
-			"Thash=[" SZFMT "," SZFMT "]\n",
+			"status=%d count=" BUNFMT,
 			i,
 			ATOMname(b->ttype),
 			BBP_logical(i) ? BBP_logical(i) : "<NULL>",
 			BBP_refs(i),
 			BBP_lrefs(i),
 			BBP_status(i),
-			b->batCount,
-			HEAPmemsize(&b->theap),
-			HEAPvmsize(&b->theap),
-			HEAPmemsize(b->tvheap),
-			HEAPvmsize(b->tvheap),
-			b->thash && b->thash != (Hash *) -1 && b->thash != (Hash *) 1 ? HEAPmemsize(b->thash->heap) : 0,
-			b->thash && b->thash != (Hash *) -1 && b->thash != (Hash *) 1 ? HEAPvmsize(b->thash->heap) : 0);
-		if (BBP_logical(i) && BBP_logical(i)[0] == '.') {
-			cmem += HEAPmemsize(&b->theap);
-			cvm += HEAPvmsize(&b->theap);
-			nc++;
+			b->batCount);
+		if (b->batSharecnt >0)
+			fprintf(stderr, " shares=%d", b->batSharecnt);
+		if (b->theap.parentid) {
+			fprintf(stderr, " Theap -> %d", b->theap.parentid);
 		} else {
-			mem += HEAPmemsize(&b->theap);
-			vm += HEAPvmsize(&b->theap);
-			n++;
-		}
-		if (b->tvheap) {
+			fprintf(stderr,
+				" Theap=[" SZFMT "," SZFMT "]",
+				HEAPmemsize(&b->theap),
+				HEAPvmsize(&b->theap));
 			if (BBP_logical(i) && BBP_logical(i)[0] == '.') {
-				cmem += HEAPmemsize(b->tvheap);
-				cvm += HEAPvmsize(b->tvheap);
+				cmem += HEAPmemsize(&b->theap);
+				cvm += HEAPvmsize(&b->theap);
+				nc++;
 			} else {
-				mem += HEAPmemsize(b->tvheap);
-				vm += HEAPvmsize(b->tvheap);
+				mem += HEAPmemsize(&b->theap);
+				vm += HEAPvmsize(&b->theap);
+				n++;
 			}
 		}
-		if (b->thash && b->thash != (Hash *) -1 && b->thash != (Hash *) 1) {
+		if (b->tvheap) {
+			if (b->tvheap->parentid != b->batCacheid) {
+				fprintf(stderr,
+					" Tvheap -> %d",
+					b->tvheap->parentid);
+			} else {
+				fprintf(stderr,
+					" Tvheap=[" SZFMT "," SZFMT "]",
+					HEAPmemsize(b->tvheap),
+					HEAPvmsize(b->tvheap));
+				if (BBP_logical(i) && BBP_logical(i)[0] == '.') {
+					cmem += HEAPmemsize(b->tvheap);
+					cvm += HEAPvmsize(b->tvheap);
+				} else {
+					mem += HEAPmemsize(b->tvheap);
+					vm += HEAPvmsize(b->tvheap);
+				}
+			}
+		}
+		if (b->thash && b->thash != (Hash *) -1) {
+			fprintf(stderr,
+				" Thash=[" SZFMT "," SZFMT "]",
+				HEAPmemsize(b->thash->heap),
+				HEAPvmsize(b->thash->heap));
 			if (BBP_logical(i) && BBP_logical(i)[0] == '.') {
 				cmem += HEAPmemsize(b->thash->heap);
 				cvm += HEAPvmsize(b->thash->heap);
@@ -1855,6 +1871,7 @@ BBPdump(void)
 				vm += HEAPvmsize(b->thash->heap);
 			}
 		}
+		fprintf(stderr, "\n");
 	}
 	fprintf(stderr,
 		"# %d bats: mem=" SZFMT ", vm=" SZFMT " %d cached bats: mem=" SZFMT ", vm=" SZFMT "\n",

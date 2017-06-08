@@ -62,10 +62,10 @@ mal_export str runScenario(Client c);
 mal_export str getScenarioLanguage(Client c);
 mal_export Scenario getFreeScenario(void);
 
-//mal_export void showCurrentScenario(void);
-//mal_export void showScenarioByName(stream *f, str s);
-//mal_export void showScenario(stream *f, Scenario s);
-//mal_export void showAllScenarios(stream *f);
+mal_export void showCurrentScenario(void);
+mal_export void showScenarioByName(stream *f, str s);
+mal_export void showScenario(stream *f, Scenario s);
+mal_export void showAllScenarios(stream *f);
 mal_export void resetScenario(Client c);
 mal_export Scenario findScenario(str nme);
 mal_export void updateScenario(str scen, str nme, MALfcn fcn);

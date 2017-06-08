@@ -50,8 +50,10 @@ OPTemptybindImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p
 	int *empty;
 	int limit = mb->stop, slimit = mb->ssize;
 	InstrPtr p, q, *old = mb->stmt, *updated;
+#ifndef HAVE_EMBEDDED
 	char buf[256];
 	lng usec = GDKusec();
+#endif
 	str sch,tbl;
 	int etop= 0, esize= 256;
 	str msg = MAL_SUCCEED;
@@ -348,10 +350,12 @@ OPTemptybindImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p
 	chkDeclarations(cntxt->fdout, mb);
     /* keep all actions taken as a post block comment */
 wrapup:
+#ifndef HAVE_EMBEDDED
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","emptybind",actions, usec);
     newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
+#endif
 	return msg;
 }

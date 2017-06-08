@@ -13,7 +13,7 @@ EXTRA_DIST = getopt.c getopt1.c
 lib_moptions = {
 	NOINST
 	NAME = moptions
-	SOURCES = monet_options.c monet_options.h
+	SOURCES = monet_options.c monet_options.h monet_getopt.h
 }
 
 headers_h = {

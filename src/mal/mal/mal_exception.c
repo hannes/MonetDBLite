@@ -38,8 +38,8 @@ isExceptionVariable(str nme){
 	int i;
 	if( nme)
 		for(i=0; exceptionNames[i]; i++)
-			if( strcmp(exceptionNames[i],nme)==0)
-				return 1;
+		if( strcmp(exceptionNames[i],nme)==0)
+			return 1;
 	return 0;
 }
 
@@ -51,7 +51,7 @@ static char *M5OutOfMemory = MAL_MALLOC_FAIL;
  * is good.
  */
 static str createExceptionInternal(enum malexception type, const char *fcn, const char *format, va_list ap)
-__attribute__((__format__(__printf__, 3, 0)));
+	__attribute__((__format__(__printf__, 3, 0)));
 static str
 createExceptionInternal(enum malexception type, const char *fcn, const char *format, va_list ap)
 {
@@ -163,7 +163,7 @@ dumpExceptionsToStream(stream *out, str whatever) {
 }
 
 /**
- * Dump an error message using the exception structure
+ * Dump an error message using the exception structure 
  */
 void
 showException(stream *out, enum malexception type, const char *fcn, const char *format, ...)
@@ -186,7 +186,7 @@ showException(stream *out, enum malexception type, const char *fcn, const char *
  */
 static str
 createScriptExceptionInternal(MalBlkPtr mb, int pc, enum malexception type, const char *prev, const char *format, va_list ap)
-__attribute__((__format__(__printf__, 5, 0)));
+	__attribute__((__format__(__printf__, 5, 0)));
 static str
 createScriptExceptionInternal(MalBlkPtr mb, int pc, enum malexception type, const char *prev, const char *format, va_list ap)
 {
@@ -201,7 +201,7 @@ createScriptExceptionInternal(MalBlkPtr mb, int pc, enum malexception type, cons
 	if (prev)
 		i += snprintf(buf + i, GDKMAXERRLEN - 1 - i, "%s\n", prev);
 	i += snprintf(buf + i, GDKMAXERRLEN - 1 - i, "%s:%s.%s[%d]:",
-				  exceptionNames[type], s, fcn, pc);
+			exceptionNames[type], s, fcn, pc);
 	i += vsnprintf(buf + i, GDKMAXERRLEN - 1 - i, format, ap);
 	buf[i] = '\0';
 

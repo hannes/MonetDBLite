@@ -1,0 +1,34 @@
+#!/bin/sh
+cd src
+
+CC=`"${R_HOME}/bin/R" CMD config CC`
+CFLAGS=`"${R_HOME}/bin/R" CMD config CFLAGS`
+CPPFLAGS=`"${R_HOME}/bin/R" CMD config CPPFLAGS`
+CPICFLAGS=`"${R_HOME}/bin/R" CMD config CPICFLAGS`
+
+OPTFLAG="--enable-optimize"
+LINKFLAG=""
+if [ ! -z $MONETDBLITE_DEBUG ] ; then
+	echo "Using debug flags"
+	OPTFLAG="--enable-debug --enable-assert --enable-strict"
+	LINKFLAG="-g"
+fi
+
+CC="$CC" CFLAGS="$CPPFLAGS $CFLAGS -I$R_INCLUDE_DIR $CPICFLAGS -D_XPG6" \
+./configure --config-cache --enable-embedded --enable-embedded-r \
+$OPTFLAG --enable-silent-rules --disable-int128
+
+touch Makefile.in config.status configure aclocal.m4 monetdb_config.h stamp-h1 monetdb_config.h.in
+rm libmonetdb5.so
+
+echo '
+
+libmonetdb5.so:
+	$(R_HOME)/bin/R CMD SHLIB -lz -o $@ `find $(SUBDIRS) -name "*.o" | xargs echo` 
+
+all: $(BUILT_SOURCES) monetdb_config.h
+	$(MAKE) $(AM_MAKEFLAGS) all-recursive && $(MAKE) $(AM_MAKEFLAGS) libmonetdb5.so
+
+' >> Makefile
+
+cd ..

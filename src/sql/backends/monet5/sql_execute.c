@@ -233,7 +233,24 @@ SQLrun(Client c, backend *be, mvc *m){
 		}
 
 	} else {
+// this happens here and not in runMalSequence because functions
+#ifdef HAVE_EMBEDDED
+        // TODO lock
+		c->progress_done = 0;
+		c->progress_len = mb->stop - 2;
+		if (c->progress_callback) {
+			c->progress_callback(c, c->progress_data, c->progress_len, 0, 0);
+		}
+
+#endif
 		msg = runMAL(c, mb, 0, 0);
+
+        // TODO: lock?
+#ifdef HAVE_EMBEDDED
+        if (c->progress_callback) {
+			c->progress_callback(c, c->progress_data, c->progress_len, c->progress_len, 1);
+		}
+#endif
 	}
 	// release the resources
 	freeMalBlk(mb);
@@ -475,9 +492,9 @@ SQLstatementIntern(Client c, str *expr, str nme, bit execute, bit output, res_ta
 		mnstr_printf(c->fdout, "#SQLstatement:post-compile\n");
 		printFunction(c->fdout, c->curprg->def, 0, LIST_MAL_NAME | LIST_MAL_VALUE  |  LIST_MAL_MAPI);
 #endif
-		msg =SQLoptimizeFunction(c, c->curprg->def);
+		/*msg =SQLoptimizeFunction(c, c->curprg->def);
 		if( msg)
-			goto endofcompile;
+			goto endofcompile;*/
 
 		if (err ||c->curprg->def->errors) {
 			/* restore the state */
@@ -796,10 +813,10 @@ SQLengineIntern(Client c, backend *be)
 	char oldlang = be->language;
 	mvc *m = be->mvc;
 
-	/*if (oldlang == 'X') {	 return directly from X-commands
+	if (oldlang == 'X') {	/* return directly from X-commands */
 		sqlcleanup(be->mvc, 0);
 		return MAL_SUCCEED;
-	}*/
+	}
 
 #ifdef SQL_SCENARIO_DEBUG
 	fprintf(stderr, "#Ready to execute SQL statement\n");
@@ -826,7 +843,7 @@ SQLengineIntern(Client c, backend *be)
 	 * in the context of a user global environment. We have a private
 	 * environment.
 	 */
-	if (MALcommentsOnly(c->curprg->def))
+	if (MALcommentsOnly(c->curprg->def)) 
 		msg = MAL_SUCCEED;
 	else
 		msg = SQLrun(c,be,m);
@@ -835,7 +852,7 @@ cleanup_engine:
 	if (m->type == Q_SCHEMA)
 		qc_clean(m->qc);
 	if (msg) {
-		/* don't print exception decoration, just the message
+		/* don't print exception decoration, just the message */
 		char *n = NULL;
 		char *o = msg;
 		while ((n = strchr(o, '\n')) != NULL) {
@@ -846,7 +863,7 @@ cleanup_engine:
 		}
 		if (*o != 0)
 			mnstr_printf(c->fdout, "!%s\n", getExceptionMessage(o));
-		showErrors(c);*/
+		showErrors(c);
 		m->session->status = -10;
 	}
 

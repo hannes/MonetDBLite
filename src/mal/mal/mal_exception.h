@@ -39,14 +39,14 @@ enum malexception {
 	{if ((TMP = PRV) != MAL_SUCCEED) return(TMP);}
 
 mal_export str	createException(enum malexception, const char *,
-								  _In_z_ _Printf_format_string_ const char *, ...)
-__attribute__((__format__(__printf__, 3, 4)));
+	_In_z_ _Printf_format_string_ const char *, ...)
+	__attribute__((__format__(__printf__, 3, 4)));
 mal_export void	showException(stream *out, enum malexception, const char *,
-								 _In_z_ _Printf_format_string_ const char *, ...)
-__attribute__((__format__(__printf__, 4, 5)));
+	_In_z_ _Printf_format_string_ const char *, ...)
+	__attribute__((__format__(__printf__, 4, 5)));
 mal_export void	showScriptException(stream *out, MalBlkPtr, int, enum malexception,
-									   _In_z_ _Printf_format_string_ const char *, ...)
-__attribute__((__format__(__printf__, 5, 6)));
+	_In_z_ _Printf_format_string_ const char *, ...)
+	__attribute__((__format__(__printf__, 5, 6)));
 mal_export int isExceptionVariable(str nme);
 
 mal_export enum malexception	getExceptionType(str);

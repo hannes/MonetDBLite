@@ -36,11 +36,13 @@ str
 OPToltpImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {	int i, limit, slimit, updates=0;
 	InstrPtr p, q, lcks;
+#ifndef HAVE_EMBEDDED
 	int actions = 0;
-	InstrPtr *old;
 	lng usec = GDKusec();
-	OLTPlocks wlocks, rlocks;
 	char buf[256];
+#endif
+	InstrPtr *old;
+	OLTPlocks wlocks, rlocks;
 
 	(void) pci;
 	(void) cntxt;
@@ -127,11 +129,13 @@ OPToltpImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	chkTypes(cntxt->fdout, cntxt->nspace, mb, FALSE);
 	//chkFlow(cntxt->fdout, mb);
 	//chkDeclarations(cntxt->fdout, mb);
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
 	usec = GDKusec()- usec;
     snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","oltp",actions, usec);
     newComment(mb,buf);
 	if( actions >= 0)
 		addtoMalBlkHistory(mb);
+#endif
 	return MAL_SUCCEED;
 }
