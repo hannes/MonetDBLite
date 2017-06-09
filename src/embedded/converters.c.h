@@ -418,7 +418,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		break;
 	}
 	}
-	/*
+
 	if (type == TYPE_sqlblob) { // TYPE_blob is dynamic so we can't switch on it
 		size_t i = 0;
 		var_t bun_offset = 0;
@@ -445,7 +445,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 			}
 			GDKfree(ele_blob);
 		}
-	}*/
+	}
 
 	if (b) {
 		BATsetcount(b, cnt);
