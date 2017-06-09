@@ -154,7 +154,7 @@ static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
 static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 	SEXP varvalue = NULL;
 	int battype = getBatType(b->ttype);
-	// TODO: deal with SQL types (DECIMAL/LOGICAL)
+	// TODO: deal with SQL types (DECIMAL, TIME)
 
 	if (battype == TYPE_bte) {
 		BAT_TO_INTSXP(b, bte, varvalue, 0);
@@ -300,10 +300,30 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 			}
 			t++;
 		}
-	}
+	} else if (battype == TYPE_sqlblob) {
+		BUN j, n = BATcount(b);
+		BATiter li = bat_iterator(b);
+		blob* ele_null = BLOBnull();
 
-	if (varvalue == NULL) {
-		fprintf(stderr, "%s %i %i\n", subtype->type->sqlname, getBatType(b->ttype), ATOMstorage(getBatType(b->ttype)));
+		varvalue = PROTECT(NEW_LIST(n));
+		if (!varvalue || !ele_null) {
+			return NULL;
+		}
+
+		for (j = 0; j < n; j++) {
+			blob *t = (blob*) BUNtvar(li, j);
+			if (t->nitems == ~(size_t) 0) {
+				SET_VECTOR_ELT(varvalue, j, R_NilValue);
+			}
+			else {
+				SEXP rawval = NEW_RAW(t->nitems);
+				if (!rawval) {
+					return NULL;
+				}
+				memcpy(RAW_POINTER(rawval), t->data, t->nitems);
+				SET_VECTOR_ELT(varvalue, j, rawval);
+			}
+		}
 	}
 
 	return varvalue;
@@ -397,6 +417,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		break;
 	}
 	}
+	/*
 	if (type == TYPE_sqlblob) { // TYPE_blob is dynamic so we can't switch on it
 		size_t i = 0;
 		var_t bun_offset = 0;
@@ -423,7 +444,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 			}
 			GDKfree(ele_blob);
 		}
-	}
+	}*/
 
 	if (b) {
 		BATsetcount(b, cnt);
