@@ -155,6 +155,7 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 	SEXP varvalue = NULL;
 	int battype = getBatType(b->ttype);
 	// TODO: deal with SQL types (DECIMAL, TIME)
+	(void) subtype;
 
 	if (battype == TYPE_bte) {
 		BAT_TO_INTSXP(b, bte, varvalue, 0);
