@@ -170,6 +170,14 @@ test_that("various parameters to dbWriteTable work as expected", {
 	dbWriteTable(con, tname, mtcars, append=F, overwrite=F, insert=T)
 	expect_equal(tsize(con, tname), nrow(mtcars))
 	dbRemoveTable(con, tname)
+	
+	mtcars3 <- mtcars2 <- mtcars
+	dbWriteTable(con, tname, mtcars)
+	mtcars2 <- mtcars[ , sort( names( mtcars ) ) ]
+	expect_error(dbWriteTable(con, tname, mtcars2, append=T))
+	mtcars3[ , ] <- sapply( mtcars[ , ] , as.character )
+	expect_error(dbWriteTable(con, tname, mtcars3, append=T))
+	dbRemoveTable(con, tname)
 })
 
 

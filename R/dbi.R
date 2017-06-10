@@ -500,8 +500,9 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
       existing table.")
   }
   
+  fts <- sapply(value, dbDataType, dbObj=conn)
+  
   if (!dbExistsTable(conn, qname)) {
-    fts <- sapply(value, dbDataType, dbObj=conn)
     fdef <- paste(quoteIfNeeded(conn, names(value)), fts, collapse=', ')
     if (temporary) {
       ct <- paste0("CREATE TEMPORARY TABLE ", qname, " (", fdef, ") ON COMMIT PRESERVE ROWS")
@@ -509,7 +510,22 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
       ct <- paste0("CREATE TABLE ", qname, " (", fdef, ")")
     }
     dbExecute(conn, ct)
+  
+  } else {
+  
+	existing_fts <-
+		sapply( 
+			dbGetQuery( conn , paste0( "SELECT * FROM " , qname , " LIMIT 1" ) ) , 
+			dbDataType , 
+			dbObj = conn 
+		)
+  
+	if( !identical( names( fts ) , names( existing_fts ) ) ) stop( paste0( "column names of data.frame do not align with " , qname ) )
+	
+	if( !identical( as.character( fts ) , as.character( existing_fts ) ) ) stop( paste0( "column types of data.frame do not align with " , qname ) )
+	
   }
+  
   if (length(value[[1]])) {
     classes <- unlist(lapply(value, function(v){
       class(v)[[1]]
