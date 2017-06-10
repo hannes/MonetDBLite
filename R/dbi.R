@@ -520,9 +520,21 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
 			dbObj = conn 
 		)
   
-	if( !identical( names( fts ) , names( existing_fts ) ) ) stop( paste0( "column names of data.frame do not align with " , qname ) )
+	if( length( fts ) != length( existing_fts ) ) stop( paste0( "append failure: data does not have the same number of columns as Table " , qname ) )
+  
+	name_test <- !mapply( identical , names( fts ) , names( existing_fts ) )
 	
-	if( !identical( as.character( fts ) , as.character( existing_fts ) ) ) stop( paste0( "column types of data.frame do not align with " , qname ) )
+	if( any( name_test ) ) stop( paste0( "append failure: column names of data do not align with Table " , qname ) )
+	
+	# integers can be appended into double precision columns but not vice versa
+	type_test <-
+		mapply( 
+			`%in%` , 
+			fts , 
+			lapply( existing_fts , function( w ) if( w == "DOUBLE PRECISION" ) c( "DOUBLE PRECISION" , "INTEGER" ) else w )
+		)
+		
+	if( !all( type_test ) ) stop( paste0( "append failure: column types of data do not align with Table" , qname ) )
 	
   }
   
