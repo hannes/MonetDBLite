@@ -176,7 +176,7 @@ test_that("various parameters to dbWriteTable work as expected", {
 	mtcars3 <- mtcars2 <- mtcars1 <- mtcars
 	dbWriteTable(con, tname, mtcars)
 	# INTEGER columns can be appended into a column already typed as DOUBLE PRECISION
-	mtcars1[ , ] <- sapply( mtcars1 , as.integer )
+	mtcars1[ , ] <- sapply( mtcars1[ , ] , as.integer )
 	dbWriteTable(con, tname, mtcars1, append=T)
 	expect_equal(tsize(con, tname), nrow(mtcars) * 2 )
 	mtcars2 <- mtcars[ , sort( names( mtcars ) ) ]

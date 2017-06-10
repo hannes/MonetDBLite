@@ -536,6 +536,16 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
 		
 	if( !all( type_test ) ) stop( paste0( "append failure: column types of data do not align with Table" , qname ) )
 	
+	# if the existing table has a double column where the to-be-appended table has an integer columns
+	if( any( cols_to_coerce <- ( existing_fts == "DOUBLE PRECISION" ) & ( fts == "INTEGER" ) ) ){
+	
+		# coerce INTEGER types to DOUBLE PRECISION
+		value[ cols_to_coerce ] <- sapply( value[ cols_to_coerce ] , as.numeric )
+		
+		# re-calculate the `fts` object
+		fts <- sapply(value, dbDataType, dbObj=conn)
+	}
+	
   }
   
   if (length(value[[1]])) {
