@@ -22,7 +22,7 @@ monetdb_embedded_startup <- function(dir=tempdir(), quiet=TRUE, sequential=TRUE)
 			getOption('monetdb.squential', sequential))
 	} else {
 		if (dir != monetdb_embedded_env$started_dir) {
-			stop("MonetDBLite cannot change database directories (already started in ", monetdb_embedded_env$started_dir, ", shutdown first).")
+			stop("MonetDBLite cannot change database directories\n(already started in ", monetdb_embedded_env$started_dir, ",\nshutdown with `DBI::dbDisconnect(conn, shutdown=TRUE)` or `MonetDBLite::monetdblite_shutdown()` first).")
 		}
 		return(invisible(TRUE))
 	}
