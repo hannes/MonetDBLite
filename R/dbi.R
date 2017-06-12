@@ -233,7 +233,7 @@ setMethod("dbGetException", "MonetDBConnection", def=function(conn, ...) {
 })
 
 setMethod("dbReadTable", signature(conn="MonetDBConnection", name = "character"), def=function(conn, name, ...) {
-  name <- quoteIfNeeded(conn, name)
+  name <- quoteIfNeeded(conn, name, warn=F)
   if (!dbExistsTable(conn, name))
     stop(paste0("Unknown table: ", name));
   dbGetQuery(conn, paste0("SELECT * FROM ", name), ...)
@@ -562,7 +562,7 @@ setMethod("dbDataType", signature(dbObj="MonetDBConnection", obj = "ANY"), def =
 
 
 setMethod("dbRemoveTable", signature(conn="MonetDBConnection", name = "character"), def=function(conn, name, ...) {
-  name <- quoteIfNeeded(conn, name)
+  name <- quoteIfNeeded(conn, name, warn=F)
   if (!dbExistsTable(conn, name)) stop("No such table: ", name)
   dbExecute(conn, paste("DROP TABLE", name))
   return(invisible(TRUE))
