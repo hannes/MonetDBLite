@@ -154,9 +154,41 @@ static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
 static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 	SEXP varvalue = NULL;
 	int battype = getBatType(b->ttype);
-	// TODO: deal with SQL types (DECIMAL, TIME)
-	(void) subtype;
+	// TODO: deal with more esoteric SQL types (TIME)
 
+	// special snowflake: decimal to double, needs two step conversion
+	if (subtype && subtype->type && subtype->type->sqlname &&
+			strcmp("decimal", subtype->type->sqlname) == 0) {
+		// borrowed from pyapi
+		int bat_type = ATOMstorage(battype);
+		int hpos = subtype->scale;
+		bat result = 0;
+		str res;
+		// decimal values can be stored in various numeric fields, so check the
+		// numeric field and convert the one it's actually stored in
+		switch (bat_type) {
+			case TYPE_bte:
+				res = batbte_dec2_dbl(&result, &hpos, &b->batCacheid);
+				break;
+			case TYPE_sht:
+				res = batsht_dec2_dbl(&result, &hpos, &b->batCacheid);
+				break;
+			case TYPE_int:
+				res = batint_dec2_dbl(&result, &hpos, &b->batCacheid);
+				break;
+			case TYPE_lng:
+				res = batlng_dec2_dbl(&result, &hpos, &b->batCacheid);
+				break;
+			default:
+				return NULL;
+		}
+		if (res != MAL_SUCCEED) {
+			return NULL;
+		}
+		b = BATdescriptor(result);
+		battype = TYPE_dbl;
+		// now convert double to sexp later normally, using zero-copy if applicable
+	}
 	if (battype == TYPE_bte) {
 		BAT_TO_INTSXP(b, bte, varvalue, 0);
 	} else if (battype == TYPE_void) {
@@ -314,7 +346,7 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 		for (j = 0; j < n; j++) {
 			blob *t = (blob*) BUNtvar(li, j);
 			if (t->nitems == ~(size_t) 0) {
-				SET_VECTOR_ELT(varvalue, j, R_NilValue);
+				SET_VECTOR_ELT(varvalue, j, ScalarLogical(NA_LOGICAL));
 			}
 			else {
 				SEXP rawval = NEW_RAW(t->nitems);
@@ -428,8 +460,8 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		for (i = 0; i < cnt; i++) {
 			SEXP list_ele = VECTOR_ELT(s, i);
 			size_t blob_len = LENGTH(list_ele);
-			if (!list_ele || !IS_RAW(list_ele)) return NULL;
-			if (blob_len > 0) {
+			if (!list_ele || !IS_RAW(list_ele)) return NULL; // FIXME
+			if (blob_len > 0) { // TODO: also allow NA vectors instead of zero-length raw here
 				ele_blob = GDKmalloc(blobsize(blob_len));
 				if (!ele_blob) {
 					return NULL;

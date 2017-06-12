@@ -326,6 +326,32 @@ test_that("dbWriteTable respects transactional boundaries", {
 })
 
 
+
+test_that("we can read sql-specific types", {
+	expect_true(dbIsValid(con))
+	dbBegin(con)
+	res <- dbGetQuery(con, "select cast(d as string) as s, d from (select cast('0050-05-24' as date) as d union all select cast('1960-10-20' as date) union all select cast('1984-04-24' as date) union all select cast('2020-01-15' as date) union all select cast(NULL as date)) as ds")
+	res$d1 <- as.Date(res$s)
+	expect_equal(as.character(res$d), as.character(res$d1))
+
+	res <- dbGetQuery(con, "select cast(d as string) as s, d from (select cast('0050-05-24 00:00:00' as timestamp) as d union all select cast('1960-10-20 23:59:00+01:00' as timestamptz) union all select cast('1984-04-24 14:42:10' as timestamp)  union all select cast('2020-01-15 12:01' as timestamp) union all select cast('1997-07-21 09:45' as timestamp)  union all select cast(NULL as timestamp)) as ds")
+	res$d1 <- as.POSIXct(res$s, tz="UTC")
+	expect_equal(as.character(res$d), as.character(res$d1))
+
+
+	res <- dbGetQuery(con, "select cast(d as string) as s, d from (select cast('adfef353' as blob) as d union all select cast('ff00ff00' as blob) as d union all select cast(NULL as blob)) as ds")
+	res$d1 <- vapply(res$d, function(r) {paste(toupper(as.character(r)), collapse="")}, FUN.VALUE="character")
+	res$d1[res$d1 == "NA"] <- NA
+
+	expect_equal(as.character(res$s), as.character(res$d1))
+
+	res <- dbGetQuery(con, "select cast(d as string) as s, d from (select cast(42.3 as decimal(10,1)) as d union all select cast(NULL as decimal(10,1))) as ds")
+
+	expect_equal(res$s, as.character(res$d))
+	dbRollback(con)
+	expect_true(dbIsValid(con))
+})
+
 test_that("we can write raw values", {
 	dbBegin(con)
 	dbWriteTable(con, tname, data.frame(a=c(1,2), b=I(list(raw(42), raw(43)))))
