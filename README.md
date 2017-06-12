@@ -195,5 +195,9 @@ MonetDBLite allows multiple concurrent *connections* to a single database, but d
 ```R
 dbDisconnect(con, shutdown=TRUE)
 ```
+To globally shut down the embedded server session without the `con` connection object, use:
+```R
+MonetDBLite::monetdblite_shutdown()
+```
 
 MonetDBLite does not allow multiple R sessions to connect to a single database concurrently.  As soon as a single R session loads an embedded server, that server is locked down and inaccessible to other R consoles.
