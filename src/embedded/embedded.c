@@ -160,7 +160,7 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 
 	// we do not want to jump after this point, since we cannot do so between threads
 	// sanity check, run a SQL query
-	sqres = monetdb_query(c, "SELECT * FROM tables;", 1, &res, NULL);
+	sqres = monetdb_query(c, "SELECT * FROM tables;", 1, &res, NULL, NULL);
 	if (sqres != NULL) {
 		monetdb_embedded_initialized = false;
 		retval = sqres;
@@ -180,7 +180,7 @@ int monetdb_is_initialized(void) {
 }
 
 
-char* monetdb_query(void* conn, char* query, char execute, void** result, long* affected_rows) {
+char* monetdb_query(void* conn, char* query, char execute, void** result, long* affected_rows, long* prepare_id) {
 	str res = MAL_SUCCEED;
 	int sres;
 	Client c = (Client) conn;
@@ -196,7 +196,6 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 
 	b = (backend *) c->sqlcontext;
 	m = b->mvc;
-
 
 	// TODO what about execute flag?!
 	(void) execute;
@@ -240,6 +239,11 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	if (res != MAL_SUCCEED) {
 		goto cleanup;
 	}
+
+	if (prepare_id && (m->emode & m_prepare)) {
+		*prepare_id = b->q->id;
+	}
+
 	res = SQLengine(c);
 	if (res != MAL_SUCCEED) {
 		goto cleanup;

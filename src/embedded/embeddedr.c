@@ -96,7 +96,7 @@ static int monetdb_progress_R(void* conn, void* data, size_t num_statements, siz
 
 SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resultconvertsexp, SEXP progressbarsexp) {
 	res_table* output = NULL;
-	long affected_rows = 0;
+	long affected_rows = 0, prepare_id = 0;
 	char* err = NULL;
 	void* connptr = R_ExternalPtrAddr(connsexp);
 	GetRNGstate();
@@ -113,7 +113,7 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 		monetdb_register_progress(connptr, monetdb_progress_R, tsdata);
 	}
 	err = monetdb_query(connptr,
-			(char*)CHAR(STRING_ELT(querysexp, 0)), LOGICAL(executesexp)[0], (void**)&output, &affected_rows);
+			(char*)CHAR(STRING_ELT(querysexp, 0)), LOGICAL(executesexp)[0], (void**)&output, &affected_rows, &prepare_id);
 	if (err) { // there was an error
 		PutRNGstate();
 		return monetdb_error_R(err);

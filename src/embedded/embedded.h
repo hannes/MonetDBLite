@@ -25,7 +25,7 @@ void* monetdb_connect(void);
 void  monetdb_disconnect(void* conn);
 char* monetdb_startup(char* dbdir, char silent, char sequential);
 int   monetdb_is_initialized(void);
-char* monetdb_query(void* conn, char* query, char execute, void** result, long *affected_rows);
+char* monetdb_query(void* conn, char* query, char execute, void** result, long *affected_rows, long* prepare_id);
 char* monetdb_append(void* conn, const char* schema, const char* table, append_data *data, int ncols);
 void  monetdb_cleanup_result(void* conn, void* output);
 char* monetdb_get_columns(void* conn, const char* schema_name, const char *table_name, int *column_count, char ***column_names, int **column_types);
