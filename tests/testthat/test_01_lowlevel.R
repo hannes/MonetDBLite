@@ -104,9 +104,9 @@ test_that("transaction immediately after rollback", {
 test_that("pointless rollback/commit", {
 	con <- monetdb_embedded_connect()
 	expect_equal(monetdb_embedded_query(con, "SELECT 1")$type, 1)
-	monetdb_embedded_query(con, "COMMIT")
+	expect_equal(monetdb_embedded_query(con, "COMMIT")$type, "!")
 	expect_equal(monetdb_embedded_query(con, "SELECT 1")$type, 1)
-	monetdb_embedded_query(con, "ROLLBACK")
+	expect_equal(monetdb_embedded_query(con, "ROLLBACK")$type, "!")
 	expect_equal(monetdb_embedded_query(con, "SELECT 1")$type, 1)
 	monetdb_embedded_disconnect(con)
 })

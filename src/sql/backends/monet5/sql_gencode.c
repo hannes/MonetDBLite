@@ -465,7 +465,36 @@ sql_relation2stmt(backend *be, sql_rel *r)
 		return NULL;
 	} else {
 		if (c->emode == m_plan) {
+#ifdef HAVE_EMBEDDED
+			list *refs = sa_list(c->sa);
+			stream *s;
+			buffer *b = buffer_create(16364); /* hopefully enough */
+			if (!b) {
+				return NULL;
+			}
+			s = buffer_wastream(b, "SQL Plan");
+			if (!s) {
+				return NULL;
+			}
+
+			rel_print_refs(c, s, r, 0, refs, 1);
+			rel_print_(c, s, r, 0, refs, 1);
+			mnstr_printf(s, "\n");
+			mnstr_writeBte(s, 0);
+
+			c->results = res_table_create(c->session->tr, c->result_id++, 1, 1, 1, NULL, NULL);
+			if (!c->results) {
+				return NULL;
+			} else {
+				res_col_create(c->session->tr, c->results, "plan", "plan", "varchar", 0, 0, TYPE_str, b->buf);
+			}
+
+			mnstr_close(s);
+			mnstr_destroy(s);
+			buffer_destroy(b);
+#else
 			rel_print(c, r, 0);
+#endif
 		} else {
 			s = output_rel_bin(be, r);
 		}
@@ -481,10 +510,10 @@ backend_dumpstmt(backend *be, MalBlkPtr mb, sql_rel *r, int top, int add_end, ch
 	int old_mv = be->mvc_var;
 	MalBlkPtr old_mb = be->mb;
 	stmt *s;
+#ifndef HAVE_EMBEDDED
 	char *t, *tt;
        
 	// Always keep the SQL query around for monitoring
-
 	if (query) {
 		tt = t = GDKstrdup(query);
 		while (t && isspace((int) *t))
@@ -501,7 +530,9 @@ backend_dumpstmt(backend *be, MalBlkPtr mb, sql_rel *r, int top, int add_end, ch
 		GDKfree(tt);
 		q = pushStr(mb, q, getSQLoptimizer(be->mvc));
 	}
-
+#else
+	(void) query;
+#endif
 	/* announce the transaction mode */
 	q = newStmt(mb, sqlRef, "mvc");
 	if (q == NULL)

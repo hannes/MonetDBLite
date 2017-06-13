@@ -182,40 +182,89 @@ int monetdb_is_initialized(void) {
 
 char* monetdb_query(void* conn, char* query, char execute, void** result, long* affected_rows) {
 	str res = MAL_SUCCEED;
+	int sres;
 	Client c = (Client) conn;
 	mvc* m;
+	backend *b;
+	char* qname = "somequery";
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
 	}
 	if (!MCvalid(c)) {
 		return GDKstrdup("Invalid connection");
 	}
-	m = ((backend *) c->sqlcontext)->mvc;
 
-	while (*query == ' ' || *query == '\t') query++;
-	if (strncasecmp(query, "START", 5) == 0) { // START TRANSACTION
-		m->session->auto_commit = 0;
-		m->session->status = 0;
+	b = (backend *) c->sqlcontext;
+	m = b->mvc;
+
+
+	// TODO what about execute flag?!
+	(void) execute;
+
+	size_t query_len = strlen(query) + 3;
+	char* nq = GDKmalloc(query_len);
+	if (!nq) {
+		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
-	else if (strncasecmp(query, "ROLLBACK", 8) == 0) {
-		m->session->status = -1;
-		m->session->auto_commit = 1;
+	sprintf(nq, "%s\n;", query);
+
+	buffer query_buf;
+	stream* query_stream = buffer_rastream(&query_buf, qname);
+	if (!query_stream) {
+		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
-	else if (strncasecmp(query, "COMMIT", 6) == 0) {
-		m->session->auto_commit = 1;
+
+	query_buf.pos = 0;
+	query_buf.len = query_len;
+	query_buf.buf = nq;
+
+	c->fdin = bstream_create(query_stream, query_len);
+	if (!c->fdin) {
+		close_stream(query_stream);
+		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
-	else if (strncasecmp(query, "SHIBBOLEET", 10) == 0) {
-		res = GDKstrdup("\x46\x6f\x72\x20\x69\x6d\x6d\x65\x64\x69\x61\x74\x65\x20\x74\x65\x63\x68\x6e\x69\x63\x61\x6c\x20\x73\x75\x70\x70\x6f\x72\x74\x20\x63\x61\x6c\x6c\x20\x2b\x33\x31\x20\x32\x30\x20\x35\x39\x32\x20\x34\x30\x33\x39");
+	bstream_next(c->fdin);
+
+	b->language = 'S';
+	m->scanner.mode = LINE_N;
+	m->scanner.rs = c->fdin;
+	b->output_format = OFMT_NONE;
+	m->user_id = m->role_id = USER_MONETDB;
+
+	if (result) {
+		m->reply_size = -2; /* do not clean up result tables */
 	}
-	else if (m->session->status < 0 && m->session->auto_commit == 0){
-		res = GDKstrdup("Current transaction is aborted (please ROLLBACK)");
-	} else {
-		res = SQLstatementIntern(c, &query, "main", execute, 0, (res_table **) result);
+
+	MSinitClientPrg(c, "user", qname);
+	res = SQLparser(c);
+	if (res != MAL_SUCCEED) {
+		goto cleanup;
+	}
+	res = SQLengine(c);
+	if (res != MAL_SUCCEED) {
+		goto cleanup;
+	}
+
+	if (result) {
+		*result = m->results;
+		m->results = NULL;
 		if (!*result && m->rowcnt >= 0 && affected_rows) {
 			*affected_rows = m->rowcnt;
 		}
 	}
-	SQLautocommit(c, m);
+
+cleanup:
+
+	GDKfree(nq);
+	MSresetInstructions(c->curprg->def, 1);
+	bstream_destroy(c->fdin);
+	c->fdin = NULL;
+
+
+	sres = SQLautocommit(c, m);
+	if (!sres && !res) {
+		return GDKstrdup("Cannot COMMIT/ROLLBACK without a valid transaction.");
+	}
 	return res;
 }
 
