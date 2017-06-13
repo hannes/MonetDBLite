@@ -10,7 +10,7 @@
 #include "opt_commonTerms.h"
 #include "mal_exception.h"
  /*
- * Caveat. A lot of time was lost due to constants that are indistinguisable
+ * Caveat. A lot of time was lost due to constants that are indistinguishable
  * at the surface level. It may miss common expressions if their constants
  * are introduced too far apart in the MAL program.
  * It requires the constant optimizer to be ran first.
