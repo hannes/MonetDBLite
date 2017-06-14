@@ -12,6 +12,11 @@ r_github_packages:
   - hadley/dbplyr
   - rstats-db/DBI
   
+script:
+  - |
+    R CMD build .
+    travis_wait 60 R CMD check MonetDBLite*tar.gz
+  
 addons:
   apt_packages:
     - pandoc

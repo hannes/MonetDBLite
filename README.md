@@ -26,7 +26,7 @@ MonetDBLite works seamlessly with [the dplyr grammar of data manipulation](https
     devtools::install_github("hannesmuehleisen/MonetDBLite")
     ```
 
-If you encounter a bug, please file a minimal reproducible example on [github](https://github.com/hannesmuehleisen/MonetDBLite/issues). For questions and other discussion, please use [stack overflow](http://stackoverflow.com/questions/tagged/monetdblite) with the tag `monetdblite`.  The development version of MonetDBLite endures [sisyphean perpetual testing](http://monetdb.cwi.nl/testweb/web/sisyphus/) on both unix and windows machines.
+If you encounter a bug, please file a minimal reproducible example on [github](https://github.com/hannesmuehleisen/MonetDBLite/issues). For questions and other discussion, please use [stack overflow](http://stackoverflow.com/questions/tagged/monetdblite) with the tag `monetdblite`.  The development version of MonetDBLite endures [sisyphean perpetual testing](https://sisyphus.project.cwi.nl/) on both unix and windows machines.
 
 ## Speed Comparisons
 

@@ -247,7 +247,7 @@ setMethod("dbGetException", "MonetDBConnection", def=function(conn, ...) {
 })
 
 setMethod("dbReadTable", signature(conn="MonetDBConnection", name = "character"), def=function(conn, name, ...) {
-  name <- quoteIfNeeded(conn, name)
+  name <- quoteIfNeeded(conn, name, warn=F)
   if (!dbExistsTable(conn, name))
     stop(paste0("Unknown table: ", name));
   dbGetQuery(conn, paste0("SELECT * FROM ", name), ...)
@@ -584,7 +584,7 @@ setMethod("dbDataType", signature(dbObj="MonetDBConnection", obj = "ANY"), def =
 
 
 setMethod("dbRemoveTable", signature(conn="MonetDBConnection", name = "character"), def=function(conn, name, ...) {
-  name <- quoteIfNeeded(conn, name)
+  name <- quoteIfNeeded(conn, name, warn=F)
   if (!dbExistsTable(conn, name)) stop("No such table: ", name)
   dbExecute(conn, paste("DROP TABLE", name))
   return(invisible(TRUE))
@@ -1062,7 +1062,7 @@ monet.read.csv <- monetdb.read.csv <- function(conn, files, tablename, header=TR
       }
       names(headers[[1]]) <- quoteIfNeeded(conn, col.names)
     }
-    dbWriteTable(conn, tablename, headers[[1]][FALSE, ])
+    dbWriteTable(conn, tablename, headers[[1]][FALSE, ,drop=FALSE])
   }
   
   delimspec <- paste0("USING DELIMITERS '", delim, "','", newline, "','", quote, "'")
