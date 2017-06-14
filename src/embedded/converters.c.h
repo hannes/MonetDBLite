@@ -290,22 +290,12 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 			}
 		}
 	} else if (battype == TYPE_date && ATOMstorage(battype) == TYPE_int) {
-		int v; BUN j, n = BATcount(b);
-		double *valptr = NULL;
-		int* p = (int*) Tloc(b, 0);
-		varvalue = PROTECT(NEW_NUMERIC(n));
-		if (!varvalue) {
-			return NULL;
-		}
+		ValRecord val;
+		val.vtype = TYPE_int;
+		val.val.ival = 719528;
+		b = BATcalcsubcst(b, &val, NULL, TYPE_int, 1);
+		BAT_TO_REALSXP(b, int, varvalue, 0);
 	    setAttrib(varvalue, R_ClassSymbol, mkString("Date"));
-		valptr = NUMERIC_POINTER(varvalue);
-		for (j = 0; j < n; j++) {
-			v = p[j];
-			if (v == int_nil)
-				valptr[j] = NA_REAL;
-			else
-				valptr[j] = (double) v - 719528; // magic value that converts dates from MonetDB to R
-		}
 	} else if (battype == TYPE_timestamp && ATOMstorage(battype) == TYPE_lng) {
 		BUN j, n = BATcount(b);
 		const timestamp *t = (const timestamp *) Tloc(b, 0);
@@ -325,13 +315,12 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 		UNPROTECT(1);
 		setAttrib(varvalue, install("tzone"), mkString("UTC"));
 
-		for (j = 0; j < n; j++) {
+		for (j = 0; j < n; j++, t++) {
 			if (ts_isnil(*t)) {
 				valptr[j] = NA_REAL;
 			} else {
 				valptr[j] = ((double) (t->days - epoch.days)) * ((lng) 24 * 60 * 60) + ((double) (t->msecs - epoch.msecs)/1000);
 			}
-			t++;
 		}
 	} else if (battype == TYPE_sqlblob) {
 		BUN j, n = BATcount(b);
@@ -413,11 +402,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		}
 		b = COLnew(0, TYPE_str, cnt, TRANSIENT);
 		if (!b) return NULL;
-		b->tnil = 0;
-		b->tnonil = 1;
-		b->tkey = 0;
-		b->tsorted = 0;
-		b->trevsorted = 0;
+		BATsettrivprop(b);
 		/* get levels once, since this is a function call */
 		levels = GET_LEVELS(s);
 
@@ -450,13 +435,14 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		break;
 	}
 	}
-
-	if (type == TYPE_sqlblob) { // TYPE_blob is dynamic so we can't switch on it
+	// types below are dynamic so we can't switch
+	if (type == TYPE_sqlblob && IS_LIST(s)) {
 		size_t i = 0;
 		var_t bun_offset = 0;
 		blob *ele_blob;
 		b = COLnew(0, TYPE_sqlblob, cnt, TRANSIENT);
-		if (!IS_LIST(s) || !b) return NULL;
+		BATsettrivprop(b);
+		if (!b) return NULL;
 		for (i = 0; i < cnt; i++) {
 			SEXP list_ele = VECTOR_ELT(s, i);
 			size_t blob_len = LENGTH(list_ele);
@@ -469,6 +455,8 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 				ele_blob->nitems = blob_len;
 				memcpy(ele_blob->data, RAW_POINTER(list_ele), blob_len);
 			} else {
+				b->tnil = 1;
+				b->tnonil = 0;
 				ele_blob = BLOBnull();
 			}
 			BLOBput(b->tvheap, &bun_offset, ele_blob);
@@ -476,6 +464,32 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 				return NULL;
 			}
 			GDKfree(ele_blob);
+		}
+	}
+
+	if (type == TYPE_date && IS_NUMERIC(s) && strcmp("Date", CHAR(STRING_ELT(GET_CLASS(s), 0))) == 0) {
+		ValRecord val;
+		val.vtype = TYPE_int;
+		val.val.ival = 719528;
+		SXP_TO_BAT(int, NUMERIC_POINTER, ISNA(*p));
+		b = BATcalcaddcst(b, &val, NULL, TYPE_int, 1);
+	}
+	if (type == TYPE_timestamp && IS_NUMERIC(s) && strcmp("POSIXct", CHAR(STRING_ELT(GET_CLASS(s), 0))) == 0) {
+		size_t j; timestamp *p, epoch;
+		b = COLnew(0, TYPE_lng, cnt, TRANSIENT);
+		if (!b || MTIMEunix_epoch(&epoch) != MAL_SUCCEED) return NULL;
+		BATsettrivprop(b);
+
+		for (j = 0, p = (timestamp*) Tloc(b, 0); j < cnt; j++, p++) {
+			double dp = NUMERIC_POINTER(s)[j];
+			if (ISNA(dp)) {
+				b->tnil = 1;
+				b->tnonil = 0;
+				*p = *timestamp_nil;
+			} else {
+				lng in = (lng) dp * 1000;
+				MTIMEtimestamp_add(p, &epoch, &in);
+			}
 		}
 	}
 

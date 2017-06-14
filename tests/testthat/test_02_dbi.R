@@ -352,6 +352,31 @@ test_that("we can read sql-specific types", {
 	expect_true(dbIsValid(con))
 })
 
+
+test_that("booleans, dates, datetime and raw survive round trip", {
+	somebool <- as.logical(c(TRUE, FALSE, NA, NA))
+	somedates <- as.Date(c("1024-12-15", "1984-01-01", "2100-01-01", NA))
+	sometslt <- as.POSIXlt(c("1024-12-15 09:01", "1984-01-01 14:42", "2100-01-01 00:00", NA), tz="UTC")
+	sometsct <- as.POSIXct(sometslt)
+	# TODO raw
+
+	dbBegin(con)
+	dbWriteTable(con, tname, data.frame(bl=somebool, dt=somedates, tslt=sometslt, tsct=sometsct))
+	expect_true(dbExistsTable(con, tname))
+	res <- dbReadTable(con, tname)
+
+	expect_equal(somebool, res$bl)
+	expect_equal(somedates, res$dt)
+	expect_equal(sometsct, res$tsct)
+	expect_equal(sometsct, res$tslt) # lt is converted to ct on append
+	expect_equal(sometslt, as.POSIXlt(res$tslt)) # undo this, should still be the same
+
+	dbRollback(con)
+	expect_false(dbExistsTable(con, tname))
+})
+
+# TODO: write into decimal col?
+
 test_that("we can write raw values", {
 	dbBegin(con)
 	dbWriteTable(con, tname, data.frame(a=c(1,2), b=I(list(raw(42), raw(43)))))

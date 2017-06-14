@@ -521,11 +521,8 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
       levels(value[[c]]) <- enc2utf8(levels(value[[c]]))
     }
     if (inherits(conn, "MonetDBEmbeddedConnection")) {
-      for (c in names(classes[classes=="Date"])) {
-        value[[c]] <- as.character(value[[c]])
-      }
-      for (c in names(classes[classes=="POSIXct"])) {
-        value[[c]] <- as.character(value[[c]])
+      for (c in names(classes[classes=="POSIXlt"])) {
+        value[[c]] <- as.POSIXct(value[[c]])
       }
 
       # figure out whether the table is in the sys or the tmp schema
@@ -578,6 +575,8 @@ setMethod("dbDataType", signature(dbObj="MonetDBConnection", obj = "ANY"), def =
   if (is.logical(obj)) "BOOLEAN"
   else if (is.integer(obj)) "INTEGER"
   else if (is.numeric(obj)) "DOUBLE PRECISION"
+  else if (class(obj)[[1]] == "Date") "DATE"
+  else if (inherits(obj, "POSIXt")) "TIMESTAMP"
   else if (is.list(obj) && all(vapply(obj, typeof, FUN.VALUE = "character") == "raw")) "BLOB"
   else "STRING"
 }, valueClass = "character")
