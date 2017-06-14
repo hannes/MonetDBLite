@@ -351,6 +351,21 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 	return varvalue;
 }
 
+static int is_single_NA(SEXP v) {
+	if (!v) return 0;
+	if (LENGTH(v) != 1) return 0;
+    switch (TYPEOF(v)) {
+    case REALSXP:
+    	return ISNAN(REAL(v)[0]);
+    case INTSXP:
+    	return INTEGER(v)[0] == NA_INTEGER;
+    case LGLSXP:
+    	return LOGICAL(v)[0] == NA_LOGICAL;
+    }
+    return 0;
+
+}
+
 static BAT* sexp_to_bat(SEXP s, int type) {
 	BAT* b = NULL;
 	BUN cnt = LENGTH(s);
@@ -435,6 +450,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		break;
 	}
 	}
+
 	// types below are dynamic so we can't switch
 	if (type == TYPE_sqlblob && IS_LIST(s)) {
 		size_t i = 0;
@@ -446,8 +462,8 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		for (i = 0; i < cnt; i++) {
 			SEXP list_ele = VECTOR_ELT(s, i);
 			size_t blob_len = LENGTH(list_ele);
-			if (!list_ele || !IS_RAW(list_ele)) return NULL; // FIXME
-			if (blob_len > 0) { // TODO: also allow NA vectors instead of zero-length raw here
+			if (!list_ele || !(IS_RAW(list_ele) || is_single_NA(list_ele))) return NULL; // FIXME
+			if (IS_RAW(list_ele)) {
 				ele_blob = GDKmalloc(blobsize(blob_len));
 				if (!ele_blob) {
 					return NULL;
@@ -474,6 +490,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		SXP_TO_BAT(int, NUMERIC_POINTER, ISNA(*p));
 		b = BATcalcaddcst(b, &val, NULL, TYPE_int, 1);
 	}
+
 	if (type == TYPE_timestamp && IS_NUMERIC(s) && strcmp("POSIXct", CHAR(STRING_ELT(GET_CLASS(s), 0))) == 0) {
 		size_t j; timestamp *p, epoch;
 		b = COLnew(0, TYPE_lng, cnt, TRANSIENT);
