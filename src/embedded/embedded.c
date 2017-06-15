@@ -229,6 +229,7 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	m->scanner.rs = c->fdin;
 	b->output_format = OFMT_NONE;
 	m->user_id = m->role_id = USER_MONETDB;
+	m->cache = 0;
 
 	if (result) {
 		m->reply_size = -2; /* do not clean up result tables */
