@@ -40,21 +40,6 @@
 #include <unistd.h>
 
 /*
- * The SQLcompile operation can be used by separate
- * front-ends to benefit from the SQL functionality.
- * It expects a string and returns the name of the
- * corresponding MAL block as it is known in the
- * SQL_cache, where it can be picked up.
- * The SQLstatement operation also executes the instruction upon request.
- *
- * In both cases the SQL string is handled like an ordinary
- * user query, following the same optimization paths and
- * caching.
- */
-
-/* #define _SQL_COMPILE */
-
-/*
  * Execution of the SQL program is delegated to the MALengine.
  * Different cases should be distinguished. The default is to
  * hand over the MAL block derived by the parser for execution.

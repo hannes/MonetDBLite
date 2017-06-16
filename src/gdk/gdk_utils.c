@@ -138,8 +138,6 @@ GDKsetenv(const char *name, const char *value)
 	if (BUNappend(GDKkey, name, FALSE) != GDK_SUCCEED ||
 	    BUNappend(GDKval, value, FALSE) != GDK_SUCCEED)
 		return GDK_FAIL;
-	BATfakeCommit(GDKkey);
-	BATfakeCommit(GDKval);
 	return GDK_SUCCEED;
 }
 
@@ -702,7 +700,8 @@ GDKreset(int status, int exit)
 	Thread t, s;
 	struct serverthread *st;
 	int farmid;
-	(void) exit; // weird
+
+	(void) exit;
 
 	if( GDKkey){
 		BBPunfix(GDKkey->batCacheid);

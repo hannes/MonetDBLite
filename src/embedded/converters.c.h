@@ -363,7 +363,6 @@ static int is_single_NA(SEXP v) {
     	return LOGICAL(v)[0] == NA_LOGICAL;
     }
     return 0;
-
 }
 
 static BAT* sexp_to_bat(SEXP s, int type) {
