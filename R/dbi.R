@@ -576,6 +576,7 @@ setMethod("dbDataType", signature(dbObj="MonetDBConnection", obj = "ANY"), def =
   else if (is.integer(obj)) "INTEGER"
   else if (is.numeric(obj)) "DOUBLE PRECISION"
   else if (class(obj)[[1]] == "Date") "DATE"
+#  else if (class(obj)[[1]] == "difftime") "TIME"
   else if (inherits(obj, "POSIXt")) "TIMESTAMP"
   else if (is.list(obj) && all(vapply(obj, typeof, FUN.VALUE = "character") == "raw" || is.na(obj))) "BLOB"
   else "STRING"

@@ -346,6 +346,32 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 				SET_VECTOR_ELT(varvalue, j, rawval);
 			}
 		}
+	} else if (battype == TYPE_daytime && ATOMstorage(battype) == TYPE_int) {
+		BUN j, n = BATcount(b);
+		const daytime *t = (const daytime *) Tloc(b, 0);
+		double *valptr = NULL;
+
+		varvalue = PROTECT(NEW_NUMERIC(n));
+		if (!varvalue) {
+			return NULL;
+		}
+		SET_CLASS(varvalue, mkString("difftime"));
+		setAttrib(varvalue, install("units"), mkString("hours"));
+
+		valptr = NUMERIC_POINTER(varvalue);
+		for (j = 0; j < n; j++, t++) {
+			if (*t == daytime_nil) {
+				valptr[j] = NA_REAL;
+			} else {
+				daytime n = *t;
+				int h;
+				double frac;
+				h = n / 3600000;
+				n -= h * 3600000;
+				frac = (n / 60000.0)/60.0;
+				valptr[j]  = h + frac;
+			}
+		}
 	}
 
 	return varvalue;
