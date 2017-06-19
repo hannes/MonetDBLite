@@ -384,6 +384,15 @@ test_that("booleans, dates, datetime and raw can be written and read back", {
 
 # TODO: write into decimal col?
 
+test_that("pk violations throw errors", {
+	expect_false(dbExistsTable(con, tname))
+	dbBegin(con)
+	dbSendQuery(con, "CREATE TABLE monetdbtest (i INTEGER PRIMARY KEY, j INTEGER)")
+	expect_error(dbWriteTable(con, tname, data.frame(i=as.integer(rep(1, 10)), j=21:30), append=T))
+	dbRollback(con)
+	expect_false(dbExistsTable(con, tname))
+})
+
 
 test_that("we can disconnect", {
 	expect_true(dbIsValid(con))
