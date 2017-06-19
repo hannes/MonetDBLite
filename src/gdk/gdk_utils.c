@@ -568,6 +568,9 @@ GDKinit(opt *set, int setlen)
 				GDKfatal("GDKinit: gdk_mmap_pagesize must be power of 2 between 2**12 and 2**20\n");
 		}
 	}
+	if (!GDKinmemory()) {
+		// FIXME
+	}
 
 	GDKkey = COLnew(0, TYPE_str, 100, TRANSIENT);
 	GDKval = COLnew(0, TYPE_str, 100, TRANSIENT);

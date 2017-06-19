@@ -9,15 +9,37 @@ int main() {
     res_table* result = 0;
 
 
-    err = monetdb_startup("/tmp/embedded-dbfarm", 1, 0);
+    err = monetdb_startup(NULL, 1, 0);
     if (err != 0) {
         fprintf(stderr, "Init fail: %s\n", err);
         return -1;
     }
     conn = monetdb_connect();
-    err = monetdb_query(conn, "SELECT * FROM tables;", 1, (void**) &result, NULL);
+
+ err = monetdb_query(conn, "START TRANSACTION", 1, NULL, NULL, NULL);
     if (err != 0) {
-        fprintf(stderr, "Query fail: %s\n", err);
+        fprintf(stderr, "Query 1 fail: %s\n", err);
+        return -2;
+    }
+    err = monetdb_query(conn, "CREATE TABLE a (I INTEGER);", 1, NULL, NULL, NULL);
+    if (err != 0) {
+        fprintf(stderr, "Query 1 fail: %s\n", err);
+        return -2;
+    }
+     err = monetdb_query(conn, "INSERT INTO a VALUES (42)", 1, NULL, NULL, NULL);
+    if (err != 0) {
+        fprintf(stderr, "Query 1 fail: %s\n", err);
+        return -2;
+    }
+  err = monetdb_query(conn, "COMMIT", 1, NULL, NULL, NULL);
+    if (err != 0) {
+        fprintf(stderr, "Query 1 fail: %s\n", err);
+        return -2;
+    }
+
+    err = monetdb_query(conn, "SELECT * FROM a;", 1, (void**) &result, NULL, NULL);
+    if (err != 0) {
+        fprintf(stderr, "Query 2 fail: %s\n", err);
         return -2;
     }
 

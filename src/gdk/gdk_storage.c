@@ -53,6 +53,10 @@ GDKfilepath(int farmid, const char *dir, const char *name, const char *ext)
 	size_t pathlen;
 	char *path;
 
+	if (GDKinmemory()) {
+		return GDKstrdup(":inmemory");
+	}
+
 	assert(dir == NULL || *dir != DIR_SEP);
 	assert(farmid == NOFARM ||
 	       (farmid >= 0 && farmid < MAXFARMS && BBPfarms[farmid].dirname));
@@ -87,6 +91,10 @@ GDKfilepath(int farmid, const char *dir, const char *name, const char *ext)
 	return path;
 }
 
+int GDKinmemory(void) {
+	return BBPfarms[0].dirname == NULL;
+}
+
 /* make sure the parent directory of DIR exists (the argument itself
  * is usually a file that is to be created) */
 gdk_return
@@ -95,6 +103,7 @@ GDKcreatedir(const char *dir)
 	char path[PATHLENGTH];
 	char *r;
 	DIR *dirp;
+	assert(!GDKinmemory());
 
 	IODEBUG fprintf(stderr, "#GDKcreatedir(%s)\n", dir);
 	assert(MT_path_absolute(dir));
@@ -139,6 +148,7 @@ GDKremovedir(int farmid, const char *dirname)
 	char *path;
 	struct dirent *dent;
 	int ret;
+	assert(!GDKinmemory());
 
 	if ((dirnamestr = GDKfilepath(farmid, NULL, dirname, NULL)) == NULL)
 		return GDK_FAIL;
@@ -182,6 +192,7 @@ GDKfdlocate(int farmid, const char *nme, const char *mode, const char *extension
 {
 	char *path;
 	int fd, flags = 0;
+	assert(!GDKinmemory());
 
 	if (nme == NULL || *nme == 0)
 		return -1;
@@ -318,6 +329,7 @@ GDKextendf(int fd, size_t size, const char *fn)
 	struct stat stb;
 	int rt = 0;
 	int t0 = 0;
+	assert(!GDKinmemory());
 
 	if (fstat(fd, &stb) < 0) {
 		/* shouldn't happen */
@@ -373,6 +385,7 @@ GDKextend(const char *fn, size_t size)
 {
 	int fd, flags = O_RDWR;
 	gdk_return rt = GDK_FAIL;
+	assert(!GDKinmemory());
 
 #ifdef O_BINARY
 	/* On Windows, open() fails if the file is bigger than 2^32
@@ -402,6 +415,7 @@ gdk_return
 GDKsave(int farmid, const char *nme, const char *ext, void *buf, size_t size, storage_t mode, int dosync)
 {
 	int err = 0;
+	assert(!GDKinmemory());
 
 	IODEBUG fprintf(stderr, "#GDKsave: name=%s, ext=%s, mode %d, dosync=%d\n", nme, ext ? ext : "", (int) mode, dosync);
 
@@ -494,6 +508,7 @@ char *
 GDKload(int farmid, const char *nme, const char *ext, size_t size, size_t *maxsize, storage_t mode)
 {
 	char *ret = NULL;
+	assert(!GDKinmemory());
 
 	assert(size <= *maxsize);
 	IODEBUG {
@@ -658,6 +673,8 @@ BATmsyncImplementation(void *arg)
 void
 BATmsync(BAT *b)
 {
+	assert(!GDKinmemory());
+
 	/* we don't sync views */
 	if (isVIEW(b))
 		return;
@@ -724,6 +741,7 @@ BATsave(BAT *bd)
 	char *nme;
 	BAT bs;
 	BAT *b = bd;
+	assert(!GDKinmemory());
 
 	BATcheck(b, "BATsave", GDK_FAIL);
 
@@ -785,6 +803,7 @@ BATload_intern(bat bid, int lock)
 {
 	str nme;
 	BAT *b;
+	assert(!GDKinmemory());
 
 	assert(bid > 0);
 
@@ -851,9 +870,17 @@ BATload_intern(bat bid, int lock)
 void
 BATdelete(BAT *b)
 {
-	bat bid = b->batCacheid;
-	str o = BBP_physical(bid);
-	BAT *loaded = BBP_cache(bid);
+	bat bid;
+	str o;
+	BAT *loaded;
+
+	if (GDKinmemory()) {
+		return;
+	}
+
+	bid = b->batCacheid;
+	o = BBP_physical(bid);
+	loaded = BBP_cache(bid);
 
 	assert(bid > 0);
 	if (loaded) {

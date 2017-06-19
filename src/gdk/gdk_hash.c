@@ -338,6 +338,9 @@ BAThash(BAT *b, BUN masksize)
 		Hash *h = NULL;
 		Heap *hp;
 		const char *nme = BBP_physical(b->batCacheid);
+		if (GDKinmemory()) {
+			nme = ":inmemory";
+		}
 		const char *ext = b->batCacheid > 0 ? "thash" : "hhash";
 		BATiter bi = bat_iterator(b);
 

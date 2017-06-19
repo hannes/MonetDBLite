@@ -16,6 +16,8 @@
 #include <bat/bat_storage.h>
 #include <bat/bat_table.h>
 #include <bat/bat_logger.h>
+#include <bat/nop_logger.h>
+
 
 /* version 05.21.00 of catalog */
 #define CATALOG_VERSION 52201
@@ -1597,6 +1599,11 @@ store_init(int debug, store_type store, int readonly, int singleuser, logger_set
 		if (create_shared_logger) {
 			bat_logger_init_shared(&shared_logger_funcs);
 		}
+	} else if (store == store_mem) {
+		bat_utils_init();
+		bat_storage_init(&store_funcs);
+		bat_table_init(&table_funcs);
+		nop_logger_init(&logger_funcs);
 	}
 	active_store_type = store;
 	if (!logger_funcs.create ||

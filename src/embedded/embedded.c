@@ -125,9 +125,10 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	embedded_stderr = embedded_stdout;
 
 	setlen = mo_builtin_settings(&set);
-	setlen = mo_add_option(&set, setlen, opt_cmdline, "gdk_dbpath", dbdir);
-
-	BBPaddfarm(dbdir, (1 << PERSISTENT) | (1 << TRANSIENT));
+	if (dbdir) {
+		setlen = mo_add_option(&set, setlen, opt_cmdline, "gdk_dbpath", dbdir);
+		BBPaddfarm(dbdir, (1 << PERSISTENT) | (1 << TRANSIENT));
+	}
 	if (GDKinit(set, setlen) == 0) {
 		retval = GDKstrdup("GDKinit() failed");
 		goto cleanup;
@@ -142,6 +143,8 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 		close_stream((stream*) THRdata[0]);
 		THRdata[0] = stream_blackhole_create();
 	}
+
+	fprintf(stderr, "%i\n", GDKgetenv_istrue("mapi_disable"));
 
 	if (mal_init() != 0) {
 		retval = GDKstrdup("mal_init() failed");
