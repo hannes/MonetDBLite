@@ -737,7 +737,7 @@ setMethod("dbSendUpdateAsync", signature(conn="MonetDBConnection", statement="ch
     if (is.na(x)) {
       "NULL"
     }
-    if (is.character(x)) {
+    if (is.character(x) || is.factor(x)) {
       paste0("'", .mapiQuote(toString(x)), "'")
       } else {
         as.character(x)
