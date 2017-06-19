@@ -29,7 +29,12 @@
 #include "res_table.h"
 #include "sql_scenario.h"
 #include "opt_prelude.h"
-
+#include "rel_semantic.h"
+#include "sql_gencode.h"
+#include "sql_optimizer.h"
+#include "rel_exp.h"
+#include "rel_rel.h"
+#include "rel_updates.h"
 
 #include "decompress.c"
 #include "inlined_scripts.c"
@@ -197,7 +202,7 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	b = (backend *) c->sqlcontext;
 	m = b->mvc;
 
-	// TODO what about execute flag?!
+	// TODO what about execute flag?! remove when result set is there for prepared stmts
 	(void) execute;
 
 	size_t query_len = strlen(query) + 3;
@@ -277,10 +282,7 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	Client c = (Client) conn;
 	mvc* m;
 
-	InstrPtr q;
-	MalBlkPtr mb;
 
-	int mvc_var;
 	int i;
 	str res = MAL_SUCCEED;
 
@@ -301,36 +303,41 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	}
 
 	SQLtrans(m);
+	{
+		sql_rel *rel;
+		node *n;
+		list *exps = sa_list(m->sa), *args = sa_list(m->sa), *types = sa_list(m->sa);
+		sql_schema *s = mvc_bind_schema(m, schema);
+		sql_table *t = mvc_bind_table(m, s, table);
+		sql_subfunc *f = sql_find_func(m->sa, mvc_bind_schema(m, "sys"), "append", 1, F_UNION, NULL);
 
-	MSinitClientPrg(c, "user", "monetdb_append");
-	mb = copyMalBlk(c->curprg->def);
-	q = newStmt(mb, sqlRef, mvcRef);
-	mvc_var = getDestVar(q);
+		if (!t) {
+			return GDKstrdup("Can't find table.");
+		}
+		if (ncols != list_length(t->columns.set)) {
+			return GDKstrdup("Incorrect number of columns.");
+		}
+		for (i = 0, n = t->columns.set->h; i < ncols && n; i++, n = n->next) {
+			sql_column *c = n->data;
+			append(args, exp_atom_lng(m->sa, data[i].batid));
+			append(exps, exp_column(m->sa, t->base.name, c->base.name, &c->type, CARD_MULTI, c->null, 0));
+			append(types, &c->type);
+		}
 
-	for (i = 0; i < ncols; i++) {
-		append_data ad = data[i];
-		ValRecord v;
-		v.vtype = TYPE_bat;
-		v.val.bval = ad.batid;
-		q = newStmt(mb, sqlRef, appendRef);
-		q = pushArgument(mb, q, mvc_var);
+		f->res = types;
+		rel = rel_insert(m, rel_basetable(m, t, t->base.name), rel_table_func(m->sa, NULL, exp_op(m->sa,  args, f), exps, 1));
+		m->scanner.rs = NULL;
 
-		getArg(q, 0) = mvc_var = newTmpVariable(mb, TYPE_int);
-		q = pushStr(mb, q, schema);
-		q = pushStr(mb, q, table);
-		q = pushStr(mb, q, ad.colname);
-		q = pushValue(mb, q, &v);
+		if (rel && backend_dumpstmt((backend *) c->sqlcontext, c->curprg->def, rel, 1, 1, "append") < 0) {
+			return GDKstrdup("Append plan generation failure");
+		}
+		if ((res = SQLoptimizeQuery(c, c->curprg->def)) != MAL_SUCCEED ||
+				c->curprg->def->errors || (res = SQLengine(c)) != MAL_SUCCEED) {
+			return(res);
+		}
 	}
-	pushEndInstruction(mb);
-	res = optimizeMALBlock(c, mb);
-	if (res != MAL_SUCCEED) {
-		return res;
-	}
-	res = runMAL(c, mb, 0, 0);
-	freeMalBlk(mb);
-
 	SQLautocommit(c, m);
-	return res;
+	return NULL;
 }
 
 void monetdb_cleanup_result(void* conn, void* output) {

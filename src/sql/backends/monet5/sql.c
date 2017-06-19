@@ -2442,6 +2442,18 @@ fix_windows_newline(unsigned char *s)
 }
 #endif
 
+str mvc_append_bats_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci) {
+	str msg = MAL_SUCCEED;
+	int i;
+	(void) cntxt;
+	(void) mb;
+	for (i = 0; i < pci->retc; i++) {
+		lng *batid = getArgReference_lng(stk, pci, pci->retc + i);
+		*getArgReference_bat(stk, pci, i) = *batid;
+	}
+	return msg;
+}
+
 /* str mvc_import_table_wrap(int *res, str *sname, str *tname, unsigned char* *T, unsigned char* *R, unsigned char* *S, unsigned char* *N, str *fname, lng *sz, lng *offset); */
 str
 mvc_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
