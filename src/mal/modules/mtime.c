@@ -549,9 +549,8 @@ date_fromstr(const char *buf, int *len, date **d)
 	int year = 0, yearneg = (buf[0] == '-'), yearlast = 0;
 	int pos = 0, sep;
 
-	if (*len < (int) sizeof(date)) {
-		if (*d)
-			GDKfree(*d);
+	if (*len < (int) sizeof(date) || *d == NULL) {
+		GDKfree(*d);
 		*d = (date *) GDKmalloc(*len = sizeof(date));
 		if( *d == NULL)
 			return 0;
@@ -635,9 +634,8 @@ date_tostr(str *buf, int *len, const date *val)
 	fromdate(*val, &day, &month, &year);
 	/* longest possible string: "-5867411-01-01" i.e. 14 chars
 	   without NUL (see definition of YEAR_MIN/YEAR_MAX above) */
-	if (*len < 15) {
-		if (*buf)
-			GDKfree(*buf);
+	if (*len < 15 || *buf == NULL) {
+		GDKfree(*buf);
 		*buf = (str) GDKmalloc(*len = 15);
 		if( *buf == NULL)
 			return 0;
@@ -658,9 +656,8 @@ daytime_fromstr(const char *buf, int *len, daytime **ret)
 {
 	int hour, min, sec = 0, msec = 0, pos = 0;
 
-	if (*len < (int) sizeof(daytime)) {
-		if (*ret)
-			GDKfree(*ret);
+	if (*len < (int) sizeof(daytime) || *ret == NULL) {
+		GDKfree(*ret);
 		*ret = (daytime *) GDKmalloc(*len = sizeof(daytime));
 		if (*ret == NULL)
 			return 0;
@@ -772,9 +769,8 @@ daytime_tostr(str *buf, int *len, const daytime *val)
 	int hour, min, sec, msec;
 
 	fromtime(*val, &hour, &min, &sec, &msec);
-	if (*len < 12) {
-		if (*buf)
-			GDKfree(*buf);
+	if (*len < 12 || *buf == NULL) {
+		GDKfree(*buf);
 		*buf = (str) GDKmalloc(*len = 13);
 		if( *buf == NULL)
 			return 0;
@@ -798,9 +794,8 @@ timestamp_fromstr(const char *buf, int *len, timestamp **ret)
 	date *d;
 	daytime *t;
 
-	if (*len < (int) sizeof(timestamp)) {
-		if (*ret)
-			GDKfree(*ret);
+	if (*len < (int) sizeof(timestamp) || *ret == NULL) {
+		GDKfree(*ret);
 		*ret = (timestamp *) GDKmalloc(*len = sizeof(timestamp));
 		if( *ret == NULL)
 			return 0;
@@ -903,9 +898,8 @@ timestamp_tz_tostr(str *buf, int *len, const timestamp *val, const tzone *timezo
 		len1 = date_tostr(&s1, &big, &tmp.days);
 		len2 = daytime_tostr(&s2, &big, &tmp.msecs);
 
-		if (*len < 2 + len1 + len2) {
-			if (*buf)
-				GDKfree(*buf);
+		if (*len < 2 + len1 + len2 || *buf == NULL) {
+			GDKfree(*buf);
 			*buf = (str) GDKmalloc(*len = len1 + len2 + 2);
 			if( *buf == NULL)
 				return 0;
@@ -961,9 +955,8 @@ rule_tostr(str *buf, int *len, const rule *r)
 	int hours = r->s.minutes / 60;
 	int minutes = r->s.minutes % 60;
 
-	if (*len < 64) {
-		if (*buf)
-			GDKfree(*buf);
+	if (*len < 64 || *buf == NULL) {
+		GDKfree(*buf);
 		*buf = (str) GDKmalloc(*len = 64);
 		if( *buf == NULL)
 			return 0;
@@ -1000,9 +993,8 @@ rule_fromstr(const char *buf, int *len, rule **d)
 	int neg_day = 0, neg_weekday = 0, pos;
 	const char *cur = buf;
 
-	if (*len < (int) sizeof(rule)) {
-		if (*d)
-			GDKfree(*d);
+	if (*len < (int) sizeof(rule) || *d == NULL) {
+		GDKfree(*d);
 		*d = (rule *) GDKmalloc(*len = sizeof(rule));
 		if( *d == NULL)
 			return 0;
@@ -1095,9 +1087,8 @@ tzone_fromstr(const char *buf, int *len, tzone **d)
 	const char *cur = buf;
 
 	rp1->asint = rp2->asint = 0;
-	if (*len < (int) sizeof(tzone)) {
-		if (*d)
-			GDKfree(*d);
+	if (*len < (int) sizeof(tzone) || *d == NULL) {
+		GDKfree(*d);
 		*d = (tzone *) GDKmalloc(*len = sizeof(tzone));
 		if( *d == NULL)
 			return 0;
@@ -1163,9 +1154,8 @@ tzone_tostr(str *buf, int *len, const tzone *z)
 {
 	str s;
 
-	if (*len < 160) {
-		if (*buf)
-			GDKfree(*buf);
+	if (*len < 160 || *buf == NULL) {
+		GDKfree(*buf);
 		*buf = (str) GDKmalloc(*len = 160);
 		if( *buf == NULL)
 			return 0;
@@ -1266,22 +1256,28 @@ union lng_tzone {
  * Wrapper
  * The Monet V5 API interface is defined here
  */
-#define TIMEZONES(X1, X2)										\
-	do {														\
-		ticks = (X2);											\
-		MTIMEtzone_create(&ltz.tzval, &ticks);					\
-		vr.val.lval = ltz.lval;									\
-		BUNappend(tzbatnme, (X1), FALSE);			\
-		BUNappend(tzbatdef, &vr.val.lval, FALSE);	\
+#define TIMEZONES(X1, X2)												\
+	do {																\
+		str err;														\
+		ticks = (X2);													\
+		if ((err = MTIMEtzone_create(&ltz.tzval, &ticks)) != MAL_SUCCEED) \
+			return err;													\
+		vr.val.lval = ltz.lval;											\
+		if (BUNappend(tzbatnme, (X1), FALSE) != GDK_SUCCEED ||			\
+			BUNappend(tzbatdef, &vr.val.lval, FALSE) != GDK_SUCCEED)	\
+			goto bailout;												\
 	} while (0)
 
-#define TIMEZONES2(X1, X2, X3, X4)									\
-	do {															\
-		ticks = (X2);												\
-		MTIMEtzone_create_dst(&ltz.tzval, &ticks, &(X3), &(X4));	\
-		vr.val.lval = ltz.lval;										\
-		BUNappend(tzbatnme, (X1), FALSE);				\
-		BUNappend(tzbatdef, &vr.val.lval, FALSE);		\
+#define TIMEZONES2(X1, X2, X3, X4)										\
+	do {																\
+		str err;														\
+		ticks = (X2);													\
+		if ((err = MTIMEtzone_create_dst(&ltz.tzval, &ticks, &(X3), &(X4))) != MAL_SUCCEED) \
+			return err;													\
+		vr.val.lval = ltz.lval;											\
+		if (BUNappend(tzbatnme, (X1), FALSE) != GDK_SUCCEED ||			\
+			BUNappend(tzbatdef, &vr.val.lval, FALSE) != GDK_SUCCEED)	\
+			goto bailout;												\
 	} while (0)
 
 /*
@@ -1375,8 +1371,9 @@ MTIMEprelude(void *ret)
 		BBPreclaim(tzbatdef);
 		throw(MAL, "time.prelude", MAL_MALLOC_FAIL);
 	}
-	BBPrename(tzbatnme->batCacheid, "timezone_name");
-	BBPrename(tzbatdef->batCacheid, "timezone_def");
+	if (BBPrename(tzbatnme->batCacheid, "timezone_name") != 0 ||
+		BBPrename(tzbatdef->batCacheid, "timezone_def") != 0)
+		throw(MAL, "time.prelude", GDK_EXCEPTION);
 	timezone_name = tzbatnme;
 	timezone_def = tzbatdef;
 
@@ -1413,6 +1410,8 @@ MTIMEprelude(void *ret)
 	TIMEZONES2("Alaska/USA", -9 * 60, RULE_MAR, RULE_OCT);
 	msg = "West/Europe";
 	return MTIMEtimezone(&tz, &msg);
+  bailout:
+	throw(MAL, "mtime.prelude", MAL_MALLOC_FAIL);
 }
 
 str
@@ -2659,6 +2658,68 @@ MTIMEepoch2int(int *ret, const timestamp *t)
 }
 
 str
+MTIMEepoch2lng(lng *ret, const timestamp *t)
+{
+	timestamp e;
+	lng v;
+	str err;
+
+	if ((err = MTIMEunix_epoch(&e)) != MAL_SUCCEED)
+		return err;
+	if ((err = MTIMEtimestamp_diff(&v, t, &e)) != MAL_SUCCEED)
+		return err;
+	if (v == lng_nil)
+		*ret = int_nil;
+	else
+		*ret = v;
+	return MAL_SUCCEED;
+}
+
+str
+MTIMEepoch_bulk(bat *ret, bat *bid)
+{
+	timestamp epoch;
+	const timestamp *t;
+	lng *tn;
+	str msg = MAL_SUCCEED;
+	BAT *b, *bn;
+	BUN i, n;
+
+	if ((msg = MTIMEunix_epoch(&epoch)) != MAL_SUCCEED)
+		return msg;
+	if ((b = BATdescriptor(*bid)) == NULL) {
+		throw(MAL, "batcalc.epoch", RUNTIME_OBJECT_MISSING);
+	}
+	n = BATcount(b);
+	if ((bn = COLnew(b->hseqbase, TYPE_lng, n, TRANSIENT)) == NULL) {
+		BBPunfix(b->batCacheid);
+		throw(MAL, "batcalc.epoch", MAL_MALLOC_FAIL);
+	}
+	t = (const timestamp *) Tloc(b, 0);
+	tn = (lng *) Tloc(bn, 0);
+	bn->tnonil = 1;
+	b->tnil = 0;
+	for (i = 0; i < n; i++) {
+		if (ts_isnil(*t)) {
+			*tn = lng_nil;
+			bn->tnonil = 0;
+			bn->tnil = 1;
+		} else {
+			*tn = ((lng) (t->days - epoch.days)) * ((lng) 24 * 60 * 60 * 1000) + ((lng) (t->msecs - epoch.msecs));
+		}
+		t++;
+		tn++;
+	}
+	BBPunfix(b->batCacheid);
+	BATsetcount(bn, (BUN) (tn - (lng *) Tloc(bn, 0)));
+	bn->tsorted = BATcount(bn) <= 1;
+	bn->trevsorted = BATcount(bn) <= 1;
+	BBPkeepref(bn->batCacheid);
+	*ret = bn->batCacheid;
+	return msg;
+}
+
+str
 MTIMEtimestamp(timestamp *ret, const int *sec)
 {
 	timestamp t;
@@ -3052,7 +3113,7 @@ MTIMEdate_extract_year_bulk(bat *ret, const bat *bid)
 	bn = COLnew(b->hseqbase, TYPE_int, BATcount(b), TRANSIENT);
 	if (bn == NULL) {
 		BBPunfix(b->batCacheid);
-		throw(MAL, "batmtime.year", "memory allocation failure");
+		throw(MAL, "batmtime.year", MAL_MALLOC_FAIL);
 	}
 	bn->tnonil = 1;
 	bn->tnil = 0;
@@ -3097,7 +3158,7 @@ MTIMEdate_extract_month_bulk(bat *ret, const bat *bid)
 	bn = COLnew(b->hseqbase, TYPE_int, BATcount(b), TRANSIENT);
 	if (bn == NULL) {
 		BBPunfix(b->batCacheid);
-		throw(MAL, "batmtime.month", "memory allocation failure");
+		throw(MAL, "batmtime.month", MAL_MALLOC_FAIL);
 	}
 	bn->tnonil = 1;
 	bn->tnil = 0;
@@ -3141,7 +3202,7 @@ MTIMEdate_extract_day_bulk(bat *ret, const bat *bid)
 	bn = COLnew(b->hseqbase, TYPE_int, BATcount(b), TRANSIENT);
 	if (bn == NULL) {
 		BBPunfix(b->batCacheid);
-		throw(MAL, "batmtime.day", "memory allocation failure");
+		throw(MAL, "batmtime.day", MAL_MALLOC_FAIL);
 	}
 	bn->tnonil = 1;
 	bn->tnil = 0;
@@ -3186,7 +3247,7 @@ MTIMEdaytime_extract_hours_bulk(bat *ret, const bat *bid)
 	bn = COLnew(b->hseqbase, TYPE_int, BATcount(b), TRANSIENT);
 	if (bn == NULL) {
 		BBPunfix(b->batCacheid);
-		throw(MAL, "batmtime.hours", "memory allocation failure");
+		throw(MAL, "batmtime.hours", MAL_MALLOC_FAIL);
 	}
 	bn->tnonil = 1;
 	bn->tnil = 0;
@@ -3230,7 +3291,7 @@ MTIMEdaytime_extract_minutes_bulk(bat *ret, const bat *bid)
 	bn = COLnew(b->hseqbase, TYPE_int, BATcount(b), TRANSIENT);
 	if (bn == NULL) {
 		BBPunfix(b->batCacheid);
-		throw(MAL, "batmtime.minutes", "memory allocation failure");
+		throw(MAL, "batmtime.minutes", MAL_MALLOC_FAIL);
 	}
 
 	t = (const date *) Tloc(b, 0);
@@ -3272,7 +3333,7 @@ MTIMEdaytime_extract_seconds_bulk(bat *ret, const bat *bid)
 	bn = COLnew(b->hseqbase, TYPE_int, BATcount(b), TRANSIENT);
 	if (bn == NULL) {
 		BBPunfix(b->batCacheid);
-		throw(MAL, "batmtime.seconds", "memory allocation failure");
+		throw(MAL, "batmtime.seconds", MAL_MALLOC_FAIL);
 	}
 
 	t = (const date *) Tloc(b, 0);
@@ -3313,7 +3374,7 @@ MTIMEdaytime_extract_sql_seconds_bulk(bat *ret, const bat *bid)
 	bn = COLnew(b->hseqbase, TYPE_int, BATcount(b), TRANSIENT);
 	if (bn == NULL) {
 		BBPunfix(b->batCacheid);
-		throw(MAL, "batmtime.sql_seconds", "memory allocation failure");
+		throw(MAL, "batmtime.sql_seconds", MAL_MALLOC_FAIL);
 	}
 
 	t = (const date *) Tloc(b, 0);
@@ -3356,7 +3417,7 @@ MTIMEdaytime_extract_milliseconds_bulk(bat *ret, const bat *bid)
 	bn = COLnew(b->hseqbase, TYPE_int, BATcount(b), TRANSIENT);
 	if (bn == NULL) {
 		BBPunfix(b->batCacheid);
-		throw(MAL, "batmtime.milliseconds", "memory allocation failure");
+		throw(MAL, "batmtime.milliseconds", MAL_MALLOC_FAIL);
 	}
 
 	t = (const date *) Tloc(b, 0);
@@ -3420,7 +3481,7 @@ MTIMEdate_to_str(str *s, const date *d, const char * const *format)
 		throw(MAL, "mtime.date_to_str", "failed to convert date to string using format '%s'\n", *format);
 	*s = GDKmalloc(sz + 1);
 	if (*s == NULL)
-		throw(MAL, "mtime.date_to_str", "memory allocation failure");
+		throw(MAL, "mtime.date_to_str", MAL_MALLOC_FAIL);
 	strncpy(*s, buf, sz + 1);
 	return MAL_SUCCEED;
 #else
@@ -3464,7 +3525,7 @@ MTIMEtime_to_str(str *s, const daytime *d, const char * const *format)
 		throw(MAL, "mtime.time_to_str", "failed to convert time to string using format '%s'\n", *format);
 	*s = GDKmalloc(sz + 1);
 	if (*s == NULL)
-		throw(MAL, "mtime.time_to_str", "memory allocation failure");
+		throw(MAL, "mtime.time_to_str", MAL_MALLOC_FAIL);
 	strncpy(*s, buf, sz + 1);
 	return MAL_SUCCEED;
 #else
@@ -3512,7 +3573,7 @@ MTIMEtimestamp_to_str(str *s, const timestamp *ts, const char * const *format)
 		throw(MAL, "mtime.timestamp_to_str", "failed to convert timestampt to string using format '%s'\n", *format);
 	*s = GDKmalloc(sz + 1);
 	if (*s == NULL)
-		throw(MAL, "mtime.timestamp_to_str", "memory allocation failure");
+		throw(MAL, "mtime.timestamp_to_str", MAL_MALLOC_FAIL);
 	strncpy(*s, buf, sz + 1);
 	return MAL_SUCCEED;
 #else

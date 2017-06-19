@@ -68,7 +68,9 @@ sql/backends/
 sql/backends/monet5/
 	$(libdir)/monetdb5/lib_sql.so
 	$(libdir)/monetdb5/autoload/40_sql.mal
+	$(libdir)/monetdb5/sql.mal
 	$(libdir)/monetdb5/sql_aggr_lng.mal
+	$(libdir)/monetdb5/sql_transaction.mal
 	$(libdir)/monetdb5/sql_inspect.mal
 	$(libdir)/monetdb5/sql_aggr_flt.mal
 	$(libdir)/monetdb5/sql_rank.mal
@@ -76,7 +78,7 @@ sql/backends/monet5/
 	$(libdir)/monetdb5/sql_aggr_bte.mal
 	$(libdir)/monetdb5/sql_decimal.mal
 	$(libdir)/monetdb5/sql_aggr_sht.mal
-	$(libdir)/monetdb5/sql.mal
+	$(libdir)/monetdb5/sqlcatalog.mal
 	$(libdir)/monetdb5/sql_aggr_dbl.mal
 	$(libdir)/monetdb5/autoload/41_sql_hge.mal#HAVE_HGE
 	$(libdir)/monetdb5/sql_aggr_hge.mal#HAVE_HGE
@@ -107,5 +109,5 @@ sql/scripts/
 	$(libdir)/monetdb5/createdb/39_analytics_hge.sql#HAVE_HGE
 embedded/
 	$(libdir)/libembedded.so
-mapisplit/#HAVE_EMBEDDED_R
+mapisplit/
 	$(libdir)/libmapisplit.so

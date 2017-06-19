@@ -61,7 +61,7 @@ monet5_drop_user(ptr _mvc, str user)
 	str err;
 	Client c = MCgetClient(m->clientid);
 
-	err = AUTHremoveUser(c, &user);
+	err = AUTHremoveUser(c, user);
 	if (err !=MAL_SUCCEED) {
 		(void) sql_error(m, 02, "DROP USER: %s", getExceptionMessage(err));
 		_DELETE(err);
@@ -106,7 +106,7 @@ monet5_create_user(ptr _mvc, str user, str passwd, char enc, str fullname, sqlid
 		pwd = passwd;
 	}
 	/* add the user to the M5 authorisation administration */
-	ret = AUTHaddUser(&uid, c, &user, &pwd);
+	ret = AUTHaddUser(&uid, c, user, pwd);
 	if (!enc)
 		free(pwd);
 	if (ret != MAL_SUCCEED)
@@ -160,13 +160,11 @@ db_users_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 str
 db_password_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
-	str ret = NULL;
 	str *hash = getArgReference_str(stk, pci, 0);
 	str *user = getArgReference_str(stk, pci, 1);
 	(void) mb;
 
-	ret = AUTHgetPasswordHash(hash, cntxt, user);
-	return ret;
+	return AUTHgetPasswordHash(hash, cntxt, *user);
 }
 
 static void
@@ -258,25 +256,25 @@ monet5_alter_user(ptr _mvc, str user, str passwd, char enc, sqlid schema_id, str
 			opwd = oldpasswd;
 		}
 		if (user == NULL) {
-			err = AUTHchangePassword(c, &opwd, &pwd);
+			err = AUTHchangePassword(c, opwd, pwd);
 			if (!enc) {
 				free(pwd);
 				free(opwd);
 			}
 			if (err !=MAL_SUCCEED) {
 				(void) sql_error(m, 02, "ALTER USER: %s", getExceptionMessage(err));
-				GDKfree(err);
+				freeException(err);
 				return (FALSE);
 			}
 		} else {
 			str username = NULL;
-			if ((err = AUTHresolveUser(&username, &c->user)) !=MAL_SUCCEED) {
+			if ((err = AUTHresolveUser(&username, c->user)) !=MAL_SUCCEED) {
 				if (!enc) {
 					free(pwd);
 					free(opwd);
 				}
 				(void) sql_error(m, 02, "ALTER USER: %s", getExceptionMessage(err));
-				GDKfree(err);
+				freeException(err);
 				return (FALSE);
 			}
 			if (strcmp(username, user) == 0) {
@@ -293,14 +291,14 @@ monet5_alter_user(ptr _mvc, str user, str passwd, char enc, sqlid schema_id, str
 				return (FALSE);
 			}
 			GDKfree(username);
-			err = AUTHsetPassword(c, &user, &pwd);
+			err = AUTHsetPassword(c, user, pwd);
 			if (!enc) {
 				free(pwd);
 				free(opwd);
 			}
 			if (err !=MAL_SUCCEED) {
 				(void) sql_error(m, 02, "ALTER USER: %s", getExceptionMessage(err));
-				GDKfree(err);
+				freeException(err);
 				return (FALSE);
 			}
 		}
@@ -337,9 +335,9 @@ monet5_rename_user(ptr _mvc, str olduser, str newuser)
 	sql_table *auths = find_sql_table(sys, "auths");
 	sql_column *auths_name = find_sql_column(auths, "name");
 
-	if ((err = AUTHchangeUsername(c, &olduser, &newuser)) !=MAL_SUCCEED) {
+	if ((err = AUTHchangeUsername(c, olduser, newuser)) !=MAL_SUCCEED) {
 		(void) sql_error(m, 02, "ALTER USER: %s", getExceptionMessage(err));
-		GDKfree(err);
+		freeException(err);
 		return (FALSE);
 	}
 
@@ -470,8 +468,8 @@ monet5_user_set_def_schema(mvc *m, oid user)
 	if (m->debug &1)
 		fprintf(stderr, "monet5_user_set_def_schema " OIDFMT "\n", user);
 
-	if ((err = AUTHresolveUser(&username, &user)) !=MAL_SUCCEED) {
-		GDKfree(err);
+	if ((err = AUTHresolveUser(&username, user)) !=MAL_SUCCEED) {
+		freeException(err);
 		return (NULL);	/* don't reveal that the user doesn't exist */
 	}
 

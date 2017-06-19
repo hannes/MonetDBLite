@@ -43,6 +43,7 @@ SA_VALcopy(sql_allocator *sa, ValPtr d, const ValRecord *s)
 	if (!ATOMextern(s->vtype)) {
 		*d = *s;
 	} else if (s->val.pval == 0) {
+		// FIXME unchecked_malloc ATOMnil can return NULL
 		d->val.pval = ATOMnil(s->vtype);
 		d->vtype = s->vtype;
 	} else if (s->vtype == TYPE_str) {
@@ -1210,12 +1211,13 @@ atom *
 atom_mul(atom *a1, atom *a2)
 {
 	ValRecord dst;
+
 	if (!EC_COMPUTE(a1->tpe.type->eclass))
 		return NULL;
 	if (a1->tpe.type->localtype == TYPE_dbl ||
 	    a2->tpe.type->localtype == TYPE_dbl) {
 		ValRecord v1, v2;
-		v1.vtype = v2.vtype = TYPE_dbl;
+		dst.vtype = v1.vtype = v2.vtype = TYPE_dbl;
 		v1.val.dval = a1->d;
 		v2.val.dval = a2->d;
 		if (VARcalcmul(&dst, &v1, &v2, 1) != GDK_SUCCEED)

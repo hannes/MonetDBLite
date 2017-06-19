@@ -14,14 +14,15 @@
 #include "mal_instruction.h"
 #include "opt_candidates.h"
 
-int
+str
 OPTcandidatesImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
 	int i;
 	InstrPtr p;
+#ifndef HAVE_EMBEDDED
 	char  buf[256];
 	lng usec = GDKusec();
-
+#endif
 	(void) pci;
 	(void) cntxt;
 	(void) stk;		/* to fool compilers */
@@ -44,13 +45,13 @@ OPTcandidatesImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 				setVarCList(mb,getArg(p,0));
 		}
 		else if( getModuleId(p) == algebraRef ){
-			if(getFunctionId(p) == subselectRef || getFunctionId(p) == thetasubselectRef)
+			if(getFunctionId(p) == selectRef || getFunctionId(p) == thetaselectRef)
 				setVarCList(mb,getArg(p,0));
-			else if(getFunctionId(p) == likesubselectRef)
+			else if(getFunctionId(p) == likeselectRef || getFunctionId(p) == likethetaselectRef)
 				setVarCList(mb,getArg(p,0));
-			else if(getFunctionId(p) == subinterRef )
+			else if(getFunctionId(p) == intersectRef )
 				setVarCList(mb,getArg(p,0));
-			else if(getFunctionId(p) == subuniqueRef )
+			else if(getFunctionId(p) == uniqueRef )
 				setVarCList(mb,getArg(p,0));
 			else if(getFunctionId(p) == firstnRef )
 				setVarCList(mb,getArg(p,0));
@@ -60,7 +61,7 @@ OPTcandidatesImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 				setVarCList(mb,getArg(p,0));
 		}
 		else if( getModuleId(p) == generatorRef){
-			if(getFunctionId(p) == subselectRef || getFunctionId(p) == thetasubselectRef)
+			if(getFunctionId(p) == selectRef || getFunctionId(p) == thetaselectRef)
 				setVarCList(mb,getArg(p,0));
 		}
 		else if (getModuleId(p) == sampleRef) {
@@ -68,7 +69,8 @@ OPTcandidatesImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 				setVarCList(mb, getArg(p, 0));
 		}
 		else if (getModuleId(p) == groupRef && p->retc > 1) {
-			if (getFunctionId(p) == subgroupRef || getFunctionId(p) == subgroupdoneRef)
+			if (getFunctionId(p) == subgroupRef || getFunctionId(p) == subgroupdoneRef ||
+			    getFunctionId(p) == groupRef || getFunctionId(p) == groupdoneRef)
 				setVarCList(mb, getArg(p, 1));
 		}
 	}
@@ -79,8 +81,12 @@ OPTcandidatesImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 	//chkFlow(cntxt->fdout, mb);
 	//chkDeclarations(cntxt->fdout, mb);
     /* keep all actions taken as a post block comment */
-    snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","candidates",1,GDKusec() -usec);
+#ifndef HAVE_EMBEDDED
+	usec = GDKusec()- usec;
+    snprintf(buf,256,"%-20s actions=1 time=" LLFMT " usec","candidates",usec);
     newComment(mb,buf);
+	addtoMalBlkHistory(mb);
+#endif
 
-	return 1;
+	return MAL_SUCCEED;
 }

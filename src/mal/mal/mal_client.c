@@ -70,7 +70,10 @@ MCinit(void)
 		maxclients = atoi(max_clients);
 	if (maxclients <= 0) {
 		maxclients = 64;
-		GDKsetenv("max_clients", "64");
+		if (GDKsetenv("max_clients", "64") != GDK_SUCCEED) {
+			showException(GDKout, MAL, "MCinit", "GDKsetenv failed");
+			mal_exit();
+		}
 	}
 
 	MAL_MAXCLIENTS =
@@ -146,7 +149,7 @@ MCnewClient(void)
 		return NULL;
 	c->idx = (int) (c - mal_clients);
 #ifdef MAL_CLIENT_DEBUG
-	printf("New client created %d\n", (int) (c - mal_clients));
+	fprintf(stderr,"New client created %d\n", (int) (c - mal_clients));
 #endif
 	return c;
 }
@@ -174,7 +177,7 @@ void
 MCexitClient(Client c)
 {
 #ifdef MAL_CLIENT_DEBUG
-	printf("# Exit client %d\n", c->idx);
+	fprintf(stderr,"# Exit client %d\n", c->idx);
 #endif
 	finishSessionProfiler(c);
 	MPresetProfiler(c->fdout);
@@ -253,9 +256,16 @@ MCinitClientRecord(Client c, oid user, bstream *fin, stream *fout)
 	{
 		str msg = AUTHgetUsername(&c->username, c);
 		if (msg)				/* shouldn't happen */
-			GDKfree(msg);
+			freeException(msg);
 	}
+#else
+	c->progress_callback = NULL;
+	c->progress_data = NULL;
+	MT_lock_init(&c->progress_lock, "progress_lock");
 #endif
+	c->blocksize = BLOCK;
+	c->protocol = PROTOCOL_9;
+	c->compute_column_widths = 0;
 	MT_sema_init(&c->s, 0, "Client->s");
 	return c;
 }
@@ -299,7 +309,7 @@ MCinitClientThread(Client c)
 	if (c->errbuf == NULL) {
 		char *n = GDKzalloc(GDKMAXERRLEN);
 		if ( n == NULL){
-			showException(GDKout, MAL, "initClientThread", "Failed to initialize client");
+			showException(GDKout, MAL, "initClientThread", MAL_MALLOC_FAIL);
 			return -1;
 		}
 		GDKsetbuf(n);
@@ -359,7 +369,7 @@ freeClient(Client c)
 	c->mode = FINISHCLIENT;
 
 #ifdef MAL_CLIENT_DEBUG
-	printf("# Free client %d\n", c->idx);
+	fprintf(stderr,"# Free client %d\n", c->idx);
 #endif
 	MCexitClient(c);
 
@@ -391,13 +401,15 @@ freeClient(Client c)
 		c->username = 0;
 	}
 	c->mythread = 0;
-	GDKfree(c->glb);
-	c->glb = NULL;
+	if (c->glb) {
+		freeStack(c->glb);
+		c->glb = NULL;
+	}
 	if( c->error_row){
-		BBPdecref(c->error_row->batCacheid,TRUE);
-		BBPdecref(c->error_fld->batCacheid,TRUE);
-		BBPdecref(c->error_msg->batCacheid,TRUE);
-		BBPdecref(c->error_input->batCacheid,TRUE);
+		BBPrelease(c->error_row->batCacheid);
+		BBPrelease(c->error_fld->batCacheid);
+		BBPrelease(c->error_msg->batCacheid);
+		BBPrelease(c->error_input->batCacheid);
 		c->error_row = c->error_fld = c->error_msg = c->error_input = NULL;
 	}
 	if (t)
@@ -468,7 +480,7 @@ void
 MCcloseClient(Client c)
 {
 #ifdef MAL_DEBUG_CLIENT
-	printf("closeClient %d " OIDFMT "\n", (int) (c - mal_clients), c->user);
+	fprintf(stderr,"closeClient %d " OIDFMT "\n", (int) (c - mal_clients), c->user);
 #endif
 	/* free resources of a single thread */
 	if (!isAdministrator(c)) {
@@ -527,7 +539,7 @@ MCreadClient(Client c)
 	bstream *in = c->fdin;
 
 #ifdef MAL_CLIENT_DEBUG
-	printf("# streamClient %d %d\n", c->idx, isa_block_stream(in->s));
+	fprintf(stderr,"# streamClient %d %d\n", c->idx, isa_block_stream(in->s));
 #endif
 
 	while (in->pos < in->len &&
@@ -562,13 +574,13 @@ MCreadClient(Client c)
 				in->len++;
 		}
 #ifdef MAL_CLIENT_DEBUG
-		printf("# simple stream received %d sum " SZFMT "\n", c->idx, sum);
+		fprintf(stderr, "# simple stream received %d sum " SZFMT "\n", c->idx, sum);
 #endif
 	}
 	if (in->pos >= in->len) {
 		/* end of stream reached */
 #ifdef MAL_CLIENT_DEBUG
-		printf("# end of stream received %d %d\n", c->idx, c->bak == 0);
+		fprintf(stderr,"# end of stream received %d %d\n", c->idx, c->bak == 0);
 #endif
 		if (c->bak) {
 			MCpopClientInput(c);
@@ -579,7 +591,7 @@ MCreadClient(Client c)
 		return 0;
 	}
 #ifdef MAL_CLIENT_DEBUG
-	printf("# finished stream read %d %d\n", (int) in->pos, (int) in->len);
+	fprintf(stderr,"# finished stream read %d %d\n", (int) in->pos, (int) in->len);
 	printf("#%s\n", in->buf);
 #endif
 	return 1;

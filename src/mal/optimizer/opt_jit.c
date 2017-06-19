@@ -22,28 +22,30 @@
 #include "mal_builder.h"
 #include "opt_jit.h"
 
-int
+str
 OPTjitImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
-	int i,actions = 0;
+	int i;
 	int limit = mb->stop;
 	InstrPtr p, q, *old = mb->stmt;
+#ifndef HAVE_EMBEDDED
+	int actions = 0;
 	char buf[256];
 	lng usec = GDKusec();
+#endif
 
 	(void) stk;
 	(void) cntxt;
 	(void) pci;
 
-	return 0;
 	OPTDEBUGjit{
-		mnstr_printf(GDKout, "#Optimize JIT\n");
-		printFunction(GDKout, mb, 0, LIST_MAL_DEBUG);
+		fprintf(stderr, "#Optimize JIT\n");
+		fprintFunction(stderr, mb, 0, LIST_MAL_DEBUG);
 	}
 
 	setVariableScope(mb);
 	if ( newMalBlkStmt(mb, mb->ssize) < 0)
-		return 0;
+		throw(MAL,"optimizer.jit", MAL_MALLOC_FAIL);
 
 	/* peephole optimization */
 	for (i = 0; i < limit; i++) {
@@ -67,8 +69,8 @@ OPTjitImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 				getArg(p,2)=  getArg(q,2);
 				p= pushArgument(mb,p, getArg(q,1));
 				OPTDEBUGjit{
-					mnstr_printf(GDKout, "#Optimize JIT case 1\n");
-					printInstruction(cntxt->fdout, mb,0,p,LIST_MAL_DEBUG);
+					fprintf(stderr, "#Optimize JIT case 1\n");
+					fprintInstruction(stderr, mb,0,p,LIST_MAL_DEBUG);
 				}
 			}
 		}
@@ -77,8 +79,8 @@ OPTjitImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 
 	OPTDEBUGjit{
 		chkTypes(cntxt->fdout, cntxt->nspace,mb,TRUE);
-		mnstr_printf(GDKout, "#Optimize JIT done\n");
-		printFunction(GDKout, mb, 0, LIST_MAL_DEBUG);
+		fprintf(stderr, "#Optimize JIT done\n");
+		fprintFunction(stderr, mb, 0, LIST_MAL_DEBUG);
 	}
 
 	GDKfree(old);
@@ -86,8 +88,13 @@ OPTjitImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	chkTypes(cntxt->fdout, cntxt->nspace, mb, FALSE);
 	chkFlow(cntxt->fdout, mb);
 	chkDeclarations(cntxt->fdout, mb);
+#ifndef HAVE_EMBEDDED
     /* keep all actions taken as a post block comment */
-    snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","jit",actions,GDKusec() - usec);
+	usec = GDKusec()- usec;
+    snprintf(buf,256,"%-20s actions=%2d time=" LLFMT " usec","jit",actions, usec);
     newComment(mb,buf);
-	return 1;
+	if( actions >= 0)
+		addtoMalBlkHistory(mb);
+#endif
+	return MAL_SUCCEED;
 }

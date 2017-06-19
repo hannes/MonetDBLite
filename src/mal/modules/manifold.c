@@ -59,10 +59,11 @@ typedef struct{
 #define ManifoldLoop(Type, ...)											\
 	do {																\
 		Type *v = (Type*) mut->args[0].first;							\
-		oid oo, olimit = mut->args[mut->fvar].cnt;						\
-		for( oo= 0; oo < olimit; oo++){									\
+		for (;;) {														\
 			msg = (*mut->pci->fcn)(v, __VA_ARGS__);						\
 			if (msg) break;												\
+			if (++oo == olimit)											\
+				break;													\
 			for( i = mut->fvar; i<= mut->lvar; i++) {					\
 				if(ATOMstorage(mut->args[i].type) == TYPE_void ){		\
 					args[i] = (void*)  &mut->args[i].o;					\
@@ -105,13 +106,14 @@ typedef struct{
 		case TYPE_dbl: ManifoldLoop(dbl,__VA_ARGS__); break;			\
 		case TYPE_str:													\
 		default: {														\
-			oid oo, olimit = mut->args[mut->fvar].cnt;					\
-			for( oo= 0; oo < olimit; oo++){								\
+			for (;;) {													\
 				msg = (*mut->pci->fcn)(&y, __VA_ARGS__);				\
 				if (msg)												\
 					break;												\
 				bunfastapp(mut->args[0].b, (void*) y);					\
 				GDKfree(y); y = NULL;									\
+				if (++oo == olimit)										\
+					break;												\
 				for( i = mut->fvar; i<= mut->lvar; i++) {				\
 					if(ATOMstorage(mut->args[i].type) == TYPE_void ){ 	\
 						args[i] = (void*)  &mut->args[i].o;				\
@@ -144,6 +146,10 @@ MANIFOLDjob(MULTItask *mut)
 {	int i;
 	char **args;
 	str y = NULL, msg= MAL_SUCCEED;
+	oid oo = 0, olimit = mut->args[mut->fvar].cnt;
+
+	if (olimit == 0)
+		return msg;				/* nothing to do */
 
 	args = (char**) GDKzalloc(sizeof(char*) * mut->pci->argc);
 	if( args == NULL)
@@ -167,7 +173,7 @@ MANIFOLDjob(MULTItask *mut)
 	}
 
 #ifdef _DEBUG_MANIFOLD_
-	mnstr_printf(mut->cntxt->fdout,"#MANIFOLDjob fvar %d lvar %d type %d\n",mut->fvar,mut->lvar, ATOMstorage(mut->args[mut->fvar].b->ttype));
+	fprintf(stderr,mut->cntxt->fdout,"#MANIFOLDjob fvar %d lvar %d type %d\n",mut->fvar,mut->lvar, ATOMstorage(mut->args[mut->fvar].b->ttype));
 #endif
 	// use limited argument list expansion.
 	switch(mut->pci->argc){
@@ -199,7 +205,7 @@ MANIFOLDtypecheck(Client cntxt, MalBlkPtr mb, InstrPtr pci){
 	if (pci->retc >1 || pci->argc > 8 || getModuleId(pci) == NULL) // limitation on MANIFOLDjob
 		return NULL;
 	// We need a private MAL context to resolve the function call
-	nmb = newMalBlk(MAXVARS, STMT_INCREMENT);
+	nmb = newMalBlk(2 );
 	if( nmb == NULL)
 		return NULL;
 	// the scalar function
@@ -225,9 +231,9 @@ MANIFOLDtypecheck(Client cntxt, MalBlkPtr mb, InstrPtr pci){
 	}
 
 #ifdef _DEBUG_MANIFOLD_
-	mnstr_printf(cntxt->fdout,"#MANIFOLD operation\n");
-	printInstruction(cntxt->fdout,mb,0,pci,LIST_MAL_ALL);
-	printInstruction(cntxt->fdout,nmb,0,q,LIST_MAL_ALL);
+	fprintf(stderr,"#MANIFOLD operation\n");
+	fprintInstruction(stderr,mb,0,pci,LIST_MAL_ALL);
+	fprintInstruction(stderr,nmb,0,q,LIST_MAL_ALL);
 #endif
 	// Localize the underlying scalar operator
 	typeChecker(cntxt->fdout, cntxt->nspace, nmb, q, TRUE);
@@ -241,8 +247,8 @@ MANIFOLDtypecheck(Client cntxt, MalBlkPtr mb, InstrPtr pci){
 			setVarType( mb, getArg(pci,0), newBatType(getArgType(nmb,q,0)) );
 	}
 #ifdef _DEBUG_MANIFOLD_
-	mnstr_printf(cntxt->fdout,"success? %s\n",(fcn == NULL? "no":"yes"));
-	printInstruction(cntxt->fdout,nmb,0,q,LIST_MAL_ALL);
+	fprintf(stderr,"success? %s\n",(fcn == NULL? "no":"yes"));
+	fprintInstruction(stderr,nmb,0,q,LIST_MAL_ALL);
 #endif
 	freeMalBlk(nmb);
 	return fcn;

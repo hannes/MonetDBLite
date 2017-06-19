@@ -8,7 +8,7 @@ AUTOMAKE_OPTIONS = no-dependencies 1.4 foreign
 CFLAGS += $(THREAD_SAVE_FLAGS)
 libstream_la_CFLAGS=-DLIBSTREAM $(AM_CFLAGS)
 streamdir = $(libdir)
-libstream_la_LIBADD = $(zlib_LIBS) $(BZ_LIBS) $(liblzma_LIBS) $(LTLIBICONV)
+libstream_la_LIBADD = $(zlib_LIBS) $(BZ_LIBS) $(snappy_LIBS) $(lz4_LIBS) $(liblzma_LIBS) $(LTLIBICONV)
 $(do)install-streamLTLIBRARIES : 
 libstream_la-stream.lo: stream.c stream.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstream_la_CFLAGS) $(CFLAGS) $(stream_CFLAGS) -c -o libstream_la-stream.lo `test -f 'stream.c' || echo '$(srcdir)/'`stream.c

@@ -17,6 +17,8 @@
 #include "monet_options.h"
 #include "mal.h"
 #include "mal_client.h"
+#include "mal_builder.h"
+
 #include "mal_linker.h"
 #include "sql_scenario.h"
 #include "gdk_utils.h"
@@ -26,7 +28,13 @@
 #include "sql_mvc.h"
 #include "res_table.h"
 #include "sql_scenario.h"
-
+#include "opt_prelude.h"
+#include "rel_semantic.h"
+#include "sql_gencode.h"
+#include "sql_optimizer.h"
+#include "rel_exp.h"
+#include "rel_rel.h"
+#include "rel_updates.h"
 
 #include "decompress.c"
 #include "inlined_scripts.c"
@@ -51,6 +59,7 @@ void* monetdb_connect(void) {
 		return NULL;
 	}
 	((backend *) conn->sqlcontext)->mvc->session->auto_commit = 1;
+
 	return conn;
 }
 
@@ -156,7 +165,7 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 
 	// we do not want to jump after this point, since we cannot do so between threads
 	// sanity check, run a SQL query
-	sqres = monetdb_query(c, "SELECT * FROM tables;", 1, &res, NULL);
+	sqres = monetdb_query(c, "SELECT * FROM tables;", 1, &res, NULL, NULL);
 	if (sqres != NULL) {
 		monetdb_embedded_initialized = false;
 		retval = sqres;
@@ -164,6 +173,8 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	}
 	monetdb_cleanup_result(c, res);
 	monetdb_disconnect(c);
+
+
 cleanup:
 	mo_free_options(set, setlen);
 	return retval;
@@ -174,55 +185,106 @@ int monetdb_is_initialized(void) {
 }
 
 
-char* monetdb_query(void* conn, char* query, char execute, void** result, long* affected_rows) {
+char* monetdb_query(void* conn, char* query, char execute, void** result, long* affected_rows, long* prepare_id) {
 	str res = MAL_SUCCEED;
+	int sres;
 	Client c = (Client) conn;
 	mvc* m;
+	backend *b;
+	char* qname = "somequery";
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
 	}
-	if (!MCvalid((Client) conn)) {
+	if (!MCvalid(c)) {
 		return GDKstrdup("Invalid connection");
 	}
-	m = ((backend *) c->sqlcontext)->mvc;
 
-	while (*query == ' ' || *query == '\t') query++;
-	if (strncasecmp(query, "START", 5) == 0) { // START TRANSACTION
-		m->session->auto_commit = 0;
-		m->session->status = 0;
+	b = (backend *) c->sqlcontext;
+	m = b->mvc;
+
+	// TODO what about execute flag?! remove when result set is there for prepared stmts
+	(void) execute;
+
+	size_t query_len = strlen(query) + 3;
+	char* nq = GDKmalloc(query_len);
+	if (!nq) {
+		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
-	else if (strncasecmp(query, "ROLLBACK", 8) == 0) {
-		m->session->status = -1;
-		m->session->auto_commit = 1;
+	sprintf(nq, "%s\n;", query);
+
+	buffer query_buf;
+	stream* query_stream = buffer_rastream(&query_buf, qname);
+	if (!query_stream) {
+		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
-	else if (strncasecmp(query, "COMMIT", 6) == 0) {
-		m->session->auto_commit = 1;
+
+	query_buf.pos = 0;
+	query_buf.len = query_len;
+	query_buf.buf = nq;
+
+	c->fdin = bstream_create(query_stream, query_len);
+	if (!c->fdin) {
+		close_stream(query_stream);
+		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
-	else if (strncasecmp(query, "SHIBBOLEET", 10) == 0) {
-		res = GDKstrdup("\x46\x6f\x72\x20\x69\x6d\x6d\x65\x64\x69\x61\x74\x65\x20\x74\x65\x63\x68\x6e\x69\x63\x61\x6c\x20\x73\x75\x70\x70\x6f\x72\x74\x20\x63\x61\x6c\x6c\x20\x2b\x33\x31\x20\x32\x30\x20\x35\x39\x32\x20\x34\x30\x33\x39");
+	bstream_next(c->fdin);
+
+	b->language = 'S';
+	m->scanner.mode = LINE_N;
+	m->scanner.rs = c->fdin;
+	b->output_format = OFMT_NONE;
+	m->user_id = m->role_id = USER_MONETDB;
+	m->cache = 0;
+
+	if (result) {
+		m->reply_size = -2; /* do not clean up result tables */
 	}
-	else if (m->session->status < 0 && m->session->auto_commit == 0){
-		res = GDKstrdup("Current transaction is aborted (please ROLLBACK)");
-	} else {
-		res = SQLstatementIntern(c, &query, "main", execute, 0, (res_table **) result);
+
+	MSinitClientPrg(c, "user", qname);
+	res = SQLparser(c);
+	if (res != MAL_SUCCEED) {
+		goto cleanup;
+	}
+
+	if (prepare_id && (m->emode & m_prepare)) {
+		*prepare_id = b->q->id;
+	}
+
+	res = SQLengine(c);
+	if (res != MAL_SUCCEED) {
+		goto cleanup;
+	}
+
+	if (result) {
+		*result = m->results;
+		m->results = NULL;
 		if (!*result && m->rowcnt >= 0 && affected_rows) {
 			*affected_rows = m->rowcnt;
 		}
 	}
-	SQLautocommit(c, m);
+
+cleanup:
+
+	GDKfree(nq);
+	MSresetInstructions(c->curprg->def, 1);
+	bstream_destroy(c->fdin);
+	c->fdin = NULL;
+
+
+	sres = SQLautocommit(c, m);
+	if (!sres && !res) {
+		return GDKstrdup("Cannot COMMIT/ROLLBACK without a valid transaction.");
+	}
 	return res;
 }
 
 char* monetdb_append(void* conn, const char* schema, const char* table, append_data *data, int ncols) {
-	int i;
-	int nvar = 6; // variables we need to make up
-	MalBlkRecord mb;
-	MalStack*     stk = NULL;
-	InstrRecord*  pci = NULL;
-	str res = MAL_SUCCEED;
-	VarRecord bat_varrec;
 	Client c = (Client) conn;
 	mvc* m;
+
+
+	int i;
+	str res = MAL_SUCCEED;
 
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
@@ -230,50 +292,61 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	if(table == NULL || data == NULL || ncols < 1) {
 		return GDKstrdup("Invalid parameters");
 	}
-	if (!MCvalid((Client) conn)) {
+	if (!MCvalid(c)) {
 		return GDKstrdup("Invalid connection");
 	}
-	m = ((backend *) c->sqlcontext)->mvc;
-
-	// very black MAL magic below
-	mb.var = GDKmalloc(nvar * sizeof(VarRecord*));
-	stk = GDKmalloc(sizeof(MalStack) + nvar * sizeof(ValRecord));
-	pci = GDKmalloc(sizeof(InstrRecord) + nvar * sizeof(int));
-	assert(mb.var != NULL && stk != NULL && pci != NULL); // cough, cough
-	bat_varrec.type = TYPE_bat;
-	for (i = 0; i < nvar; i++) {
-		pci->argv[i] = i;
+	if ((res = getSQLContext(c, NULL, &m, NULL)) != MAL_SUCCEED) {
+		return res;
 	}
-	stk->stk[0].vtype = TYPE_int;
-	stk->stk[2].val.sval = (str) schema;
-	stk->stk[2].vtype = TYPE_str;
-	stk->stk[3].val.sval = (str) table;
-	stk->stk[3].vtype = TYPE_str;
-	stk->stk[4].vtype = TYPE_str;
-	stk->stk[5].vtype = TYPE_bat;
-	mb.var[5] = &bat_varrec;
-	if (!m->session->active) mvc_trans(m);
-	for (i=0; i < ncols; i++) {
-		append_data ad = data[i];
-		stk->stk[4].val.sval = ad.colname;
-		stk->stk[5].val.bval = ad.batid;
+	if (m->session->status < 0 && m->session->auto_commit == 0){
+		return GDKstrdup("Current transaction is aborted (please ROLLBACK)");
+	}
 
-		res = mvc_append_wrap(c, &mb, stk, pci);
-		if (res != NULL) {
-			break;
+	SQLtrans(m);
+	{
+		sql_rel *rel;
+		node *n;
+		list *exps = sa_list(m->sa), *args = sa_list(m->sa), *types = sa_list(m->sa);
+		sql_schema *s = mvc_bind_schema(m, schema);
+		sql_table *t = mvc_bind_table(m, s, table);
+		sql_subfunc *f = sql_find_func(m->sa, mvc_bind_schema(m, "sys"), "append", 1, F_UNION, NULL);
+
+		if (!t) {
+			return GDKstrdup("Can't find table.");
+		}
+		if (ncols != list_length(t->columns.set)) {
+			return GDKstrdup("Incorrect number of columns.");
+		}
+		for (i = 0, n = t->columns.set->h; i < ncols && n; i++, n = n->next) {
+			sql_column *c = n->data;
+			append(args, exp_atom_lng(m->sa, data[i].batid));
+			append(exps, exp_column(m->sa, t->base.name, c->base.name, &c->type, CARD_MULTI, c->null, 0));
+			append(types, &c->type);
+		}
+
+		f->res = types;
+		rel = rel_insert(m, rel_basetable(m, t, t->base.name), rel_table_func(m->sa, NULL, exp_op(m->sa,  args, f), exps, 1));
+		m->scanner.rs = NULL;
+
+		if (rel && backend_dumpstmt((backend *) c->sqlcontext, c->curprg->def, rel, 1, 1, "append") < 0) {
+			return GDKstrdup("Append plan generation failure");
+		}
+		if ((res = SQLoptimizeQuery(c, c->curprg->def)) != MAL_SUCCEED ||
+				c->curprg->def->errors || (res = SQLengine(c)) != MAL_SUCCEED) {
+			return(res);
 		}
 	}
-	if (res == MAL_SUCCEED) {
-		sqlcleanup(m, 0);
-	}
-	GDKfree(mb.var);
-	GDKfree(stk);
-	GDKfree(pci);
-	return res;
+	SQLautocommit(c, m);
+	return NULL;
 }
 
-void  monetdb_cleanup_result(void* conn, void* output) {
-	(void) conn; // not needing conn here (but perhaps someday)
+void monetdb_cleanup_result(void* conn, void* output) {
+	if (!monetdb_is_initialized()) {
+		return;
+	}
+	if (!MCvalid((Client) conn)) {
+		return;
+	}
 	res_tables_destroy((res_table*) output);
 }
 
@@ -288,7 +361,7 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 
 	assert(column_count != NULL && column_names != NULL && column_types != NULL);
 
-	if ((msg = getSQLContext(c, NULL, &m, NULL)) != NULL)
+	if ((msg = getSQLContext(c, NULL, &m, NULL)) != MAL_SUCCEED)
 		return msg;
 
 	s = mvc_bind_schema(m, schema_name);
@@ -316,9 +389,34 @@ str monetdb_get_columns(void* conn, const char* schema_name, const char *table_n
 	return msg;
 }
 
+
+void monetdb_register_progress(void* conn, monetdb_progress_callback callback, void* data) {
+	Client c = (Client) conn;
+	if (!MCvalid(c)) {
+		return;
+	}
+
+	c->progress_callback = callback;
+	c->progress_data = data;
+}
+
+void monetdb_unregister_progress(void* conn) {
+	Client c = (Client) conn;
+	if (!MCvalid(c)) {
+		return;
+	}
+
+	c->progress_callback = NULL;
+	if(c->progress_data)
+		free(c->progress_data);
+	c->progress_data = NULL;
+}
+
+
+
 void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
-		mserver_reset();
+		mserver_reset(0);
 		fclose(embedded_stdout);
 		monetdb_embedded_initialized = 0;
 	}

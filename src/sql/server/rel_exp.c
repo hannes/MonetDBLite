@@ -196,8 +196,10 @@ exp_op( sql_allocator *sa, list *l, sql_subfunc *f )
 {
 	sql_exp *e = exp_create(sa, e_func);
 	e->card = exps_card(l);
-	if (!l || list_length(l) == 0)
+	if (!l || list_length(l) == 0) 
 		e->card = CARD_ATOM; /* unop returns a single atom */
+	if (f->func->side_effect)
+		e->card = CARD_MULTI;
 	e->l = l;
 	e->f = f; 
 	return e;
@@ -961,8 +963,11 @@ exp_match_exp( sql_exp *e1, sql_exp *e2)
 			if (!subfunc_cmp(e1->f, e2->f) && /* equal functions */
 			    exps_equal(e1->l, e2->l) &&
 			    /* optional order by expressions */
-			    exps_equal(e1->r, e2->r))
-				return 1;
+			    exps_equal(e1->r, e2->r)) {
+				sql_subfunc *f = e1->f;
+				if (!f->func->side_effect)
+					return 1;
+			}
 			break;
 		case e_atom:
 			if (e1->l && e2->l && !atom_cmp(e1->l, e2->l))
@@ -1206,6 +1211,7 @@ rel_find_exp_( sql_rel *rel, sql_exp *e)
 			}
 			return ne;
 		}
+		/* fall through */
 	case e_cmp:	
 	case e_psm:	
 		return NULL;
@@ -1286,7 +1292,7 @@ exp_is_zero(mvc *sql, sql_exp *e)
 	if (e->type == e_atom) {
 		if (e->l) {
 			return atom_is_zero(e->l);
-		} else if(sql->emode == m_normal && EC_COMPUTE(exp_subtype(e)->type->eclass)) {
+		} else if(sql->emode == m_normal && sql->argc > e->flag && EC_COMPUTE(exp_subtype(e)->type->eclass)) {
 			return atom_is_zero(sql->args[e->flag]);
 		}
 	}
@@ -1368,6 +1374,43 @@ exp_has_func( sql_exp *e )
 			return (exp_has_func(e->l) || exp_has_func(e->r) || 
 					(e->f && exp_has_func(e->f)));
 		}
+	case e_column:
+	case e_psm:
+		return 0;
+	}
+	return 0;
+}
+
+static int
+exps_has_sideeffect( list *exps)
+{
+	node *n;
+	int has_sideeffect = 0;
+
+	for(n=exps->h; n && !has_sideeffect; n=n->next) 
+		has_sideeffect |= exp_has_sideeffect(n->data);
+	return has_sideeffect;
+}
+
+int
+exp_has_sideeffect( sql_exp *e )
+{
+	switch (e->type) {
+	case e_convert:
+		return exp_has_sideeffect(e->l);
+	case e_func:
+		{
+			sql_subfunc *f = e->f;
+
+			if (f->func->side_effect) 
+				return 1;
+			if (e->l)
+				return exps_has_sideeffect(e->l);
+			return 0;
+		}
+	case e_atom:
+	case e_aggr: 
+	case e_cmp:
 	case e_column:
 	case e_psm:
 		return 0;
@@ -1609,21 +1652,21 @@ exps_intern(list *exps)
 }
 
 char *
-compare_func( comp_type t )
+compare_func( comp_type t, int anti )
 {
 	switch(t) {
 	case cmp_equal:
-		return "=";
+		return anti?"<>":"=";
 	case cmp_lt:
-		return "<";
+		return anti?">":"<";
 	case cmp_lte:
-		return "<=";
+		return anti?">=":"<=";
 	case cmp_gte:
-		return ">=";
+		return anti?"<=":">=";
 	case cmp_gt:
-		return ">";
+		return anti?"<":">";
 	case cmp_notequal:
-		return "<>";
+		return anti?"=":"<>";
 	default:
 		return NULL;
 	}

@@ -54,6 +54,9 @@ typedef struct CURRENT_INSTR{
 	InstrPtr	pci;
 } Workset;
 
+// WARNING: this is also defined in embedded.h
+typedef int (*monetdb_progress_callback)(void* conn, void* data, size_t num_statements, size_t num_completed_statement, float percentage_done);
+
 typedef struct CLIENT {
 	int idx;        /* entry in mal_clients */
 	oid user;       /* user id in the auth administration */
@@ -178,6 +181,17 @@ typedef struct CLIENT {
 	BAT *error_fld;
 	BAT *error_msg;
 	BAT *error_input;
+
+	size_t blocksize;
+	protocol_version protocol;
+	int compute_column_widths;
+
+	monetdb_progress_callback progress_callback;
+	void* progress_data;
+	size_t progress_done;
+	size_t progress_len;
+	MT_Lock progress_lock;
+
 } *Client, ClientRec;
 
 mal_export void    MCinit(void);

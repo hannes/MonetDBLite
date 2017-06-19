@@ -93,7 +93,6 @@ BATcreatedesc(oid hseq, int tt, int heapnames, int role)
 	bn->tnil = FALSE;
 	bn->tsorted = bn->trevsorted = ATOMlinear(tt) != 0;
 	bn->tident = BATstring_t;
-	bn->talign = OIDnew(1);
 	bn->tseqbase = (tt == TYPE_void) ? oid_nil : 0;
 	bn->tprops = NULL;
 
@@ -102,7 +101,10 @@ BATcreatedesc(oid hseq, int tt, int heapnames, int role)
 	/*
 	 * add to BBP
 	 */
-	BBPinsert(bn);
+	if (BBPinsert(bn) == 0) {
+		GDKfree(bn);
+		return NULL;
+	}
 	/*
  	* Default zero for order oid index
  	*/
@@ -134,6 +136,7 @@ BATcreatedesc(oid hseq, int tt, int heapnames, int role)
 	bn->batDirty = TRUE;
 	return bn;
       bailout:
+	BBPclear(bn->batCacheid);
 	if (tt)
 		HEAPfree(&bn->theap, 1);
 	if (bn->tvheap) {
@@ -205,9 +208,13 @@ BATnewstorage(oid hseq, int tt, BUN cap, int role)
 		goto bailout;
 	}
 	DELTAinit(bn);
-	BBPcacheit(bn, 1);
+	if (BBPcacheit(bn, 1) != GDK_SUCCEED) {
+		GDKfree(bn->tvheap);
+		goto bailout;
+	}
 	return bn;
   bailout:
+	BBPclear(bn->batCacheid);
 	HEAPfree(&bn->theap, 1);
 	GDKfree(bn);
 	return NULL;
@@ -243,6 +250,10 @@ BATdense(oid hseq, oid tseq, BUN cnt)
 		return NULL;
 	BATtseqbase(bn, tseq);
 	BATsetcount(bn, cnt);
+
+	(bn)->tdense = 1;
+	(bn)->tnodense = 0;
+
 	return bn;
 }
 
@@ -284,7 +295,14 @@ BATattach(int tt, const char *heapfile, int role)
 		while ((c = getc(f)) != EOF) {
 			if (n == m) {
 				m += 4096;
-				p = GDKrealloc(p, m);
+				s = GDKrealloc(p, m);
+				if (s == NULL) {
+					GDKfree(p);
+					BBPreclaim(bn);
+					fclose(f);
+					return NULL;
+				}
+				p = s;
 				s = p + n;
 			}
 			if (c == '\n' && n > 0 && s[-1] == '\r') {
@@ -494,22 +512,19 @@ BATclear(BAT *b, int force)
 
 	/* we must dispose of all inserted atoms */
 	if (force && BATatoms[b->ttype].atomDel == NULL) {
-		Heap th;
-
+		assert(b->tvheap == NULL || b->tvheap->parentid == b->batCacheid);
 		/* no stable elements: we do a quick heap clean */
 		/* need to clean heap which keeps data even though the
 		   BUNs got removed. This means reinitialize when
 		   free > 0
 		*/
-		memset(&th, 0, sizeof(th));
-		if (b->tvheap) {
-			th.farmid = b->tvheap->farmid;
-			if (b->tvheap->free > 0 &&
-			    ATOMheap(b->ttype, &th, 0) != GDK_SUCCEED)
-				return GDK_FAIL;
-		}
-		assert(b->tvheap == NULL || b->tvheap->parentid == b->batCacheid);
 		if (b->tvheap && b->tvheap->free > 0) {
+			Heap th;
+
+			memset(&th, 0, sizeof(th));
+			th.farmid = b->tvheap->farmid;
+			if (ATOMheap(b->ttype, &th, 0) != GDK_SUCCEED)
+				return GDK_FAIL;
 			th.parentid = b->tvheap->parentid;
 			HEAPfree(b->tvheap, 0);
 			*b->tvheap = th;
@@ -523,7 +538,7 @@ BATclear(BAT *b, int force)
 		if (tatmdel) {
 			BATiter bi = bat_iterator(b);
 
-			for(p = b->batInserted, q = BUNlast(b); p < q; p++)
+			for (p = b->batInserted, q = BUNlast(b); p < q; p++)
 				(*tatmdel)(b->tvheap, (var_t*) BUNtloc(bi,p));
 		}
 	}
@@ -1189,7 +1204,8 @@ BUNinplace(BAT *b, BUN p, const void *t, bit force)
 		b->tnorevsorted = 0;
 	if (((b->ttype != TYPE_void) & b->tkey & !b->tunique) && b->batCount > 1) {
 		BATkey(b, FALSE);
-	}
+	} else if (!b->tkey && (b->tnokey[0] == p || b->tnokey[1] == p))
+		b->tnokey[0] = b->tnokey[1] = 0;
 	if (b->tnonil)
 		b->tnonil = t && atom_CMP(t, ATOMnilptr(b->ttype), b->ttype) != 0;
 	b->theap.dirty = TRUE;
@@ -1462,8 +1478,7 @@ BATkey(BAT *b, int flag)
 		    ATOMtype(BATttype(b)) == ATOMtype(BATttype(bp)) &&
 		    !BATtkey(bp) &&
 		    ((BATtvoid(b) && BATtvoid(bp) && b->tseqbase == bp->tseqbase) ||
-		     BATcount(b) == 0 ||
-		     (b->talign && b->talign == bp->talign)))
+		     BATcount(b) == 0))
 			return BATkey(bp, TRUE);
 	}
 	return GDK_SUCCEED;
@@ -1494,10 +1509,6 @@ BATtseqbase(BAT *b, oid o)
 	if (ATOMtype(b->ttype) == TYPE_oid) {
 		if (b->tseqbase != o) {
 			b->batDirtydesc = TRUE;
-			/* zap alignment if column is changed by new
-			 * seqbase */
-			if (b->ttype == TYPE_void)
-				b->talign = 0;
 		}
 		b->tseqbase = o;
 		if (b->ttype == TYPE_oid && o == oid_nil) {
@@ -1534,41 +1545,6 @@ BATtseqbase(BAT *b, oid o)
 		}
 	}
 }
-
-/*
- * BATs have a logical name that is independent of their location in
- * the file system (this depends on batCacheid).  The dimensions of
- * the BAT can be given a separate name.  It helps front-ends in
- * identifying the column of interest.  The new name should be
- * recognizable as an identifier.  Otherwise interaction through the
- * front-ends becomes complicated.
- */
-int
-BATname(BAT *b, const char *nme)
-{
-	BATcheck(b, "BATname", 0);
-	return BBPrename(b->batCacheid, nme);
-}
-
-str
-BATrename(BAT *b, const char *nme)
-{
-	int ret;
-
-	BATcheck(b, "BATrename", NULL);
-	ret = BATname(b, nme);
-	if (ret == 1) {
-		GDKerror("BATrename: identifier expected: %s\n", nme);
-	} else if (ret == BBPRENAME_ALREADY) {
-		GDKerror("BATrename: name is in use: '%s'.\n", nme);
-	} else if (ret == BBPRENAME_ILLEGAL) {
-		GDKerror("BATrename: illegal temporary name: '%s'\n", nme);
-	} else if (ret == BBPRENAME_LONG) {
-		GDKerror("BATrename: name too long: '%s'\n", nme);
-	}
-	return BBPname(b->batCacheid);
-}
-
 
 void
 BATroles(BAT *b, const char *tnme)
@@ -1940,9 +1916,9 @@ BATmode(BAT *b, int mode)
 		}
 		/* persistent BATs get a logical reference */
 		if (mode == PERSISTENT) {
-			BBPincref(bid, TRUE);
+			BBPretain(bid);
 		} else if (b->batPersistence == PERSISTENT) {
-			BBPdecref(bid, TRUE);
+			BBPrelease(bid);
 		}
 		MT_lock_set(&GDKswapLock(bid));
 		if (mode == PERSISTENT) {
@@ -2002,6 +1978,12 @@ BATmode(BAT *b, int mode)
  *		then all values are equal.
  * revsorted	The column is reversely sorted (descending).  If
  *		also sorted, then all values are equal.
+ * nosorted	BUN position which proofs not sorted (given position
+ *		and one before are not ordered correctly).
+ * norevsorted	BUN position which proofs not revsorted (given position
+ *		and one before are not ordered correctly).
+ * nokey	Pair of BUN positions that proof not all values are
+ *		distinct (i.e. values at given locations are equal).
  *
  * In addition there is a property "unique" that, when set, indicates
  * that values must be kept unique (and hence that the "key" property

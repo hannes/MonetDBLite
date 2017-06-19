@@ -25,8 +25,8 @@
 
 // Keep a queue of running queries
 QueryQueue QRYqueue;
-static int qtop, qsize;
-static int qtag= 1;
+int qtop;
+static int qsize, qtag= 1;
 
 void
 mal_runtime_reset(void)
@@ -38,6 +38,7 @@ mal_runtime_reset(void)
 	qtag= 1;
 }
 
+#ifndef HAVE_EMBEDDED
 static str isaSQLquery(MalBlkPtr mb){
 	int i;
 	InstrPtr p;
@@ -49,6 +50,7 @@ static str isaSQLquery(MalBlkPtr mb){
 	}
 	return 0;
 }
+#endif
 
 /*
  * Manage the runtime profiling information
@@ -56,55 +58,81 @@ static str isaSQLquery(MalBlkPtr mb){
 void
 runtimeProfileInit(Client cntxt, MalBlkPtr mb, MalStkPtr stk)
 {
+#ifdef HAVE_EMBEDDED
+	(void) cntxt;
+	(void) mb;
+	(void) stk;
+#else
 	int i;
 	str q;
+	QueryQueue tmp;
 
 	MT_lock_set(&mal_delayLock);
+	tmp = QRYqueue;
 	if ( QRYqueue == 0)
 		QRYqueue = (QueryQueue) GDKzalloc( sizeof (struct QRYQUEUE) * (qsize= 256));
-	else
-	if ( qtop +1 == qsize )
+	else if ( qtop +1 == qsize )
 		QRYqueue = (QueryQueue) GDKrealloc( QRYqueue, sizeof (struct QRYQUEUE) * (qsize +=256));
 	if ( QRYqueue == NULL){
-		GDKerror("runtimeProfileInit" MAL_MALLOC_FAIL);
+		GDKfree(tmp);			/* may be NULL, but doesn't harm */
 		MT_lock_unset(&mal_delayLock);
 		return;
 	}
+	// check for recursive call
 	for( i = 0; i < qtop; i++)
-		if ( QRYqueue[i].mb == mb)
-			break;
+		if ( QRYqueue[i].mb == mb &&  stk->up == QRYqueue[i].stk){
+			QRYqueue[i].stk = stk;
+			stk->tag = QRYqueue[i].tag;
+			MT_lock_unset(&mal_delayLock);
+			return;
+		}
 
-	if ( i == qtop ) {
-		mb->tag = qtag;
-		QRYqueue[i].mb = mb;	// for detecting duplicates
-		QRYqueue[i].stk = stk;	// for status pause 'p'/running '0'/ quiting 'q'
+	// add new invocation
+	if (i == qtop) {
+		QRYqueue[i].mb = mb;
 		QRYqueue[i].tag = qtag++;
+		mb->tag = QRYqueue[i].tag;
+		QRYqueue[i].stk = stk;				// for status pause 'p'/running '0'/ quiting 'q'
 		QRYqueue[i].start = (lng)time(0);
-		QRYqueue[i].runtime = mb->runtime;
+		QRYqueue[i].runtime = mb->runtime; 	// the estimated execution time
 		q = isaSQLquery(mb);
 		QRYqueue[i].query = q? GDKstrdup(q):0;
 		QRYqueue[i].status = "running";
 		QRYqueue[i].cntxt = cntxt;
+
+
 	}
 	stk->tag = QRYqueue[i].tag;
 	qtop += i == qtop;
+
 	MT_lock_unset(&mal_delayLock);
+#endif
 }
 
 void
-runtimeProfileFinish(Client cntxt, MalBlkPtr mb)
+runtimeProfileFinish(Client cntxt, MalBlkPtr mb, MalStkPtr stk)
 {
+#ifdef HAVE_EMBEDDED
+	(void) cntxt;
+	(void) mb;
+	(void) stk;
+#else
 	int i,j;
 
 	(void) cntxt;
-	if( QRYqueue == NULL)
-		return;
+	(void) mb;
 
 	MT_lock_set(&mal_delayLock);
 	for( i=j=0; i< qtop; i++)
-	if ( QRYqueue[i].mb != mb)
+	if ( QRYqueue[i].stk != stk)
 		QRYqueue[j++] = QRYqueue[i];
 	else  {
+		if( stk->up){
+			// recursive call
+			QRYqueue[i].stk = stk->up;
+			MT_lock_unset(&mal_delayLock);
+			return;
+		}
 		QRYqueue[i].mb->calls++;
 		QRYqueue[i].mb->runtime += (lng) (((lng)time(0) - QRYqueue[i].start) * 1000.0/QRYqueue[i].mb->calls);
 
@@ -122,11 +150,15 @@ runtimeProfileFinish(Client cntxt, MalBlkPtr mb)
 	qtop = j;
 	QRYqueue[qtop].query = NULL; /* sentinel for SYSMONqueue() */
 	MT_lock_unset(&mal_delayLock);
+#endif
 }
 
 void
 finishSessionProfiler(Client cntxt)
 {
+#ifdef HAVE_EMBEDDED
+	(void) cntxt;
+#else
 	int i,j;
 
 	(void) cntxt;
@@ -148,13 +180,20 @@ finishSessionProfiler(Client cntxt)
 	}
 	qtop = j;
 	MT_lock_unset(&mal_delayLock);
+#endif
 }
 
 void
 runtimeProfileBegin(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, RuntimeProfile prof)
 {
+#ifdef HAVE_EMBEDDED
+	(void) cntxt;
+	(void) mb;
+	(void) stk;
+	(void) pci;
+	(void) prof;
+#else
 	int tid = THRgettid();
-
 	assert(pci);
 	/* keep track on the instructions taken in progress */
 	cntxt->active = TRUE;
@@ -165,21 +204,44 @@ runtimeProfileBegin(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, Run
 	}
 
 	/* always collect the MAL instruction execution time */
-	gettimeofday(&pci->clock,NULL);
-	prof->ticks = GDKusec();
+	pci->clock = prof->ticks = GDKusec();
 
 	/* keep track of actual running instructions over BATs */
 	if( isaBatType(getArgType(mb, pci, 0)) )
 		(void) ATOMIC_INC(mal_running, mal_runningLock);
 
 	/* emit the instruction upon start as well */
-	if(malProfileMode > 0)
+	if(malProfileMode > 0 )
 		profilerEvent(mb, stk, pci, TRUE, cntxt->username);
+#endif
 }
 
 void
 runtimeProfileExit(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, RuntimeProfile prof)
 {
+#ifdef HAVE_EMBEDDED
+	float perc;
+	(void) mb;
+	(void) stk;
+	(void) pci;
+	(void) prof;
+	if (!cntxt->progress_callback) {
+		return;
+	}
+	MT_lock_set(&cntxt->progress_lock);
+	cntxt->progress_done++;
+	if (cntxt->progress_done > cntxt->progress_len) {
+		cntxt->progress_done = cntxt->progress_len;
+	}
+
+	perc = cntxt->progress_done/(cntxt->progress_len*1.0);
+	if (perc > 1) perc = 1;
+	if (perc < 0) perc = 0;
+
+	cntxt->progress_callback(cntxt, cntxt->progress_data, cntxt->progress_len, cntxt->progress_done, perc);
+	MT_lock_unset(&cntxt->progress_lock);
+
+#else
 	int tid = THRgettid();
 
 	/* keep track on the instructions in progress*/
@@ -199,9 +261,8 @@ runtimeProfileExit(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, Runt
 	pci->totticks += pci->ticks;
 	pci->calls++;
 	
-	if(malProfileMode > 0){
-		pci->wbytes += getVolume(stk, pci, 1);
-		pci->rbytes += getVolume(stk, pci, 0);
+	if(malProfileMode > 0 ){
+		pci->wbytes = getVolume(stk, pci, 1);
 		profilerEvent(mb, stk, pci, FALSE, cntxt->username);
 	}
 	if( malProfileMode < 0){
@@ -213,6 +274,7 @@ runtimeProfileExit(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, Runt
 	/* reduce threads of non-admin long running transaction if needed */
 	if ( cntxt->idx > 1 )
 		MALresourceFairness(GDKusec()- mb->starttime);
+#endif
 }
 
 /*

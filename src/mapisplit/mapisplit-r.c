@@ -1,10 +1,12 @@
+#include "monetdb_config.h"
+
+#ifdef HAVE_EMBEDDED_R
 #include <R.h>
 #include <Rdefines.h>
 #include "mapisplit.h"
+#include "mapisplit-r.h"
 
 char nullstr[] = "NULL";
-
-SEXP mapi_split(SEXP mapiLinesVector, SEXP numCols);
 
 SEXP mapi_split(SEXP mapiLinesVector, SEXP numCols) {
 	int cols = INTEGER_POINTER(AS_INTEGER(numCols))[0];
@@ -50,3 +52,4 @@ SEXP mapi_split(SEXP mapiLinesVector, SEXP numCols) {
 	UNPROTECT(1);
 	return colVec;
 }
+#endif

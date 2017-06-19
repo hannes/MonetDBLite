@@ -6,20 +6,16 @@
  * Copyright 1997 - July 2008 CWI, August 2008 - 2017 MonetDB B.V.
  */
 
-/*
- * @+ Dummy code
- */
-#ifndef _Q_STATISTICS_H
-#define _Q_STATISTICS_H
-/* #define _Q_STATISTICS_DEBUG*/
+#ifndef _OLTP_H
+#define _OLTP_H
+/* #define _OLTP_DEBUG*/
 
 #include "mal_interpreter.h"
 #include "mal_scenario.h"
-#include "mal_namespace.h"
+#include "oltp.h"
 #include "opt_support.h"
 #include "opt_prelude.h"
 
-mal_export str QOTgetStatistics(bat *ret, str *nme);
-mal_export void QOTupdateStatistics(str nme, int prop, lng val);
-mal_export void QOTstatisticsExit(void);
-#endif /* _Q_STATISTICS_H */
+mal_export str OPToltpImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
+
+#endif /* _OLTP_H */

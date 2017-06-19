@@ -50,6 +50,7 @@
  */
 #include "monetdb_config.h"
 #include "mal_stack.h"
+#include "mal_exception.h"
 
 /* #define DEBUG_MAL_STACK*/
 
@@ -60,6 +61,7 @@ newGlobalStack(int size)
 
 	s = (MalStkPtr) GDKzalloc(stackSize(size) + offsetof(MalStack, stk));
 	if (!s) {
+		GDKerror("newGlobalStack:"MAL_MALLOC_FAIL);
 		return NULL;
 	}
 	s->stksize = size;
@@ -105,11 +107,19 @@ void
 clearStack(MalStkPtr s)
 {
 	ValPtr v;
-	int i = s->stktop;
+	int i;
+
+	if (!s) return;
+	
+	i = s->stktop;
 
 	for (v = s->stk; i >= 0; i--, v++)
 		if (ATOMextern(v->vtype) && v->val.pval) {
 			GDKfree(v->val.pval);
+			v->vtype = 0;
+			v->val.pval = NULL;
+		} else if (BATatoms[v->vtype].atomUnfix) {
+			BATatoms[v->vtype].atomUnfix(VALget(v));
 			v->vtype = 0;
 			v->val.pval = NULL;
 		}

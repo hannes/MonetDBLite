@@ -1086,32 +1086,39 @@ struct UTF8_lower_upper {
 
 #define UTF8_CONVERSIONS (sizeof(UTF8_lower_upper) / sizeof(UTF8_lower_upper[0]))
 
-static BAT *UTF8_upperBat = NULL, *UTF8_lowerBat;
+static BAT *UTF8_upperBat = NULL, *UTF8_lowerBat = NULL;
 
 str
 strPrelude(void *ret)
 {
 	(void) ret;
-//	if (UTF8_upperBat == NULL) {
+//	if (UTF8_upperBat == NULL) { // always, lite, ya know
 		int i = UTF8_CONVERSIONS;
 
 		UTF8_upperBat = COLnew(0, TYPE_int, UTF8_CONVERSIONS, TRANSIENT);
-		if (UTF8_upperBat == NULL)
-			return NULL;
 		UTF8_lowerBat = COLnew(0, TYPE_int, UTF8_CONVERSIONS, TRANSIENT);
-		if (UTF8_lowerBat == NULL) {
-			BBPreclaim(UTF8_upperBat);
-			UTF8_upperBat = NULL;
-			return NULL;
-		}
+		if (UTF8_upperBat == NULL || UTF8_lowerBat == NULL)
+			goto bailout;
+
 		while (--i >= 0) {
-			BUNappend(UTF8_upperBat, &UTF8_lower_upper[i].upper, FALSE);
-			BUNappend(UTF8_lowerBat, &UTF8_lower_upper[i].lower, FALSE);
+			if (BUNappend(UTF8_upperBat, &UTF8_lower_upper[i].upper, FALSE) != GDK_SUCCEED ||
+				BUNappend(UTF8_lowerBat, &UTF8_lower_upper[i].lower, FALSE) != GDK_SUCCEED) {
+				goto bailout;
+			}
 		}
-		BATname(UTF8_upperBat, "monet_unicode_toupper");
-		BATname(UTF8_lowerBat, "monet_unicode_tolower");
+		if (BBPrename(UTF8_upperBat->batCacheid, "monet_unicode_toupper") != 0 ||
+			BBPrename(UTF8_lowerBat->batCacheid, "monet_unicode_tolower") != 0) {
+			goto bailout;
+		}
 	//}
-	return NULL;
+	return MAL_SUCCEED;
+
+  bailout:
+	BBPreclaim(UTF8_upperBat);
+	BBPreclaim(UTF8_lowerBat);
+	UTF8_upperBat = NULL;
+	UTF8_lowerBat = NULL;
+	throw(MAL, "str.prelude", GDK_EXCEPTION);
 }
 
 str
@@ -1505,7 +1512,10 @@ STRtostr(str *res, const str *src)
 {
 	if( *src == 0)
 		*res= GDKstrdup(str_nil);
-	else *res = GDKstrdup(*src);
+	else
+		*res = GDKstrdup(*src);
+	if (*res == NULL)
+		throw(MAL, "str.str", MAL_MALLOC_FAIL);
 	return MAL_SUCCEED;
 }
 
@@ -2282,30 +2292,39 @@ STRSubstitute(str *res, const str *arg1, const str *arg2, const str *arg3, const
 	int repeat = *g;
 	size_t lsrc = src ? strlen(src) : 0;
 	size_t ldst = dst ? strlen(dst) : 0;
-	size_t l = s ? strLen(s) : 0;
-	size_t n = l + ldst;
-	str buf, fnd, end;
+	size_t l = strLen(s);
+	size_t n;
+	char *buf;
+	const char *pfnd;
+	char *fnd;
 
+	if (s == NULL || strcmp(s, str_nil) == 0) {
+		if ((*res = GDKstrdup(str_nil)) == NULL)
+			throw(MAL, "str.substitute", MAL_MALLOC_FAIL);
+		return MAL_SUCCEED;
+	}
+
+	n = l + ldst;
 	if (repeat && ldst > lsrc && lsrc) {
 		n = (ldst * l) / lsrc;	/* max length */
 	}
 	buf = *res = GDKmalloc(n);
 	if (*res == NULL)
 		throw(MAL, "str.substitute", MAL_MALLOC_FAIL);
-	end = buf + l;
-	fnd = buf;
-	strcpy(buf, s ? s : "");
-	if (lsrc == 0)
-		return MAL_SUCCEED;
+
+	pfnd = s;
 	do {
-		fnd = strstr(fnd < buf ? buf : fnd, src);
+		fnd = strstr(pfnd, src);
 		if (fnd == NULL)
 			break;
-		memmove(fnd + ldst, fnd + lsrc, end - fnd);
-		memcpy(fnd, dst, ldst);
-		end += ldst - lsrc;
-		fnd += ldst;
+		n = fnd - pfnd;
+		strncpy(buf, pfnd, n);
+		buf += n;
+		strncpy(buf, dst, ldst);
+		buf += ldst;
+		pfnd = fnd + lsrc;
 	} while (repeat);
+	strcpy(buf, pfnd);
 	return MAL_SUCCEED;
 }
 
@@ -2367,20 +2386,35 @@ STRinsert(str *ret, const str *s, const int *start, const int *l, const str *s2)
 {
 	str v;
 	int strt = *start;
-	if (strcmp(*s2, str_nil) == 0 || strcmp(*s, str_nil) == 0)
-		*ret = GDKstrdup((str) str_nil);
-	else {
-		if (strt < 0)
-			strt = 1;
-		if(strlen(*s)+strlen(*s2)+1 >= INT_MAX) {
+	if (strcmp(*s2, str_nil) == 0 || strcmp(*s, str_nil) == 0) {
+		if ((*ret = GDKstrdup(str_nil)) == NULL)
+			throw(MAL, "str.insert", MAL_MALLOC_FAIL);
+	} else {
+		size_t l1 = strlen(*s);
+		size_t l2 = strlen(*s2);
+
+		if (l1 + l2 + 1 >= INT_MAX) {
 			throw(MAL, "str.insert", MAL_MALLOC_FAIL);
 		}
-		v= *ret = GDKmalloc((int)strlen(*s)+(int)strlen(*s2)+1 );
-		strncpy(v, *s,strt);
-		v[strt]=0;
-		strcat(v,*s2);
-		if( strt + *l < (int) strlen(*s))
-			strcat(v,*s + strt + *l);
+		if (*l < 0)
+			throw(MAL, "str.insert", ILLEGAL_ARGUMENT);
+		if (strt < 0) {
+			if ((size_t) -strt <= l1)
+				strt = (int) (l1 + strt);
+			else
+				strt = 0;
+		}
+		if ((size_t) strt > l1)
+			strt = (int) l1;
+		v = *ret = GDKmalloc(strlen(*s) + strlen(*s2) + 1);
+		if (v == NULL)
+			throw(MAL, "str.insert", MAL_MALLOC_FAIL);
+		if (strt > 0)
+			strncpy(v, *s, strt);
+		v[strt] = 0;
+		strcpy(v + strt, *s2);
+		if (strt + *l < (int) l1)
+			strcat(v, *s + strt + *l);
 	}
 	return MAL_SUCCEED;
 }
@@ -2399,7 +2433,8 @@ STRrepeat(str *ret, const str *s, const int *c)
 	size_t l;
 
 	if (*c < 0 || strcmp(*s, str_nil) == 0) {
-		*ret = GDKstrdup(str_nil);
+		if ((*ret = GDKstrdup(str_nil)) == NULL)
+			throw(MAL, "str.repeat", MAL_MALLOC_FAIL);
 	} else {
 		l = strlen(*s);
 		if (l >= INT_MAX)

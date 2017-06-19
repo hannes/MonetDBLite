@@ -10,17 +10,17 @@ libmapisplit_la_CFLAGS=-DLIBMAPISPLIT $(AM_CFLAGS)
 mapisplitdir = $(libdir)
 libmapisplit_la-mapisplit.lo: mapisplit.c mapisplit.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmapisplit_la_CFLAGS) $(CFLAGS) $(mapisplit_CFLAGS) -c -o libmapisplit_la-mapisplit.lo `test -f 'mapisplit.c' || echo '$(srcdir)/'`mapisplit.c
-libmapisplit_la-mapisplit-r.lo: mapisplit-r.c mapisplit.h
+libmapisplit_la-mapisplit-r.lo: mapisplit-r.c mapisplit.h mapisplit-r.h
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libmapisplit_la_CFLAGS) $(CFLAGS) $(mapisplit-r_CFLAGS) -c -o libmapisplit_la-mapisplit-r.lo `test -f 'mapisplit-r.c' || echo '$(srcdir)/'`mapisplit-r.c
 nodist_libmapisplit_la_SOURCES =
-dist_libmapisplit_la_SOURCES = mapisplit.c mapisplit-r.c mapisplit.h
+dist_libmapisplit_la_SOURCES = mapisplit.c mapisplit-r.c mapisplit-r.h mapisplit.h
 libmapisplit_la_LDFLAGS = -version-info 1
-mapisplit-r.o mapisplit-r.lo: mapisplit-r.c mapisplit.h
+mapisplit-r.o mapisplit-r.lo: mapisplit-r.c mapisplit.h mapisplit-r.h
 mapisplit.o mapisplit.lo: mapisplit.c mapisplit.h
 AM_CPPFLAGS = -I$(srcdir)
 BUILT_SOURCES =
 MOSTLYCLEANFILES =
-EXTRA_DIST = Makefile.ag Makefile.msc mapisplit-r.c mapisplit.c mapisplit.h
+EXTRA_DIST = Makefile.ag Makefile.msc mapisplit-r.c mapisplit-r.h mapisplit.c mapisplit.h
 mapisplit_LTLIBRARIES = libmapisplit.la
 
   include $(top_srcdir)/buildtools/conf/rules.mk

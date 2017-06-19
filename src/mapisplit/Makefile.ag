@@ -18,6 +18,6 @@
 MTSAFE
 
 lib_mapisplit  = {
-	SOURCES = mapisplit.c mapisplit-r.c mapisplit.h
+	SOURCES = mapisplit.c mapisplit-r.c mapisplit-r.h mapisplit.h
 	VERSION = 1
 }
