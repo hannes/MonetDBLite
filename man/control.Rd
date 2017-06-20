@@ -16,8 +16,8 @@ The general process is to generate a MonetDB database directory and startup scri
 This function will return the process id of the external database server, which in turn can be passed to 
 \code{monetdb.server.stop} to stop the database server again. The process ID of a running MonetDB server can also be querid using \code{monetdb.server.getpid}, which takes a DBI connection as a parameter. A better alternative to \code{monetdb.server.stop} is \code{monetdb.server.shutdown}, which takes a DBI connection to shut down the server. 
 
-All of these external server process control functions are deprecated in favor of MonetDBLite.
-
+All of these external server process control functions are discouraged in favor of embedded \code{\link[=MonetDBLite]{MonetDBLite::MonetDBLite()}} functions.
+  
 Unlike an embedded instance, initiating an external server process requires \href{https://www.monetdb.org/}{MonetDB home page} installed on the user's system.
 }
 \usage{
