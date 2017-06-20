@@ -124,6 +124,16 @@ static int monetdbliteFreeResults(
   char **azResult,            /* The results to be freed */
   int nResult                 /* Number of rows of result */
 ){
+	int i;
+	if (!azResult) {
+		return 1;
+	}
+	for (i = 0; i < nResult; i++) {
+		if (azResult[i]) {
+			free(azResult[i]);
+		}
+	}
+	free(azResult);
   return 0;
 }
 
