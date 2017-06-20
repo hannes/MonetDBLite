@@ -28,7 +28,7 @@ int main() {
         return -2;
     }
 
-    err = monetdb_query(conn, "COPY INTO lineitem FROM '/Users/hannes/source/MonetDB/sql/benchmarks/tpch/SF-0.01/lineitem.tbl' USING DELIMITERS '|', '\n';", 1, NULL, NULL, NULL);
+    err = monetdb_query(conn, "COPY INTO lineitem FROM '/tmp/tpch/dbgen/lineitem.tbl' USING DELIMITERS '|', '\n';", 1, NULL, NULL, NULL);
     if (err != 0) {
         fprintf(stderr, "Query 1 fail: %s\n", err);
         return -2;
@@ -42,6 +42,56 @@ int main() {
 
 	fprintf(stderr, "Query result with %zu cols and %zu rows\n", result->ncols, result->nrows);
 
+		for (size_t r = 0; r < result->nrows; r++) {
+			for (size_t c = 0; c < result->ncols; c++) {
+				monetdb_column* actual_column = monetdb_result_fetch(result, c);
+				switch(actual_column->type) {
+				case monetdb_int8_t: {
+					monetdb_column_int8_t * col = (monetdb_column_int8_t *) actual_column;
+					printf("%d", (int)col->data[r]);
+					break;
+				}
+				case monetdb_int16_t: {
+					monetdb_column_int16_t * col = (monetdb_column_int16_t *) actual_column;
+					printf("%d", (int)col->data[r]);
+					break;
+				}
+				case monetdb_int32_t: {
+					monetdb_column_int32_t * col = (monetdb_column_int32_t *) actual_column;
+					printf("%d", (int)col->data[r]);
+					break;
+				}
+				case monetdb_int64_t: {
+					monetdb_column_int64_t * col = (monetdb_column_int64_t *) actual_column;
+					printf("%lld", col->data[r]);
+					break;
+				}
+				case monetdb_float: {
+					monetdb_column_float * col = (monetdb_column_float *) actual_column;
+					printf("%f", col->data[r]);
+					break;
+				}
+				case monetdb_double: {
+					monetdb_column_double * col = (monetdb_column_double *) actual_column;
+					printf("%lf", col->data[r]);
+					break;
+				}
+				case monetdb_str: {
+					monetdb_column_str * col = (monetdb_column_str *) actual_column;
+					printf("%s", col->data[r] ? col->data[r] : "NULL");
+					break;
+				}
+				default: {
+					printf("UNKNOWN");
+				}
+				}
+
+				if (c + 1 < result->ncols) {
+					printf(", ");
+				}
+			}
+			printf("\n");
+		}
 
 
 	err = monetdb_query(conn, "UPDATE lineitem SET l_quantity=42", 1, NULL, NULL, NULL);
@@ -73,20 +123,6 @@ int main() {
 	   }
 
 		fprintf(stderr, "Query result with %zu cols and %zu rows\n", result->ncols, result->nrows);
-
-		for (size_t r = 0; r < result->nrows; r++) {
-			for (size_t c = 0; c < result->ncols; c++) {
-				monetdb_column* col = monetdb_result_fetch(result, c);
-				switch(col->typeid) {
-				case monetdb_int8_t:
-					monetdb_column_int8_t * col = (monetdb_column_int8_t *) col;
-
-					break;
-				default:
-					printf("X");
-				}
-			}
-		}
 
 
 		err = monetdb_query(conn, "DROP table lineitem;", 1, NULL, NULL, NULL);

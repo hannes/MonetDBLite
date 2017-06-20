@@ -16,7 +16,6 @@
 #include <stddef.h> /* only for size_t */
 #include <stdint.h>
 
-
 typedef struct append_data {
 	char* colname;
 	size_t batid; /* Disclaimer: this header is GDK-free */
@@ -45,7 +44,6 @@ typedef struct {
 	void* data;
 } monetdb_data_blob;
 
-
 typedef enum  {
 	monetdb_int8_t, monetdb_int16_t, monetdb_int32_t, monetdb_int64_t, monetdb_size_t,
 	monetdb_float, monetdb_double,
@@ -54,7 +52,7 @@ typedef enum  {
 } monetdb_types;
 
 typedef struct {
-	monetdb_types typeid;
+	monetdb_types type;
 	void *data;
 	size_t count;
 } monetdb_column;
@@ -66,7 +64,6 @@ typedef struct {
 
 typedef void* monetdb_connection;
 
-
 #define DEFAULT_STRUCT_DEFINITION(ctype, typename)                              \
 	typedef struct                                          \
 	{                                                                          \
@@ -76,7 +73,6 @@ typedef void* monetdb_connection;
 		ctype null_value;                                                       \
 		double scale;                                                          \
 		int (*is_null)(ctype value);                                            \
-		void (*initialize)(void *self, size_t count);                          \
 	} monetdb_column_##typename
 
 DEFAULT_STRUCT_DEFINITION(int8_t, int8_t);
@@ -102,13 +98,12 @@ char* monetdb_startup(char* dbdir, char silent, char sequential);
 int   monetdb_is_initialized(void);
 
 char* monetdb_query(monetdb_connection conn, char* query, char execute, monetdb_result** result, long *affected_rows, long* prepare_id);
-monetdb_data* monetdb_result_fetch(monetdb_result* result, size_t column_index);
-void* monetdb_result_fetch_bat(monetdb_result* result, size_t column_index);
+monetdb_column* monetdb_result_fetch(monetdb_result* result, size_t column_index);
+size_t monetdb_result_fetch_bat(monetdb_result* result, size_t column_index);
 
 char* monetdb_append(monetdb_connection conn, const char* schema, const char* table, append_data *data, int ncols);
 void  monetdb_cleanup_result(monetdb_connection conn, monetdb_result* result);
 char* monetdb_get_columns(monetdb_connection conn, const char* schema_name, const char *table_name, int *column_count, char ***column_names, int **column_types);
-
 
 // progress monitoring
 typedef int (*monetdb_progress_callback)(monetdb_connection conn, void* data, size_t num_statements, size_t num_completed_statement, float percentage_done);
