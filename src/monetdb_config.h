@@ -36,8 +36,6 @@
 /* Define if you have asctime_r(struct tm*,char *buf,size_t s) */
 /* #undef HAVE_ASCTIME_R3 */
 
-/* Define to 1 if you have the <atomic_ops.h> header file. */
-#define HAVE_ATOMIC_OPS_H 1
 
 /* Define to 1 if you have the `backtrace' function. */
 #define HAVE_BACKTRACE 1
@@ -158,8 +156,6 @@
 /* Define to 1 if you have the <langinfo.h> header file. */
 #define HAVE_LANGINFO_H 1
 
-/* Define if you have the libatomic_ops library */
-#define HAVE_LIBATOMIC_OPS 1
 
 /* Define to 1 if you have the <libgen.h> header file. */
 #define HAVE_LIBGEN_H 1
@@ -428,9 +424,6 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
-
-/* Define to 1 if you have the <uuid/uuid.h> header file. */
-#define HAVE_UUID_UUID_H 1
 
 /* Define to 1 if you have the <winsock.h> header file. */
 /* #undef HAVE_WINSOCK_H */
