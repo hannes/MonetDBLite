@@ -123,6 +123,9 @@ createOIDXheap(BAT *b, int stable)
 	const char *nme;
 
 	nme = BBP_physical(b->batCacheid);
+	if (GDKinmemory()) {
+		nme = ":inmemory";
+	}
 	nmelen = strlen(nme) + 12;
 	if ((m = GDKzalloc(sizeof(Heap))) == NULL ||
 	    (m->farmid = BBPselectfarm(b->batRole, b->ttype, orderidxheap)) < 0 ||

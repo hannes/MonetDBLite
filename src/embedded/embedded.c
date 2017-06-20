@@ -144,8 +144,6 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 		THRdata[0] = stream_blackhole_create();
 	}
 
-	fprintf(stderr, "%i\n", GDKgetenv_istrue("mapi_disable"));
-
 	if (mal_init() != 0) {
 		retval = GDKstrdup("mal_init() failed");
 		goto cleanup;

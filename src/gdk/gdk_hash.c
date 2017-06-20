@@ -612,7 +612,7 @@ HASHfree(BAT *b)
 		MT_lock_set(&GDKhashLock(b->batCacheid));
 		if (b->thash && b->thash != (Hash *) -1) {
 			if (b->thash != (Hash *) 1) {
-				if (b->thash->heap->storage == STORE_MEM &&
+				if (!GDKinmemory() && b->thash->heap->storage == STORE_MEM &&
 				    b->thash->heap->dirty) {
 					if (GDKsave(b->thash->heap->farmid,
 						    b->thash->heap->filename,

@@ -100,7 +100,7 @@ HEAPalloc(Heap *h, size_t nitems, size_t itemsize)
 		GDKerror("HEAPalloc: allocating more than heap can accomodate\n");
 		return GDK_FAIL;
 	}
-	if (h->filename == NULL ||
+	if (GDKinmemory() || h->filename == NULL ||
 	    h->size < 4 * GDK_mmap_pagesize ||
 	    (GDKmem_cursize() + h->size < GDK_mem_maxsize &&
 	     h->size < (h->farmid == 0 ? GDK_mmap_minsize_persistent : GDK_mmap_minsize_transient))) {
@@ -108,7 +108,7 @@ HEAPalloc(Heap *h, size_t nitems, size_t itemsize)
 		h->base = (char *) GDKmalloc(h->size);
 		HEAPDEBUG fprintf(stderr, "#HEAPalloc " SZFMT " " PTRFMT "\n", h->size, PTRFMTCAST h->base);
 	}
-	if (h->filename && h->base == NULL) {
+	if (!GDKinmemory() && h->filename && h->base == NULL) {
 		char *nme, *of;
 		struct stat st;
 
@@ -169,10 +169,16 @@ HEAPextend(Heap *h, size_t size, int mayshare)
 	char nme[PATHLENGTH], *ext = NULL;
 	const char *failure = "None";
 
-	if (h->filename) {
+	if (h->filename && !GDKinmemory()) {
 		strncpy(nme, h->filename, sizeof(nme));
 		nme[sizeof(nme) - 1] = 0;
 		ext = decompose_filename(nme);
+	}
+	if (GDKinmemory()) {
+		char *inmem = ":inmemory";
+		strncpy(nme, inmem, strlen(inmem));
+
+		ext = "ext";
 	}
 	if (size <= h->size)
 		return GDK_SUCCEED;	/* nothing to do */
@@ -209,7 +215,7 @@ HEAPextend(Heap *h, size_t size, int mayshare)
 		 * file-mapped storage */
 		Heap bak = *h;
 		int exceeds_swap = size >= 4 * GDK_mmap_pagesize && size + GDKmem_cursize() >= GDK_mem_maxsize;
-		int must_mmap = h->filename != NULL && (exceeds_swap || h->newstorage != STORE_MEM || size >= (h->farmid == 0 ? GDK_mmap_minsize_persistent : GDK_mmap_minsize_transient));
+		int must_mmap = !GDKinmemory() && h->filename != NULL && (exceeds_swap || h->newstorage != STORE_MEM || size >= (h->farmid == 0 ? GDK_mmap_minsize_persistent : GDK_mmap_minsize_transient));
 
 		h->size = size;
 
@@ -226,7 +232,7 @@ HEAPextend(Heap *h, size_t size, int mayshare)
 			failure = "h->storage == STORE_MEM && !must_map && !h->base";
 		}
 		/* too big: convert it to a disk-based temporary heap */
-		if (h->filename != NULL) {
+		if (!GDKinmemory() && h->filename != NULL) {
 			int fd;
 			int existing = 0;
 
@@ -319,7 +325,7 @@ HEAPshrink(Heap *h, size_t size)
 
 	assert(size >= h->free);
 	assert(size <= h->size);
-	if (h->storage == STORE_MEM) {
+	if (GDKinmemory() || h->storage == STORE_MEM) {
 		p = GDKrealloc(h->base, size);
 		HEAPDEBUG fprintf(stderr, "#HEAPshrink: shrinking malloced "
 				  "heap " SZFMT " " SZFMT " " PTRFMT " "
@@ -569,7 +575,7 @@ void
 HEAPfree(Heap *h, int remove)
 {
 	if (h->base) {
-		if (h->storage == STORE_MEM) {	/* plain memory */
+		if (GDKinmemory() || h->storage == STORE_MEM) {	/* plain memory */
 			HEAPDEBUG fprintf(stderr, "#HEAPfree " SZFMT
 					  " " PTRFMT "\n",
 					  h->size, PTRFMTCAST h->base);
@@ -602,7 +608,7 @@ HEAPfree(Heap *h, int remove)
 	}
 #endif
 	h->base = NULL;
-	if (h->filename) {
+	if (!GDKinmemory() && h->filename) {
 		if (remove) {
 			char *path = GDKfilepath(h->farmid, BATDIR, h->filename, NULL);
 			if (path && unlink(path) < 0 && errno != ENOENT)
