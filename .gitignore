@@ -1,5 +1,4 @@
 Makefile.msc
-Makefile
 src/config.log
 src/config.status
 src/config.cache
