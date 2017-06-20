@@ -63,7 +63,7 @@ int main() {
 				}
 				case monetdb_int64_t: {
 					monetdb_column_int64_t * col = (monetdb_column_int64_t *) actual_column;
-					printf("%lld", col->data[r]);
+					printf("%lld", (long long int) col->data[r]);
 					break;
 				}
 				case monetdb_float: {

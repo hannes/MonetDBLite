@@ -475,10 +475,10 @@ void monetdb_shutdown(void) {
 	GENERATE_BASE_HEADERS(tpe, tpename);                                       \
 	static int tpename##_is_null(tpe value) { return value == mname##_nil; }
 
-GENERATE_BASE_FUNCTIONS(signed char, int8_t, bte);
-GENERATE_BASE_FUNCTIONS(short, int16_t, sht);
-GENERATE_BASE_FUNCTIONS(int, int32_t, int);
-GENERATE_BASE_FUNCTIONS(long long, int64_t, lng);
+GENERATE_BASE_FUNCTIONS(int8_t, int8_t, bte);
+GENERATE_BASE_FUNCTIONS(int16_t, int16_t, sht);
+GENERATE_BASE_FUNCTIONS(int32_t, int32_t, int);
+GENERATE_BASE_FUNCTIONS(int64_t, int64_t, lng);
 GENERATE_BASE_FUNCTIONS(size_t, size_t, oid);
 
 GENERATE_BASE_FUNCTIONS(float, float, flt);
