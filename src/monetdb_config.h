@@ -431,9 +431,6 @@
 /* Define to 1 if the system has the type `_Bool'. */
 #define HAVE__BOOL 1
 
-/* Define to 1 if you have the `_NSGetExecutablePath' function. */
-#define HAVE__NSGETEXECUTABLEPATH 1
-
 /* Define if you have _sys_siglist */
 /* #undef HAVE__SYS_SIGLIST */
 
@@ -450,7 +447,7 @@
 /* #undef HAVE___UINT128_T */
 
 /* Host identifier */
-#define HOST "x86_64-apple-darwin16.6.0"
+#define HOST "unknown"
 
 /* Define as const if the declaration of iconv() needs const. */
 #define ICONV_CONST 

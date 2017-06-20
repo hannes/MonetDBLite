@@ -347,8 +347,8 @@ inlines: $(MALSCRIPTS) $(SQLSCRIPTS)
 init: sqlparser inlines
 
 test: $(LIBFILE)
-	$(CC) $(OPTFLAGS) tests/sqlitelogic/sqllogictest.c tests/sqlitelogic/md5.c  -o build/sqlitelogic -Ibuild/sqlitelogic -Isrc/embedded -Lbuild -lmonetdb5
-	$(CC) $(OPTFLAGS) tests/tpchq1/test1.c -o build/tpchq1 -Isrc/embedded -Lbuild -lmonetdb5
+	$(CC) $(OPTFLAGS) tests/sqlitelogic/sqllogictest.c tests/sqlitelogic/md5.c $(LDFLAGS) -o build/sqlitelogic -Ibuild/sqlitelogic -Isrc/embedded -Lbuild -lmonetdb5
+	$(CC) $(OPTFLAGS) tests/tpchq1/test1.c $(LDFLAGS) -o build/tpchq1 -Isrc/embedded -Lbuild -lmonetdb5
 	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tpchq1  $(shell pwd)/tests/tpchq1
 	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select1.test
 	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select2.test
