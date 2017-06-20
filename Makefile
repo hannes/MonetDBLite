@@ -3,7 +3,7 @@ OPTIMIZE=$(OPT)
 CC=gcc
 
 ifneq ($(OPTIMIZE), true)
-	OPTFLAGS=-O0 -g -Wall -Werror
+	OPTFLAGS=-O0 -g -Wall -Werror 
 	OBJDIR=build/debug
 else
 	OPTFLAGS=-O3 -g
@@ -12,10 +12,10 @@ endif
 
 DEPSDIR=$(OBJDIR)/deps
 
-CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER
+CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER -fPIC
 
 
-LDFLAGS=-lz -liconv -lm -lpthread -ldl
+LDFLAGS=-lz -lm -lpthread -ldl
 INCLUDE_FLAGS= -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/common/utils  \
 -Isrc/embedded -Isrc/gdk \
 -Isrc/mal/mal -Isrc/mal/modules -Isrc/mal/optimizer \
@@ -348,7 +348,7 @@ init: sqlparser inlines
 
 test: $(LIBFILE)
 	$(CC) $(OPTFLAGS) tests/test1.c -o build/test1 -Isrc/embedded -Lbuild -lmonetdb5
-	DYLD_LIBRARY_PATH=build/ ./build/test1
+	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/test1
 	
 
 DEPS = $(shell find $(DEPSDIR) -name "*.d")
