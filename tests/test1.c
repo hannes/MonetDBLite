@@ -8,7 +8,7 @@ int main() {
     monetdb_result* result = 0;
 
 
-    err = monetdb_startup(NULL, 1, 0);
+    err = monetdb_startup(NULL, 0, 0);
     if (err != 0) {
         fprintf(stderr, "Init fail: %s\n", err);
         return -1;
@@ -28,7 +28,7 @@ int main() {
         return -2;
     }
 
-    err = monetdb_query(conn, "COPY INTO lineitem FROM '/tmp/tpch/dbgen/lineitem.tbl' USING DELIMITERS '|', '\n';", 1, NULL, NULL, NULL);
+    err = monetdb_query(conn, "COPY INTO lineitem FROM '/Users/hannes/source/MonetDB/sql/benchmarks/tpch/SF-0.01/lineitem.tbl' USING DELIMITERS '|', '\n';", 1, NULL, NULL, NULL);
     if (err != 0) {
         fprintf(stderr, "Query 1 fail: %s\n", err);
         return -2;

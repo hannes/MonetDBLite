@@ -4,32 +4,92 @@ CC=gcc
 
 ifneq ($(OPTIMIZE), true)
 	OPTFLAGS=-O0 -g
-	OBJDIR=obj
+	OBJDIR=build/debug
 else
 	OPTFLAGS=-O3 -g
-	OBJDIR=opt
+	OBJDIR=build/optimized
 endif
 
 DEPSDIR=$(OBJDIR)/deps
 
-LIBFILE=libmonetdb5.dylib
-
 CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER
 
-ifneq ($(OPTIMIZE), true)
-	#CFLAGS+=-fsanitize=address
-else
-	true
-endif
 
-LDFLAGS=-lz -liconv
-INCLUDE_FLAGS= -I. -Icommon/options -Icommon/stream -Icommon/utils  \
--Iembedded -Igdk \
--Imal/mal -Imal/modules -I mal/optimizer \
--Isql/backends/monet5 -Isql/include -Isql/common -Isql/server -Isql/storage -Isql/storage/bat
+LDFLAGS=-lz -liconv -lm -lpthread -ldl
+INCLUDE_FLAGS= -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/common/utils  \
+-Isrc/embedded -Isrc/gdk \
+-Isrc/mal/mal -Isrc/mal/modules -Isrc/mal/optimizer \
+-Isrc/sql/backends/monet5 -Isrc/sql/include -Isrc/sql/common -Isrc/sql/server -Isrc/sql/storage -Isrc/sql/storage/bat
 
 
-COBJECTS=$(OBJDIR)/common/options/getopt.o \
+SQLSCRIPTS=\
+src/sql/scripts/09_like.sql \
+src/sql/scripts/10_math.sql \
+src/sql/scripts/11_times.sql \
+src/sql/scripts/13_date.sql \
+src/sql/scripts/15_querylog.sql \
+src/sql/scripts/16_tracelog.sql \
+src/sql/scripts/17_temporal.sql \
+src/sql/scripts/18_index.sql \
+src/sql/scripts/20_vacuum.sql \
+src/sql/scripts/21_dependency_functions.sql \
+src/sql/scripts/22_clients.sql \
+src/sql/scripts/25_debug.sql \
+src/sql/scripts/26_sysmon.sql \
+src/sql/scripts/27_rejects.sql \
+src/sql/scripts/39_analytics.sql \
+src/sql/scripts/41_md5sum.sql \
+src/sql/scripts/46_profiler.sql \
+src/sql/scripts/51_sys_schema_extension.sql \
+src/sql/scripts/75_storagemodel.sql \
+src/sql/scripts/80_statistics.sql \
+src/sql/scripts/99_system.sql
+
+MALSCRIPTS=\
+src/mal/modules/aggr.mal \
+src/mal/modules/algebra.mal \
+src/mal/modules/bat5.mal \
+src/mal/modules/batExtensions.mal \
+src/mal/modules/batmmath.mal \
+src/mal/modules/batmtime.mal \
+src/mal/modules/batstr.mal \
+src/mal/modules/blob.mal \
+src/mal/modules/group.mal \
+src/mal/modules/iterator.mal \
+src/mal/modules/language.mal \
+src/mal/modules/mal_init.mal \
+src/mal/modules/manifold.mal \
+src/mal/modules/mat.mal \
+src/mal/modules/mkey.mal \
+src/mal/modules/mmath.mal \
+src/mal/modules/mtime.mal \
+src/mal/modules/oltp.mal \
+src/mal/modules/orderidx.mal \
+src/mal/modules/pcre.mal \
+src/mal/modules/sample.mal \
+src/mal/modules/str.mal \
+src/mal/modules/tablet.mal \
+src/mal/optimizer/optimizer.mal \
+src/sql/backends/monet5/sql.mal \
+src/sql/backends/monet5/sql_aggr_bte.mal \
+src/sql/backends/monet5/sql_aggr_dbl.mal \
+src/sql/backends/monet5/sql_aggr_flt.mal \
+src/sql/backends/monet5/sql_aggr_int.mal \
+src/sql/backends/monet5/sql_aggr_lng.mal \
+src/sql/backends/monet5/sql_aggr_sht.mal \
+src/sql/backends/monet5/sql_decimal.mal \
+src/sql/backends/monet5/sql_inspect.mal \
+src/sql/backends/monet5/sql_rank.mal \
+src/sql/backends/monet5/sql_transaction.mal \
+src/sql/backends/monet5/sqlcatalog.mal
+
+MALAUTO=\
+src/mal/modules/01_batcalc.mal \
+src/mal/modules/01_calc.mal \
+src/sql/backends/monet5/40_sql.mal 
+
+COBJECTS=\
+$(OBJDIR)/common/options/getopt.o \
 $(OBJDIR)/common/options/getopt1.o \
 $(OBJDIR)/common/options/monet_options.o \
 $(OBJDIR)/common/stream/stream.o \
@@ -219,32 +279,88 @@ $(OBJDIR)/sql/storage/sql_catalog.o \
 $(OBJDIR)/sql/storage/store.o \
 $(OBJDIR)/sql/storage/store_dependency.o \
 $(OBJDIR)/sql/storage/store_sequence.o
+
+SOEXT=so
 		
+ifeq ($(OS),Windows_NT)
+	SOEXT=dll
+#   CFLAGS += -D WIN32
+#    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
+#        CFLAGS += -D AMD64
+#    else
+#        ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+#            CFLAGS += -D AMD64
+#        endif
+#        ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+#            CFLAGS += -D IA32
+#        endif
+#    endif
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+#       CCFLAGS += -D LINUX
+    endif
+    ifeq ($(UNAME_S),Darwin)
+		SOEXT=dylib
+#        CCFLAGS += -D OSX
+    endif
+#    UNAME_P := $(shell uname -p)
+#    ifeq ($(UNAME_P),x86_64)
+#        CCFLAGS += -D AMD64
+#    endif
+#    ifneq ($(filter %86,$(UNAME_P)),)
+#        CCFLAGS += -D IA32
+#    endif
+#    ifneq ($(filter arm%,$(UNAME_P)),)
+#        CCFLAGS += -D ARM
+#    endif
+endif
+
+LIBFILE=build/libmonetdb5.$(SOEXT)
 
 
-.PHONY: all clean test create_build_directory
+
+.PHONY: all clean test create_build_directory init test $(LIBFILE)
 
 all: create_build_directory $(COBJECTS) $(LIBFILE)
 
 
 clean:
-	rm -rf obj
-	rm -rf opt
-	rm -f $(LIBFILE)
+	rm -rf build
 
 create_build_directory:
 	mkdir -p $(OBJDIR)
 	mkdir -p $(DEPSDIR)
+	
+sqlparser: src/sql/server/sql_parser.h src/sql/server/sql_parser.y
+	bison -b src/sql/server/sql_parser -y  -d -p sql -r all src/sql/server/sql_parser.y
+	rm src/sql/server/sql_parser.output
 
+inlines: $(MALSCRIPTS) $(SQLSCRIPTS)
+	rm -rf build/inlines
+	mkdir -p build/inlines/createdb
+	mkdir -p build/inlines/autoload
+	cp $(MALSCRIPTS)  build/inlines
+	cp $(MALAUTO)     build/inlines/autoload
+	cp $(SQLSCRIPTS)  build/inlines/createdb
+	python src/embedded/inlined_scripts.py build/inlines/ ../../src/embedded/inlined_scripts.c
+ 	
+ 
+init: sqlparser inlines
+
+test: $(LIBFILE)
+	$(CC) $(OPTFLAGS) tests/test1.c -o build/test1 -Isrc/embedded -Lbuild -lmonetdb5
+	DYLD_LIBRARY_PATH=build/ ./build/test1
+	
 
 DEPS = $(shell find $(DEPSDIR) -name "*.d")
 -include $(DEPS)
 
 
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: src/%.c
 	mkdir -p $(shell dirname $@)
 	mkdir -p $(subst $(OBJDIR),$(DEPSDIR),$(shell dirname $@))
-	$(CC) $(CFLAGS) -MMD -MF $(subst $(OBJDIR),$(DEPSDIR),$(subst .o,.d,$@)) $(INCLUDE_FLAGS) $(OPTFLAGS) -c $(subst $(OBJDIR)/,,$(subst .o,.c,$@)) -o $@
+	$(CC) $(CFLAGS) -MMD -MF $(subst $(OBJDIR),$(DEPSDIR),$(subst .o,.d,$@)) $(INCLUDE_FLAGS) $(OPTFLAGS) -c $(subst $(OBJDIR)/,src/,$(subst .o,.c,$@)) -o $@
 
 $(LIBFILE): $(COBJECTS) 
 	$(CC) $(LDFLAGS) $(COBJECTS) $(OPTFLAGS) -o $(LIBFILE) -shared

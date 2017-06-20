@@ -37,7 +37,9 @@ def to_hex(s, n=1024):
     return "\n" + result + "0}"
 
 os.chdir(sys.argv[1])
-s = zlib.compress(mal_include("mal_init.mal"), 9)
+mi = mal_include("mal_init.mal")
+#print(mi)
+s = zlib.compress(mi, 9)
 outf = open(sys.argv[2], "w")
 outf.write("unsigned char mal_init_inline_arr[] = " + to_hex(s) + ";\n")
 outf.write("unsigned char* mal_init_inline = 0;\n")
