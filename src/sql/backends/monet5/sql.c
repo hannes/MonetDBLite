@@ -2278,6 +2278,7 @@ mvc_drop_declared_tables_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPt
 str
 mvc_affected_rows_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
+#ifndef HAVE_EMBEDDED
 	backend *b = NULL;
 	int *res = getArgReference_int(stk, pci, 0), error;
 #ifndef NDEBUG
@@ -2296,6 +2297,7 @@ mvc_affected_rows_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	error = mvc_export_affrows(b, b->out, nr, "", mb->tag);
 	if (error)
 		throw(SQL, "sql.affectedRows", "failed");
+#endif
 	return MAL_SUCCEED;
 }
 
