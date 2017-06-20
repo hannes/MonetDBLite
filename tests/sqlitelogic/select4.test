@@ -3178,9 +3178,6 @@ CREATE INDEX t6d6 ON t6(d6)
 statement ok
 CREATE INDEX t7e7 ON t7(e7)
 
-statement ok
-CREATE INDEX t8all ON t8(e8 DESC, d8 ASC, c8 DESC, b8 ASC, a8 DESC)
-
 query IIIIIT rowsort all1
 SELECT * FROM t1
 ----
