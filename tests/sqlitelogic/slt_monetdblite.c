@@ -35,14 +35,15 @@ static int monetdbliteQuery(
 
 	monetdb_connection p = (monetdb_connection) pConn;
 	monetdb_result *rptr;
+	size_t r, c;
 
 	monetdb_query(p, (char*) zSql, 1, &rptr, NULL, NULL);
 	*pazResult = malloc(sizeof(char*) * rptr->nrows * rptr->ncols);
 	if (!*pazResult ) {
 		return 1;
 	}
-	for (size_t r = 0; r < rptr->nrows; r++) {
-		for (size_t c = 0; c < rptr->ncols; c++) {
+	for (r = 0; r < rptr->nrows; r++) {
+		for (c = 0; c < rptr->ncols; c++) {
 			monetdb_column *actual_column = monetdb_result_fetch(rptr, c);
 			char buffer[BUFSIZ];
 
