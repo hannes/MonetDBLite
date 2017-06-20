@@ -46,6 +46,13 @@ static int monetdb_embedded_initialized = 0;
 FILE* embedded_stdout;
 FILE* embedded_stderr;
 
+
+typedef struct {
+	monetdb_result res;
+	res_table *monetdb_resultset;
+	monetdb_data **converted_columns;
+} monetdb_result_internal;
+
 void* monetdb_connect(void) {
 	Client conn = NULL;
 	if (!monetdb_embedded_initialized) {
@@ -84,7 +91,7 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	volatile int setlen = 0;
 	str retval = MAL_SUCCEED;
 	char* sqres = NULL;
-	void* res = NULL;
+	monetdb_result* res = NULL;
 	void* c;
 
 // we probably don't want this.
@@ -186,7 +193,7 @@ int monetdb_is_initialized(void) {
 }
 
 
-char* monetdb_query(void* conn, char* query, char execute, void** result, long* affected_rows, long* prepare_id) {
+char* monetdb_query(void* conn, char* query, char execute, monetdb_result** result, long* affected_rows, long* prepare_id) {
 	str res = MAL_SUCCEED;
 	int sres;
 	Client c = (Client) conn;
@@ -256,12 +263,33 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 		goto cleanup;
 	}
 
-	if (result) {
-		*result = m->results;
-		m->results = NULL;
-		if (!*result && m->rowcnt >= 0 && affected_rows) {
-			*affected_rows = m->rowcnt;
+	if (!m->results && m->rowcnt >= 0 && affected_rows) {
+		*affected_rows = m->rowcnt;
+	}
+
+
+	if (result && m->results) {
+		monetdb_result_internal *res_internal = GDKzalloc(sizeof(monetdb_result_internal));
+		if (!res_internal) {
+			res = GDKstrdup("Malloc fail");
+			goto cleanup;
 		}
+		res_internal->res.ncols = m->results->nr_cols;
+		if (m->results->nr_cols > 0) {
+			res_internal->res.nrows = BATcount(BATdescriptor(m->results->cols[0].b));
+			BBPunfix(m->results->cols[0].b);
+		}
+		res_internal->monetdb_resultset = m->results;
+		res_internal->converted_columns = GDKzalloc(sizeof(monetdb_data*) * res_internal->res.ncols);
+		if (!res_internal->converted_columns) {
+			res = GDKstrdup("Malloc fail");
+			GDKfree(res_internal);
+			goto cleanup;
+		}
+		*result  = (monetdb_result*) res_internal;
+
+		// tODO: check alloc
+		m->results = NULL;
 	}
 
 cleanup:
@@ -341,14 +369,32 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	return NULL;
 }
 
-void monetdb_cleanup_result(void* conn, void* output) {
+void monetdb_cleanup_result(monetdb_connection conn, monetdb_result* result) {
+	monetdb_result_internal* res = (monetdb_result_internal *) result;
+
 	if (!monetdb_is_initialized()) {
 		return;
 	}
 	if (!MCvalid((Client) conn)) {
 		return;
 	}
-	res_tables_destroy((res_table*) output);
+	if (!result) {
+		return;
+	}
+	if (res->monetdb_resultset) {
+		res_tables_destroy(res->monetdb_resultset);
+	}
+	if (res->converted_columns) {
+		size_t i;
+		for (i = 0; i < res->res.ncols; i++) {
+			if (res->converted_columns[i]) {
+				GDKfree(res->converted_columns[i]->data);
+				GDKfree(res->converted_columns[i]);
+			}
+		}
+	}
+	GDKfree(res->converted_columns);
+
 }
 
 str monetdb_get_columns(void* conn, const char* schema_name, const char *table_name, int *column_count, char ***column_names, int **column_types) {

@@ -1,12 +1,11 @@
-#include "monetdb_config.h"
-#include "sql_scenario.h"
-#include "mal.h"
 #include "embedded.h"
+
+#include <stdio.h>
 
 int main() {
     char* err = 0;
     void* conn = 0;
-    res_table* result = 0;
+    monetdb_result* result = 0;
 
 
     err = monetdb_startup(NULL, 1, 0);
@@ -35,13 +34,13 @@ int main() {
         return -2;
     }
 
-    err = monetdb_query(conn, "select 	l_returnflag, 	l_linestatus, 	sum(l_quantity) as sum_qty, 	sum(l_extendedprice) as sum_base_price, 	sum(l_extendedprice * (1 - l_discount)) as sum_disc_price, 	sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, 	avg(l_quantity) as avg_qty, 	avg(l_extendedprice) as avg_price, 	avg(l_discount) as avg_disc, 	count(*) as count_order from 	lineitem where 	l_shipdate <= date '1998-12-01' - interval '90' day group by 	l_returnflag, 	l_linestatus order by 	l_returnflag, 	l_linestatus; ", 1, (void**) &result, NULL, NULL);
+    err = monetdb_query(conn, "select 	l_returnflag, 	l_linestatus, 	sum(l_quantity) as sum_qty, 	sum(l_extendedprice) as sum_base_price, 	sum(l_extendedprice * (1 - l_discount)) as sum_disc_price, 	sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, 	avg(l_quantity) as avg_qty, 	avg(l_extendedprice) as avg_price, 	avg(l_discount) as avg_disc, 	count(*) as count_order from 	lineitem where 	l_shipdate <= date '1998-12-01' - interval '90' day group by 	l_returnflag, 	l_linestatus order by 	l_returnflag, 	l_linestatus; ", 1, &result, NULL, NULL);
 	if (err != 0) {
 		fprintf(stderr, "Query 2 fail: %s\n", err);
 		return -2;
 	}
 
-	fprintf(stderr, "Query result with %i cols and %lu rows\n", result->nr_cols, BATcount(BATdescriptor(result->cols[0].b)));
+	fprintf(stderr, "Query result with %zu cols and %zu rows\n", result->ncols, result->nrows);
 
 
 
@@ -67,13 +66,28 @@ int main() {
 
 
 
-  err = monetdb_query(conn, "select 	l_returnflag, 	l_linestatus, 	sum(l_quantity) as sum_qty, 	sum(l_extendedprice) as sum_base_price, 	sum(l_extendedprice * (1 - l_discount)) as sum_disc_price, 	sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, 	avg(l_quantity) as avg_qty, 	avg(l_extendedprice) as avg_price, 	avg(l_discount) as avg_disc, 	count(*) as count_order from 	lineitem where 	l_shipdate <= date '1998-12-01' - interval '90' day group by 	l_returnflag, 	l_linestatus order by 	l_returnflag, 	l_linestatus; ", 1, (void**) &result, NULL, NULL);
+  err = monetdb_query(conn, "select 	l_returnflag, 	l_linestatus, 	sum(l_quantity) as sum_qty, 	sum(l_extendedprice) as sum_base_price, 	sum(l_extendedprice * (1 - l_discount)) as sum_disc_price, 	sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, 	avg(l_quantity) as avg_qty, 	avg(l_extendedprice) as avg_price, 	avg(l_discount) as avg_disc, 	count(*) as count_order from 	lineitem where 	l_shipdate <= date '1998-12-01' - interval '90' day group by 	l_returnflag, 	l_linestatus order by 	l_returnflag, 	l_linestatus; ", 1, &result, NULL, NULL);
 	   if (err != 0) {
 		   fprintf(stderr, "Query 2 fail: %s\n", err);
 		   return -2;
 	   }
 
-	   fprintf(stderr, "Query result with %i cols and %lu rows\n", result->nr_cols, BATcount(BATdescriptor(result->cols[0].b)));
+		fprintf(stderr, "Query result with %zu cols and %zu rows\n", result->ncols, result->nrows);
+
+		for (size_t r = 0; r < result->nrows; r++) {
+			for (size_t c = 0; c < result->ncols; c++) {
+				monetdb_column* col = monetdb_result_fetch(result, c);
+				switch(col->typeid) {
+				case monetdb_int8_t:
+					monetdb_column_int8_t * col = (monetdb_column_int8_t *) col;
+
+					break;
+				default:
+					printf("X");
+				}
+			}
+		}
+
 
 		err = monetdb_query(conn, "DROP table lineitem;", 1, NULL, NULL, NULL);
 		   if (err != 0) {
