@@ -7,6 +7,7 @@ int main(int argc, char** argv) {
 	void* conn = 0;
 	monetdb_result* result = 0;
 	char buf[BUFSIZ];
+	size_t r, c;
 
 	if (argc < 2) {
 		return -1;
@@ -57,8 +58,8 @@ int main(int argc, char** argv) {
 	fprintf(stderr, "Query result with %zu cols and %zu rows\n", result->ncols,
 			result->nrows);
 
-	for (size_t r = 0; r < result->nrows; r++) {
-		for (size_t c = 0; c < result->ncols; c++) {
+	for (r = 0; r < result->nrows; r++) {
+		for (c = 0; c < result->ncols; c++) {
 			monetdb_column* actual_column = monetdb_result_fetch(result, c);
 			switch (actual_column->type) {
 			case monetdb_int8_t: {
