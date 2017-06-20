@@ -51,6 +51,13 @@ int main() {
 		   return -2;
 	   }
 
+	   err = monetdb_query(conn, "COMMIT", 1, NULL, NULL, NULL);
+	      if (err != 0) {
+	          fprintf(stderr, "Query 1 fail: %s\n", err);
+	          return -2;
+	      }
+
+
 
 	err = monetdb_query(conn, "DELETE FROM lineitem;", 1, NULL, NULL, NULL);
 	   if (err != 0) {
@@ -75,13 +82,6 @@ int main() {
 		   }
 
 
-
-
-    err = monetdb_query(conn, "ROLLBACK", 1, NULL, NULL, NULL);
-    if (err != 0) {
-        fprintf(stderr, "Query 1 fail: %s\n", err);
-        return -2;
-    }
 
 
     monetdb_disconnect(conn);

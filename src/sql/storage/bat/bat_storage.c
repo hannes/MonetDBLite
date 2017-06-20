@@ -1519,6 +1519,10 @@ log_destroy_delta(sql_trans *tr, sql_delta *b)
 	log_bid bid;
 	gdk_return ok = GDK_SUCCEED;
 
+	if (GDKinmemory()) {
+		return LOG_OK;
+	}
+
 	(void)tr;
 	if (b &&
 	    b->bid &&
@@ -1651,6 +1655,10 @@ log_destroy_dbat(sql_trans *tr, sql_dbat *bat)
 {
 	log_bid bid;
 	gdk_return ok = GDK_SUCCEED;
+
+	if (GDKinmemory()) {
+		return LOG_OK;
+	}
 
 	(void)tr;
 	if (bat &&
@@ -2656,6 +2664,10 @@ tr_log_dbat(sql_trans *tr, sql_dbat *fdb, int cleared)
 
 	if (!fdb)
 		return LOG_OK;
+
+	if (GDKinmemory()) {
+		return LOG_OK;
+	}
 
 	(void)tr;
 	assert (fdb->dname);
