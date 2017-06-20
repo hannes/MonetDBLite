@@ -13,7 +13,6 @@
 /*#define MAL_CLIENT_DEBUG */
 
 #include "mal_resolve.h"
-#include "mal_profiler.h"
 
 #define CONSOLE     0
 #define isAdministrator(X) (X==mal_clients)

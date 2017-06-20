@@ -16,7 +16,6 @@
 
 #include "mal_client.h"
 #include "mal_factory.h"
-#include "mal_profiler.h"
 
 /*
  * Activation of a thread requires construction of the argument list

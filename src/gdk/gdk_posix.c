@@ -26,15 +26,15 @@
 #ifdef HAVE_FCNTL_H
 # include <fcntl.h>
 #endif
-#ifdef HAVE_PROCFS_H
-# include <procfs.h>
-#endif
-#ifdef HAVE_MACH_TASK_H
-# include <mach/task.h>
-#endif
-#ifdef HAVE_MACH_MACH_INIT_H
-# include <mach/mach_init.h>
-#endif
+//#ifdef HAVE_PROCFS_H
+//# include <procfs.h>
+//#endif
+//#ifdef HAVE_MACH_TASK_H
+//# include <mach/task.h>
+//#endif
+//#ifdef HAVE_MACH_MACH_INIT_H
+//# include <mach/mach_init.h>
+//#endif
 #if defined(HAVE_KVM_H) && defined(HAVE_SYS_SYSCTL_H)
 # include <kvm.h>
 # include <sys/param.h>
@@ -267,84 +267,6 @@ setenv(const char *name, const char *value, int overwrite)
 void
 MT_init_posix(void)
 {
-}
-
-/* return RSS in bytes */
-size_t
-MT_getrss(void)
-{
-#if defined(HAVE_PROCFS_H) && defined(__sun__)
-	/* retrieve RSS the Solaris way (2.6+) */
-	int fd;
-	psinfo_t psbuff;
-
-	fd = open("/proc/self/psinfo", O_RDONLY);
-	if (fd >= 0) {
-		if (read(fd, &psbuff, sizeof(psbuff)) == sizeof(psbuff)) {
-			close(fd);
-			return psbuff.pr_rssize * 1024;
-		}
-		close(fd);
-	}
-#elif defined(HAVE_TASK_INFO)
-	/* Darwin/MACH call for process' RSS */
-	task_t task = mach_task_self();
-	struct task_basic_info_64 t_info;
-	mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_64_COUNT;
-
-	if (task_info(task, TASK_BASIC_INFO_64, (task_info_t)&t_info, &t_info_count) != KERN_INVALID_POLICY)
-		return t_info.resident_size;  /* bytes */
-#elif defined(HAVE_KVM_H) && defined(HAVE_SYS_SYSCTL_H)
-	/* get RSS on FreeBSD and NetBSD */
-	struct kinfo_proc *ki;
-	int ski = 1;
-	kvm_t *kd;
-	size_t rss = 0;
-
-	kd = kvm_open(NULL, "/dev/null", NULL, O_RDONLY, "kvm_open");
-	if (kd == NULL)
-		return 0;
-
-	ki = kvm_getprocs(kd, KERN_PROC_PID, getpid(), &ski);
-	if (ki == NULL) {
-		kvm_close(kd);
-		return 0;
-	}
-
-#ifdef __NetBSD__		/* should we use configure for this? */
-	/* see bug 3217 */
-	rss = ki->kp_eproc.e_vm.vm_rssize;
-#else
-	rss = ki->ki_rssize;
-#endif
-
-	kvm_close(kd);
-
-	return rss * MT_pagesize();
-#elif defined(__linux__)
-	/* get RSS on Linux */
-	int fd;
-
-	fd = open("/proc/self/stat", O_RDONLY);
-	if (fd >= 0) {
-		char buf[1024], *r = buf;
-		ssize_t i, sz = read(fd, buf, 1024);
-
-		close(fd);
-		if (sz > 0) {
-			for (i = 0; i < 23; i++) {
-				while (*r && (*r == ' ' || *r == '\t'))
-					r++;
-				while (*r && (*r != ' ' && *r != '\t'))
-					r++;
-			}
-			while (*r && (*r == ' ' || *r == '\t'))
-				r++;
-			return ((size_t) atol(r)) * MT_pagesize();
-		}
-	}
-#endif
-	return 0;
 }
 
 

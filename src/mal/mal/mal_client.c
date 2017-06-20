@@ -180,7 +180,6 @@ MCexitClient(Client c)
 	fprintf(stderr,"# Exit client %d\n", c->idx);
 #endif
 	finishSessionProfiler(c);
-	MPresetProfiler(c->fdout);
 	if (c->father == NULL) { /* normal client */
 		if (c->fdout && c->fdout != GDKstdout) {
 			(void) mnstr_close(c->fdout);
@@ -295,7 +294,6 @@ MCinitClientThread(Client c)
 	t = THRnew(cname);
 	if (t == 0) {
 		showException(c->fdout, MAL, "initClientThread", "Failed to initialize client");
-		MPresetProfiler(c->fdout);
 		return -1;
 	}
 	/*
@@ -619,13 +617,13 @@ MCvalid(Client tc)
 str
 PROFinitClient(Client c){
 	(void) c;
-	return startProfiler();
+	return MAL_SUCCEED;
 }
 
 str
 PROFexitClient(Client c){
 	(void) c;
-	return stopProfiler();
+	return MAL_SUCCEED;
 }
 
 

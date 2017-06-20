@@ -99,7 +99,6 @@
 #include "mal_client.h"
 #include "mal_authorize.h"
 #include "mal_exception.h"
-#include "mal_profiler.h"
 #include "mal_private.h"
 
 #ifdef HAVE_SYS_TIMES_H

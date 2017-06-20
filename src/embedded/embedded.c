@@ -388,7 +388,7 @@ void monetdb_cleanup_result(monetdb_connection conn, monetdb_result* result) {
 		res_tables_destroy(res->monetdb_resultset);
 	}
 	if (res->converted_columns) {
-		size_t i, j;
+		size_t i;
 		for (i = 0; i < res->res.ncols; i++) {
 			monetdb_destroy_column(res->converted_columns[i]);
 		}

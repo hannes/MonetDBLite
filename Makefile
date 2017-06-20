@@ -3,7 +3,7 @@ OPTIMIZE=$(OPT)
 CC=gcc
 
 ifneq ($(OPTIMIZE), true)
-	OPTFLAGS=-O0 -g
+	OPTFLAGS=-O0 -g -Wall -Werror
 	OBJDIR=build/debug
 else
 	OPTFLAGS=-O3 -g
@@ -39,7 +39,6 @@ src/sql/scripts/26_sysmon.sql \
 src/sql/scripts/27_rejects.sql \
 src/sql/scripts/39_analytics.sql \
 src/sql/scripts/41_md5sum.sql \
-src/sql/scripts/46_profiler.sql \
 src/sql/scripts/51_sys_schema_extension.sql \
 src/sql/scripts/75_storagemodel.sql \
 src/sql/scripts/80_statistics.sql \
@@ -147,7 +146,6 @@ $(OBJDIR)/mal/mal/mal_listing.o \
 $(OBJDIR)/mal/mal/mal_module.o \
 $(OBJDIR)/mal/mal/mal_namespace.o \
 $(OBJDIR)/mal/mal/mal_parser.o \
-$(OBJDIR)/mal/mal/mal_profiler.o \
 $(OBJDIR)/mal/mal/mal_resolve.o \
 $(OBJDIR)/mal/mal/mal_resource.o \
 $(OBJDIR)/mal/mal/mal_runtime.o \
