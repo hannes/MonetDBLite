@@ -79,7 +79,7 @@ static int monetdbliteQuery(
 				if (col->is_null(col->data[r])) {
 					snprintf(buffer, BUFSIZ,  "%s", "NULL");
 				} else {
-					snprintf(buffer, BUFSIZ,  "%lld", col->data[r]);
+					snprintf(buffer, BUFSIZ,  "%lld", (long long int) col->data[r]);
 				}
 				break;
 			}
