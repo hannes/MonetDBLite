@@ -154,5 +154,5 @@ int main(int argc, char** argv) {
 
 	monetdb_disconnect(conn);
 	monetdb_shutdown();
-
+	return 0;
 }
