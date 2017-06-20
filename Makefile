@@ -297,6 +297,7 @@ else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
 #       CCFLAGS += -D LINUX
+		LDFLAGS += -lrt
     endif
     ifeq ($(UNAME_S),Darwin)
 		SOEXT=dylib
