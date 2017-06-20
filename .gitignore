@@ -10,7 +10,6 @@ src/config.cache
 .DS_store
 .project
 .cproject
-monetdb_config.h
 autom4te.cache
 build
 test
