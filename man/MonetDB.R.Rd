@@ -9,7 +9,7 @@
   DBI database connector for external MonetDB database
 }
 \description{
-  \code{MonetDBLite} creates a new DBI driver that can be used to connect and interact with external MonetDB database.
+  \code{MonetDB.R} creates a new DBI driver that can be used to connect and interact with external MonetDB database.
 }
 \usage{
   MonetDB.R()
