@@ -437,9 +437,6 @@
 /* Define if you have _sys_siglist */
 /* #undef HAVE__SYS_SIGLIST */
 
-/* Define if you have the `__builtin_{add,sub,mul}_overflow' functions. */
-#define HAVE___BUILTIN_ADD_OVERFLOW 1
-
 /* Define to 1 if the system has the type `__int128'. */
 /* #undef HAVE___INT128 */
 
