@@ -167,7 +167,7 @@
 #define HAVE_LIBPTHREAD 1
 
 /* Define if you have the z library */
-#define HAVE_LIBZ 1
+//#define HAVE_LIBZ 1
 
 /* Define to 1 if you have the <limits.h> header file. */
 #define HAVE_LIMITS_H 1
@@ -370,7 +370,7 @@
 #define HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/sysctl.h> header file. */
-#define HAVE_SYS_SYSCTL_H 1
+//#define HAVE_SYS_SYSCTL_H 1
 
 /* Define to 1 if you have the <sys/times.h> header file. */
 #define HAVE_SYS_TIMES_H 1
@@ -821,7 +821,16 @@ typedef lng ptrdiff_t;
 #if !defined(_MSC_VER) && !defined(_In_z_)
 # define _In_z_
 # define _Printf_format_string_
+#ifndef __CYGWIN__
 # define __declspec(x)
+#endif
+#endif
+
+
+
+#if defined(__CYGWIN__) && defined(__GNUC__)
+#undef __attribute__
+#  define __attribute__(Spec) /* empty */
 #endif
 
 /* work around problem compiling batxml.c with clang

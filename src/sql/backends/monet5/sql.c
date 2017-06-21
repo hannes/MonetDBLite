@@ -2540,7 +2540,7 @@ mvc_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		}
 #if defined(HAVE_EMBEDDED) && defined(WIN32)
 		// fix single backslash file separator on windows
-		strcpy(fn, *fname);
+		strcpy((char*)fn, *fname);
 #else
 		GDKstrFromStr(fn, (unsigned char*)*fname, len);
 #endif

@@ -807,7 +807,7 @@ file_fgetpos(stream *s, lng *p)
 
 	if (fp == NULL || p == NULL)
 		return -1;
-#ifdef WIN32
+#ifdef NATIVE_WIN32
 	*p = (lng) _ftelli64(fp);	/* returns __int64 */
 #else
 #ifdef HAVE_FSEEKO
@@ -827,7 +827,7 @@ file_fsetpos(stream *s, lng p)
 
 	if (fp == NULL)
 		return -1;
-#ifdef WIN32
+#ifdef NATIVE_WIN32
 	res = _fseeki64(fp, (__int64) p, SEEK_SET);
 #else
 #ifdef HAVE_FSEEKO

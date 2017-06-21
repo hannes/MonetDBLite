@@ -3,7 +3,7 @@ OPTIMIZE=$(OPT)
 CC=gcc
 
 ifneq ($(OPTIMIZE), true)
-	OPTFLAGS=-O0 -g -Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition -fsanitize=address
+	OPTFLAGS=-O0 -g -Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition
 	OBJDIR=build/debug
 else
 	OPTFLAGS=-O3 -g
@@ -12,14 +12,52 @@ endif
 
 DEPSDIR=$(OBJDIR)/deps
 
-CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER -fPIC
+CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER -DLIBSTREAM
 
 
-LDFLAGS=-lz -lm -lpthread -ldl
+LDFLAGS=-lm -lpthread -ldl
 INCLUDE_FLAGS= -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/common/utils  \
 -Isrc/embedded -Isrc/gdk \
 -Isrc/mal/mal -Isrc/mal/modules -Isrc/mal/optimizer \
 -Isrc/sql/backends/monet5 -Isrc/sql/include -Isrc/sql/common -Isrc/sql/server -Isrc/sql/storage -Isrc/sql/storage/bat
+
+
+
+SOEXT=so
+		
+ifeq ($(OS),Windows_NT)
+	SOEXT=dll
+    CFLAGS += -DWIN32 -D__CYGWIN__
+#    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
+#        CFLAGS += -D AMD64
+#    else
+#        ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+#            CFLAGS += -D AMD64
+#        endif
+#        ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+#            CFLAGS += -D IA32
+#        endif
+#    endif
+else
+    UNAME_S := $(shell uname -s)
+    CFLAGS += -fPIC -fsanitize=address
+    ifeq ($(UNAME_S),Linux)
+		LDFLAGS += -lrt
+    endif
+    ifeq ($(UNAME_S),Darwin)
+		SOEXT=dylib
+    endif
+#    UNAME_P := $(shell uname -p)
+#    ifeq ($(UNAME_P),x86_64)
+#        CCFLAGS += -D AMD64
+#    endif
+#    ifneq ($(filter %86,$(UNAME_P)),)
+#        CCFLAGS += -D IA32
+#    endif
+#    ifneq ($(filter arm%,$(UNAME_P)),)
+#        CCFLAGS += -D ARM
+#    endif
+endif
 
 
 SQLSCRIPTS=\
@@ -95,7 +133,6 @@ $(OBJDIR)/common/utils/mutils.o \
 $(OBJDIR)/common/utils/muuid.o \
 $(OBJDIR)/common/utils/prompt.o \
 $(OBJDIR)/common/utils/s_nextafterf.o \
-$(OBJDIR)/common/utils/strptime.o \
 $(OBJDIR)/embedded/embedded.o \
 $(OBJDIR)/gdk/gdk_aggr.o \
 $(OBJDIR)/gdk/gdk_align.o \
@@ -276,42 +313,6 @@ $(OBJDIR)/sql/storage/store.o \
 $(OBJDIR)/sql/storage/store_dependency.o \
 $(OBJDIR)/sql/storage/store_sequence.o
 
-SOEXT=so
-		
-ifeq ($(OS),Windows_NT)
-	SOEXT=dll
-#   CFLAGS += -D WIN32
-#    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
-#        CFLAGS += -D AMD64
-#    else
-#        ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-#            CFLAGS += -D AMD64
-#        endif
-#        ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-#            CFLAGS += -D IA32
-#        endif
-#    endif
-else
-    UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-#       CCFLAGS += -D LINUX
-		LDFLAGS += -lrt
-    endif
-    ifeq ($(UNAME_S),Darwin)
-		SOEXT=dylib
-#        CCFLAGS += -D OSX
-    endif
-#    UNAME_P := $(shell uname -p)
-#    ifeq ($(UNAME_P),x86_64)
-#        CCFLAGS += -D AMD64
-#    endif
-#    ifneq ($(filter %86,$(UNAME_P)),)
-#        CCFLAGS += -D IA32
-#    endif
-#    ifneq ($(filter arm%,$(UNAME_P)),)
-#        CCFLAGS += -D ARM
-#    endif
-endif
 
 # TODO: find a nicer way building this
 $(shell mkdir -p build && $(CC) $(CFLAGS) src/embedded/defines.c -o ./build/defines)
@@ -352,12 +353,12 @@ test: $(LIBFILE)
 	mkdir -p build/tests 
 	$(CC) $(OPTFLAGS) tests/tpchq1/test1.c -o build/tests/tpchq1 -Isrc/embedded -Lbuild -lmonetdb5 $(LDFLAGS)
 	$(CC) $(OPTFLAGS) tests/sqlitelogic/sqllogictest.c tests/sqlitelogic/md5.c -o build/tests/sqlitelogic -Itests/sqlitelogic -Isrc/embedded -Lbuild -lmonetdb5 $(LDFLAGS)
-	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/tpchq1 $(shell pwd)/tests/tpchq1
-	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select1.test
-	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select2.test
-	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select3.test
-	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select4.test
-	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select5.test
+	PATH=${PATH}:build/ LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/tpchq1 $(shell pwd)/tests/tpchq1
+	PATH=${PATH}:build/ LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select1.test
+	PATH=${PATH}:build/ LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select2.test
+	PATH=${PATH}:build/ LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select3.test
+	PATH=${PATH}:build/ LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select4.test
+	PATH=${PATH}:build/ LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select5.test
 	
 
 DEPS = $(shell find $(DEPSDIR) -name "*.d")

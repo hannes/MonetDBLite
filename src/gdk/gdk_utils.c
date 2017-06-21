@@ -226,14 +226,6 @@ BATSIGignore(int nr)
 }
 #endif
 
-#ifdef WIN32
-static void
-BATSIGabort(int nr)
-{
-	GDKexit(3);		/* emulate Windows exit code without pop-up */
-}
-#endif
-
 #ifndef NATIVE_WIN32
 static void
 BATSIGinterrupt(int nr)
@@ -336,7 +328,7 @@ MT_init(void)
 	if (_MT_pagesize <= 0)
 		_MT_pagesize = 4096;	/* default */
 
-#ifdef WIN32
+#ifdef NATIVE_WIN32
 	{
 		MEMORYSTATUSEX memStatEx;
 

@@ -635,7 +635,11 @@ mdlopen(const char *library, int mode)
 {
 #ifndef HAVE_EMBEDDED_R
 	(void) library;
+#ifdef __CYGWIN__
+	return dlopen(library, mode);
+#else
 	return dlopen(NULL, mode);
+#endif
 #else
 	(void) mode;
 	(void) library;
@@ -1022,7 +1026,7 @@ win_mkdir(const char *pathname, const int mode)
 }
 #endif
 
-#ifndef WIN32
+#ifndef NATIVE_WIN32
 
 void
 MT_sleep_ms(unsigned int ms)
