@@ -500,8 +500,9 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
       existing table.")
   }
   
+  fts <- sapply(value, dbDataType, dbObj=conn)
+  
   if (!dbExistsTable(conn, qname)) {
-    fts <- sapply(value, dbDataType, dbObj=conn)
     fdef <- paste(quoteIfNeeded(conn, names(value)), fts, collapse=', ')
     if (temporary) {
       ct <- paste0("CREATE TEMPORARY TABLE ", qname, " (", fdef, ") ON COMMIT PRESERVE ROWS")
@@ -509,7 +510,44 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
       ct <- paste0("CREATE TABLE ", qname, " (", fdef, ")")
     }
     dbExecute(conn, ct)
+  
+  } else {
+  
+	existing_fts <-
+		sapply( 
+			dbGetQuery( conn , paste0( "SELECT * FROM " , qname , " LIMIT 1" ) ) , 
+			dbDataType , 
+			dbObj = conn 
+		)
+  
+	if( length( fts ) != length( existing_fts ) ) stop( paste0( "append failure: data does not have the same number of columns as Table " , qname ) )
+  
+	name_test <- !mapply( identical , names( fts ) , names( existing_fts ) )
+	
+	if( any( name_test ) ) stop( paste0( "append failure: column names of data do not align with Table " , qname ) )
+	
+	# integers can be appended into double precision columns but not vice versa
+	type_test <-
+		mapply( 
+			`%in%` , 
+			fts , 
+			lapply( existing_fts , function( w ) if( w == "DOUBLE PRECISION" ) c( "DOUBLE PRECISION" , "INTEGER" ) else w )
+		)
+		
+	if( !all( type_test ) ) stop( paste0( "append failure: column types of data do not align with Table" , qname ) )
+	
+	# if the existing table has a double column where the to-be-appended table has an integer columns
+	if( any( cols_to_coerce <- ( existing_fts == "DOUBLE PRECISION" ) & ( fts == "INTEGER" ) ) ){
+	
+		# coerce INTEGER types to DOUBLE PRECISION
+		value[ cols_to_coerce ] <- sapply( value[ cols_to_coerce ] , as.numeric )
+		
+		# re-calculate the `fts` object
+		fts <- sapply(value, dbDataType, dbObj=conn)
+	}
+	
   }
+  
   if (length(value[[1]])) {
     classes <- unlist(lapply(value, function(v){
       class(v)[[1]]

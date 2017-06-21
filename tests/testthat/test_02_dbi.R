@@ -170,6 +170,26 @@ test_that("various parameters to dbWriteTable work as expected", {
 	dbWriteTable(con, tname, mtcars, append=F, overwrite=F, insert=T)
 	expect_equal(tsize(con, tname), nrow(mtcars))
 	dbRemoveTable(con, tname)
+	
+	
+	# tighten up append=T rules
+	mtcars3 <- mtcars2 <- mtcars1 <- mtcars
+	dbWriteTable(con, tname, mtcars)
+	# INTEGER columns can be appended into a column already typed as DOUBLE PRECISION
+	mtcars1[ , ] <- sapply( mtcars1[ , ] , as.integer )
+	dbWriteTable(con, tname, mtcars1, append=T)
+	expect_equal(tsize(con, tname), nrow(mtcars) * 2 )
+	mtcars2 <- mtcars[ , sort( names( mtcars ) ) ]
+	expect_error(dbWriteTable(con, tname, mtcars2, append=T))
+	mtcars3[ , ] <- sapply( mtcars[ , ] , as.character )
+	expect_error(dbWriteTable(con, tname, mtcars3, append=T))
+	dbRemoveTable(con, tname)
+	# DOUBLE PRECISION columns cannot be appended into a column already typed as INTEGER
+	dbWriteTable(con, tname, mtcars1)
+	expect_error(dbWriteTable(con, tname, mtcars, append=T))
+	dbRemoveTable(con, tname)
+	
+	
 })
 
 
