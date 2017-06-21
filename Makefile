@@ -353,10 +353,10 @@ test: $(LIBFILE)
 	$(CC) $(OPTFLAGS) tests/sqlitelogic/sqllogictest.c tests/sqlitelogic/md5.c -o build/tests/sqlitelogic -Itests/sqlitelogic -Isrc/embedded -Lbuild -lmonetdb5 $(LDFLAGS)
 	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/tpchq1  $(shell pwd)/tests/tpchq1
 	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select1.test
-	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select2.test
-	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select3.test
-	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select4.test
-	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select5.test
+#	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select2.test
+#	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select3.test
+#	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select4.test
+#	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select5.test
 	
 
 DEPS = $(shell find $(DEPSDIR) -name "*.d")
