@@ -289,6 +289,8 @@ static char zResult[34] = "";
 /*
 ** Add additional text to the current MD5 hash.
 */
+void md5_add(const char *z);
+
 void md5_add(const char *z){
   if( !isInit ){
     MD5Init(&ctx);
@@ -301,6 +303,9 @@ void md5_add(const char *z){
 ** Compute the final signature.  Reset the hash generator in preparation
 ** for the next round.
 */
+const char *md5_finish(void);
+
+
 const char *md5_finish(void){
   if( isInit ){
     unsigned char digest[16];

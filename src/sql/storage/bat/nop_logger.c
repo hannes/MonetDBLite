@@ -12,6 +12,10 @@
 static int 
 nl_create(int debug, const char *logdir, int cat_version, int keep_persisted_log_files)
 {
+	(void) debug;
+	(void) logdir;
+	(void) cat_version;
+	(void) keep_persisted_log_files;
 	return LOG_OK;
 }
 
@@ -34,6 +38,7 @@ nl_restart(void)
 static int
 nl_cleanup(int keep_persisted_log_files)
 {
+	(void) keep_persisted_log_files;
 	return LOG_OK;
 }
 
@@ -48,6 +53,7 @@ nl_changes(void)
 static int 
 nl_get_sequence(int seq, lng *id)
 {
+	(void) seq;
 	*id = 42;
 	return LOG_OK;
 }
@@ -75,6 +81,8 @@ nl_tend(void)
 static int 
 nl_sequence(int seq, lng id)
 {
+	(void) seq;
+	(void) id;
 	return LOG_OK;
 }
 

@@ -3,7 +3,8 @@ OPTIMIZE=$(OPT)
 CC=gcc
 
 ifneq ($(OPTIMIZE), true)
-	OPTFLAGS=-O0 -g -Wall -Werror 
+	OPTFLAGS=-O0 -g -std=c11 -Wall -Wextra -Werror -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition
+
 	OBJDIR=build/debug
 else
 	OPTFLAGS=-O3 -g
@@ -12,7 +13,7 @@ endif
 
 DEPSDIR=$(OBJDIR)/deps
 
-CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER -fPIC -std=c11 
+CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER -fPIC
 
 
 LDFLAGS=-lz -lm -lpthread -ldl

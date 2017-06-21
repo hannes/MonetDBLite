@@ -214,13 +214,13 @@ static void findToken(const char *z, int *piStart, int *pLen){
 static void tokenizeLine(Script *p){
   int i, j, k;
   int len, n;
-  for(i=0; i<count(p->azToken); i++) p->azToken[i][0] = 0;
+  for(i=0; i<(int)count(p->azToken); i++) p->azToken[i][0] = 0;
   p->startLine = p->nLine;
-  for(i=j=0; j<p->len && i<count(p->azToken); i++){
+  for(i=j=0; j<p->len && i<(int)count(p->azToken); i++){
     findToken(&p->zLine[j], &k, &len);
     j += k;
     n = len;
-    if( n>=sizeof(p->azToken[0]) ){
+    if( n>=(int) sizeof(p->azToken[0]) ){
       n = sizeof(p->azToken[0])-1;
     }
     memcpy(p->azToken[i], &p->zLine[j], n);

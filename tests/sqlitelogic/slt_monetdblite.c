@@ -8,6 +8,9 @@ static int monetdbliteConnect(
   void **ppConn,              /* Write completed connection here */
   const char *zParam          /* Value of the -parameters command-line option */
 ){
+	(void) NotUsed;
+	(void) zConnectStr;
+	(void) zParam;
 	monetdb_startup(NULL, 0, 0);
 	*ppConn = (void*) monetdb_connect();
 	return 0;
@@ -19,7 +22,7 @@ static int monetdbliteStatement(
   int bQuiet                  /* True to suppress printing errors. */
 ){
 	char* res = monetdb_query((monetdb_connection) pConn, (char*) zSql, 1, NULL, NULL, NULL);
-	if (res != NULL) {
+	if (!bQuiet && res != NULL) {
 		fprintf(stderr, "ERR: %s\n", res);
 	}
 	return res != NULL;
@@ -36,7 +39,7 @@ static int monetdbliteQuery(
 	monetdb_connection p = (monetdb_connection) pConn;
 	monetdb_result *rptr;
 	size_t r, c;
-
+	(void) zType;
 	monetdb_query(p, (char*) zSql, 1, &rptr, NULL, NULL);
 	*pazResult = malloc(sizeof(char*) * rptr->nrows * rptr->ncols);
 	if (!*pazResult ) {
@@ -125,6 +128,7 @@ static int monetdbliteFreeResults(
   int nResult                 /* Number of rows of result */
 ){
 	int i;
+	(void) pConn;
 	if (!azResult) {
 		return 1;
 	}
@@ -152,10 +156,12 @@ static int monetdbliteGetEngineName(
   const char **zName          /* SQL statement to evaluate */
 ){
   static char *zDmbsName = "MonetDBLite";
+  (void) pConn;
   *zName = zDmbsName;
   return 0;
 }
 
+void registerMonetdblite(void);
 
 void registerMonetdblite(void){
   /*

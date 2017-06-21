@@ -765,17 +765,17 @@ void data_from_timestamp(timestamp d, monetdb_data_timestamp *ptr)
 	data_from_time(d.payload.p_msecs, &ptr->time);
 }
 
-date date_from_data(monetdb_data_date *ptr)
+static date date_from_data(monetdb_data_date *ptr)
 {
 	return MTIMEtodate(ptr->day, ptr->month, ptr->year);
 }
 
-daytime time_from_data(monetdb_data_time *ptr)
+static daytime time_from_data(monetdb_data_time *ptr)
 {
 	return MTIMEtotime(ptr->hours, ptr->minutes, ptr->seconds, ptr->ms);
 }
 
-timestamp timestamp_from_data(monetdb_data_timestamp *ptr)
+static timestamp timestamp_from_data(monetdb_data_timestamp *ptr)
 {
 	timestamp d;
 	d.payload.p_days = date_from_data(&ptr->date);
