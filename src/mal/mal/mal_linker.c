@@ -41,7 +41,6 @@ typedef struct{
 } FileRecord;
 
 static FileRecord filesLoaded[MAXMODULES];
-static int maxfiles = MAXMODULES;
 static int lastfile = 0;
 
 /*
@@ -53,11 +52,6 @@ static int lastfile = 0;
 #ifdef _MSC_VER
 #define access(f, m)	_access(f, m)
 #endif
-static inline int
-fileexists(const char *path)
-{
-	return access(path, F_OK) == 0;
-}
 
 /* Search for occurrence of the function in the library identified by the filename.  */
 MALfcn
@@ -138,113 +132,6 @@ getAddress(stream *out, str modname, str fcnname, int silent)
  * A duplicate load is simply ignored by keeping track of modules
  * already loaded.
  */
-
-str
-loadLibrary(str filename, int flag)
-{
-	int mode = RTLD_NOW | RTLD_GLOBAL;
-	char nme[PATHLENGTH];
-	void *handle = NULL;
-	str s;
-	int idx;
-	char *mod_path = GDKgetenv("monet_mod_path");
-
-	/* AIX requires RTLD_MEMBER to load a module that is a member of an
-	 * archive.  */
-#ifdef RTLD_MEMBER
-	mode |= RTLD_MEMBER;
-#endif
-
-	for (idx = 0; idx < lastfile; idx++)
-		if (filesLoaded[idx].modname &&
-		    strcmp(filesLoaded[idx].modname, filename) == 0)
-			/* already loaded */
-			return MAL_SUCCEED;
-
-	/* ignore any path given */
-	if ((s = strrchr(filename, DIR_SEP)) == NULL)
-		s = filename;
-
-	if (mod_path != NULL) {
-		while (*mod_path == PATH_SEP)
-			mod_path++;
-		if (*mod_path == 0)
-			mod_path = NULL;
-	}
-	if (mod_path == NULL) {
-		if (flag)
-			throw(LOADER, "loadLibrary", RUNTIME_FILE_NOT_FOUND ":%s", s);
-		return MAL_SUCCEED;
-	}
-
-	while (*mod_path) {
-		char *p;
-
-		for (p = mod_path; *p && *p != PATH_SEP; p++)
-			;
-
-		/* try hardcoded SO_EXT if that is the same for modules */
-#ifdef _AIX
-		snprintf(nme, PATHLENGTH, "%.*s%c%s_%s%s(%s_%s.0)",
-				 (int) (p - mod_path),
-				 mod_path, DIR_SEP, SO_PREFIX, s, SO_EXT, SO_PREFIX, s);
-#else
-		snprintf(nme, PATHLENGTH, "%.*s%c%s_%s%s",
-				 (int) (p - mod_path),
-				 mod_path, DIR_SEP, SO_PREFIX, s, SO_EXT);
-#endif
-		handle = dlopen(nme, mode);
-		if (handle == NULL && fileexists(nme)) {
-			throw(LOADER, "loadLibrary", RUNTIME_LOAD_ERROR " failed to open library %s (from within file '%s'): %s", s, nme, dlerror());
-		}
-		if (handle == NULL && strcmp(SO_EXT, ".so") != 0) {
-			/* try .so */
-			snprintf(nme, PATHLENGTH, "%.*s%c%s_%s.so",
-					 (int) (p - mod_path),
-					 mod_path, DIR_SEP, SO_PREFIX, s);
-			handle = dlopen(nme, mode);
-			if (handle == NULL && fileexists(nme)) {
-				throw(LOADER, "loadLibrary", RUNTIME_LOAD_ERROR " failed to open library %s (from within file '%s'): %s", s, nme, dlerror());
-			}
-		}
-#ifdef __APPLE__
-		if (handle == NULL && strcmp(SO_EXT, ".bundle") != 0) {
-			/* try .bundle */
-			snprintf(nme, PATHLENGTH, "%.*s%c%s_%s.bundle",
-					 (int) (p - mod_path),
-					 mod_path, DIR_SEP, SO_PREFIX, s);
-			handle = dlopen(nme, mode);
-			if (handle == NULL && fileexists(nme)) {
-				throw(LOADER, "loadLibrary", RUNTIME_LOAD_ERROR " failed to open library %s (from within file '%s'): %s", s, nme, dlerror());
-			}
-		}
-#endif
-
-		if (*p == 0 || handle != NULL)
-			break;
-		mod_path = p + 1;
-	}
-
-	if (handle == NULL) {
-		if (flag)
-			throw(LOADER, "loadLibrary", RUNTIME_LOAD_ERROR " could not locate library %s (from within file '%s'): %s", s, filename, dlerror());
-	}
-
-	MT_lock_set(&mal_contextLock);
-	if (lastfile == maxfiles) {
-		if (handle)
-			dlclose(handle);
-		showException(GDKout, MAL,"loadModule", "internal error, too many modules loaded");
-	} else {
-		filesLoaded[lastfile].modname = GDKstrdup(filename);
-		filesLoaded[lastfile].fullname = GDKstrdup(handle ? nme : "");
-		filesLoaded[lastfile].handle = handle ? handle : filesLoaded[0].handle;
-		lastfile ++;
-	}
-	MT_lock_unset(&mal_contextLock);
-
-	return MAL_SUCCEED;
-}
 
 /*
  * For analysis of memory leaks we should cleanup the libraries before

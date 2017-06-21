@@ -1007,7 +1007,7 @@ heapinit(BAT *b, const char *buf, int *hashash, const char *HT, int bbpversion, 
 		strcpy(type, "bte");
 	/* silently convert wrd columns to int or lng */
 	else if (strcmp(type, "wrd") == 0)
-		strcpy(type, width == SIZEOF_INT ? "int" : "lng");
+		strcpy(type, width == sizeof(int) ? "int" : "lng");
 #ifdef HAVE_HGE
 	else if (strcmp(type, "hge") == 0)
 		havehge = 1;

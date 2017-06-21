@@ -73,6 +73,9 @@ static void GDKunlockHome(int farmid);
 static int
 GDKenvironment(const char *dbpath)
 {
+	if (GDKinmemory()) {
+		return 1;
+	}
 	if (dbpath == 0) {
 		fprintf(stderr, "!GDKenvironment: database name missing.\n");
 		return 0;
@@ -433,19 +436,6 @@ GDKinit(opt *set, int setlen)
 	int farmid;
 	char buf[16];
 
-	/* some sanity checks (should also find if symbols are not defined) */
-	assert(sizeof(char) == SIZEOF_CHAR);
-	assert(sizeof(short) == SIZEOF_SHORT);
-	assert(sizeof(int) == SIZEOF_INT);
-	assert(sizeof(long) == SIZEOF_LONG);
-	assert(sizeof(lng) == SIZEOF_LNG);
-#ifdef HAVE_HGE
-	assert(sizeof(hge) == SIZEOF_HGE);
-#endif
-	assert(sizeof(oid) == SIZEOF_OID);
-	assert(sizeof(void *) == SIZEOF_VOID_P);
-	assert(sizeof(size_t) == SIZEOF_SIZE_T);
-	assert(SIZEOF_OID == SIZEOF_INT || SIZEOF_OID == SIZEOF_LNG);
 
 #ifdef NEED_MT_LOCK_INIT
 	MT_lock_init(&MT_system_lock,"MT_system_lock");
@@ -592,16 +582,22 @@ GDKinit(opt *set, int setlen)
 	if (GDKnr_threads == 0)
 		GDKnr_threads = MT_check_nr_cores();
 
-	if ((p = GDKgetenv("gdk_dbpath")) != NULL &&
-	    (p = strrchr(p, DIR_SEP)) != NULL) {
-		if (GDKsetenv("gdk_dbname", p + 1) != GDK_SUCCEED)
-			GDKfatal("GDKinit: GDKsetenv failed");
+	if (!GDKinmemory()) {
+		if ((p = GDKgetenv("gdk_dbpath")) != NULL &&
+			(p = strrchr(p, DIR_SEP)) != NULL) {
+			if (GDKsetenv("gdk_dbname", p + 1) != GDK_SUCCEED)
+				GDKfatal("GDKinit: GDKsetenv failed");
 #if DIR_SEP != '/'		/* on Windows look for different separator */
-	} else if ((p = GDKgetenv("gdk_dbpath")) != NULL &&
-	    (p = strrchr(p, '/')) != NULL) {
-		if (GDKsetenv("gdk_dbname", p + 1) != GDK_SUCCEED)
-			GDKfatal("GDKinit: GDKsetenv failed");
+		} else if ((p = GDKgetenv("gdk_dbpath")) != NULL &&
+			(p = strrchr(p, '/')) != NULL) {
+			if (GDKsetenv("gdk_dbname", p + 1) != GDK_SUCCEED)
+				GDKfatal("GDKinit: GDKsetenv failed");
 #endif
+		}
+	} else {
+		if (GDKsetenv("gdk_dbname", ":inmemory") != GDK_SUCCEED) {
+			GDKfatal("GDKinit: GDKsetenv failed");
+		}
 	}
 	if (GDKgetenv("gdk_vm_maxsize") == NULL) {
 		snprintf(buf, sizeof(buf), SZFMT, GDK_vm_maxsize);
@@ -1421,17 +1417,6 @@ THRprintf(stream *s, const char *format, ...)
 	return n;
 }
 
-static const char *_gdk_version_string = VERSION;
-/**
- * Returns the GDK version as internally allocated string.  Hence the
- * string does not have to (and should not) be freed.  Do not inline
- * this function or the wrong VERSION will be used.
- */
-const char *
-GDKversion(void)
-{
-	return (_gdk_version_string);
-}
 
 /**
  * Extracts the last directory from a path string, if possible.

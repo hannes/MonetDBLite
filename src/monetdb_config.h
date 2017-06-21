@@ -6,14 +6,14 @@
 #define _SEEN_MONETDB_CONFIG_H 1
 
 
-/* Define if building universal (internal helper macro) */
-/* #undef AC_APPLE_UNIVERSAL_BUILD */
-
-/* location where binaries are installed */
-#define BINDIR "/usr/local/bin"
-
-/* read-only architecture-independent data */
-#define DATA_DIR "/usr/local/share"
+///* Define if building universal (internal helper macro) */
+///* #undef AC_APPLE_UNIVERSAL_BUILD */
+//
+///* location where binaries are installed */
+//#define BINDIR "/usr/local/bin"
+//
+///* read-only architecture-independent data */
+//#define DATA_DIR "/usr/local/share"
 
 /* Directory separator */
 #define DIR_SEP '/'
@@ -129,11 +129,11 @@
 /* Define to 1 if you have the `getuid' function. */
 #define HAVE_GETUID 1
 
-/* Define if you have the iconv() function and it works. */
-#define HAVE_ICONV 1
-
-/* Define to 1 if you have the <iconv.h> header file. */
-#define HAVE_ICONV_H 1
+///* Define if you have the iconv() function and it works. */
+//#define HAVE_ICONV 1
+//
+///* Define to 1 if you have the <iconv.h> header file. */
+//#define HAVE_ICONV_H 1
 
 /* Define to 1 if you have the <ieeefp.h> header file. */
 /* #undef HAVE_IEEEFP_H */
@@ -451,24 +451,24 @@
 
 /* Define as const if the declaration of iconv() needs const. */
 #define ICONV_CONST 
-
-/* location where libraries are installed */
-#define LIBDIR "/usr/local/lib"
+//
+///* location where libraries are installed */
+//#define LIBDIR "/usr/local/lib"
 
 /* Format to print 64 bit signed integers. */
 #define LLFMT "%lld"
-
-/* modifiable single-machine data */
-#define LOCALSTATEDIR "/usr/local/var"
-
-/* Define to the sub-directory where libtool stores uninstalled libraries. */
-#define LT_OBJDIR ".libs/"
-
-/* The used password hash algorithm */
-#define MONETDB5_PASSWDHASH "SHA512"
-
-/* The used password hash algorithm */
-#define MONETDB5_PASSWDHASH_TOKEN SHA512
+//
+///* modifiable single-machine data */
+//#define LOCALSTATEDIR "/usr/local/var"
+//
+///* Define to the sub-directory where libtool stores uninstalled libraries. */
+//#define LT_OBJDIR ".libs/"
+//
+///* The used password hash algorithm */
+//#define MONETDB5_PASSWDHASH "SHA512"
+//
+///* The used password hash algorithm */
+//#define MONETDB5_PASSWDHASH_TOKEN SHA512
 
 /* Release name or "unreleased" */
 #define MONETDB_RELEASE "unreleased"
@@ -476,26 +476,26 @@
 /* Define if you do not want assertions */
 /* #undef NDEBUG */
 
-/* Name of package */
-#define PACKAGE "MonetDB"
+///* Name of package */
+//#define PACKAGE "MonetDB"
+//
+///* Define to the address where bug reports for this package should be sent. */
+//#define PACKAGE_BUGREPORT "https://bugs.monetdb.org/"
 
-/* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "https://bugs.monetdb.org/"
-
-/* Define to the full name of this package. */
-#define PACKAGE_NAME "MonetDB"
-
-/* Define to the full name and version of this package. */
-#define PACKAGE_STRING "MonetDB 11.27.0"
-
-/* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "MonetDB"
-
-/* Define to the home page for this package. */
-#define PACKAGE_URL "https://www.monetdb.org/"
-
-/* Define to the version of this package. */
-#define PACKAGE_VERSION "11.27.0"
+///* Define to the full name of this package. */
+//#define PACKAGE_NAME "MonetDB"
+//
+///* Define to the full name and version of this package. */
+//#define PACKAGE_STRING "MonetDB 11.27.0"
+//
+///* Define to the one symbol short name of this package. */
+//#define PACKAGE_TARNAME "MonetDB"
+//
+///* Define to the home page for this package. */
+//#define PACKAGE_URL "https://www.monetdb.org/"
+//
+///* Define to the version of this package. */
+//#define PACKAGE_VERSION "11.27.0"
 
 /* Path separator */
 #define PATH_SEP ':'
@@ -506,50 +506,50 @@
 /* Compiler flag */
 /* #undef PROFILE */
 
-/* The size of `char', as computed by sizeof. */
-#define SIZEOF_CHAR 1
+///* The size of `char', as computed by sizeof. */
+//#define SIZEOF_CHAR 1
+//
+///* The size of `int', as computed by sizeof. */
+//#define SIZEOF_INT 4
+//
+///* The size of `long', as computed by sizeof. */
+//#define SIZEOF_LONG 8
 
-/* The size of `int', as computed by sizeof. */
-#define SIZEOF_INT 4
+///* The size of `long long', as computed by sizeof. */
+//#define SIZEOF_LONG_LONG 8
 
-/* The size of `long', as computed by sizeof. */
-#define SIZEOF_LONG 8
+///* The size of `ptrdiff_t', as computed by sizeof. */
+//#define SIZEOF_PTRDIFF_T 8
 
-/* The size of `long long', as computed by sizeof. */
-#define SIZEOF_LONG_LONG 8
+///* The size of `short', as computed by sizeof. */
+//#define SIZEOF_SHORT 2
 
-/* The size of `ptrdiff_t', as computed by sizeof. */
-#define SIZEOF_PTRDIFF_T 8
+///* The size of `size_t', as computed by sizeof. */
+//#define SIZEOF_SIZE_T 8
 
-/* The size of `short', as computed by sizeof. */
-#define SIZEOF_SHORT 2
+///* The size of `ssize_t', as computed by sizeof. */
+//#define SIZEOF_SSIZE_T 8
 
-/* The size of `size_t', as computed by sizeof. */
-#define SIZEOF_SIZE_T 8
+///* The size of `void *', as computed by sizeof. */
+//#define SIZEOF_VOID_P 8
 
-/* The size of `ssize_t', as computed by sizeof. */
-#define SIZEOF_SSIZE_T 8
-
-/* The size of `void *', as computed by sizeof. */
-#define SIZEOF_VOID_P 8
-
-/* The size of `wchar_t', as computed by sizeof. */
-#define SIZEOF_WCHAR_T 4
-
-/* The size of `__int128', as computed by sizeof. */
-#define SIZEOF___INT128 16
-
-/* The size of `__int128_t', as computed by sizeof. */
-#define SIZEOF___INT128_T 16
-
-/* The size of `__int64', as computed by sizeof. */
-#define SIZEOF___INT64 0
+///* The size of `wchar_t', as computed by sizeof. */
+//#define SIZEOF_WCHAR_T 4
+//
+///* The size of `__int128', as computed by sizeof. */
+//#define SIZEOF___INT128 16
+//
+///* The size of `__int128_t', as computed by sizeof. */
+//#define SIZEOF___INT128_T 16
+//
+///* The size of `__int64', as computed by sizeof. */
+//#define SIZEOF___INT64 0
 
 /* type used for sockets */
 #define SOCKET int
 
-/* Shared Object extension */
-#define SO_EXT ".dylib"
+///* Shared Object extension */
+//#define SO_EXT ".dylib"
 
 /* Shared Object prefix */
 #define SO_PREFIX "lib"
@@ -586,10 +586,10 @@
 #ifndef __EXTENSIONS__
 # define __EXTENSIONS__ 1
 #endif
-
-
-/* Version number of package */
-#define VERSION "11.27.0"
+//
+//
+///* Version number of package */
+//#define VERSION "11.27.0"
 
 /* Define on Microsoft Windows (also under Cygwin) */
 /* #undef WIN32 */

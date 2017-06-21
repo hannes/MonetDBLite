@@ -1298,7 +1298,7 @@ strEpilogue(void *ret)
 
 #define UTF8_PUTCHAR(X1,X2)												\
 	do {																\
-		if ((X1) < 0 || (SIZEOF_INT > 4 && (int) (X1) >= 0x80000000)) {	\
+		if ((X1) < 0 || (sizeof(int) > 4 && (int) (X1) >= 0x80000000)) {	\
 			*(X2)++ = '\200';											\
 		} else if ((X1) < 0x80) {										\
 			*(X2)++ = (X1);												\

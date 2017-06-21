@@ -809,7 +809,6 @@ AUTHverifyPassword(const char *passwd)
 	return(MAL_SUCCEED);
 #else
 	(void) passwd;
-	throw(MAL, "verifyPassword", "Unknown backend hash algorithm: %s",
-		  MONETDB5_PASSWDHASH);
+	throw(MAL, "verifyPassword", "Unknown backend hash algorithm");
 #endif
 }
