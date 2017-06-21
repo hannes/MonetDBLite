@@ -314,6 +314,7 @@ else
 #    endif
 endif
 
+# TODO: find a nicer way building this
 $(shell mkdir -p build && $(CC) $(CFLAGS) src/embedded/defines.c -o ./build/defines)
 CFLAGS += $(shell build/defines) 
 
@@ -367,6 +368,7 @@ DEPS = $(shell find $(DEPSDIR) -name "*.d")
 $(OBJDIR)/%.o: src/%.c
 	mkdir -p $(shell dirname $@)
 	mkdir -p $(subst $(OBJDIR),$(DEPSDIR),$(shell dirname $@))
+	
 	$(CC) $(CFLAGS) -MMD -MF $(subst $(OBJDIR),$(DEPSDIR),$(subst .o,.d,$@)) $(INCLUDE_FLAGS) $(OPTFLAGS) -c $(subst $(OBJDIR)/,src/,$(subst .o,.c,$@)) -o $@
 
 $(LIBFILE): $(COBJECTS) 

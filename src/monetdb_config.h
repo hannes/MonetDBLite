@@ -43,8 +43,8 @@
 /* Define to 1 if you have the `cbrt' function. */
 #define HAVE_CBRT 1
 
-/* Define to 1 if you have the `clock_gettime' function. */
-#define HAVE_CLOCK_GETTIME 1
+///* Define to 1 if you have the `clock_gettime' function. */
+//#define HAVE_CLOCK_GETTIME 1
 
 /* Define to 1 if you have the `ctime_r' function. */
 #define HAVE_CTIME_R 1
