@@ -132,6 +132,8 @@ int main(int argc, char** argv) {
 		printf("\n");
 	}
 
+	monetdb_cleanup_result(conn, result);
+
 	err = monetdb_query(conn, "UPDATE lineitem SET l_quantity=42", 1, NULL,
 			NULL, NULL);
 	if (err != 0) {
@@ -162,6 +164,8 @@ int main(int argc, char** argv) {
 
 	fprintf(stderr, "Query result with %zu cols and %zu rows\n", result->ncols,
 			result->nrows);
+	monetdb_cleanup_result(conn, result);
+
 
 	err = monetdb_query(conn, "DROP table lineitem;", 1, NULL, NULL, NULL);
 	if (err != 0) {
