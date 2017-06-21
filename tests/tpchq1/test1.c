@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 
 	snprintf(buf, BUFSIZ, "COPY INTO lineitem FROM '%s/lineitem.tbl' USING DELIMITERS '|', '\n';", argv[1]);
 
-	for (i = 0; i < 100; i++) {
+	for (i = 0; i < 10; i++) {
 		char* dbfarm = NULL;
 		char dbfarmdelbuf[BUFSIZ];
 
