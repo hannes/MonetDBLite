@@ -3,8 +3,7 @@ OPTIMIZE=$(OPT)
 CC=gcc
 
 ifneq ($(OPTIMIZE), true)
-	OPTFLAGS=-O0 -g -Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition
-
+	OPTFLAGS=-O0 -g -Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition -fsanitize=address
 	OBJDIR=build/debug
 else
 	OPTFLAGS=-O3 -g
@@ -353,7 +352,7 @@ test: $(LIBFILE)
 	mkdir -p build/tests 
 	$(CC) $(OPTFLAGS) tests/tpchq1/test1.c -o build/tests/tpchq1 -Isrc/embedded -Lbuild -lmonetdb5 $(LDFLAGS)
 	$(CC) $(OPTFLAGS) tests/sqlitelogic/sqllogictest.c tests/sqlitelogic/md5.c -o build/tests/sqlitelogic -Itests/sqlitelogic -Isrc/embedded -Lbuild -lmonetdb5 $(LDFLAGS)
-	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/tpchq1  $(shell pwd)/tests/tpchq1
+	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/tpchq1 $(shell pwd)/tests/tpchq1
 	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select1.test
 	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select2.test
 	LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select3.test

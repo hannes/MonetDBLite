@@ -1370,11 +1370,12 @@ store_schema_number(void)
 	return schema_number;
 }
 
+static 	sql_allocator *store_allocator = NULL;
+
 static int
 store_load(void) {
 	int first = 1;
 
-	sql_allocator *sa;
 	sql_trans *tr;
 	sql_table *t, *types, *funcs, *args;
 	sql_schema *s, *p = NULL;
@@ -1382,8 +1383,8 @@ store_load(void) {
 	lng lng_store_oid;
 	sqlid id = 0;
 
-	sa = sa_create();
-	types_init(sa, logger_debug);
+	store_allocator = sa_create();
+	types_init(store_allocator, logger_debug);
 
 #define FUNC_OIDS 2000
 	// TODO: Niels: Are we fine running this twice?
@@ -1392,8 +1393,8 @@ store_load(void) {
 	store_oid = FUNC_OIDS;
 
 	sequences_init();
-	gtrans = tr = create_trans(sa, backend_stk);
-	active_sessions = sa_list(sa);
+	gtrans = tr = create_trans(store_allocator, backend_stk);
+	active_sessions = sa_list(store_allocator);
 
 	if (logger_funcs.log_isnew()) {
 		/* cannot initialize database in readonly mode
@@ -1667,6 +1668,10 @@ store_exit(void)
 	if (!transactions) {
 		sql_trans_destroy(gtrans);
 		gtrans = NULL;
+	}
+
+	if (store_allocator) {
+		sa_destroy(store_allocator);
 	}
 
 	// this is required to not create phantom dependencies after same-process restart

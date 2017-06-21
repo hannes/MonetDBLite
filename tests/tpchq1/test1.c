@@ -1,13 +1,17 @@
 #include "embedded.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+
 
 int main(int argc, char** argv) {
 	char* err = 0;
 	void* conn = 0;
 	monetdb_result* result = 0;
-	char buf[BUFSIZ];
+	char buf[BUFSIZ], dbfarmbuf[BUFSIZ];
 	size_t r, c;
+	int i;
+
 
 	if (argc < 2) {
 		return -1;
@@ -15,7 +19,20 @@ int main(int argc, char** argv) {
 
 	snprintf(buf, BUFSIZ, "COPY INTO lineitem FROM '%s/lineitem.tbl' USING DELIMITERS '|', '\n';", argv[1]);
 
-	err = monetdb_startup(NULL, 0, 0);
+	for (i = 0; i < 100; i++) {
+		char* dbfarm = NULL;
+		char dbfarmdelbuf[BUFSIZ];
+
+		if (i % 2 == 0) {
+
+			sprintf(dbfarmbuf, "/tmp/monetdblite_farm_%i", i);
+			sprintf(dbfarmdelbuf, "rm -rf %s", dbfarmbuf);
+			system(dbfarmdelbuf);
+
+			dbfarm = dbfarmbuf;
+		}
+
+	err = monetdb_startup(dbfarm, 0, 0);
 	if (err != 0) {
 		fprintf(stderr, "Init fail: %s\n", err);
 		return -1;
@@ -154,5 +171,10 @@ int main(int argc, char** argv) {
 
 	monetdb_disconnect(conn);
 	monetdb_shutdown();
+	if (dbfarm) {
+		system(dbfarmdelbuf);
+	}
+	}
+
 	return 0;
 }
