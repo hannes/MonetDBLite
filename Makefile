@@ -3,7 +3,7 @@ OPTIMIZE=$(OPT)
 CC=gcc
 
 ifneq ($(OPTIMIZE), true)
-	OPTFLAGS=-O0 -g -Wall -Wextra -Werror -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition
+	OPTFLAGS=-O0 -g -Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition
 
 	OBJDIR=build/debug
 else
