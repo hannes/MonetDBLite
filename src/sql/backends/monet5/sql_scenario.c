@@ -1213,7 +1213,7 @@ SQLengine(Client c)
 }
 
 
-int SQLisInitialized() {
+int SQLisInitialized(void) {
 	return SQLinitialized > 0;
 }
 
