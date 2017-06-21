@@ -1,15 +1,4 @@
-Makefile.msc
-src/config.log
-src/config.status
-src/config.cache
-*.so
-*.lo
-.libs
-*.la
-*.pyc
 .DS_store
 .project
 .cproject
-autom4te.cache
 build
-test
