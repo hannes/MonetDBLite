@@ -40,7 +40,7 @@ ifeq ($(OS),Windows_NT)
 #    endif
 else
     UNAME_S := $(shell uname -s)
-    CFLAGS += -fPIC -fsanitize=address
+    CFLAGS += -fPIC
     ifeq ($(UNAME_S),Linux)
 		LDFLAGS += -lrt
     endif
