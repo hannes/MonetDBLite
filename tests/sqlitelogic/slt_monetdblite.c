@@ -114,8 +114,8 @@ static int monetdbliteQuery(
 			(*pazResult)[r*rptr->ncols + c] = strdup(buffer);
 		}
 	}
-
   *pnResult = rptr->ncols * rptr->nrows;
+  monetdb_cleanup_result(p, rptr);
   return 0;
 }
 
