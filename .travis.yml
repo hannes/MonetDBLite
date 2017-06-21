@@ -27,22 +27,18 @@ matrix:
     - os: linux
       addons:
         apt:
-          sources:
-            - llvm-toolchain-trusty-4.0
           packages:
             - clang-4.0
       env:
-        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
+        - MATRIX_EVAL="CC=clang-4.0"
 
     - os: linux
       addons:
         apt:
-          sources:
-            - llvm-toolchain-trusty
           packages:
             - clang-5.0
       env:
-        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+        - MATRIX_EVAL="CC=clang-5.0"
 
     - os: linux
       addons:
@@ -52,7 +48,7 @@ matrix:
           packages:
             - g++-4.9
       env:
-         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+         - MATRIX_EVAL="CC=gcc-4.9"
 
     - os: linux
       addons:
@@ -62,7 +58,7 @@ matrix:
           packages:
             - g++-5
       env:
-         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+         - MATRIX_EVAL="CC=gcc-5"
 
     - os: linux
       addons:
@@ -72,7 +68,7 @@ matrix:
           packages:
             - g++-6
       env:
-        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+        - MATRIX_EVAL="CC=gcc-6"
 
 before_install:
     - eval "${MATRIX_EVAL}"
