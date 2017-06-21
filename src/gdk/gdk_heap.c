@@ -325,7 +325,7 @@ HEAPshrink(Heap *h, size_t size)
 
 	assert(size >= h->free);
 	assert(size <= h->size);
-	if (GDKinmemory() || h->storage == STORE_MEM) {
+	if (h->storage == STORE_MEM) {
 		p = GDKrealloc(h->base, size);
 		HEAPDEBUG fprintf(stderr, "#HEAPshrink: shrinking malloced "
 				  "heap " SZFMT " " SZFMT " " PTRFMT " "
@@ -575,7 +575,7 @@ void
 HEAPfree(Heap *h, int remove)
 {
 	if (h->base) {
-		if (GDKinmemory() || h->storage == STORE_MEM) {	/* plain memory */
+		if (h->storage == STORE_MEM) {	/* plain memory */
 			HEAPDEBUG fprintf(stderr, "#HEAPfree " SZFMT
 					  " " PTRFMT "\n",
 					  h->size, PTRFMTCAST h->base);
@@ -608,7 +608,7 @@ HEAPfree(Heap *h, int remove)
 	}
 #endif
 	h->base = NULL;
-	if (!GDKinmemory() && h->filename) {
+	if (h->filename) {
 		if (remove) {
 			char *path = GDKfilepath(h->farmid, BATDIR, h->filename, NULL);
 			if (path && unlink(path) < 0 && errno != ENOENT)

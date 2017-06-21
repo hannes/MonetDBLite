@@ -394,6 +394,7 @@ void monetdb_cleanup_result(monetdb_connection conn, monetdb_result* result) {
 		}
 	}
 	GDKfree(res->converted_columns);
+	GDKfree(res);
 
 }
 

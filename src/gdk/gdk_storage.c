@@ -874,10 +874,6 @@ BATdelete(BAT *b)
 	str o;
 	BAT *loaded;
 
-	if (GDKinmemory()) {
-		return;
-	}
-
 	bid = b->batCacheid;
 	o = BBP_physical(bid);
 	loaded = BBP_cache(bid);
@@ -889,6 +885,7 @@ BATdelete(BAT *b)
 		IMPSdestroy(b);
 		OIDXdestroy(b);
 	}
+
 	if (b->batCopiedtodisk || (b->theap.storage != STORE_MEM)) {
 		if (b->ttype != TYPE_void &&
 		    HEAPdelete(&b->theap, o, "tail") &&
