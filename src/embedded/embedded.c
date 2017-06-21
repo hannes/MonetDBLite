@@ -82,7 +82,7 @@ void monetdb_disconnect(monetdb_connection conn) {
 	MCcloseClient((Client) conn);
 }
 
-#ifdef WIN32
+#ifdef NATIVE_WIN32
 #define NULLFILE "nul"
 #else
 #define NULLFILE "/dev/null"

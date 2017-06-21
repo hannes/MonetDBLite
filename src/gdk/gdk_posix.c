@@ -636,7 +636,7 @@ mdlopen(const char *library, int mode)
 #ifndef HAVE_EMBEDDED_R
 	(void) library;
 #ifdef __CYGWIN__
-	return dlopen(library, mode);
+	return dlopen("libmonetdb5.dll", mode);
 #else
 	return dlopen(NULL, mode);
 #endif
