@@ -13,6 +13,7 @@
 /*#define MAL_CLIENT_DEBUG */
 
 #include "mal_resolve.h"
+#include "embedded.h"
 
 #define CONSOLE     0
 #define isAdministrator(X) (X==mal_clients)
@@ -52,9 +53,6 @@ typedef struct CURRENT_INSTR{
 	MalStkPtr	stk;
 	InstrPtr	pci;
 } Workset;
-
-// WARNING: this is also defined in embedded.h
-typedef int (*monetdb_progress_callback)(void* conn, void* data, size_t num_statements, size_t num_completed_statement, float percentage_done);
 
 typedef struct CLIENT {
 	int idx;        /* entry in mal_clients */
