@@ -163,7 +163,6 @@ $(OBJDIR)/gdk/gdk_utils.o \
 $(OBJDIR)/gdk/gdk_value.o \
 $(OBJDIR)/mal/mal/mal.o \
 $(OBJDIR)/mal/mal/mal_atom.o \
-$(OBJDIR)/mal/mal/mal_authorize.o \
 $(OBJDIR)/mal/mal/mal_builder.o \
 $(OBJDIR)/mal/mal/mal_client.o \
 $(OBJDIR)/mal/mal/mal_dataflow.o \

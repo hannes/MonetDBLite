@@ -17,7 +17,6 @@
 #include "mal_interpreter.h"
 #include "mal_function.h"
 #include "mal_listing.h"
-#include "mal_authorize.h"
 #include "mal_resource.h"
 #include "mal_private.h"
 

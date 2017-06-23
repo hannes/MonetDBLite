@@ -15,7 +15,6 @@
 #include "mal_parser.h"	     /* for parseMAL() */
 #include "mal_namespace.h"
 #include "mal_builder.h"
-#include "mal_authorize.h"
 #include "mal_private.h"
 #include <gdk.h>	/* for opendir and friends */
 

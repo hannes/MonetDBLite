@@ -1424,7 +1424,7 @@ GDKmemfail(const char *s, size_t len)
  */
 
 /* we allocate extra space and return a pointer offset by this amount */
-#define MALLOC_EXTRA_SPACE	(2 * SIZEOF_VOID_P)
+#define MALLOC_EXTRA_SPACE	(2 * sizeof(void*))
 
 #ifdef NDEBUG
 #define DEBUG_SPACE	0

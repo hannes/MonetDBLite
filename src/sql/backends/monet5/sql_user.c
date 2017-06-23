@@ -22,7 +22,6 @@
 #include "sql_mvc.h"
 #include "sql_privileges.h"
 #include "mal_interpreter.h"
-#include "mal_authorize.h"
 
 #if 0
 int
@@ -53,33 +52,10 @@ static int
 monet5_drop_user(ptr _mvc, str user)
 {
 	mvc *m = (mvc *) _mvc;
-	oid rid;
-	sql_schema *sys;
-	sql_table *users;
-	sql_column *users_name;
-	str err;
-	Client c = MCgetClient(m->clientid);
+	(void) user;
+	(void) sql_error(m, 02, "user administration not available in lite mode");
+	return FALSE;
 
-	err = AUTHremoveUser(c, user);
-	if (err !=MAL_SUCCEED) {
-		(void) sql_error(m, 02, "DROP USER: %s", getExceptionMessage(err));
-		_DELETE(err);
-		return FALSE;
-	}
-	sys = find_sql_schema(m->session->tr, "sys");
-	users = find_sql_table(sys, "db_user_info");
-	users_name = find_sql_column(users, "name");
-
-	rid = table_funcs.column_find_row(m->session->tr, users_name, user, NULL);
-	if (rid != oid_nil)
-		table_funcs.table_delete(m->session->tr, users, rid);
-	/* FIXME: We have to ignore this inconsistency here, because the
-	 * user was already removed from the system authorisation. Once
-	 * we have warnings, we could issue a warning about this
-	 * (seemingly) inconsistency between system and sql shadow
-	 * administration. */
-
-	return TRUE;
 }
 
 static str
@@ -92,55 +68,17 @@ monet5_create_user(ptr _mvc, str user, str passwd, char enc, str fullname, sqlid
 	(void) fullname;
 	(void) schema_id;
 	(void) grantorid;
-	throw(MAL, "sql.create_user", "crypt backend not available in lite mode");
+	throw(MAL, "sql.create_user", "user administration not available in lite mode");
 }
 
 static int
 monet5_find_user(ptr mp, str user)
 {
-	BAT *uid, *nme;
-	BUN p;
-	mvc *m = (mvc *) mp;
-	Client c = MCgetClient(m->clientid);
-	str err;
-
-	if ((err = AUTHgetUsers(&uid, &nme, c)) != MAL_SUCCEED) {
-		_DELETE(err);
-		return -1;
-	}
-	p = BUNfnd(nme, user);
-	BBPunfix(uid->batCacheid);
-	BBPunfix(nme->batCacheid);
-
-	/* yeah, I would prefer to return something different too */
-	return (p == BUN_NONE ? -1 : 1);
+	(void) mp;
+	(void) user;
+	return 1;
 }
 
-str
-db_users_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	bat *r = getArgReference_bat(stk, pci, 0);
-	BAT *uid, *nme;
-	str err;
-
-	(void) mb;
-	if ((err = AUTHgetUsers(&uid, &nme, cntxt)) != MAL_SUCCEED)
-		return err;
-	BBPunfix(uid->batCacheid);
-	*r = nme->batCacheid;
-	BBPkeepref(*r);
-	return MAL_SUCCEED;
-}
-
-str
-db_password_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
-{
-	str *hash = getArgReference_str(stk, pci, 0);
-	str *user = getArgReference_str(stk, pci, 1);
-	(void) mb;
-
-	return AUTHgetPasswordHash(hash, cntxt, *user);
-}
 
 static void
 monet5_create_privileges(ptr _mvc, sql_schema *s)
@@ -190,16 +128,9 @@ static int
 monet5_schema_has_user(ptr _mvc, sql_schema *s)
 {
 	mvc *m = (mvc *) _mvc;
-	oid rid;
-	sql_schema *sys = find_sql_schema(m->session->tr, "sys");
-	sql_table *users = find_sql_table(sys, "db_user_info");
-	sql_column *users_schema = find_sql_column(users, "default_schema");
-	sqlid schema_id = s->base.id;
-
-	rid = table_funcs.column_find_row(m->session->tr, users_schema, &schema_id, NULL);
-	if (rid == oid_nil)
-		return FALSE;
-	return TRUE;
+	(void) s;
+	(void) sql_error(m, 02, "ALTER USER: crypt backend not available in lite mode");
+	return FALSE;
 }
 
 static int
@@ -211,7 +142,7 @@ monet5_alter_user(ptr _mvc, str user, str passwd, char enc, sqlid schema_id, str
 	(void) enc;
 	(void) schema_id;
 	(void) oldpasswd;
-	(void) sql_error(m, 02, "ALTER USER: crypt backend not available in lite mode");
+	(void) sql_error(m, 02, "user administration not available in lite mode");
 	return FALSE;
 
 }
@@ -220,38 +151,10 @@ static int
 monet5_rename_user(ptr _mvc, str olduser, str newuser)
 {
 	mvc *m = (mvc *) _mvc;
-	Client c = MCgetClient(m->clientid);
-	str err;
-	oid rid;
-	sql_schema *sys = find_sql_schema(m->session->tr, "sys");
-	sql_table *info = find_sql_table(sys, "db_user_info");
-	sql_column *users_name = find_sql_column(info, "name");
-	sql_table *auths = find_sql_table(sys, "auths");
-	sql_column *auths_name = find_sql_column(auths, "name");
-
-	if ((err = AUTHchangeUsername(c, olduser, newuser)) !=MAL_SUCCEED) {
-		(void) sql_error(m, 02, "ALTER USER: %s", getExceptionMessage(err));
-		freeException(err);
-		return (FALSE);
-	}
-
-	rid = table_funcs.column_find_row(m->session->tr, users_name, olduser, NULL);
-	if (rid == oid_nil) {
-		(void) sql_error(m, 02, "ALTER USER: local inconsistency, "
-				 "your database is damaged, user not found in SQL catalog");
-		return (FALSE);
-	}
-	table_funcs.column_update_value(m->session->tr, users_name, rid, newuser);
-
-	rid = table_funcs.column_find_row(m->session->tr, auths_name, olduser, NULL);
-	if (rid == oid_nil) {
-		(void) sql_error(m, 02, "ALTER USER: local inconsistency, "
-				 "your database is damaged, auth not found in SQL catalog");
-		return (FALSE);
-	}
-	table_funcs.column_update_value(m->session->tr, auths_name, rid, newuser);
-
-	return (TRUE);
+	(void) olduser;
+	(void) newuser;
+	(void) sql_error(m, 02, "user administration not available in lite mode");
+	return FALSE;
 }
 
 static void *
@@ -357,15 +260,9 @@ monet5_user_set_def_schema(mvc *m, oid user)
 
 	str schema = NULL;
 	str username = NULL;
-	str err = NULL;
 
 	if (m->debug &1)
 		fprintf(stderr, "monet5_user_set_def_schema " OIDFMT "\n", user);
-
-	if ((err = AUTHresolveUser(&username, user)) !=MAL_SUCCEED) {
-		freeException(err);
-		return (NULL);	/* don't reveal that the user doesn't exist */
-	}
 
 	mvc_trans(m);
 

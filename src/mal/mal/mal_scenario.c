@@ -97,7 +97,6 @@
 #include "mal_scenario.h"
 #include "mal_linker.h"		/* for getAddress() */
 #include "mal_client.h"
-#include "mal_authorize.h"
 #include "mal_exception.h"
 #include "mal_private.h"
 

@@ -354,14 +354,6 @@ pattern sql_variables():bat[:str]
 address sql_variables
 comment "return the table with session variables";
 
-pattern db_users() :bat[:str]
-address db_users_wrap
-comment "return table of users with sql scenario";
-
-pattern password(user:str) :str
-address db_password_wrap
-comment "Return password hash of user";
-
 pattern dump_cache()(query:bat[:str],count:bat[:int])
 address dump_cache
 comment "dump the content of the query cache";

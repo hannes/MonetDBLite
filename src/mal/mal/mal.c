@@ -22,7 +22,6 @@ int have_hge;
 
 #include "mal_stack.h"
 #include "mal_linker.h"
-#include "mal_authorize.h"
 #include "mal_session.h"
 #include "mal_scenario.h"
 #include "mal_parser.h"
@@ -116,7 +115,6 @@ void mserver_reset(int exit)
 {
 	GDKprepareExit();
 	MCstopClients(0);
-	AUTHreset(); 
 	mal_factory_reset();
 	mal_dataflow_reset();
 	if (mal_clients) {
