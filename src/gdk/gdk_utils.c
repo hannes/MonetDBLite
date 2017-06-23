@@ -404,17 +404,15 @@ GDKinit(opt *set, int setlen)
 				GDKlockHome(farmid);
 		}
 	}
-
-	// FIXME: this no longer makes sense
-	/* Mserver by default takes 80% of all memory as a default */
-	GDK_mem_maxsize = (size_t) ((double) MT_npages() * (double) MT_pagesize() * 0.815);
 	BBPinit();
 
-	if (GDK_mem_maxsize / 16 < GDK_mmap_minsize_transient) {
-		GDK_mmap_minsize_transient = GDK_mem_maxsize / 16;
-		if (GDK_mmap_minsize_persistent > GDK_mmap_minsize_transient)
-			GDK_mmap_minsize_persistent = GDK_mmap_minsize_transient;
-	}
+	// Hardcode this for MonetDBLite
+	GDK_mmap_minsize_persistent = MMAP_MINSIZE_PERSISTENT;
+	GDK_mmap_minsize_transient = 1024 * 1024 * 10; // 10 MB, have param here?
+	GDK_mmap_pagesize = MMAP_PAGESIZE;
+	GDK_mem_maxsize = GDK_VM_MAXSIZE;
+	GDK_vm_maxsize = GDK_VM_MAXSIZE;
+
 
 	n = (opt *) malloc(setlen * sizeof(opt));
 	for (i = 0; i < setlen; i++) {
@@ -434,38 +432,6 @@ GDKinit(opt *set, int setlen)
 			n[nlen] = set[i];
 			nlen++;
 		}
-	}
-
-	// TODO: get rid of this.
-	/* check some options before creating our first BAT */
-	for (i = 0; i < nlen; i++) {
-		if (strcmp("gdk_mem_maxsize", n[i].name) == 0) {
-			GDK_mem_maxsize = (size_t) strtoll(n[i].value, NULL, 10);
-			GDK_mem_maxsize = MAX(1 << 26, GDK_mem_maxsize);
-		} else if (strcmp("gdk_vm_maxsize", n[i].name) == 0) {
-			GDK_vm_maxsize = (size_t) strtoll(n[i].value, NULL, 10);
-			GDK_vm_maxsize = MAX(1 << 30, GDK_vm_maxsize);
-			if (GDK_vm_maxsize < GDK_mmap_minsize_persistent / 4)
-				GDK_mmap_minsize_persistent = GDK_vm_maxsize / 4;
-			if (GDK_vm_maxsize < GDK_mmap_minsize_transient / 4)
-				GDK_mmap_minsize_transient = GDK_vm_maxsize / 4;
-		} else if (strcmp("gdk_mmap_minsize_persistent", n[i].name) == 0) {
-			GDK_mmap_minsize_persistent = (size_t) strtoll(n[i].value, NULL, 10);
-		} else if (strcmp("gdk_mmap_minsize_transient", n[i].name) == 0) {
-			GDK_mmap_minsize_transient = (size_t) strtoll(n[i].value, NULL, 10);
-		} else if (strcmp("gdk_mmap_pagesize", n[i].name) == 0) {
-			GDK_mmap_pagesize = (size_t) strtoll(n[i].value, NULL, 10);
-			if (GDK_mmap_pagesize < 1 << 12 ||
-			    GDK_mmap_pagesize > 1 << 20 ||
-			    /* x & (x - 1): turn off rightmost 1 bit;
-			     * i.e. if result is zero, x is power of
-			     * two */
-			    (GDK_mmap_pagesize & (GDK_mmap_pagesize - 1)) != 0)
-				GDKfatal("GDKinit: gdk_mmap_pagesize must be power of 2 between 2**12 and 2**20\n");
-		}
-	}
-	if (!GDKinmemory()) {
-		// FIXME
 	}
 
 	GDKkey = COLnew(0, TYPE_str, 100, TRANSIENT);
@@ -528,11 +494,6 @@ GDKinit(opt *set, int setlen)
 	if (GDKgetenv("gdk_mmap_pagesize") == NULL) {
 		snprintf(buf, sizeof(buf), SZFMT, GDK_mmap_pagesize);
 		if (GDKsetenv("gdk_mmap_pagesize", buf) != GDK_SUCCEED)
-			GDKfatal("GDKinit: GDKsetenv failed");
-	}
-	if (GDKgetenv("monet_pid") == NULL) {
-		snprintf(buf, sizeof(buf), "%d", (int) getpid());
-		if (GDKsetenv("monet_pid", buf) != GDK_SUCCEED)
 			GDKfatal("GDKinit: GDKsetenv failed");
 	}
 
@@ -676,11 +637,12 @@ GDKreset(int status, int exit)
 		TEMDEBUG GDKlockstatistics(1);
 #endif
 		GDKdebug = 0;
-		GDK_mmap_minsize_persistent = MMAP_MINSIZE_PERSISTENT;
-		GDK_mmap_minsize_transient = MMAP_MINSIZE_TRANSIENT;
-		GDK_mmap_pagesize = MMAP_PAGESIZE;
-		GDK_mem_maxsize = (size_t) ((double) MT_npages() * (double) MT_pagesize() * 0.815);
-		GDK_vm_maxsize = GDK_VM_MAXSIZE;
+		// this is set in the next gdkinit anyway?
+//		GDK_mmap_minsize_persistent = MMAP_MINSIZE_PERSISTENT;
+//		GDK_mmap_minsize_transient = MMAP_MINSIZE_TRANSIENT;
+//		GDK_mmap_pagesize = MMAP_PAGESIZE;
+//		GDK_mem_maxsize = (size_t) ((double) MT_npages() * (double) MT_pagesize() * 0.815);
+//		GDK_vm_maxsize = GDK_VM_MAXSIZE;
 		GDKatomcnt = TYPE_str + 1;
 
 		GDK_vm_trim = 1;
