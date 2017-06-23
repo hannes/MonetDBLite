@@ -16,7 +16,7 @@ CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER -DLIBSTREAM
 
 
 LDFLAGS=-lm -lpthread -ldl
-INCLUDE_FLAGS= -Isrc/ -Isrc/common/options -Isrc/common/stream -Isrc/common/utils  \
+INCLUDE_FLAGS= -Isrc/ -Isrc/common  \
 -Isrc/embedded -Isrc/gdk \
 -Isrc/mal/mal -Isrc/mal/modules -Isrc/mal/optimizer \
 -Isrc/sql/backends/monet5 -Isrc/sql/include -Isrc/sql/common -Isrc/sql/server -Isrc/sql/storage -Isrc/sql/storage/bat
@@ -126,13 +126,10 @@ src/mal/modules/01_calc.mal \
 src/sql/backends/monet5/40_sql.mal 
 
 COBJECTS=\
-$(OBJDIR)/common/options/monet_options.o \
-$(OBJDIR)/common/stream/stream.o \
-$(OBJDIR)/common/utils/mcrypt.o \
-$(OBJDIR)/common/utils/mutils.o \
-$(OBJDIR)/common/utils/muuid.o \
-$(OBJDIR)/common/utils/prompt.o \
-$(OBJDIR)/common/utils/s_nextafterf.o \
+$(OBJDIR)/common/monet_options.o \
+$(OBJDIR)/common/stream.o \
+$(OBJDIR)/common/mutils.o \
+$(OBJDIR)/common/s_nextafterf.o \
 $(OBJDIR)/embedded/embedded.o \
 $(OBJDIR)/gdk/gdk_aggr.o \
 $(OBJDIR)/gdk/gdk_align.o \

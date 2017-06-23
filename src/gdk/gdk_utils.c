@@ -405,6 +405,7 @@ GDKinit(opt *set, int setlen)
 		}
 	}
 
+	// FIXME: this no longer makes sense
 	/* Mserver by default takes 80% of all memory as a default */
 	GDK_mem_maxsize = (size_t) ((double) MT_npages() * (double) MT_pagesize() * 0.815);
 	BBPinit();
@@ -434,6 +435,8 @@ GDKinit(opt *set, int setlen)
 			nlen++;
 		}
 	}
+
+	// TODO: get rid of this.
 	/* check some options before creating our first BAT */
 	for (i = 0; i < nlen; i++) {
 		if (strcmp("gdk_mem_maxsize", n[i].name) == 0) {

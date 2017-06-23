@@ -23,7 +23,6 @@
 #include "sql_privileges.h"
 #include "mal_interpreter.h"
 #include "mal_authorize.h"
-#include "mcrypt.h"
 
 #if 0
 int
@@ -86,38 +85,14 @@ monet5_drop_user(ptr _mvc, str user)
 static str
 monet5_create_user(ptr _mvc, str user, str passwd, char enc, str fullname, sqlid schema_id, sqlid grantorid)
 {
-	mvc *m = (mvc *) _mvc;
-	oid uid = 0;
-	bat bid = 0;
-	str ret;
-	int user_id;
-	str pwd;
-	sql_schema *s = find_sql_schema(m->session->tr, "sys");
-	sql_table *db_user_info, *auths;
-	Client c = MCgetClient(m->clientid);
-
-	if (!enc) {
-		pwd = mcrypt_BackendSum(passwd, strlen(passwd));
-		if (pwd == NULL) {
-			BBPunfix(bid);
-			throw(MAL, "sql.create_user", "crypt backend hash not found");
-		}
-	} else {
-		pwd = passwd;
-	}
-	/* add the user to the M5 authorisation administration */
-	ret = AUTHaddUser(&uid, c, user, pwd);
-	if (!enc)
-		free(pwd);
-	if (ret != MAL_SUCCEED)
-		return ret;
-
-	user_id = store_next_oid();
-	db_user_info = find_sql_table(s, "db_user_info");
-	auths = find_sql_table(s, "auths");
-	table_funcs.table_insert(m->session->tr, db_user_info, user, fullname, &schema_id);
-	table_funcs.table_insert(m->session->tr, auths, &user_id, user, &grantorid);
-	return NULL;
+	(void) _mvc;
+	(void) user;
+	(void) passwd;
+	(void) enc;
+	(void) fullname;
+	(void) schema_id;
+	(void) grantorid;
+	throw(MAL, "sql.create_user", "crypt backend not available in lite mode");
 }
 
 static int
@@ -231,95 +206,14 @@ static int
 monet5_alter_user(ptr _mvc, str user, str passwd, char enc, sqlid schema_id, str oldpasswd)
 {
 	mvc *m = (mvc *) _mvc;
-	Client c = MCgetClient(m->clientid);
-	str err;
+	(void) user;
+	(void) passwd;
+	(void) enc;
+	(void) schema_id;
+	(void) oldpasswd;
+	(void) sql_error(m, 02, "ALTER USER: crypt backend not available in lite mode");
+	return FALSE;
 
-	if (passwd != NULL) {
-		str pwd = NULL;
-		str opwd = NULL;
-		if (!enc) {
-			pwd = mcrypt_BackendSum(passwd, strlen(passwd));
-			if (pwd == NULL) {
-				(void) sql_error(m, 02, "ALTER USER: crypt backend hash not found");
-				return FALSE;
-			}
-			if (oldpasswd != NULL) {
-				opwd = mcrypt_BackendSum(oldpasswd, strlen(oldpasswd));
-				if (opwd == NULL) {
-					free(pwd);
-					(void) sql_error(m, 02, "ALTER USER: crypt backend hash not found");
-					return FALSE;
-				}
-			}
-		} else {
-			pwd = passwd;
-			opwd = oldpasswd;
-		}
-		if (user == NULL) {
-			err = AUTHchangePassword(c, opwd, pwd);
-			if (!enc) {
-				free(pwd);
-				free(opwd);
-			}
-			if (err !=MAL_SUCCEED) {
-				(void) sql_error(m, 02, "ALTER USER: %s", getExceptionMessage(err));
-				freeException(err);
-				return (FALSE);
-			}
-		} else {
-			str username = NULL;
-			if ((err = AUTHresolveUser(&username, c->user)) !=MAL_SUCCEED) {
-				if (!enc) {
-					free(pwd);
-					free(opwd);
-				}
-				(void) sql_error(m, 02, "ALTER USER: %s", getExceptionMessage(err));
-				freeException(err);
-				return (FALSE);
-			}
-			if (strcmp(username, user) == 0) {
-				/* avoid message about changePassword (from MAL level) */
-				GDKfree(username);
-				if (!enc) {
-					free(pwd);
-					free(opwd);
-				}
-				(void) sql_error(m, 02, "ALTER USER: "
-					"use 'ALTER USER SET [ ENCRYPTED ] PASSWORD xxx "
-					"USING OLD PASSWORD yyy' "
-					"when changing your own password");
-				return (FALSE);
-			}
-			GDKfree(username);
-			err = AUTHsetPassword(c, user, pwd);
-			if (!enc) {
-				free(pwd);
-				free(opwd);
-			}
-			if (err !=MAL_SUCCEED) {
-				(void) sql_error(m, 02, "ALTER USER: %s", getExceptionMessage(err));
-				freeException(err);
-				return (FALSE);
-			}
-		}
-	}
-
-	if (schema_id) {
-		oid rid;
-		sql_schema *sys = find_sql_schema(m->session->tr, "sys");
-		sql_table *info = find_sql_table(sys, "db_user_info");
-		sql_column *users_name = find_sql_column(info, "name");
-		sql_column *users_schema = find_sql_column(info, "default_schema");
-
-		/* FIXME: we don't really check against the backend here */
-		rid = table_funcs.column_find_row(m->session->tr, users_name, user, NULL);
-		if (rid == oid_nil)
-			return FALSE;
-
-		table_funcs.column_update_value(m->session->tr, users_schema, rid, &schema_id);
-	}
-
-	return TRUE;
 }
 
 static int
