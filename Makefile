@@ -18,8 +18,8 @@ CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER -DLIBSTREAM
 LDFLAGS=-lm -lpthread -ldl
 INCLUDE_FLAGS= -Isrc/ -Isrc/common  \
 -Isrc/embedded -Isrc/gdk \
--Isrc/mal/mal -Isrc/mal/modules -Isrc/mal/optimizer \
--Isrc/sql/backends/monet5 -Isrc/sql/include -Isrc/sql/common -Isrc/sql/server -Isrc/sql/storage -Isrc/sql/storage/bat
+-Isrc/mal/mal -Isrc/mal/modules -Isrc/mal/optimizer -Isrc/mal/sqlbackend \
+-Isrc/sql/include -Isrc/sql/common -Isrc/sql/server -Isrc/sql/storage -Isrc/sql/storage/bat
 
 
 
@@ -107,23 +107,23 @@ src/mal/modules/sample.mal \
 src/mal/modules/str.mal \
 src/mal/modules/tablet.mal \
 src/mal/optimizer/optimizer.mal \
-src/sql/backends/monet5/sql.mal \
-src/sql/backends/monet5/sql_aggr_bte.mal \
-src/sql/backends/monet5/sql_aggr_dbl.mal \
-src/sql/backends/monet5/sql_aggr_flt.mal \
-src/sql/backends/monet5/sql_aggr_int.mal \
-src/sql/backends/monet5/sql_aggr_lng.mal \
-src/sql/backends/monet5/sql_aggr_sht.mal \
-src/sql/backends/monet5/sql_decimal.mal \
-src/sql/backends/monet5/sql_inspect.mal \
-src/sql/backends/monet5/sql_rank.mal \
-src/sql/backends/monet5/sql_transaction.mal \
-src/sql/backends/monet5/sqlcatalog.mal
+src/mal/sqlbackend/sql.mal \
+src/mal/sqlbackend/sql_aggr_bte.mal \
+src/mal/sqlbackend/sql_aggr_dbl.mal \
+src/mal/sqlbackend/sql_aggr_flt.mal \
+src/mal/sqlbackend/sql_aggr_int.mal \
+src/mal/sqlbackend/sql_aggr_lng.mal \
+src/mal/sqlbackend/sql_aggr_sht.mal \
+src/mal/sqlbackend/sql_decimal.mal \
+src/mal/sqlbackend/sql_inspect.mal \
+src/mal/sqlbackend/sql_rank.mal \
+src/mal/sqlbackend/sql_transaction.mal \
+src/mal/sqlbackend/sqlcatalog.mal
 
 MALAUTO=\
 src/mal/modules/01_batcalc.mal \
 src/mal/modules/01_calc.mal \
-src/sql/backends/monet5/40_sql.mal 
+src/mal/sqlbackend/40_sql.mal 
 
 COBJECTS=\
 $(OBJDIR)/common/monet_options.o \
@@ -240,27 +240,27 @@ $(OBJDIR)/mal/optimizer/opt_reorder.o \
 $(OBJDIR)/mal/optimizer/opt_support.o \
 $(OBJDIR)/mal/optimizer/opt_wrapper.o \
 $(OBJDIR)/mal/optimizer/optimizer.o \
-$(OBJDIR)/sql/backends/monet5/mal_backend.o \
-$(OBJDIR)/sql/backends/monet5/rel_bin.o \
-$(OBJDIR)/sql/backends/monet5/sql.o \
-$(OBJDIR)/sql/backends/monet5/sql_assert.o \
-$(OBJDIR)/sql/backends/monet5/sql_bat2time.o \
-$(OBJDIR)/sql/backends/monet5/sql_cast.o \
-$(OBJDIR)/sql/backends/monet5/sql_cat.o \
-$(OBJDIR)/sql/backends/monet5/sql_execute.o \
-$(OBJDIR)/sql/backends/monet5/sql_fround.o \
-$(OBJDIR)/sql/backends/monet5/sql_gencode.o \
-$(OBJDIR)/sql/backends/monet5/sql_optimizer.o \
-$(OBJDIR)/sql/backends/monet5/sql_orderidx.o \
-$(OBJDIR)/sql/backends/monet5/sql_rank.o \
-$(OBJDIR)/sql/backends/monet5/sql_result.o \
-$(OBJDIR)/sql/backends/monet5/sql_round.o \
-$(OBJDIR)/sql/backends/monet5/sql_scenario.o \
-$(OBJDIR)/sql/backends/monet5/sql_statement.o \
-$(OBJDIR)/sql/backends/monet5/sql_statistics.o \
-$(OBJDIR)/sql/backends/monet5/sql_transaction.o \
-$(OBJDIR)/sql/backends/monet5/sql_upgrades.o \
-$(OBJDIR)/sql/backends/monet5/sql_user.o \
+$(OBJDIR)/mal/sqlbackend/mal_backend.o \
+$(OBJDIR)/mal/sqlbackend/rel_bin.o \
+$(OBJDIR)/mal/sqlbackend/sql.o \
+$(OBJDIR)/mal/sqlbackend/sql_assert.o \
+$(OBJDIR)/mal/sqlbackend/sql_bat2time.o \
+$(OBJDIR)/mal/sqlbackend/sql_cast.o \
+$(OBJDIR)/mal/sqlbackend/sql_cat.o \
+$(OBJDIR)/mal/sqlbackend/sql_execute.o \
+$(OBJDIR)/mal/sqlbackend/sql_fround.o \
+$(OBJDIR)/mal/sqlbackend/sql_gencode.o \
+$(OBJDIR)/mal/sqlbackend/sql_optimizer.o \
+$(OBJDIR)/mal/sqlbackend/sql_orderidx.o \
+$(OBJDIR)/mal/sqlbackend/sql_rank.o \
+$(OBJDIR)/mal/sqlbackend/sql_result.o \
+$(OBJDIR)/mal/sqlbackend/sql_round.o \
+$(OBJDIR)/mal/sqlbackend/sql_scenario.o \
+$(OBJDIR)/mal/sqlbackend/sql_statement.o \
+$(OBJDIR)/mal/sqlbackend/sql_statistics.o \
+$(OBJDIR)/mal/sqlbackend/sql_transaction.o \
+$(OBJDIR)/mal/sqlbackend/sql_upgrades.o \
+$(OBJDIR)/mal/sqlbackend/sql_user.o \
 $(OBJDIR)/sql/common/sql_backend.o \
 $(OBJDIR)/sql/common/sql_changeset.o \
 $(OBJDIR)/sql/common/sql_hash.o \
