@@ -1833,9 +1833,10 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			goto allLeft;
 		case 'C': case 'c':
 			if (MALkeyword(cntxt, "command", 7)) {
-				parseCommandPattern(cntxt, COMMANDsymbol);
-				if (!cntxt->curprg) {
-					return 1;
+				MalBlkPtr p = parseCommandPattern(cntxt, COMMANDsymbol);
+				if (p) {
+					p->unsafeProp = unsafeProp;
+					p->sealedProp = sealedProp;
 				}
 				cntxt->curprg->def->unsafeProp = unsafeProp;
 				cntxt->curprg->def->sealedProp = sealedProp;
@@ -1863,8 +1864,12 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			goto allLeft;
 		case 'F': case 'f':
 			if (MALkeyword(cntxt, "function", 8)) {
+				MalBlkPtr p;
 				cntxt->blkmode++;
-				if (parseFunction(cntxt, FUNCTIONsymbol)){
+				if ((p = parseFunction(cntxt, FUNCTIONsymbol))){
+					p->inlineProp = inlineProp;
+					p->unsafeProp = unsafeProp;
+					p->sealedProp = sealedProp;
 					cntxt->curprg->def->inlineProp = inlineProp;
 					cntxt->curprg->def->unsafeProp = unsafeProp;
 					cntxt->curprg->def->sealedProp = sealedProp;
@@ -1908,11 +1913,13 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			goto allLeft;
 		case 'P': case 'p':
 			if (MALkeyword(cntxt, "pattern", 7)) {
+				MalBlkPtr p;
 				if( inlineProp )
 					showException(cntxt->fdout, SYNTAX, "parseError", "INLINE ignored");
-				parseCommandPattern(cntxt, PATTERNsymbol);
-				if (!cntxt->curprg) {
-					return 1;
+				p = parseCommandPattern(cntxt, PATTERNsymbol);
+				if (p) {
+					p->unsafeProp = unsafeProp;
+					p->sealedProp = sealedProp;
 				}
 				cntxt->curprg->def->unsafeProp = unsafeProp;
 				cntxt->curprg->def->sealedProp = sealedProp;
