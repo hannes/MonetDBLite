@@ -20,7 +20,6 @@
 #include "locale.h"
 
 #include <R_ext/Altrep.h>
-#include "altrep.c"
 
 /* we need the BAT-SEXP-BAT conversion in two places, here and in RAPI */
 #include "converters.c.h"
@@ -329,7 +328,7 @@ void R_init_libmonetdb5(DllInfo *dll) {
 	R_registerRoutines(dll, NULL, R_CallDef, NULL, NULL);
 	R_useDynamicSymbols(dll, FALSE);
 
-	InitMmapIntegerClass(dll);
+	monetdb_altrep_init_int(dll);
 }
 
 

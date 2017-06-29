@@ -153,6 +153,232 @@ static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
 #endif
 
 
+// ALTREP
+//#define ALTREP_CONVERT 1
+
+static R_altrep_class_t bat_integer_class;
+//static R_altrep_class_t bat_real_class;
+//static R_altrep_class_t bat_string_class; // TODO
+
+
+#define bataddr(x) ((BAT*) R_ExternalPtrAddr(R_altrep_data1(x)))
+
+static R_xlen_t monetdb_altrep_length(SEXP x) {
+    return BATcount(bataddr(x));
+}
+
+#define MBLEN 1000
+static R_MASQ_BAT mappedbats[MBLEN]; // FIXME: evil global
+static size_t mappedbat_end = 0;
+
+
+
+static void
+monetdb_altrep_signalhandler(int sig, siginfo_t *si, void *unused) {
+	(void) sig;
+	(void) unused;
+
+	char* addr = (char*) si->si_addr;
+
+	// todo figure out whether its us or someone else
+	for (size_t i = 0; i < mappedbat_end && i < MBLEN; i++) {
+		R_MASQ_BAT masq = mappedbats[i];
+		if (addr >= masq.data_map && addr < masq.data_map + masq.data_map_len) {
+		   fprintf(stderr, "Got SIGSEGV at address: 0x%lx for bat %i\n",
+					(long) si->si_addr, masq.bat_cache_id);
+		   mprotect(masq.data_map, masq.data_map_len, PROT_WRITE);
+		   BAT* b = BATdescriptor(masq.bat_cache_id);
+		   memcpy(masq.data_map, b->theap.base, masq.data_map_len);
+		   BBPunfix(masq.bat_cache_id);
+		   fflush(stderr);
+		}
+	}
+	// TODO: longjump out of there if this was a mistake
+}
+
+
+static void ostrich_algorithm(R_allocator_t *allocator, void *ptr) {
+	(void) allocator;
+	(void) ptr;
+}
+
+
+
+static void *monetdb_altrep_dataptr(SEXP x, Rboolean writeable) {
+	(void) writeable;
+	if (R_altrep_data2(x) == R_NilValue) {
+
+		Rprintf("dataptr(%d)\n", bataddr(x)->batCacheid);
+		BAT* b = bataddr(x);
+		SEXP varvalue;
+		size_t hdr_len = 48 + sizeof(R_allocator_t); // sizeof(SEXPREC_ALIGNED) is 40 but not exported
+		R_allocator_t allocator;
+		R_MASQ_BAT* masq = malloc(sizeof(R_MASQ_BAT));
+
+		// TODO: mmap in batches so we can free them individually
+		masq->data_map_len = BATcount(b) * sizeof(int); // space for R vector
+		masq->base_map = mmap(NULL, masq->data_map_len + MT_pagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		masq->data_map = masq->base_map + MT_pagesize();
+		masq->bat_cache_id = b->batCacheid;
+		masq->sexp_ptr = masq->data_map - hdr_len;
+
+		memcpy(&(mappedbats[mappedbat_end]), masq, sizeof(R_MASQ_BAT));
+		mappedbat_end++;
+
+		allocator.mem_alloc = monetdb_r_alloc;
+		allocator.mem_free  = ostrich_algorithm;
+		allocator.res = NULL;
+		allocator.data = masq;
+
+		// pointer fun, we know we are allowed to write there
+		// call R's own allocator to set up various structures for us
+		varvalue = PROTECT(allocVector3(INTSXP, BATcount(b), &allocator));
+		SET_NAMED(varvalue, 1);
+
+		mprotect(masq->data_map, masq->data_map_len, PROT_NONE);
+
+		// fallback
+		//BAT_TO_INTSXP(bataddr(x), int, varvalue, 1);
+		R_set_altrep_data2(x, varvalue);
+	}
+	return INTEGER(R_altrep_data2(x));
+}
+
+
+static int monetdb_altrep_elt_integer(SEXP x, R_xlen_t i) {
+	//if (R_altrep_data2(x) == R_NilValue) {
+	int raw = ((int*) bataddr(x)->theap.base)[i];;
+	return raw == int_nil ? NA_INTEGER : raw;
+	//}
+	//return INTEGER(R_altrep_data2(x))[i];
+}
+
+
+static Rboolean monetdb_altrep_inspect(SEXP x, int pre, int deep, int pvec,
+		      void (*inspect_subtree)(SEXP, int, int, int))
+{
+	(void) pre;
+	(void) deep;
+	(void) pvec;
+	(void) inspect_subtree;
+
+	Rprintf("BAT #%d %s -> %s\n", bataddr(x)->batCacheid, ATOMname(bataddr(x)->ttype), type2char(TYPEOF(x)));
+	return TRUE;
+}
+
+static void *monetdb_altrep_dataptr_or_null(SEXP x, Rboolean writeable) {
+	(void) x;
+	(void) writeable;
+	if (R_altrep_data2(x) != R_NilValue) {
+		return INTEGER(R_altrep_data2(x));
+	}
+	return NULL;
+}
+
+
+static
+R_xlen_t monetdb_altrep_region_integer(SEXP sx, R_xlen_t i, R_xlen_t n, int *buf)
+{
+	(void) sx;
+	(void) i;
+	(void) n;
+	(void) buf;
+	error("region_integer() called but not supported");
+
+    return 0;
+}
+
+static int monetdb_altrep_is_sorted(SEXP x) {
+	BAT* b = bataddr(x);
+	return b->tsorted;
+}
+
+
+static int monetdb_altrep_no_na(SEXP x) {
+	BAT* b = bataddr(x);
+	return b->tnonil && !b->tnil;
+}
+
+
+static void monetdb_altrep_init_int(DllInfo *dll)
+{
+
+    struct sigaction sa;
+
+    sa.sa_flags = SA_SIGINFO;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_sigaction = monetdb_altrep_signalhandler;
+
+     sigaction(SIGBUS, &sa, NULL); // TODO: which signals could this be
+     // TODO: what about r's handler?
+
+	R_altrep_class_t cls =
+	R_make_altinteger_class("bat_integer", "MonetDBLite", dll);
+    bat_integer_class = cls;
+
+    /* override ALTREP methods */
+    R_set_altrep_Inspect_method(cls, monetdb_altrep_inspect);
+    R_set_altrep_Length_method(cls, monetdb_altrep_length);
+
+    /* override ALTVEC methods */
+    R_set_altvec_Dataptr_method(cls, monetdb_altrep_dataptr);
+    R_set_altvec_Dataptr_or_null_method(cls, monetdb_altrep_dataptr_or_null);
+
+    /* override ALTINTEGER methods */
+    R_set_altinteger_Elt_method(cls, monetdb_altrep_elt_integer);
+    R_set_altinteger_Get_region_method(cls, monetdb_altrep_region_integer);
+    R_set_altinteger_Is_sorted_method(cls, monetdb_altrep_is_sorted);
+    R_set_altinteger_No_NA_method(cls, monetdb_altrep_no_na);
+
+
+
+}
+
+//static void InitMmapRealClass(DllInfo *dll)
+//{
+//    R_altrep_class_t cls =
+//	R_make_altreal_class("bat_real", "MonetDBLite", dll);
+//    bat_real_class = cls;
+//
+//    /* override ALTREP methods */
+//    /*R_set_altrep_Unserialize_method(cls, mmap_Unserialize);
+//    R_set_altrep_Serialized_state_method(cls, mmap_Serialized_state);
+//    R_set_altrep_Inspect_method(cls, mmap_Inspect);*/
+//    R_set_altrep_Length_method(cls, monetdb_altrep_length);
+//
+//    /* override ALTVEC methods */
+//    R_set_altvec_Dataptr_method(cls, monetdb_altrep_dataptr);
+//   // R_set_altvec_Dataptr_or_null_method(cls, mmap_Dataptr_or_null);
+//
+//    /* override ALTREAL methods */
+//    R_set_altreal_Elt_method(cls, monetdb_altrep_elt_real);
+// //   R_set_altreal_Get_region_method(cls, monetdb_altrep_region_real);
+//}
+
+
+
+static SEXP monetdb_r_altrep(BAT *b, SEXPTYPE target_type) {
+    SEXP eptr = PROTECT(R_MakeExternalPtr(b, R_NilValue, R_NilValue));
+    R_altrep_class_t class;
+    switch(target_type) {
+    case INTSXP:
+	class = bat_integer_class;
+	break;
+//    case REALSXP:
+//	class = bat_real_class;
+//	break;
+    default: error("altrep for %s not supported yet", type2char(target_type));
+    }
+    SEXP ans = R_new_altrep(class, eptr, R_NilValue);
+	MARK_NOT_MUTABLE(ans);
+    UNPROTECT(1);
+    return ans;
+}
+
+
+// END ALTREP
+
+
 static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 	SEXP varvalue = NULL;
 	int battype = getBatType(b->ttype);
