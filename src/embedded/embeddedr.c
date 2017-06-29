@@ -6,6 +6,7 @@
 #include "R_ext/Rallocators.h"
 #include <R_ext/Rdynload.h>
 #include <R_ext/Connections.h>
+
 #include <Rdefines.h>
 
 #include "monet_options.h"
@@ -18,9 +19,12 @@
 
 #include "locale.h"
 
+#include <R_ext/Altrep.h>
+#include "altrep.c"
 
 /* we need the BAT-SEXP-BAT conversion in two places, here and in RAPI */
 #include "converters.c.h"
+
 
 int embedded_r_rand(void) {
 	int ret;
@@ -324,6 +328,8 @@ void R_init_libmonetdb5(DllInfo *dll) {
 	monetdb_lib_path = strdup(*((char**) dll)); // not evil at all
 	R_registerRoutines(dll, NULL, R_CallDef, NULL, NULL);
 	R_useDynamicSymbols(dll, FALSE);
+
+	InitMmapIntegerClass(dll);
 }
 
 

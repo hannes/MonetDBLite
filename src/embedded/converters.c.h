@@ -92,6 +92,8 @@ static void* monetdb_r_alloc(R_allocator_t *allocator, size_t length) {
 	return masq->sexp_ptr;
 }
 
+
+
 static void monetdb_r_free(R_allocator_t *allocator, void *ptr) {
 	// TODO: ptr might be offset for long vectors?! check this
 	R_MASQ_BAT* masq = (R_MASQ_BAT*) allocator->data;
@@ -106,7 +108,7 @@ static void monetdb_r_free(R_allocator_t *allocator, void *ptr) {
 static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
 	R_MASQ_BAT* masq = malloc(sizeof(R_MASQ_BAT));
 	SEXP varvalue;
-	size_t hdr_len = 40 + sizeof(R_allocator_t); // sizeof(SEXPREC_ALIGNED) is 40 but not exported
+	size_t hdr_len = 48 + sizeof(R_allocator_t); // sizeof(SEXPREC_ALIGNED) is 40 but not exported
 	R_allocator_t allocator;
 
 	char* filename = GDKfilepath(b->T.heap.farmid, BATDIR, b->T.heap.filename, NULL);
@@ -207,8 +209,11 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 	} else if (battype == TYPE_int) {
 #ifndef NATIVE_WIN32
 		// special case: bulk memcpy/masquerade
-		if (b->T.heap.storage != STORE_MMAP ||
-				BATcount(b) < 2000000 || BATcount(b) > R_SHORT_LEN_MAX) {
+		if (getenv("ENABLE_ALTREP") != NULL) {
+			varvalue = PROTECT(monetdb_r_altrep(b, INTSXP));
+			*unfix = 0;
+		} else if (b->T.heap.storage != STORE_MMAP ||
+				BATcount(b) < 1000 || BATcount(b) > R_SHORT_LEN_MAX || getenv("DISABLE_DRESSUP") != NULL) {
 			BAT_TO_INTSXP(b, int, varvalue, 1);
 		} else {
 			varvalue = monetdb_r_dressup(b, INTSXP);
@@ -229,7 +234,7 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 #ifndef NATIVE_WIN32
 		// special case: bulk memcpy/masquerade, but only if there are no NULLs
 		if (!b->tnonil || b->tnil || b->T.heap.storage != STORE_MMAP ||
-				BATcount(b) < 1000000 || BATcount(b) > R_SHORT_LEN_MAX) {
+				BATcount(b) < 1000 || BATcount(b) > R_SHORT_LEN_MAX || getenv("DISABLE_DRESSUP") != NULL) {
 			BAT_TO_REALSXP(b, dbl, varvalue, 1);
 		} else {
 			varvalue = monetdb_r_dressup(b, REALSXP);
