@@ -181,6 +181,7 @@ monetdb_altrep_signalhandler(int sig, siginfo_t *si, void *unused) {
 	char* addr = (char*) si->si_addr;
 
 	// todo figure out whether its us or someone else
+
 	for (size_t i = 0; i < mappedbat_end && i < MBLEN; i++) {
 		R_MASQ_BAT masq = mappedbats[i];
 		if (addr >= masq.data_map && addr < masq.data_map + masq.data_map_len) {
@@ -246,11 +247,8 @@ static void *monetdb_altrep_dataptr(SEXP x, Rboolean writeable) {
 
 
 static int monetdb_altrep_elt_integer(SEXP x, R_xlen_t i) {
-	//if (R_altrep_data2(x) == R_NilValue) {
 	int raw = ((int*) bataddr(x)->theap.base)[i];;
 	return raw == int_nil ? NA_INTEGER : raw;
-	//}
-	//return INTEGER(R_altrep_data2(x))[i];
 }
 
 
@@ -300,8 +298,7 @@ static int monetdb_altrep_no_na(SEXP x) {
 }
 
 
-static void monetdb_altrep_init_int(DllInfo *dll)
-{
+static void monetdb_altrep_init_int(DllInfo *dll) {
 
     struct sigaction sa;
 
@@ -312,9 +309,8 @@ static void monetdb_altrep_init_int(DllInfo *dll)
      sigaction(SIGBUS, &sa, NULL); // TODO: which signals could this be
      // TODO: what about r's handler?
 
-	R_altrep_class_t cls =
-	R_make_altinteger_class("bat_integer", "MonetDBLite", dll);
-    bat_integer_class = cls;
+
+	R_altrep_class_t cls = R_make_altinteger_class("bat_integer", "MonetDBLite", dll);
 
     /* override ALTREP methods */
     R_set_altrep_Inspect_method(cls, monetdb_altrep_inspect);
@@ -330,8 +326,7 @@ static void monetdb_altrep_init_int(DllInfo *dll)
     R_set_altinteger_Is_sorted_method(cls, monetdb_altrep_is_sorted);
     R_set_altinteger_No_NA_method(cls, monetdb_altrep_no_na);
 
-
-
+    bat_integer_class = cls;
 }
 
 //static void InitMmapRealClass(DllInfo *dll)
