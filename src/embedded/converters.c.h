@@ -103,10 +103,29 @@ static void monetdb_r_free(R_allocator_t *allocator, void *ptr) {
 	monetdb_r_masq_free(masq);
 }
 
+
+// because R_ParseEvalString is not exported
+static int monetdb_r_hdrsize() {
+    SEXP s = PROTECT(mkString("as.integer(utils::object.size(integer(0)))"));
+    int siz = -1;
+    ParseStatus status;
+    SEXP ps = PROTECT(R_ParseVector(s, -1, &status, R_NilValue));
+    if (status != PARSE_OK ||
+	TYPEOF(ps) != EXPRSXP ||
+	LENGTH(ps) != 1) {
+    	return siz;
+    }
+    SEXP val = eval(VECTOR_ELT(ps, 0), R_GlobalEnv);
+    siz = INTEGER(val)[0];
+
+    UNPROTECT(2); /* s, ps */
+    return siz;
+}
+
 static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
 	R_MASQ_BAT* masq = malloc(sizeof(R_MASQ_BAT));
 	SEXP varvalue;
-	size_t hdr_len = 40 + sizeof(R_allocator_t); // sizeof(SEXPREC_ALIGNED) is 40 but not exported
+	size_t hdr_len = monetdb_r_hdrsize() + sizeof(R_allocator_t);//40 +  // sizeof(SEXPREC_ALIGNED) is 40 but not exported
 	R_allocator_t allocator;
 
 	char* filename = GDKfilepath(b->T.heap.farmid, BATDIR, b->T.heap.filename, NULL);

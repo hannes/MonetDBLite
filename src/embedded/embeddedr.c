@@ -6,7 +6,10 @@
 #include "R_ext/Rallocators.h"
 #include <R_ext/Rdynload.h>
 #include <R_ext/Connections.h>
+#include <R_ext/Parse.h>
+
 #include <Rdefines.h>
+#include <Rinternals.h>
 
 #include "monet_options.h"
 #include "mal.h"
