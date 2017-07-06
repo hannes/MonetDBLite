@@ -251,13 +251,6 @@ setMethod("dbGetException", "MonetDBConnection", def=function(conn, ...) {
   conn@connenv$exception
 })
 
-setMethod("dbReadTable", signature(conn="MonetDBConnection", name = "character"), def=function(conn, name, ...) {
-  name <- quoteIfNeeded(conn, name, warn=F)
-  if (!dbExistsTable(conn, name))
-    stop(paste0("Unknown table: ", name));
-  dbGetQuery(conn, paste0("SELECT * FROM ", name), ...)
-})
-
 # This one does all the work in this class
 setMethod("dbSendQuery", signature(conn="MonetDBConnection", statement="character"),  
           def=function(conn, statement, ..., list=NULL, async=FALSE) {   
@@ -340,7 +333,7 @@ setMethod("dbSendQuery", signature(conn="MonetDBConnection", statement="characte
 
 # This one does all the work in this class
 setMethod("dbSendQuery", signature(conn="MonetDBEmbeddedConnection", statement="character"),  
-          def=function(conn, statement, ..., list=NULL, execute = T, resultconvert = T) {   
+          def=function(conn, statement, ..., list=NULL, execute = TRUE, resultconvert = TRUE) {   
   if (!conn@connenv$open) {
     stop("This connection was closed.")
   }
@@ -471,7 +464,7 @@ quoteIfNeeded <- function(conn, x, warn=T, ...) {
 }
 
 setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character", value="ANY"), def=function(conn, name, value, overwrite=FALSE, 
-  append=FALSE, csvdump=FALSE, transaction=TRUE, temporary=FALSE, ...) {
+  append=FALSE, csvdump=FALSE, transaction=TRUE, temporary=FALSE, row.names=FALSE, ...) {
 
   if (!missing(transaction)) {
     .Deprecated("Setting parameter transaction to dbWriteTable is deprecated.")
@@ -507,9 +500,12 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
       to remove the existing table. Set append=TRUE if you would like to add the new data to the 
       existing table.")
   }
+
+  value <- sqlRownamesToColumn(value, row.names)
   
   if (!dbExistsTable(conn, qname)) {
     fts <- sapply(value, dbDataType, dbObj=conn)
+
     fdef <- paste(quoteIfNeeded(conn, names(value)), fts, collapse=', ')
     if (temporary) {
       ct <- paste0("CREATE TEMPORARY TABLE ", qname, " (", fdef, ") ON COMMIT PRESERVE ROWS")
@@ -518,6 +514,8 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
     }
     dbExecute(conn, ct)
   }
+ 
+
   if (length(value[[1]])) {
     classes <- unlist(lapply(value, function(v){
       class(v)[[1]]
@@ -750,13 +748,13 @@ setMethod("dbSendUpdateAsync", signature(conn="MonetDBConnection", statement="ch
   vars <- .find_placeholders(statement)
 
   safe_values <- vapply(param, function(x) {
-    if (is.na(x)) {
-      "NULL"
+    if (is.null(x) || is.na(x)) {
+      return("NULL")
     }
     if (is.character(x) || is.factor(x)) {
-      paste0("'", .mapiQuote(toString(x)), "'")
+        return(paste0("'", .mapiQuote(toString(x)), "'"))
       } else {
-        as.character(x)
+        return(as.character(x))
       }
       }, character(1))
 
@@ -917,7 +915,12 @@ setMethod("dbFetch", signature(res="MonetDBResult", n="numeric"), def=function(r
 })
 
 # as per is.integer documentation
-is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
+is_wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
+
+fix_rownames <- function(df, rownames_flag) {
+  attr(df, "row.names") <- c(NA, as.integer(-nrow(df)))
+  return(df)
+}
 
 # most of the heavy lifting here
 setMethod("dbFetch", signature(res="MonetDBEmbeddedResult", n="numeric"), def=function(res, n, ...) {
@@ -940,7 +943,7 @@ setMethod("dbFetch", signature(res="MonetDBEmbeddedResult", n="numeric"), def=fu
   if (n < - 1) {
     stop("cannot fetch negative n other than -1")
   }
-  if (!is.wholenumber(n)) {
+  if (!is_wholenumber(n)) {
     stop("n needs to be not a whole number")
   }
 
@@ -951,25 +954,23 @@ setMethod("dbFetch", signature(res="MonetDBEmbeddedResult", n="numeric"), def=fu
     res@env$delivered <- 0
   }
   if (res@env$delivered >= res@env$info$rows) {
-    return(res@env$resp$tuples[F,, drop=F])
+    return(fix_rownames(res@env$resp$tuples[F,, drop=F], res@env$rownames))
   }
   # special case, return everything
   if (n == -1 && res@env$delivered == 0) {
     res@env$delivered <- res@env$info$rows
-    return(res@env$resp$tuples)
+    return(fix_rownames(res@env$resp$tuples, res@env$rownames))
   }
   if (n > -1) {
     n <- min(n, res@env$info$rows - res@env$delivered)
     res@env$delivered <- res@env$delivered + n
     df <- res@env$resp$tuples[(res@env$delivered - n + 1):(res@env$delivered),, drop=F]
-    attr(df, "row.names") <- c(NA, as.integer(-nrow(df)))
-    return(df)
+    return(fix_rownames(df, res@env$rownames))
   }
   start <- res@env$delivered + 1
   res@env$delivered <- res@env$info$rows
   df <- res@env$resp$tuples[start:res@env$info$rows,, drop=F]
-  attr(df, "row.names") <- c(NA, as.integer(-nrow(df)))
-  return(df)
+  return(fix_rownames(df, res@env$rownames))
 })
 
 setMethod("dbClearResult", "MonetDBResult", def = function(res, ...) {
