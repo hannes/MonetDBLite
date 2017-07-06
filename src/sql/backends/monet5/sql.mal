@@ -286,6 +286,10 @@ unsafe pattern copy_from( t:ptr,
 address mvc_import_table_wrap
 comment "Import a table from bstream s with the 
 	given tuple and seperators (sep/rsep)";
+	
+unsafe pattern append(:lng...) (:bat[:any]...)
+address mvc_append_bats_wrap
+comment "This is bat country!";
 
 #command copy_errors() (efile:bat[:str], erow:bat[:int], efld:bat[:int], emsg:bat[:str], einp:bat[:str])
 #address mvc_import_errors

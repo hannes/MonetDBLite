@@ -92,6 +92,3 @@ CMakeLists.txt
 monetdb-java-lite/src/main/main.iml
 monetdb-java-lite/src/test/test.iml
 monetdb-java-lite/monetdb-java-lite.iml
-
-# My private RSA key!
-id_downloads

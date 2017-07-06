@@ -26,6 +26,12 @@
 #include "sql_mvc.h"
 #include "res_table.h"
 #include "opt_prelude.h"
+#include "rel_semantic.h"
+#include "sql_gencode.h"
+#include "sql_optimizer.h"
+#include "rel_exp.h"
+#include "rel_rel.h"
+#include "rel_updates.h"
 
 #include "decompress.c"
 #include "inlined_scripts.c"
@@ -158,7 +164,7 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 
 	// we do not want to jump after this point, since we cannot do so between threads
 	// sanity check, run a SQL query
-	sqres = monetdb_query(conn, "SELECT * FROM tables;", 1, &res);
+	sqres = monetdb_query(conn, "SELECT * FROM tables;", 1, &res, NULL, NULL, NULL, NULL);
 	if (sqres != NULL) {
 		monetdb_embedded_initialized = false;
 		retval = sqres;
@@ -175,79 +181,115 @@ int monetdb_is_initialized(void) {
 	return monetdb_embedded_initialized > 0;
 }
 
-char* monetdb_query(Client conn, char* query, char execute, void** result) {
+char* monetdb_query(Client c, char* query, char execute, void** result, int* query_type, lng* last_id, lng* affected_rows, lng* prepare_id) {
 	str res = MAL_SUCCEED;
+	int sres;
 	mvc* m;
-	conn->querySpecialType = 0;
-	conn->lastNumberOfRows = -2; //Keep consistence with the JDBC driver
-	*result = NULL;
+	backend *b;
+	char* qname = "somequery", *nq;
+	size_t query_len;
+	buffer query_buf;
+	stream* query_stream;
+
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
 	}
-	if (!MCvalid(conn)) {
+	if (!MCvalid(c)) {
 		return GDKstrdup("Invalid connection");
 	}
-	m = ((backend *) conn->sqlcontext)->mvc;
 
-	while (*query == ' ' || *query == '\t') query++;
-	if (strncasecmp(query, "START", 5) == 0) { // START TRANSACTION
-		m->session->auto_commit = 0;
-		m->session->status = 0;
-		conn->lastQueryType = Q_TRANS;
-		conn->lastNumberOfRows = 0;
-	} else if (strncasecmp(query, "ROLLBACK", 8) == 0 && strncasecmp(query + 8, " TO SAVEPOINT", 13) != 0) {
-		m->session->status = -1;
-		m->session->auto_commit = 1;
-		conn->lastQueryType = Q_TRANS;
-		conn->lastNumberOfRows = 0;
-	} else if (strncasecmp(query, "COMMIT", 6) == 0) {
-		if(m->session->auto_commit == 1) {
-			res = GDKstrdup("COMMIT: not allowed in auto commit mode");
-		} else {
-			m->session->auto_commit = 1;
-			conn->lastQueryType = Q_TRANS;
-			conn->lastNumberOfRows = 0;
-		}
-	} else if (m->session->status < 0 && m->session->auto_commit == 0) {
-		res = GDKstrdup("Current transaction is aborted (please ROLLBACK)");
-	} else if(m->session->auto_commit == 1 && strncasecmp(query, "SAVEPOINT", 9) == 0) {
-		res = GDKstrdup("SAVEPOINT: not allowed in auto commit mode");
-	} else if (strncasecmp(query, "PREPARE", 7) == 0 || strncasecmp(query, "EXEC", 4) == 0) {
-		conn->querySpecialType = 1;
-		// prepared statements are VERY COMPLICATED indeed. First we use the SQLPreparedStatementParser to check
-		// the query string and prepare the engine
-		// Then we execute the query. It it's a PREPARE, we get the res_table*, and set the lastQueryType to Q_PREPARE
-		// else (it's an EXEC) we set the output type depending if we have a res_table* or not (in a update we have not)
-		res = SQLPreparedStatementParser(conn, &query, (res_table **) result);
-		if(res == MAL_SUCCEED) {
-			res = SQLengineIntern(conn, (backend *) conn->sqlcontext);
-		}
-		if(res == MAL_SUCCEED) {
-			if(strncasecmp(query, "EXEC", 4) == 0) {
-				*result = res_tables_find(m->results, conn->lastResultSetID);
-				conn->lastQueryType = (*result) ? Q_TABLE : Q_UPDATE;
-			} else { //PREPARE
-				conn->lastQueryType = Q_PREPARE;
-			}
-		}
-	} else {
-		if(strncasecmp(query, "COPY", 7)) {
-			conn->querySpecialType = 2; //more engineering :)
-		}
-		res = SQLstatementIntern(conn, &query, "main", execute, 0, (res_table **) result);
+	b = (backend *) c->sqlcontext;
+	m = b->mvc;
+
+	// TODO what about execute flag?! remove when result set is there for prepared stmts
+	(void) execute;
+
+	query_len = strlen(query) + 3;
+	nq = GDKmalloc(query_len);
+	if (!nq) {
+		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
-	//It's important to set the last auto_commit for the JDBC embedded connection
-	conn->lastAutoCommitStatus = m->session->auto_commit;
-	SQLautocommit(conn, m);
+	sprintf(nq, "%s\n;", query);
+
+	query_stream = buffer_rastream(&query_buf, qname);
+	if (!query_stream) {
+		return GDKstrdup( "WARNING: could not setup query stream.");
+	}
+
+	query_buf.pos = 0;
+	query_buf.len = query_len;
+	query_buf.buf = nq;
+
+	c->fdin = bstream_create(query_stream, query_len);
+	if (!c->fdin) {
+		close_stream(query_stream);
+		return GDKstrdup( "WARNING: could not setup query stream.");
+	}
+	bstream_next(c->fdin);
+
+	b->language = 'S';
+	m->scanner.mode = LINE_N;
+	m->scanner.rs = c->fdin;
+	b->output_format = OFMT_NONE;
+	m->user_id = m->role_id = USER_MONETDB;
+	m->cache = DEFAULT_CACHESIZE;
+
+	if (result) {
+		m->reply_size = -2; /* do not clean up result tables */
+	}
+
+	MSinitClientPrg(c, "user", qname);
+	res = SQLparser(c);
+	if (res != MAL_SUCCEED) {
+		goto cleanup;
+	}
+
+	if (prepare_id && (m->emode & m_prepare)) {
+		*prepare_id = b->q->id;
+	}
+
+	res = SQLengine(c);
+	if (res != MAL_SUCCEED) {
+		goto cleanup;
+	}
+
+	if (result) {
+		*result = m->results;
+		m->results = NULL;
+	}
+	if(query_type) {
+		if (m->emode == m_execute) {
+			*query_type = (*result) ? Q_TABLE: Q_UPDATE; //for JDBC
+		} else if (m->emode & m_prepare) {
+			*query_type = Q_PREPARE;
+		} else {
+			*query_type = m->type;
+		}
+	}
+	if(last_id) {
+		*last_id = m->last_id;
+	}
+	if(affected_rows) {
+		*affected_rows = m->rowcnt;
+	}
+
+	cleanup:
+
+	GDKfree(nq);
+	MSresetInstructions(c->curprg->def, 1);
+	bstream_destroy(c->fdin);
+	c->fdin = NULL;
+
+	sres = SQLautocommit(c, m);
+	if (!sres && !res) {
+		return GDKstrdup("Cannot COMMIT/ROLLBACK without a valid transaction.");
+	}
 	return res;
 }
 
-char* monetdb_append(Client conn, const char* schema, const char* table, append_data *data, int ncols) {
-	Client c = (Client) conn;
-	mvc* m;
-	InstrPtr q;
-	MalBlkPtr mb;
-	int mvc_var, i;
+char* monetdb_append(Client c, const char* schema, const char* table, append_data *data, int ncols) {
+    mvc* m;
+	int i;
 	str res = MAL_SUCCEED;
 
 	if (!monetdb_is_initialized()) {
@@ -256,7 +298,7 @@ char* monetdb_append(Client conn, const char* schema, const char* table, append_
 	if(table == NULL || data == NULL || ncols < 1) {
 		return GDKstrdup("Invalid parameters");
 	}
-	if (!MCvalid(conn)) {
+	if (!MCvalid(c)) {
 		return GDKstrdup("Invalid connection");
 	}
 	if ((res = getSQLContext(c, NULL, &m, NULL)) != MAL_SUCCEED) {
@@ -267,36 +309,53 @@ char* monetdb_append(Client conn, const char* schema, const char* table, append_
 	}
 
 	SQLtrans(m);
+	{
+		sql_rel *rel;
+		node *n;
+		list *exps, *args, *types;
+		sql_schema *s;
+		sql_table *t;
+		sql_subfunc *f;
 
-	MSinitClientPrg(c, "user", "monetdb_append");
-	mb = copyMalBlk(c->curprg->def);
-	q = newStmt(mb, sqlRef, mvcRef);
-	mvc_var = getDestVar(q);
+		if(!m->sa)
+			m->sa = sa_create();
+		if(!m->sa)
+			return GDKstrdup("Ups not enough memory to allocate the buffer!");
 
-	for (i = 0; i < ncols; i++) {
-		append_data ad = data[i];
-		ValRecord v;
-		v.vtype = TYPE_bat;
-		v.val.bval = ad.batid;
-		q = newStmt(mb, sqlRef, appendRef);
-		q = pushArgument(mb, q, mvc_var);
+		exps = sa_list(m->sa);
+		args = sa_list(m->sa);
+		types = sa_list(m->sa);
+		s = mvc_bind_schema(m, schema);
+		t = mvc_bind_table(m, s, table);
+		f = sql_find_func(m->sa, mvc_bind_schema(m, "sys"), "append", 1, F_UNION, NULL);
 
-		getArg(q, 0) = mvc_var = newTmpVariable(mb, TYPE_int);
-		q = pushStr(mb, q, schema);
-		q = pushStr(mb, q, table);
-		q = pushStr(mb, q, ad.colname);
-		q = pushValue(mb, q, &v);
+		if (!t) {
+			return GDKstrdup("Can't find table.");
+		}
+		if (ncols != list_length(t->columns.set)) {
+			return GDKstrdup("Incorrect number of columns.");
+		}
+		for (i = 0, n = t->columns.set->h; i < ncols && n; i++, n = n->next) {
+			sql_column *c = n->data;
+			append(args, exp_atom_lng(m->sa, data[i].batid));
+			append(exps, exp_column(m->sa, t->base.name, c->base.name, &c->type, CARD_MULTI, c->null, 0));
+			append(types, &c->type);
+		}
+
+		f->res = types;
+		rel = rel_insert(m, rel_basetable(m, t, t->base.name), rel_table_func(m->sa, NULL, exp_op(m->sa,  args, f), exps, 1));
+		m->scanner.rs = NULL;
+
+		if (rel && backend_dumpstmt((backend *) c->sqlcontext, c->curprg->def, rel, 1, 1, "append") < 0) {
+			return GDKstrdup("Append plan generation failure");
+		}
+		if ((res = SQLoptimizeQuery(c, c->curprg->def)) != MAL_SUCCEED ||
+				c->curprg->def->errors || (res = SQLengine(c)) != MAL_SUCCEED) {
+			return(res);
+		}
 	}
-	pushEndInstruction(mb);
-	res = optimizeMALBlock(c, mb);
-	if (res != MAL_SUCCEED) {
-		return res;
-	}
-	res = runMAL(c, mb, 0, 0);
-	freeMalBlk(mb);
-
 	SQLautocommit(c, m);
-	return res;
+	return NULL;
 }
 
 void  monetdb_cleanup_result(Client conn, void* output) { //Don't forget to set to null
@@ -389,16 +448,19 @@ char* sendAutoCommitCommand(Client conn, int flag, int* result) {
 			msg = createException(MAL, "embedded", "auto_commit (rollback) failed");
 		}
 	}
+	SQLautocommit(conn, m);
 
 	return msg;
 }
 
 void sendReleaseCommand(Client conn, int commandId) {
 	mvc* m = ((backend *) conn->sqlcontext)->mvc;
-	cq *q = qc_find(m->qc, commandId);
 
-	if (q) {
-		qc_delete(m->qc, q);
+	if(m->qc) {
+		cq *q = qc_find(m->qc, commandId);
+		if (q) {
+			qc_delete(m->qc, q);
+		}
 	}
 }
 
@@ -411,7 +473,7 @@ void sendCloseCommand(Client conn, int tableID) {
 	}
 }
 
-void sendReplySizeCommand(Client conn, long size) {
+void sendReplySizeCommand(Client conn, lng size) {
 	mvc* m = ((backend *) conn->sqlcontext)->mvc;
 
 	if(size >= -1) {
@@ -419,22 +481,15 @@ void sendReplySizeCommand(Client conn, long size) {
 	}
 }
 
-void getUpdateQueryData(Client conn, long* lastId, long* rowCount) {
-	mvc* m = ((backend *) conn->sqlcontext)->mvc;
-
-	*lastId = m->last_id;
-	*rowCount = conn->lastNumberOfRows;
-}
-
 int getAutocommitFlag(Client conn) {
-	return conn->lastAutoCommitStatus;
+	mvc* m = ((backend *) conn->sqlcontext)->mvc;
+	return m->session->auto_commit;
 }
 
 void setAutocommitFlag(Client conn, int autoCommit) {
 	mvc* m = ((backend *) conn->sqlcontext)->mvc;
-	m->session->auto_commit = autoCommit;
-	conn->lastAutoCommitStatus = autoCommit;
 
+	m->session->auto_commit = autoCommit;
 	if(autoCommit == 0) {
 		m->session->status = 0;
 	}

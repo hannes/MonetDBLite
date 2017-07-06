@@ -36,7 +36,7 @@ char* monetdb_connect(Client* conn);
 void monetdb_disconnect(Client conn);
 char* monetdb_startup(char* dbdir, char silent, char sequential);
 int   monetdb_is_initialized(void);
-char* monetdb_query(Client conn, char* query, char execute, void** result);
+char* monetdb_query(Client c, char* query, char execute, void** result, int* query_type, lng* last_id, lng* affected_rows, lng* prepare_id);
 char* monetdb_append(Client conn, const char* schema, const char* table, append_data *data, int ncols);
 void  monetdb_cleanup_result(Client conn, void* output);
 char* monetdb_get_columns(Client conn, const char* schema_name, const char *table_name, int *column_count, char ***column_names, int **column_types);
@@ -46,8 +46,7 @@ char* monetdb_find_table(Client conn, sql_table** table, const char* schema_name
 char* sendAutoCommitCommand(Client conn, int flag, int* result);
 void sendReleaseCommand(Client conn, int commandId);
 void sendCloseCommand(Client conn, int commandId);
-void sendReplySizeCommand(Client conn, long size);
-void getUpdateQueryData(Client conn, long* lastId, long* rowCount);
+void sendReplySizeCommand(Client conn, lng size);
 int getAutocommitFlag(Client conn);
 void setAutocommitFlag(Client conn, int autoCommit);
 

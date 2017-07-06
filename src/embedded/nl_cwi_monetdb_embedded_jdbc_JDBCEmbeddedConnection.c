@@ -33,27 +33,29 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     jstring colname, sqlname, tablename;
     (void) jdbccon;
 
-    columnLengthsFound = GDKmalloc(numberOfColumns * sizeof(jint));
-    if(columnLengthsFound == NULL) {
-        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
-        return;
-    }
+    if(numberOfColumns > 0) {
+        columnLengthsFound = GDKmalloc(numberOfColumns * sizeof(jint));
+        if(columnLengthsFound == NULL) {
+            (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
+            return;
+        }
 
-    for (int i = 0; i < numberOfColumns; i++) {
-        col = output->cols[i];
-        columnLengthsFound[i] = col.type.digits;
-        colname = (*env)->NewStringUTF(env, col.name);
-        sqlname = (*env)->NewStringUTF(env, col.type.type->sqlname);
-        tablename = (*env)->NewStringUTF(env, col.tn);
-        (*env)->SetObjectArrayElement(env, columnNames, i, colname);
-        (*env)->SetObjectArrayElement(env, types, i, sqlname);
-        (*env)->SetObjectArrayElement(env, tableNames, i, tablename);
-        (*env)->DeleteLocalRef(env, colname);
-        (*env)->DeleteLocalRef(env, sqlname);
-        (*env)->DeleteLocalRef(env, tablename);
+        for (int i = 0; i < numberOfColumns; i++) {
+            col = output->cols[i];
+            columnLengthsFound[i] = col.type.digits;
+            colname = (*env)->NewStringUTF(env, col.name);
+            sqlname = (*env)->NewStringUTF(env, col.type.type->sqlname);
+            tablename = (*env)->NewStringUTF(env, col.tn);
+            (*env)->SetObjectArrayElement(env, columnNames, i, colname);
+            (*env)->SetObjectArrayElement(env, types, i, sqlname);
+            (*env)->SetObjectArrayElement(env, tableNames, i, tablename);
+            (*env)->DeleteLocalRef(env, colname);
+            (*env)->DeleteLocalRef(env, sqlname);
+            (*env)->DeleteLocalRef(env, tablename);
+        }
+        (*env)->SetIntArrayRegion(env, columnLengths, 0, numberOfColumns, columnLengthsFound);
+        GDKfree(columnLengthsFound);
     }
-    (*env)->SetIntArrayRegion(env, columnLengths, 0, numberOfColumns, columnLengthsFound);
-    GDKfree(columnLengthsFound);
     //Important! Don't free the result table yet!
 }
 
@@ -73,7 +75,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendQueryInternal
     (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jstring query, jboolean execute) {
-    long lastId, rowCount;
+    lng lastId, rowCount, prepareID;
     int lineResponseCounter = 0, query_type, autoCommitStatus, numberOfRows;
     jint nextResponses[4], responseParameters[3];
     const char *query_string_tmp;
@@ -94,8 +96,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
         return;
     }
 
-    err = monetdb_query(conn, (char*) query_string_tmp, (char) execute, (void**) &output);
-    query_type = conn->lastQueryType;
+    err = monetdb_query(conn, (char*) query_string_tmp, (char) execute, (void**) &output, &query_type, &lastId, &rowCount, &prepareID);
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
     if (err) { //if there are errors, set the error string and exit
         setErrorResponse(env, jdbccon, err);
@@ -120,13 +121,14 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
                 dearBat = BATdescriptor(output->cols[0].b);
                 numberOfRows = BATcount(dearBat);
                 BBPunfix(dearBat->batCacheid);
+                responseParameters[0] = (query_type == Q_PREPARE) ? prepareID : output->id;
                 responseParameters[1] = numberOfRows; //number of rows
             } else {
+                responseParameters[0] = -1;
                 responseParameters[1] = 0;
             }
-            responseParameters[0] = (output) ? output->id : -1;
             if(query_type == Q_TABLE || query_type == Q_PREPARE) {
-                responseParameters[2] = (output) ? output->nr_cols: 0; //number of columns
+                responseParameters[2] = (output) ? output->nr_cols : 0; //number of columns
             }
             //set the other headers
             nextResponses[lineResponseCounter++] = 2; //HEADER
@@ -135,7 +137,6 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
             (*env)->SetIntArrayRegion(env, lastServerResponseParameters, 0, 3, responseParameters);
             break;
         case Q_UPDATE: //UPDATE
-            getUpdateQueryData(conn, &lastId, &rowCount);
             (*env)->SetObjectField(env, jdbccon, getLastServerResponseID(), (*env)->NewObject(env,
             getUpdateResponseClassID(), getUpdateResponseConstructorID(), (jint) lastId, (jint) rowCount));
             break;
@@ -172,7 +173,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     (JNIEnv *env, jobject jdbccon, jlong connectionPointer, jint size) {
     (void) env;
     (void) jdbccon;
-    sendReplySizeCommand((Client) connectionPointer, (long) size);
+    sendReplySizeCommand((Client) connectionPointer, (lng) size);
 }
 
 JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_sendReleaseCommandInternal

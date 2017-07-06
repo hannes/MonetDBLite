@@ -32,7 +32,7 @@ mystpcpy (char *yydest, const char *yysrc) {
 	const char *yys = yysrc;
 
 	while ((*yyd++ = *yys++) != '\0')
-	continue;
+		continue;
 
 	return yyd - 1;
 }
@@ -59,7 +59,7 @@ mystpcpy (char *yydest, const char *yysrc) {
 		 (0xffffffffffffffff&long_long_SWAP(h>>64)))
 #endif
 
-static lng 
+static lng
 mnstr_swap_lng(stream *s, lng lngval) {
 	return mnstr_byteorder(s) != 1234 ? long_long_SWAP(lngval) : lngval;
 }
@@ -131,7 +131,7 @@ dec_tostr(void *extra, char **Buf, int *len, int type, const void *a)
 	} else if (type == TYPE_lng) {
 		DEC_TOSTR(lng);
 #ifdef HAVE_HGE
-	} else if (type == TYPE_hge) {
+		} else if (type == TYPE_hge) {
 		DEC_TOSTR(hge);
 #endif
 	} else {
@@ -290,39 +290,39 @@ STRwidth(const char *s)
 				 * Asian Fullwidth and East Asian Wide
 				 * characters as defined in Unicode 8.0 */
 				if ((0x1100 <= c && c <= 0x115F) ||
-				    c == 0x2329 ||
-				    c == 0x232A ||
-				    (0x2E80 <= c && c <= 0x2E99) ||
-				    (0x2E9B <= c && c <= 0x2EF3) ||
-				    (0x2F00 <= c && c <= 0x2FD5) ||
-				    (0x2FF0 <= c && c <= 0x2FFB) ||
-				    (0x3000 <= c && c <= 0x303E) ||
-				    (0x3041 <= c && c <= 0x3096) ||
-				    (0x3099 <= c && c <= 0x30FF) ||
-				    (0x3105 <= c && c <= 0x312D) ||
-				    (0x3131 <= c && c <= 0x318E) ||
-				    (0x3190 <= c && c <= 0x31BA) ||
-				    (0x31C0 <= c && c <= 0x31E3) ||
-				    (0x31F0 <= c && c <= 0x321E) ||
-				    (0x3220 <= c && c <= 0x3247) ||
-				    (0x3250 <= c && c <= 0x4DBF) ||
-				    (0x4E00 <= c && c <= 0xA48C) ||
-				    (0xA490 <= c && c <= 0xA4C6) ||
-				    (0xA960 <= c && c <= 0xA97C) ||
-				    (0xAC00 <= c && c <= 0xD7A3) ||
-				    (0xF900 <= c && c <= 0xFAFF) ||
-				    (0xFE10 <= c && c <= 0xFE19) ||
-				    (0xFE30 <= c && c <= 0xFE52) ||
-				    (0xFE54 <= c && c <= 0xFE66) ||
-				    (0xFE68 <= c && c <= 0xFE6B) ||
-				    (0xFF01 <= c && c <= 0xFFE6) ||
-				    (0x1B000 <= c && c <= 0x1B001) ||
-				    (0x1F200 <= c && c <= 0x1F202) ||
-				    (0x1F210 <= c && c <= 0x1F23A) ||
-				    (0x1F240 <= c && c <= 0x1F248) ||
-				    (0x1F250 <= c && c <= 0x1F251) ||
-				    (0x20000 <= c && c <= 0x2FFFD) ||
-				    (0x30000 <= c && c <= 0x3FFFD))
+					c == 0x2329 ||
+					c == 0x232A ||
+					(0x2E80 <= c && c <= 0x2E99) ||
+					(0x2E9B <= c && c <= 0x2EF3) ||
+					(0x2F00 <= c && c <= 0x2FD5) ||
+					(0x2FF0 <= c && c <= 0x2FFB) ||
+					(0x3000 <= c && c <= 0x303E) ||
+					(0x3041 <= c && c <= 0x3096) ||
+					(0x3099 <= c && c <= 0x30FF) ||
+					(0x3105 <= c && c <= 0x312D) ||
+					(0x3131 <= c && c <= 0x318E) ||
+					(0x3190 <= c && c <= 0x31BA) ||
+					(0x31C0 <= c && c <= 0x31E3) ||
+					(0x31F0 <= c && c <= 0x321E) ||
+					(0x3220 <= c && c <= 0x3247) ||
+					(0x3250 <= c && c <= 0x4DBF) ||
+					(0x4E00 <= c && c <= 0xA48C) ||
+					(0xA490 <= c && c <= 0xA4C6) ||
+					(0xA960 <= c && c <= 0xA97C) ||
+					(0xAC00 <= c && c <= 0xD7A3) ||
+					(0xF900 <= c && c <= 0xFAFF) ||
+					(0xFE10 <= c && c <= 0xFE19) ||
+					(0xFE30 <= c && c <= 0xFE52) ||
+					(0xFE54 <= c && c <= 0xFE66) ||
+					(0xFE68 <= c && c <= 0xFE6B) ||
+					(0xFF01 <= c && c <= 0xFFE6) ||
+					(0x1B000 <= c && c <= 0x1B001) ||
+					(0x1F200 <= c && c <= 0x1F202) ||
+					(0x1F210 <= c && c <= 0x1F23A) ||
+					(0x1F240 <= c && c <= 0x1F248) ||
+					(0x1F250 <= c && c <= 0x1F251) ||
+					(0x20000 <= c && c <= 0x2FFFD) ||
+					(0x30000 <= c && c <= 0x3FFFD))
 					len++;
 			}
 		} else if ((*s & 0xE0) == 0xC0) {
@@ -599,7 +599,7 @@ dec_frstr(Column *c, int type, const char *s)
 	} else if (type == TYPE_lng) {
 		DEC_FRSTR(lng);
 #ifdef HAVE_HGE
-	} else if (type == TYPE_hge) {
+		} else if (type == TYPE_hge) {
 		DEC_FRSTR(hge);
 #endif
 	}
@@ -671,7 +671,7 @@ static void *
 _ASCIIadt_frStr(Column *c, int type, const char *s)
 {
 	int len;
-	const char *e; 
+	const char *e;
 
 	if (type == TYPE_str) {
 		sql_column *col = (sql_column *) c->extra;
@@ -722,17 +722,17 @@ _ASCIIadt_frStr(Column *c, int type, const char *s)
 		/* decimals can be converted to integers when *.000 */
 		if (s[len++] == '.')
 			switch (type) {
-			case TYPE_bte:
-			case TYPE_int:
-			case TYPE_lng:
-			case TYPE_sht:
+				case TYPE_bte:
+				case TYPE_int:
+				case TYPE_lng:
+				case TYPE_sht:
 #ifdef HAVE_HGE
-			case TYPE_hge:
+					case TYPE_hge:
 #endif
-				while (s[len] == '0')
-					len++;
-				if (s[len] == 0)
-					return c->data;
+					while (s[len] == '0')
+						len++;
+					if (s[len] == 0)
+						return c->data;
 			}
 		return NULL;
 	}
@@ -902,8 +902,8 @@ mvc_import_table(Client cntxt, BAT ***bats, mvc *m, bstream *bs, sql_table *t, c
 			}
 		}
 		if ( (locked || (msg = TABLETcreate_bats(&as, (BUN) (sz < 0 ? 1000 : sz))) == MAL_SUCCEED)  ){
-			if (!sz || (SQLload_file(cntxt, &as, bs, out, sep, rsep, ssep ? ssep[0] : 0, offset, sz, best) != BUN_NONE && 
-				(best || !as.error))) {
+			if (!sz || (SQLload_file(cntxt, &as, bs, out, sep, rsep, ssep ? ssep[0] : 0, offset, sz, best) != BUN_NONE &&
+						(best || !as.error))) {
 				*bats = (BAT**) GDKzalloc(sizeof(BAT *) * as.nr_attrs);
 				if ( *bats == NULL){
 					TABLETdestroy_format(&as);
@@ -976,18 +976,24 @@ mvc_export_warning(stream *s, str w)
 	return (1);
 }
 
-int //Changed a lot in MonetDBJavaLite - Now outputs a res_table* instead into writing into a stream.
-mvc_export_prepare(mvc *c, cq *q, res_table **result) //In MonetDBJavaLite I need this for prepared statements
+int
+mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 {
 	node *n;
-	int nparam = c->params ? list_length(c->params) : 0, nrows = nparam, i;
+	int nparam = c->params ? list_length(c->params) : 0;
+	int nrows = nparam;
 	size_t len1 = 0, len4 = 0, len5 = 0, len6 = 0;	/* column widths */
 	int len2 = 1, len3 = 1;
 	sql_arg *a;
 	sql_subtype *t;
 	sql_rel *r = q->rel;
 	res_table *res = NULL;
-    BAT *aux1, *aux2, *aux3, *aux4, *aux5, *aux6;
+	BAT *aux1, *aux2, *aux3, *aux4, *aux5, *aux6;
+
+	(void) w;
+
+	if (!out)
+		return 0;
 
 	if (is_topn(r->op))
 		r = r->l;
@@ -1050,7 +1056,7 @@ mvc_export_prepare(mvc *c, cq *q, res_table **result) //In MonetDBJavaLite I nee
 		}
 	}
 
-	res = res_table_create(c->session->tr, q->id, 1, 6, Q_PREPARE, NULL, NULL);
+	res = res_table_create(c->session->tr, c->result_id++, 1, 6, Q_PREPARE, NULL, NULL);
 	if(res == NULL) {
 		goto cleanup;
 	}
@@ -1116,84 +1122,44 @@ mvc_export_prepare(mvc *c, cq *q, res_table **result) //In MonetDBJavaLite I nee
 			if (!rname && e->type == e_column && e->l)
 				rname = e->l;
 
-			if (BUNappend(aux1, t->type->sqlname, FALSE) != GDK_SUCCEED) {
+			if(BUNappend(aux1, t->type->sqlname, FALSE) != GDK_SUCCEED ||
+			BUNappend(aux2, &(t->digits), FALSE) != GDK_SUCCEED ||
+			BUNappend(aux3, &(t->scale), FALSE) != GDK_SUCCEED ||
+			BUNappend(aux4, schema ? schema : str_nil, FALSE) != GDK_SUCCEED ||
+			BUNappend(aux5, rname ? rname : str_nil, FALSE) != GDK_SUCCEED ||
+			BUNappend(aux6, name ? name : str_nil, FALSE) != GDK_SUCCEED) {
+				BBPreclaim(aux1);
+				BBPreclaim(aux2);
+				BBPreclaim(aux3);
+				BBPreclaim(aux4);
+				BBPreclaim(aux5);
+				BBPreclaim(aux6);
 				res_table_destroy(res);
 				res = NULL;
 				goto cleanup;
-			}
-			if (BUNappend(aux2, &(t->digits), FALSE) != GDK_SUCCEED) {
-				res_table_destroy(res);
-				res = NULL;
-				goto cleanup;
-			}
-			if (BUNappend(aux3, &(t->scale), FALSE) != GDK_SUCCEED) {
-				res_table_destroy(res);
-				res = NULL;
-				goto cleanup;
-			}
-			if (BUNappend(aux4, schema ? schema : str_nil, FALSE) != GDK_SUCCEED) {
-				res_table_destroy(res);
-				res = NULL;
-				goto cleanup;
-			}
-			if (BUNappend(aux5, rname ? rname : str_nil, FALSE) != GDK_SUCCEED) {
-				res_table_destroy(res);
-				res = NULL;
-				goto cleanup;
-			}
-			if (BUNappend(aux6, name ? name : str_nil, FALSE) != GDK_SUCCEED) {
-				res_table_destroy(res);
-				res = NULL;
-				goto cleanup;
-			}
-
-			if (!schema) {
-				aux4->tnil = 1;
-				aux4->tnonil = 0;
-			}
-			if (!rname) {
-				aux5->tnil = 1;
-				aux5->tnonil = 0;
-			}
-			if (!name) {
-				aux6->tnil = 1;
-				aux6->tnonil = 0;
 			}
 		}
 	}
 	if (c->params) {
+		int i;
 		q->paramlen = nparam;
 		q->params = SA_NEW_ARRAY(q->sa, sql_subtype, nrows);
 		for (n = c->params->h, i = 0; n; n = n->next, i++) {
 			a = n->data;
 			t = &a->type;
 			if (t) {
-				if (BUNappend(aux1, t->type->sqlname, FALSE) != GDK_SUCCEED) {
-					res_table_destroy(res);
-					res = NULL;
-					goto cleanup;
-				}
-				if (BUNappend(aux2, &(t->digits), FALSE) != GDK_SUCCEED) {
-					res_table_destroy(res);
-					res = NULL;
-					goto cleanup;
-				}
-				if (BUNappend(aux3, &(t->scale), FALSE) != GDK_SUCCEED) {
-					res_table_destroy(res);
-					res = NULL;
-					goto cleanup;
-				}
-				if (BUNappend(aux4, str_nil, FALSE) != GDK_SUCCEED) {
-					res_table_destroy(res);
-					res = NULL;
-					goto cleanup;
-				}
-				if (BUNappend(aux5, str_nil, FALSE) != GDK_SUCCEED) {
-					res_table_destroy(res);
-					res = NULL;
-					goto cleanup;
-				}
-				if (BUNappend(aux6, str_nil, FALSE) != GDK_SUCCEED) {
+				if(BUNappend(aux1, t->type->sqlname, FALSE) != GDK_SUCCEED ||
+				BUNappend(aux2, &(t->digits), FALSE) != GDK_SUCCEED ||
+				BUNappend(aux3, &(t->scale), FALSE) != GDK_SUCCEED ||
+				BUNappend(aux4, str_nil, FALSE) != GDK_SUCCEED ||
+				BUNappend(aux5, str_nil, FALSE) != GDK_SUCCEED ||
+				BUNappend(aux6, str_nil, FALSE) != GDK_SUCCEED) {
+					BBPreclaim(aux1);
+					BBPreclaim(aux2);
+					BBPreclaim(aux3);
+					BBPreclaim(aux4);
+					BBPreclaim(aux5);
+					BBPreclaim(aux6);
 					res_table_destroy(res);
 					res = NULL;
 					goto cleanup;
@@ -1205,10 +1171,11 @@ mvc_export_prepare(mvc *c, cq *q, res_table **result) //In MonetDBJavaLite I nee
 				aux5->tnonil = 0;
 				aux6->tnil = 1;
 				aux6->tnonil = 0;
+				/* add to the query cache parameters */
 				q->params[i] = *t;
 			} else {
 				res_table_destroy(res);
-                res = NULL;
+				res = NULL;
 				goto cleanup;
 			}
 		}
@@ -1229,7 +1196,7 @@ mvc_export_prepare(mvc *c, cq *q, res_table **result) //In MonetDBJavaLite I nee
 	res_col_create(c->session->tr, res, "", "column", "varchar", len6, 0, TYPE_bat, aux6);
 
 	cleanup:
-	*result = res;
+	c->results = res;
 	return res != NULL ? 0 : -1;
 }
 
@@ -1404,27 +1371,27 @@ export_value(mvc *m, stream *s, int eclass, char *sqlname, int d, int sc, ptr p,
 		ok = mnstr_write(s, *buf, l, 1) == 1;
 	} else {
 		switch (mtype) {
-		case TYPE_bte:
-			ok = mvc_send_bte(s, *(bte *) p);
-			break;
-		case TYPE_sht:
-			ok = mvc_send_sht(s, *(sht *) p);
-			break;
-		case TYPE_int:
-			ok = mvc_send_int(s, *(int *) p);
-			break;
-		case TYPE_lng:
-			ok = mvc_send_lng(s, *(lng *) p);
-			break;
+			case TYPE_bte:
+				ok = mvc_send_bte(s, *(bte *) p);
+				break;
+			case TYPE_sht:
+				ok = mvc_send_sht(s, *(sht *) p);
+				break;
+			case TYPE_int:
+				ok = mvc_send_int(s, *(int *) p);
+				break;
+			case TYPE_lng:
+				ok = mvc_send_lng(s, *(lng *) p);
+				break;
 #ifdef HAVE_HGE
-		case TYPE_hge:
+			case TYPE_hge:
 			ok = mvc_send_hge(s, *(hge*)p);
 			break;
 #endif
-		default:{
-			l = (*BATatoms[mtype].atomToStr) (buf, len, p);
-			ok = (mnstr_write(s, *buf, l, 1) == 1);
-		}
+			default:{
+				l = (*BATatoms[mtype].atomToStr) (buf, len, p);
+				ok = (mnstr_write(s, *buf, l, 1) == 1);
+			}
 		}
 	}
 	return ok;
@@ -1475,19 +1442,19 @@ mvc_export_row(backend *b, stream *s, res_table *t, str btag, str sep, str rsep,
 
 static int type_supports_binary_transfer(sql_type *type) {
 	return
-		type->eclass == EC_BIT ||
-		type->eclass == EC_POS ||
-		type->eclass == EC_CHAR ||
-		type->eclass == EC_STRING ||
-		type->eclass == EC_DEC ||
-		type->eclass == EC_BLOB ||
-		type->eclass == EC_FLT ||
-		type->eclass == EC_NUM ||
-		type->eclass == EC_DATE ||
-		type->eclass == EC_TIME ||
-		type->eclass == EC_SEC ||
-		type->eclass == EC_MONTH ||
-		type->eclass == EC_TIMESTAMP;
+			type->eclass == EC_BIT ||
+			type->eclass == EC_POS ||
+			type->eclass == EC_CHAR ||
+			type->eclass == EC_STRING ||
+			type->eclass == EC_DEC ||
+			type->eclass == EC_BLOB ||
+			type->eclass == EC_FLT ||
+			type->eclass == EC_NUM ||
+			type->eclass == EC_DATE ||
+			type->eclass == EC_TIME ||
+			type->eclass == EC_SEC ||
+			type->eclass == EC_MONTH ||
+			type->eclass == EC_TIMESTAMP;
 }
 
 static int write_str_term(stream* s, const char* const val) {
@@ -1495,7 +1462,7 @@ static int write_str_term(stream* s, const char* const val) {
 }
 
 // align to 8 bytes
-static char* 
+static char*
 eight_byte_align(char* ptr) {
 	return (char*) (((size_t) ptr + 7) & ~7);
 }
@@ -1537,11 +1504,11 @@ mvc_export_table_prot10(backend *b, stream *s, res_table *t, BAT *order, BUN off
 		sql_type *type = c->type.type;
 
 		iterators[i] = bat_iterator(b);
-		
+
 		if (type->eclass == EC_TIMESTAMP || type->eclass == EC_DATE) {
 			// dates and timestamps are converted to Unix Timestamps
 			mtype = TYPE_lng;
-			typelen = sizeof(lng);	
+			typelen = sizeof(lng);
 		}
 		if (ATOMvarsized(mtype) || convert_to_string) {
 			typelen = -1;
@@ -1611,8 +1578,8 @@ mvc_export_table_prot10(backend *b, stream *s, res_table *t, BAT *order, BUN off
 			}
 			if (row == srow) {
 				lng new_size = rowsize + 1024;
-				if (!mnstr_writeLng(s, (lng) -1) || 
-					!mnstr_writeLng(s, new_size) || 
+				if (!mnstr_writeLng(s, (lng) -1) ||
+					!mnstr_writeLng(s, new_size) ||
 					mnstr_flush(s) < 0) {
 					fres = -1;
 					goto cleanup;
@@ -1640,7 +1607,7 @@ mvc_export_table_prot10(backend *b, stream *s, res_table *t, BAT *order, BUN off
 			message_header = "-\n";
 		}
 		initial_transfer = 0;
-		
+
 		if (!mnstr_writeStr(s, message_header) || !mnstr_writeLng(s, (lng)(row - srow))) {
 			fres = -1;
 			goto cleanup;
@@ -1673,7 +1640,7 @@ mvc_export_table_prot10(backend *b, stream *s, res_table *t, BAT *order, BUN off
 					*((lng*)startbuf) = mnstr_swap_lng(s, buf - (startbuf + sizeof(lng)));
 				} else {
 					// for variable length strings and large fixed strings we use varints
-					// variable columns are prefixed by a length, 
+					// variable columns are prefixed by a length,
 					// but since we don't know the length yet, just skip over it for now
 					char *startbuf = buf;
 					buf += sizeof(lng);
@@ -1801,7 +1768,7 @@ mvc_export_table_prot10(backend *b, stream *s, res_table *t, BAT *order, BUN off
 		}
 		srow = row;
 	}
-cleanup:
+	cleanup:
 	if (result) {
 		GDKfree(result);
 	}
@@ -1861,7 +1828,7 @@ mvc_export_table(backend *b, stream *s, res_table *t, BAT *order, BUN offset, BU
 		if (json) {
 			res_col *p = t->cols + (i - 1);
 
-			/*  
+			/*
 			 * We define the "proper" way of returning
 			 * a relational table in json format as a
 			 * json array of objects, where each row is
@@ -1997,7 +1964,7 @@ get_print_width(int mtype, int eclass, int digits, int scale, int tz, bat bid, p
 				} else if (mtype == TYPE_lng) {
 					count = bat_max_lnglength(b);
 #ifdef HAVE_HGE
-				} else if (mtype == TYPE_hge) {
+					} else if (mtype == TYPE_hge) {
 					count = bat_max_hgelength(b);
 #endif
 				} else if (mtype == TYPE_void) {
@@ -2033,7 +2000,7 @@ get_print_width(int mtype, int eclass, int digits, int scale, int tz, bat bid, p
 				} else if (mtype == TYPE_lng) {
 					val = *((lng *) p);
 #ifdef HAVE_HGE
-				} else if (mtype == TYPE_hge) {
+					} else if (mtype == TYPE_hge) {
 					val = *((hge *) p);
 #endif
 				} else {
@@ -2127,33 +2094,30 @@ mvc_export_operation(backend *b, stream *s, str w)
 	return 0;
 }
 
-int //Changed for MonetDBJavaLite (need to export the number of rows for Update queries!)
-mvc_export_affrows(Client c, backend *b, stream *s, lng val, str w, oid query_id)
+int
+mvc_export_affrows(backend *b, stream *s, lng val, str w, oid query_id)
 {
-    mvc *m = b->mvc;
-    /* if we don't have a stream, nothing can go wrong, so we return
-     * success.  This is especially vital for execution of internal SQL
-     * commands, since they don't get a stream to suppress their output.
-     * If we would fail on having no stream here, those internal commands
-     * fail too.
-     */
-    /*if (!s)
-        return 0;*/
-    (void) query_id;
-    (void) w;
-    (void) s;
+	mvc *m = b->mvc;
+	/* if we don't have a stream, nothing can go wrong, so we return
+	 * success.  This is especially vital for execution of internal SQL
+	 * commands, since they don't get a stream to suppress their output.
+	 * If we would fail on having no stream here, those internal commands
+	 * fail too.
+	 */
+	m->rowcnt = val;
 
-    c->lastNumberOfRows = val;
-    m->rowcnt = val;
-    stack_set_number(m, "rowcnt", m->rowcnt);
-    /*if (mnstr_write(s, "&2 ", 3, 1) != 1 || !mvc_send_lng(s, val) || mnstr_write(s, " ", 1, 1) != 1
-			|| !mvc_send_lng(s, m->last_id) || mnstr_write(s, " ", 1, 1) != 1
-			|| !mvc_send_lng(s, (lng) query_id) || mnstr_write(s, "\n", 1, 1) != 1)
+	if (!s)
+		return 0;
+
+	stack_set_number(m, "rowcnt", m->rowcnt);
+	if (mnstr_write(s, "&2 ", 3, 1) != 1 || !mvc_send_lng(s, val) || mnstr_write(s, " ", 1, 1) != 1
+		|| !mvc_send_lng(s, m->last_id) || mnstr_write(s, " ", 1, 1) != 1
+		|| !mvc_send_lng(s, (lng) query_id) || mnstr_write(s, "\n", 1, 1) != 1)
 		return -1;
 	if (mvc_export_warning(s, w) != 1)
-		return -1;*/
+		return -1;
 
-    return 0;
+	return 0;
 }
 
 static int
@@ -2192,8 +2156,8 @@ mvc_export_head_prot10(backend *b, stream *s, int res_id, int only_header, int c
 
 	// protocol 10 result sets start with "*\n" followed by the binary data:
 	// [tableid][queryid][rowcount][colcount][timezone]
-	if (!mnstr_writeStr(s, "*\n") || 
-		!mnstr_writeInt(s, t->id) || 
+	if (!mnstr_writeStr(s, "*\n") ||
+		!mnstr_writeInt(s, t->id) ||
 		!mnstr_writeLng(s, (lng) t->query_id) ||
 		!mnstr_writeLng(s, count) || !mnstr_writeLng(s, (lng) t->nr_cols)) {
 		fres = -1;
@@ -2217,7 +2181,7 @@ mvc_export_head_prot10(backend *b, stream *s, int res_id, int only_header, int c
 		int convert_to_string = !type_supports_binary_transfer(c->type.type);
 		sql_type *type = c->type.type;
 		lng print_width = -1;
-		
+
 		// if the client wants print widths, we compute them for this column
 		if (compute_lengths) {
 			print_width = get_print_width(mtype, type->eclass, c->type.digits, c->type.scale, type_has_tz(&c->type), b->batCacheid, c->p);
@@ -2227,7 +2191,7 @@ mvc_export_head_prot10(backend *b, stream *s, int res_id, int only_header, int c
 		if (type->eclass == EC_TIMESTAMP || type->eclass == EC_DATE) {
 			// timestamps are converted to Unix Timestamps
 			mtype = TYPE_lng;
-			typelen = sizeof(lng);	
+			typelen = sizeof(lng);
 		}
 
 		if (convert_to_string) {
@@ -2245,7 +2209,7 @@ mvc_export_head_prot10(backend *b, stream *s, int res_id, int only_header, int c
 		// column data has the following binary format:
 		// [tablename]\0[columnname]\0[sqltypename]\0[typelen][digits][scale][nil_length][nil_value][print_width]
 		if (!write_str_term(s, c->tn) || !write_str_term(s, c->name) || !write_str_term(s, type->sqlname) ||
-				!mnstr_writeInt(s, typelen) || !mnstr_writeInt(s, c->type.digits) || !mnstr_writeInt(s, type->eclass == EC_SEC ? 3 : c->type.scale)) {
+			!mnstr_writeInt(s, typelen) || !mnstr_writeInt(s, c->type.digits) || !mnstr_writeInt(s, type->eclass == EC_SEC ? 3 : c->type.scale)) {
 			fres = -1;
 			goto cleanup;
 		}
@@ -2313,21 +2277,22 @@ mvc_export_head_prot10(backend *b, stream *s, int res_id, int only_header, int c
 		fres = -1;
 		goto cleanup;
 	}
-cleanup:
+	cleanup:
 	return fres;
 }
 
 int
-mvc_export_head(backend *b, stream *s, int res_id, int only_header, int compute_lengths) //In MonetDBJavaLite I just deleted the "mnstr_write"
+mvc_export_head(backend *b, stream *s, int res_id, int only_header, int compute_lengths)
 {
 	mvc *m = b->mvc;
-	int res = 0, i = 0;
+	int i, res = 0;
 	BUN count = 0;
 	res_table *t = res_tables_find(m->results, res_id);
 	BAT *order = NULL;
 
 	if (!s || !t)
 		return 0;
+
 
 	if (b->client->protocol == PROTOCOL_10) {
 		// export head result set 10
@@ -2481,7 +2446,7 @@ mvc_export_file(backend *b, stream *s, res_table *t)
 }
 
 int
-mvc_export_result(Client cntxt, backend *b, stream *s, int res_id) //Changed in MonetDBJavaLite for EXEC queries!!
+mvc_export_result(backend *b, stream *s, int res_id)
 {
 	mvc *m = b->mvc;
 	int clean = 0, res = 0;
@@ -2490,66 +2455,62 @@ mvc_export_result(Client cntxt, backend *b, stream *s, int res_id) //Changed in 
 	BAT *order = NULL;
 	int json = (b->output_format == OFMT_JSON);
 
-    if (!s || !t)
-        return 0;
+	if (!s || !t)
+		return 0;
 
-    //Added for MonetDBJavaLite check monetdb_query in embedded.c
-    if(cntxt->querySpecialType != 1) {
-        /* Proudly supporting SQLstatementIntern's output flag */
-        if(cntxt->querySpecialType == 2) { //It's a copy
-			b->output_format = OFMT_CSV;
-		} else if (b->output_format == OFMT_NONE) {
-            return 0;
-        }
-        /* we shouldn't have anything else but Q_TABLE here */
-        assert(t->query_type == Q_TABLE);
-        if (t->tsep)
-            return mvc_export_file(b, s, t);
+	/* Proudly supporting SQLstatementIntern's output flag */
+	if (b->output_format == OFMT_NONE) {
+		return 0;
+	}
+	/* we shouldn't have anything else but Q_TABLE here */
+	assert(t->query_type == Q_TABLE);
+	if (t->tsep)
+		return mvc_export_file(b, s, t);
 
-        if (!json) {
-            mvc_export_head(b, s, t->id, res_id, TRUE);
-        }
-        assert(t->order);
+	if (!json) {
+		mvc_export_head(b, s, res_id, TRUE, TRUE);
+	}
 
-        order = BATdescriptor(t->order);
-        if (!order)
-            return -1;
-        count = m->reply_size;
-        if (m->reply_size != -2 && (count <= 0 || count >= BATcount(order))) {
-            count = BATcount(order);
-            clean = 1;
-        }
-        if (json) {
-            switch(count) {
-            case 0:
-                res = mvc_export_table(b, s, t, order, 0, count, "{\t", "", "}\n", "\"", "null");
-                break;
-            case 1:
-                res = mvc_export_table(b, s, t, order, 0, count, "{\n\t\"%s\" : ", ",\n\t\"%s\" : ", "\n}\n", "\"", "null");
-                break;
-            case 2:
-                res = mvc_export_table(b, s, t, order, 0, 1, "[\n\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
-                res = mvc_export_table(b, s, t, order, 1, count - 1, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t}\n]\n", "\"", "null");
-                 break;
-            default:
-                res = mvc_export_table(b, s, t, order, 0, 1, "[\n\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
-                res = mvc_export_table(b, s, t, order, 1, count - 2, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
-                res = mvc_export_table(b, s, t, order, count - 1, 1, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t}\n]\n", "\"", "null");
-            }
-        } else {
-            res = mvc_export_table(b, s, t, order, 0, count, "[ ", ",\t", "\t]\n", "\"", "NULL");
-        }
+	assert(t->order);
 
-        BBPunfix(order->batCacheid);
+	order = BATdescriptor(t->order);
+	if (!order)
+		return -1;
 
-        if (clean)
-            m->results = res_tables_remove(m->results, t);
-    }
+	count = m->reply_size;
+	if (m->reply_size != -2 && (count <= 0 || count >= BATcount(order))) {
+		count = BATcount(order);
+		clean = 1;
+	}
+	if (json) {
+		switch(count) {
+			case 0:
+				res = mvc_export_table(b, s, t, order, 0, count, "{\t", "", "}\n", "\"", "null");
+				break;
+			case 1:
+				res = mvc_export_table(b, s, t, order, 0, count, "{\n\t\"%s\" : ", ",\n\t\"%s\" : ", "\n}\n", "\"", "null");
+				break;
+			case 2:
+				res = mvc_export_table(b, s, t, order, 0, 1, "[\n\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
+				res = mvc_export_table(b, s, t, order, 1, count - 1, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t}\n]\n", "\"", "null");
+				break;
+			default:
+				res = mvc_export_table(b, s, t, order, 0, 1, "[\n\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
+				res = mvc_export_table(b, s, t, order, 1, count - 2, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t},\n", "\"", "null");
+				res = mvc_export_table(b, s, t, order, count - 1, 1, "\t{\n\t\t\"%s\" : ", ",\n\t\t\"%s\" : ", "\n\t}\n]\n", "\"", "null");
+		}
+	} else {
+		res = mvc_export_table(b, s, t, order, 0, count, "[ ", ",\t", "\t]\n", "\"", "NULL");
+	}
+	BBPunfix(order->batCacheid);
+	if (clean)
+		m->results = res_tables_remove(m->results, t);
 
 	if (res > 0)
 		res = mvc_export_warning(s, "");
 	return res;
 }
+
 
 int
 mvc_export_chunk(backend *b, stream *s, int res_id, BUN offset, BUN nr)
@@ -2601,17 +2562,16 @@ mvc_export_chunk(backend *b, stream *s, int res_id, BUN offset, BUN nr)
 
 	res = mvc_export_table(b, s, t, order, offset, cnt, "[ ", ",\t", "\t]\n", "\"", "NULL");
 	if (order) {
-		BBPunfix(order->batCacheid);	
+		BBPunfix(order->batCacheid);
 	}
 	return res;
 }
 
 int
-mvc_result_table(Client cntxt, mvc *m, oid query_id, int nr_cols, int type, BAT *order) //changed for MonetDBJavaLite in EXEC queries!
+mvc_result_table(mvc *m, oid query_id, int nr_cols, int type, BAT *order)
 {
 	res_table *t = res_table_create(m->session->tr, m->result_id++, query_id, nr_cols, type, m->results, order);
 	m->results = t;
-    cntxt->lastResultSetID = t->id;
 	return t->id;
 }
 

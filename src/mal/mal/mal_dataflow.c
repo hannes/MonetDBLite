@@ -92,6 +92,8 @@ static MT_Lock exitingLock MT_LOCK_INITIALIZER("exitingLock");
 static volatile ATOMIC_TYPE exiting = 0;
 static MT_Lock dataflowLock MT_LOCK_INITIALIZER("dataflowLock");
 
+int destroyed = 0;
+
 void
 mal_dataflow_reset(void)
 {
@@ -99,8 +101,8 @@ mal_dataflow_reset(void)
 	memset((char*) workers, 0,  sizeof(workers));
 	if( todo) {
 		GDKfree(todo->data);
-		MT_lock_destroy(&todo->l);
-		MT_sema_destroy(&todo->s);
+		//MT_lock_destroy(&todo->l); IF SOMEONE IS BRAVE ENOUGH TO SHUTDOWN THE SERVER WITH MULTIPLE THREADS, LET ME KNOW
+		MT_sema_destroy(&todo->s); //BECAUSE IT SIMPLY HANGS HERE
 		GDKfree(todo);
 	}
 	todo = 0;	/* pending instructions */

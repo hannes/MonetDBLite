@@ -34,21 +34,27 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnectio
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_sendUpdateInternal
     (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring query, jboolean execute) {
     res_table *output = NULL;
-    long lastId, rowCount;
+    lng lastId, rowCount;
+    jint returnValue = -1;
+    int query_type;
     const char *query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
     char *err;
     (void) jconnection;
 
     // Execute the query
-    err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
-    getUpdateQueryData((Client) connectionPointer, &lastId, &rowCount);
+    err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output, &query_type, &lastId, &rowCount, NULL);
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
     monetdb_cleanup_result((Client) connectionPointer, output);
     if (err) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
         return -1;
     }
-    return (jint) rowCount;
+    if(query_type == Q_UPDATE) {
+        returnValue = (jint) rowCount;
+    } else if(query_type == Q_SCHEMA) {
+        returnValue = -2;
+    }
+    return returnValue;
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_sendQueryInternal
@@ -75,7 +81,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     }
 
     //execute the query
-    err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output);
+    err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output, NULL, NULL, NULL, NULL);
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
     if (err) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);

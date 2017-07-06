@@ -17,13 +17,14 @@
 
 JResultSet* createResultSet(Client conn, res_table* output) {
     JResultSet* thisResultSet = (JResultSet*) GDKmalloc(sizeof(JResultSet));
-    int numberOfColumns = output->nr_cols, *quickerDigits, *quickerScales, i;
+    int numberOfColumns, *quickerDigits, *quickerScales, i;
     BAT** dearBats;
     res_col col;
     if(thisResultSet) {
         thisResultSet->conn = conn;
         thisResultSet->output = output;
-        if(output->nr_cols > 0) {
+        if(output && output->nr_cols > 0) {
+            numberOfColumns = output->nr_cols;
             thisResultSet->bats = (BAT**) GDKmalloc(sizeof(BAT*) * numberOfColumns);
             thisResultSet->digits = (int*) GDKmalloc(sizeof(int) * numberOfColumns);
             thisResultSet->scales = (int*) GDKmalloc(sizeof(int) * numberOfColumns);

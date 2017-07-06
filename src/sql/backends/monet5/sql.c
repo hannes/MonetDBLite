@@ -349,14 +349,14 @@ create_table_or_view(mvc *sql, char *sname, char *tname, sql_table *t, int temp)
 	return MAL_SUCCEED;
 }
 
-str 
-create_table_from_emit(Client cntxt, char *sname, char *tname, sql_emit_col *columns, size_t ncols) 
+str
+create_table_from_emit(Client cntxt, char *sname, char *tname, sql_emit_col *columns, size_t ncols)
 {
-    	size_t i;
-    	sql_table *t;
-    	sql_schema *s;
-    	mvc *sql = NULL;
-    	str msg = MAL_SUCCEED;
+	size_t i;
+	sql_table *t;
+	sql_schema *s;
+	mvc *sql = NULL;
+	str msg = MAL_SUCCEED;
 
 	if ((msg = getSQLContext(cntxt, NULL, &sql, NULL)) != NULL)
 		return msg;
@@ -366,7 +366,7 @@ create_table_from_emit(Client cntxt, char *sname, char *tname, sql_emit_col *col
 	/* for some reason we don't have an allocator here so make one */
 	sql->sa = sa_create();
 
-    	if (!sname) 
+	if (!sname)
 		sname = "sys";
 	if (!(s = mvc_bind_schema(sql, sname))) {
 		msg = sql_error(sql, 02, "3F000!CREATE TABLE: no such schema '%s'", sname);
@@ -377,50 +377,50 @@ create_table_from_emit(Client cntxt, char *sname, char *tname, sql_emit_col *col
 		goto cleanup;
 	}
 
-    	for(i = 0; i < ncols; i++) {
-        	BAT *b = columns[i].b;
-        	sql_subtype *tpe = sql_bind_localtype(ATOMname(b->ttype));
-        	sql_column *col = NULL;
+	for(i = 0; i < ncols; i++) {
+		BAT *b = columns[i].b;
+		sql_subtype *tpe = sql_bind_localtype(ATOMname(b->ttype));
+		sql_column *col = NULL;
 
-        	if (!tpe) {
-    			msg = sql_error(sql, 02, "3F000!CREATE TABLE: could not find type for column");
-    			goto cleanup;
-        	}
+		if (!tpe) {
+			msg = sql_error(sql, 02, "3F000!CREATE TABLE: could not find type for column");
+			goto cleanup;
+		}
 
-        	col = mvc_create_column(sql, t, columns[i].name, tpe);
-        	if (!col) {
-    			msg = sql_error(sql, 02, "3F000!CREATE TABLE: could not create column %s", columns[i].name);
-    			goto cleanup;
-        	}
-    	}
-    	msg = create_table_or_view(sql, sname, t->base.name, t, 0);
-    	if (msg != MAL_SUCCEED) {
-    		goto cleanup;
-    	}
-    	t = mvc_bind_table(sql, s, tname);
-    	if (!t) {
+		col = mvc_create_column(sql, t, columns[i].name, tpe);
+		if (!col) {
+			msg = sql_error(sql, 02, "3F000!CREATE TABLE: could not create column %s", columns[i].name);
+			goto cleanup;
+		}
+	}
+	msg = create_table_or_view(sql, sname, t->base.name, t, 0);
+	if (msg != MAL_SUCCEED) {
+		goto cleanup;
+	}
+	t = mvc_bind_table(sql, s, tname);
+	if (!t) {
 		msg = sql_error(sql, 02, "3F000!CREATE TABLE: could not bind table %s", tname);
 		goto cleanup;
-    	}
-    	for(i = 0; i < ncols; i++) {
-        	BAT *b = columns[i].b;
-        	sql_column *col = NULL;
+	}
+	for(i = 0; i < ncols; i++) {
+		BAT *b = columns[i].b;
+		sql_column *col = NULL;
 
-        	col = mvc_bind_column(sql,t, columns[i].name);
-        	if (!col) {
-    			msg = sql_error(sql, 02, "3F000!CREATE TABLE: could not bind column %s", columns[i].name);
-    			goto cleanup;
-        	}
-        	msg = mvc_append_column(sql->session->tr, col, b);
-        	if (msg != MAL_SUCCEED) {
-        		goto cleanup;
-        	}
-    	}
+		col = mvc_bind_column(sql,t, columns[i].name);
+		if (!col) {
+			msg = sql_error(sql, 02, "3F000!CREATE TABLE: could not bind column %s", columns[i].name);
+			goto cleanup;
+		}
+		msg = mvc_append_column(sql->session->tr, col, b);
+		if (msg != MAL_SUCCEED) {
+			goto cleanup;
+		}
+	}
 
-cleanup:
-    sa_destroy(sql->sa);
-    sql->sa = NULL;
-    return msg;
+	cleanup:
+	sa_destroy(sql->sa);
+	sql->sa = NULL;
+	return msg;
 }
 
 BAT *
@@ -1270,7 +1270,7 @@ DELTAbat(bat *result, const bat *col, const bat *uid, const bat *uval, const bat
 	u_id = BATdescriptor(*uid);
 	assert(BATcount(u_id) == BATcount(u_val));
 	if (BATcount(u_id) &&
-	    BATreplace(res, u_id, u_val, TRUE) != GDK_SUCCEED) {
+		BATreplace(res, u_id, u_val, TRUE) != GDK_SUCCEED) {
 		BBPunfix(u_id->batCacheid);
 		BBPunfix(u_val->batCacheid);
 		BBPunfix(res->batCacheid);
@@ -1544,9 +1544,9 @@ DELTAproject(bat *result, const bat *sub, const bat *col, const bat *uid, const 
 		BBPunfix(o->batCacheid);
 		tres = BATdense(res->hseqbase, res->hseqbase, BATcount(res));
 		if (nu_id == NULL ||
-		    nu_val == NULL ||
-		    tres == NULL ||
-		    BATsemijoin(&o, NULL, nu_id, tres, NULL, NULL, 0, BUN_NONE) != GDK_SUCCEED) {
+			nu_val == NULL ||
+			tres == NULL ||
+			BATsemijoin(&o, NULL, nu_id, tres, NULL, NULL, 0, BUN_NONE) != GDK_SUCCEED) {
 			BBPunfix(s->batCacheid);
 			BBPunfix(res->batCacheid);
 			BBPreclaim(nu_id);
@@ -1570,7 +1570,7 @@ DELTAproject(bat *result, const bat *sub, const bat *col, const bat *uid, const 
 		/* now update res with the subset of u_id and u_val we
 		 * calculated */
 		if ((res = setwritable(res)) == NULL ||
-		    BATreplace(res, u_id, u_val, 0) != GDK_SUCCEED) {
+			BATreplace(res, u_id, u_val, 0) != GDK_SUCCEED) {
 			if (res)
 				BBPunfix(res->batCacheid);
 			BBPunfix(s->batCacheid);
@@ -1624,19 +1624,19 @@ BATleftproject(bat *Res, const bat *Col, const bat *L, const bat *R)
 		oid lp = l->tseqbase;
 		if (r->ttype == TYPE_void) {
 			oid rp = r->tseqbase;
-			for(i=0;i<cnt; i++, lp++, rp++) 
+			for(i=0;i<cnt; i++, lp++, rp++)
 				p[lp] = rp;
 		} else {
-			for(i=0;i<cnt; i++, lp++) 
+			for(i=0;i<cnt; i++, lp++)
 				p[lp] = rp[i];
 		}
 	}
 	if (r->ttype == TYPE_void) {
 		oid rp = r->tseqbase;
-		for(i=0;i<cnt; i++, rp++) 
+		for(i=0;i<cnt; i++, rp++)
 			p[lp[i]] = rp;
 	} else {
-		for(i=0;i<cnt; i++) 
+		for(i=0;i<cnt; i++)
 			p[lp[i]] = rp[i];
 	}
 	res->tsorted = 0;
@@ -1686,7 +1686,7 @@ SQLtid(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	nr = store_funcs.count_col(tr, c, 1);
 
 	if (isTable(t) && t->access == TABLE_WRITABLE && (t->base.flag != TR_NEW /* alter */ ) &&
-	    t->persistence == SQL_PERSIST && !t->commit_action)
+		t->persistence == SQL_PERSIST && !t->commit_action)
 		inr = store_funcs.count_col(tr, c, 0);
 	nr -= inr;
 	if (pci->argc == 6) {	/* partitioned version */
@@ -1705,11 +1705,10 @@ SQLtid(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	}
 
 	/* create void,void bat with length and oid's set */
-	tids = COLnew(sb, TYPE_void, 0, TRANSIENT);
-	if (tids == NULL)
+	tids = BATdense(sb, sb, nr);
+	if (tids == NULL) {
 		throw(SQL, "sql.tid", MAL_MALLOC_FAIL);
-	BATsetcount(tids, (BUN) nr);
-	BATtseqbase(tids, sb);
+	}
 
 	if (store_funcs.count_del(tr, t)) {
 		BAT *d = store_funcs.bind_del(tr, t, RD_INS);
@@ -1756,7 +1755,7 @@ mvc_result_set_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	b = BATdescriptor(bid);
 	if ( b == NULL)
 		throw(MAL,"sql.resultset","Failed to access order column");
-	res = *res_id = mvc_result_table(cntxt, m, mb->tag, pci->argc - (pci->retc + 5), 1, b);
+	res = *res_id = mvc_result_table(m, mb->tag, pci->argc - (pci->retc + 5), 1, b);
 	if (res < 0)
 		msg = createException(SQL, "sql.resultSet", "failed");
 	BBPunfix(b->batCacheid);
@@ -1789,9 +1788,9 @@ mvc_result_set_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 			BBPunfix(bid);
 	}
 	/* now sent it to the channel cntxt->fdout */
-	if (mvc_export_result(cntxt, cntxt->sqlcontext, cntxt->fdout, res))
+	if (mvc_export_result(cntxt->sqlcontext, cntxt->fdout, res))
 		msg = createException(SQL, "sql.resultset", "failed");
-  wrapup_result_set:
+	wrapup_result_set:
 	if( tbl) BBPunfix(tblId);
 	if( atr) BBPunfix(atrId);
 	if( tpe) BBPunfix(tpeId);
@@ -1847,7 +1846,7 @@ mvc_export_table_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	order = BATdescriptor(bid);
 	if ( order == NULL)
 		throw(MAL,"sql.resultset","Failed to access order column");
-	res = *res_id = mvc_result_table(cntxt, m, mb->tag, pci->argc - (pci->retc + 11), 1, order);
+	res = *res_id = mvc_result_table(m, mb->tag, pci->argc - (pci->retc + 11), 1, order);
 	t = m->results;
 	if (res < 0){
 		msg = createException(SQL, "sql.resultSet", "failed");
@@ -1925,14 +1924,14 @@ mvc_export_table_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		if (s)
 			mnstr_destroy(s);
 		msg=  createException(IO, "streams.open", "could not open file '%s': %s",
-				      filename?filename:"stdout", strerror(errnr));
+							  filename?filename:"stdout", strerror(errnr));
 		goto wrapup_result_set1;
 	}
-	if (mvc_export_result(cntxt, cntxt->sqlcontext, s, res))
+	if (mvc_export_result(cntxt->sqlcontext, s, res))
 		msg = createException(SQL, "sql.resultset", "failed");
 	if( s != cntxt->fdout)
 		close_stream(s);
-  wrapup_result_set1:
+	wrapup_result_set1:
 	BBPunfix(order->batCacheid);
 	if( tbl) BBPunfix(tblId);
 	if( atr) BBPunfix(atrId);
@@ -1966,7 +1965,7 @@ mvc_row_result_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		return msg;
 	if ((msg = checkSQLContext(cntxt)) != NULL)
 		return msg;
-	res = *res_id = mvc_result_table(cntxt, m, mb->tag, pci->argc - (pci->retc + 5), 1, NULL);
+	res = *res_id = mvc_result_table(m, mb->tag, pci->argc - (pci->retc + 5), 1, NULL);
 
 	tbl = BATdescriptor(tblId);
 	atr = BATdescriptor(atrId);
@@ -1994,9 +1993,9 @@ mvc_row_result_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		if (mvc_result_value(m, tblname, colname, tpename, *digits++, *scaledigits++, v, mtype))
 			throw(SQL, "sql.rsColumn", "failed");
 	}
-	if (mvc_export_result(cntxt, cntxt->sqlcontext, cntxt->fdout, res))
+	if (mvc_export_result(cntxt->sqlcontext, cntxt->fdout, res))
 		msg = createException(SQL, "sql.resultset", "failed");
-  wrapup_result_set:
+	wrapup_result_set:
 	if( tbl) BBPunfix(tblId);
 	if( atr) BBPunfix(atrId);
 	if( tpe) BBPunfix(tpeId);
@@ -2041,7 +2040,7 @@ mvc_export_row_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		return msg;
 	if ((msg = checkSQLContext(cntxt)) != NULL)
 		return msg;
-	res = *res_id = mvc_result_table(cntxt, m, mb->tag, pci->argc - (pci->retc + 11), 1, NULL);
+	res = *res_id = mvc_result_table(m, mb->tag, pci->argc - (pci->retc + 11), 1, NULL);
 
 	t = m->results;
 	if (res < 0){
@@ -2119,14 +2118,14 @@ mvc_export_row_wrap( Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		if (s)
 			mnstr_destroy(s);
 		msg=  createException(IO, "streams.open", "could not open file '%s': %s",
-				      filename?filename:"stdout", strerror(errnr));
+							  filename?filename:"stdout", strerror(errnr));
 		goto wrapup_result_set;
 	}
-	if (mvc_export_result(cntxt, cntxt->sqlcontext, s, res))
+	if (mvc_export_result(cntxt->sqlcontext, s, res))
 		msg = createException(SQL, "sql.resultset", "failed");
 	if( s != cntxt->fdout)
 		mnstr_close(s);
-  wrapup_result_set:
+	wrapup_result_set:
 	if( tbl) BBPunfix(tblId);
 	if( atr) BBPunfix(atrId);
 	if( tpe) BBPunfix(tpeId);
@@ -2162,7 +2161,7 @@ mvc_table_result_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if ((order = BATdescriptor(*order_bid)) == NULL) {
 		throw(SQL, "sql.resultSet", "Cannot access descriptor");
 	}
-	*res_id = mvc_result_table(cntxt, m, mb->tag, *nr_cols, *qtype, order);
+	*res_id = mvc_result_table(m, mb->tag, *nr_cols, *qtype, order);
 	if (*res_id < 0)
 		res = createException(SQL, "sql.resultSet", "failed");
 	BBPunfix(order->batCacheid);
@@ -2294,7 +2293,7 @@ mvc_affected_rows_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	assert(mtype == TYPE_lng);
 	nr = *getArgReference_lng(stk, pci, 2);
 	b = cntxt->sqlcontext;
-	error = mvc_export_affrows(cntxt, b, b->out, nr, "", mb->tag);
+	error = mvc_export_affrows(b, b->out, nr, "", mb->tag);
 	if (error)
 		throw(SQL, "sql.affectedRows", "failed");
 	return MAL_SUCCEED;
@@ -2333,9 +2332,9 @@ mvc_export_result_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	b = cntxt->sqlcontext;
 	if( pci->argc > 5){
 		res_id = getArgReference_int(stk, pci, 2);
-		if (mvc_export_result(cntxt, b, cntxt->fdout, *res_id))
+		if (mvc_export_result(b, cntxt->fdout, *res_id))
 			throw(SQL, "sql.exportResult", "failed");
-	} else if (mvc_export_result(cntxt, b, *s, *res_id))
+	} else if (mvc_export_result(b, *s, *res_id))
 		throw(SQL, "sql.exportResult", "failed");
 	return MAL_SUCCEED;
 }
@@ -2405,13 +2404,13 @@ mvc_scalar_value_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		p = *(ptr *) p;
 
 	// scalar values are single-column result sets
-	res_id = mvc_result_table(cntxt, b->mvc, mb->tag, 1, 1, NULL);
+	res_id = mvc_result_table(b->mvc, mb->tag, 1, 1, NULL);
 	if (mvc_result_value(b->mvc, *tn, *cn, *type, *digits, *scale, p, mtype))
 		throw(SQL, "sql.exportValue", "failed");
 	if (b->output_format == OFMT_NONE) {
 		return MAL_SUCCEED;
 	}
-	if (mvc_export_result(cntxt, b, b->out, res_id) < 0) {
+	if (mvc_export_result(b, b->out, res_id) < 0) {
 		throw(SQL, "sql.exportValue", "failed");
 	}
 	return MAL_SUCCEED;
@@ -2442,6 +2441,18 @@ fix_windows_newline(unsigned char *s)
 	}
 }
 #endif
+
+str mvc_append_bats_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci) {
+	str msg = MAL_SUCCEED;
+	int i;
+	(void) cntxt;
+	(void) mb;
+	for (i = 0; i < pci->retc; i++) {
+		lng *batid = getArgReference_lng(stk, pci, pci->retc + i);
+		*getArgReference_bat(stk, pci, i) = *batid;
+	}
+	return msg;
+}
 
 /* str mvc_import_table_wrap(int *res, str *sname, str *tname, unsigned char* *T, unsigned char* *R, unsigned char* *S, unsigned char* *N, str *fname, lng *sz, lng *offset); */
 str
@@ -2754,7 +2765,7 @@ mvc_bin_import_table_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 				BBPkeepref(c->batCacheid);
 			}
 		}
-	} 
+	}
 	return MAL_SUCCEED;
 }
 
@@ -2798,7 +2809,7 @@ zero_or_one(ptr ret, const bat *bid)
 	} else if (_s == 8) {
 		*(lng *) ret = *(lng *) p;
 #ifdef HAVE_HGE
-	} else if (_s == 16) {
+		} else if (_s == 16) {
 		*(hge *) ret = *(hge *) p;
 #endif
 	} else {
@@ -2857,7 +2868,7 @@ SQLall(ptr ret, const bat *bid)
 	} else if (_s == 8) {
 		*(lng *) ret = *(lng *) p;
 #ifdef HAVE_HGE
-	} else if (_s == 16) {
+		} else if (_s == 16) {
 		*(hge *) ret = *(hge *) p;
 #endif
 	} else {
@@ -2992,8 +3003,8 @@ str_2time_daytimetz(daytime *res, const str *v, const int *digits, int *tz)
 	else
 		pos = daytime_fromstr(*v, &len, &res);
 	if (!pos || pos < (int)strlen(*v))
-	if (!pos || pos < (int)strlen(*v) || ATOMcmp(TYPE_daytime, res, ATOMnilptr(TYPE_daytime)) == 0)
-		throw(SQL, "daytime", "22007!daytime (%s) has incorrect format", *v);
+		if (!pos || pos < (int)strlen(*v) || ATOMcmp(TYPE_daytime, res, ATOMnilptr(TYPE_daytime)) == 0)
+			throw(SQL, "daytime", "22007!daytime (%s) has incorrect format", *v);
 	return daytime_2time_daytime(res, res, digits);
 }
 
@@ -3219,34 +3230,34 @@ month_interval(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	(void) cntxt;
 	(void) mb;
 	switch (getArgType(mb, pci, 1)) {
-	case TYPE_bte:
-		r = stk->stk[getArg(pci, 1)].val.btval;
-		break;
-	case TYPE_sht:
-		r = stk->stk[getArg(pci, 1)].val.shval;
-		break;
-	case TYPE_int:
-		r = stk->stk[getArg(pci, 1)].val.ival;
-		break;
-	case TYPE_lng:
-		r = (int) stk->stk[getArg(pci, 1)].val.lval;
-		break;
+		case TYPE_bte:
+			r = stk->stk[getArg(pci, 1)].val.btval;
+			break;
+		case TYPE_sht:
+			r = stk->stk[getArg(pci, 1)].val.shval;
+			break;
+		case TYPE_int:
+			r = stk->stk[getArg(pci, 1)].val.ival;
+			break;
+		case TYPE_lng:
+			r = (int) stk->stk[getArg(pci, 1)].val.lval;
+			break;
 #ifdef HAVE_HGE
-	case TYPE_hge:
+		case TYPE_hge:
 		r = (int) stk->stk[getArg(pci, 1)].val.hval;
 		break;
 #endif
-	default:
-		throw(ILLARG, "calc.month_interval", "illegal argument");
+		default:
+			throw(ILLARG, "calc.month_interval", "illegal argument");
 	}
 	switch (k) {
-	case iyear:
-		r *= 12;
-		break;
-	case imonth:
-		break;
-	default:
-		throw(ILLARG, "calc.month_interval", "illegal argument");
+		case iyear:
+			r *= 12;
+			break;
+		case imonth:
+			break;
+		default:
+			throw(ILLARG, "calc.month_interval", "illegal argument");
 	}
 	*ret = r;
 	return MAL_SUCCEED;
@@ -3262,41 +3273,41 @@ second_interval(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if (pci->argc > 3)
 		scale = *getArgReference_int(stk, pci, 3);
 	switch (getArgType(mb, pci, 1)) {
-	case TYPE_bte:
-		r = stk->stk[getArg(pci, 1)].val.btval;
-		break;
-	case TYPE_sht:
-		r = stk->stk[getArg(pci, 1)].val.shval;
-		break;
-	case TYPE_int:
-		r = stk->stk[getArg(pci, 1)].val.ival;
-		break;
-	case TYPE_lng:
-		r = stk->stk[getArg(pci, 1)].val.lval;
-		break;
+		case TYPE_bte:
+			r = stk->stk[getArg(pci, 1)].val.btval;
+			break;
+		case TYPE_sht:
+			r = stk->stk[getArg(pci, 1)].val.shval;
+			break;
+		case TYPE_int:
+			r = stk->stk[getArg(pci, 1)].val.ival;
+			break;
+		case TYPE_lng:
+			r = stk->stk[getArg(pci, 1)].val.lval;
+			break;
 #ifdef HAVE_HGE
-	case TYPE_hge:
+		case TYPE_hge:
 		r = (lng) stk->stk[getArg(pci, 1)].val.hval;
 		break;
 #endif
-	default:
-		throw(ILLARG, "calc.sec_interval", "illegal argument");
+		default:
+			throw(ILLARG, "calc.sec_interval", "illegal argument");
 	}
 	switch (k) {
-	case iday:
-		r *= 24;
-		/* fall through */
-	case ihour:
-		r *= 60;
-		/* fall through */
-	case imin:
-		r *= 60;
-		/* fall through */
-	case isec:
-		r *= 1000;
-		break;
-	default:
-		throw(ILLARG, "calc.sec_interval", "illegal argument");
+		case iday:
+			r *= 24;
+			/* fall through */
+		case ihour:
+			r *= 60;
+			/* fall through */
+		case imin:
+			r *= 60;
+			/* fall through */
+		case isec:
+			r *= 1000;
+			break;
+		default:
+			throw(ILLARG, "calc.sec_interval", "illegal argument");
 	}
 	if (scale)
 		r /= scales[scale];
@@ -3316,22 +3327,22 @@ second_interval_daytime(lng *res, const daytime *s, const int *d, const int *sk)
 		return MAL_SUCCEED;
 	}
 	switch (k) {
-	case isec:
-		break;
-	case imin:
-		r /= 60000;
-		r *= 60000;
-		break;
-	case ihour:
-		r /= 3600000;
-		r *= 3600000;
-		break;
-	case iday:
-		r /= (24 * 3600000);
-		r *= (24 * 3600000);
-		break;
-	default:
-		throw(ILLARG, "calc.second_interval", "illegal argument");
+		case isec:
+			break;
+		case imin:
+			r /= 60000;
+			r *= 60000;
+			break;
+		case ihour:
+			r /= 3600000;
+			r *= 3600000;
+			break;
+		case iday:
+			r /= (24 * 3600000);
+			r *= (24 * 3600000);
+			break;
+		default:
+			throw(ILLARG, "calc.second_interval", "illegal argument");
 	}
 	*res = r;
 	return MAL_SUCCEED;
@@ -3404,7 +3415,7 @@ dump_cache(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	for (q = m->qc->q; q; q = q->next) {
 		if (q->type != Q_PREPARE) {
 			if (BUNappend(query, q->codestring, FALSE) != GDK_SUCCEED ||
-			    BUNappend(count, &q->count, FALSE) != GDK_SUCCEED) {
+				BUNappend(count, &q->count, FALSE) != GDK_SUCCEED) {
 				BBPunfix(query->batCacheid);
 				BBPunfix(count->batCacheid);
 				throw(SQL, "sql.dumpcache", MAL_MALLOC_FAIL);
@@ -3430,7 +3441,7 @@ dump_opt_stats(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	bat *rcount = getArgReference_bat(stk, pci, 1);
 
 	if ((msg = getSQLContext(cntxt, mb, &m, NULL)) != NULL ||
-	    (msg = checkSQLContext(cntxt)) != NULL)
+		(msg = checkSQLContext(cntxt)) != NULL)
 		return msg;
 	cnt = m->qc->id;
 	rewrite = COLnew(0, TYPE_str, cnt, TRANSIENT);
@@ -3442,7 +3453,7 @@ dump_opt_stats(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	}
 
 	if (BUNappend(rewrite, "joinidx", FALSE) != GDK_SUCCEED ||
-	    BUNappend(count, &m->opt_stats[0], FALSE) != GDK_SUCCEED) {
+		BUNappend(count, &m->opt_stats[0], FALSE) != GDK_SUCCEED) {
 		BBPreclaim(rewrite);
 		BBPreclaim(count);
 		throw(SQL, "sql.optstats", MAL_MALLOC_FAIL);
@@ -3469,12 +3480,12 @@ dump_trace(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if (TRACEtable(t) != 13)
 		throw(SQL, "sql.dump_trace", "3F000!Profiler not started");
 	for(i=0; i< 13; i++)
-	if( t[i]){
-		id = t[i]->batCacheid;
-		*getArgReference_bat(stk, pci, i) = id;
-		BBPkeepref(id);
-	} else
-		throw(SQL,"dump_trace","Missing trace BAT ");
+		if( t[i]){
+			id = t[i]->batCacheid;
+			*getArgReference_bat(stk, pci, i) = id;
+			BBPkeepref(id);
+		} else
+			throw(SQL,"dump_trace","Missing trace BAT ");
 	return MAL_SUCCEED;
 }
 
@@ -3660,7 +3671,7 @@ do_sql_rank(bat *rid, const bat *bid, int nrank, int dense, const char *name)
 	BBPunfix(b->batCacheid);
 	BBPkeepref(*rid = r->batCacheid);
 	return MAL_SUCCEED;
-  bailout:
+	bailout:
 	BBPunfix(b->batCacheid);
 	BBPunfix(r->batCacheid);
 	throw(SQL, name, MAL_MALLOC_FAIL);
@@ -4011,9 +4022,9 @@ sql_storage(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	key = COLnew(0, TYPE_bit, 0, TRANSIENT);
 	oidx = COLnew(0, TYPE_lng, 0, TRANSIENT);
 
-	if (sch == NULL || tab == NULL || col == NULL || type == NULL || mode == NULL || loc == NULL || imprints == NULL || 
-	    sort == NULL || cnt == NULL || atom == NULL || size == NULL || heap == NULL || indices == NULL || phash == NULL ||
-	    revsort == NULL || key == NULL || oidx == NULL) {
+	if (sch == NULL || tab == NULL || col == NULL || type == NULL || mode == NULL || loc == NULL || imprints == NULL ||
+		sort == NULL || cnt == NULL || atom == NULL || size == NULL || heap == NULL || indices == NULL || phash == NULL ||
+		revsort == NULL || key == NULL || oidx == NULL) {
 		goto bailout;
 	}
 	if( pci->argc - pci->retc >= 1)
@@ -4052,8 +4063,8 @@ sql_storage(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 
 								/*printf("schema %s.%s.%s" , b->name, bt->name, bc->name); */
 								if (BUNappend(sch, b->name, FALSE) != GDK_SUCCEED ||
-								    BUNappend(tab, bt->name, FALSE) != GDK_SUCCEED ||
-								    BUNappend(col, bc->name, FALSE) != GDK_SUCCEED)
+									BUNappend(tab, bt->name, FALSE) != GDK_SUCCEED ||
+									BUNappend(col, bc->name, FALSE) != GDK_SUCCEED)
 									goto bailout;
 								if (c->t->access == TABLE_WRITABLE) {
 									if (BUNappend(mode, "writable", FALSE) != GDK_SUCCEED)
@@ -4103,7 +4114,7 @@ sql_storage(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 								if (BUNappend(atom, &w, FALSE) != GDK_SUCCEED)
 									goto bailout;
 
-								sz = BATcount(bn) * bn->twidth; 
+								sz = BATcount(bn) * bn->twidth;
 								if (BUNappend(size, &sz, FALSE) != GDK_SUCCEED)
 									goto bailout;
 
@@ -4164,8 +4175,8 @@ sql_storage(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 										continue;
 									/*printf("schema %s.%s.%s" , b->name, bt->name, bc->name); */
 									if (BUNappend(sch, b->name, FALSE) != GDK_SUCCEED ||
-									    BUNappend(tab, bt->name, FALSE) != GDK_SUCCEED ||
-									    BUNappend(col, bc->name, FALSE) != GDK_SUCCEED)
+										BUNappend(tab, bt->name, FALSE) != GDK_SUCCEED ||
+										BUNappend(col, bc->name, FALSE) != GDK_SUCCEED)
 										goto bailout;
 									if (c->t->access == TABLE_WRITABLE) {
 										if (BUNappend(mode, "writable", FALSE) != GDK_SUCCEED)
@@ -4279,7 +4290,7 @@ sql_storage(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	BBPkeepref(*roidx = oidx->batCacheid);
 	return MAL_SUCCEED;
 
-  bailout:
+	bailout:
 	if (sch)
 		BBPunfix(sch->batCacheid);
 	if (tab)
@@ -4561,7 +4572,7 @@ BATSTRstrings(bat *res, const bat *src)
 	return MAL_SUCCEED;
 }
 
-str 
+str
 SQLflush_log(void *ret)
 {
 	(void)ret;
@@ -4572,7 +4583,7 @@ SQLflush_log(void *ret)
 str
 SQLexist_val(bit *res, void *v)
 {
-	if (v) 
+	if (v)
 		*res = TRUE;
 	else
 		*res = FALSE;
