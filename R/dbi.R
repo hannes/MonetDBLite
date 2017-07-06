@@ -99,6 +99,7 @@ setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="m
     connenv$conn <- monetdb_embedded_connect()
     connenv$open <- TRUE
     connenv$autocommit <- TRUE
+    connenv$resultsets = 0
     conn <- new("MonetDBEmbeddedConnection", connenv=connenv)
     attr(conn, "dbPreExists") <- TRUE
     return(conn)
@@ -182,6 +183,10 @@ setMethod("dbDisconnect", "MonetDBConnection", def=function(conn, ...) {
 setMethod("dbDisconnect", "MonetDBEmbeddedConnection", def=function(conn, shutdown=FALSE, ...) {
   if (!conn@connenv$open) warning("already disconnected")
   conn@connenv$open <- FALSE
+  if (conn@connenv$resultsets > 0) {
+    warning("Result sets remain for this connection, use dbClearResult() to avoid this warning.")
+    conn@connenv$resultsets = 0
+  }
   monetdb_embedded_disconnect(conn@connenv$conn)
   if (shutdown) monetdb_embedded_shutdown()
   invisible(TRUE)
@@ -296,7 +301,6 @@ setMethod("dbSendQuery", signature(conn="MonetDBConnection", statement="characte
     env$info <- resp
     env$delivered <- -1
     env$query <- statement
-    env$open <- TRUE
   }
   if (resp$type == Q_UPDATE || resp$type == Q_CREATE || resp$type == MSG_ASYNC_REPLY || resp$type == MSG_PROMPT) {
     env$success = TRUE
@@ -354,6 +358,8 @@ setMethod("dbSendQuery", signature(conn="MonetDBEmbeddedConnection", statement="
   resp <- monetdb_embedded_query(conn@connenv$conn, statement, execute, resultconvert)
   takent <- round(as.numeric(Sys.time() - startt), 2)
   env <- new.env(parent=emptyenv())
+  env$open <- TRUE
+
   if (resp$type == Q_TABLE) {
     meta <- new.env(parent=emptyenv())
     meta$type  <- Q_TABLE
@@ -366,10 +372,12 @@ setMethod("dbSendQuery", signature(conn="MonetDBEmbeddedConnection", statement="
     env$info <- meta
     env$success = TRUE
     env$conn <- conn
+    attr(resp$tuples, "__rows") <- NULL
     env$resp <- resp
     env$delivered <- -1
     env$query <- statement
-    env$open <- TRUE
+
+    conn@connenv$resultsets <- conn@connenv$resultsets + 1
   }
   if (resp$type == Q_UPDATE || resp$type == Q_CREATE || resp$type == MSG_ASYNC_REPLY || resp$type == MSG_PROMPT) {
     env$success = TRUE
@@ -570,17 +578,25 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
   return(invisible(TRUE))
 })
 
-setMethod("dbDataType", signature(dbObj="MonetDBConnection", obj = "ANY"), def = function(dbObj, 
-                                                                                          obj, ...) {
-  if (is.logical(obj)) "BOOLEAN"
+datatype <- function(dbObj, obj) {
+  if (is.null(obj)) stop("NULL parameter")
+  if (is.data.frame(obj)) {
+    return (vapply(obj, function(x) datatype(dbObj, x), FUN.VALUE = "character"))
+  }
+  else if (inherits(obj, "Date")) "DATE"
+  else if (inherits(obj, "difftime")) "TIME"
+  else if (is.logical(obj)) "BOOLEAN"
   else if (is.integer(obj)) "INTEGER"
   else if (is.numeric(obj)) "DOUBLE PRECISION"
-  else if (class(obj)[[1]] == "Date") "DATE"
-#  else if (class(obj)[[1]] == "difftime") "TIME"
   else if (inherits(obj, "POSIXt")) "TIMESTAMP"
   else if (is.list(obj) && all(vapply(obj, typeof, FUN.VALUE = "character") == "raw" || is.na(obj))) "BLOB"
   else "STRING"
-}, valueClass = "character")
+}
+
+setMethod("dbDataType", signature(dbObj="MonetDBConnection", obj = "ANY"), def = datatype, valueClass = "character")
+
+setMethod("dbDataType", signature(dbObj="MonetDBDriver", obj = "ANY"), def = datatype, valueClass = "character")
+
 
 
 setMethod("dbRemoveTable", signature(conn="MonetDBConnection", name = "character"), def=function(conn, name, ...) {
@@ -786,7 +802,6 @@ monetdbRtype <- function(dbType) {
 }
 
 setMethod("fetch", signature(res="MonetDBResult", n="numeric"), def=function(res, n, ...) {
-  .Deprecated("use dbFetch() instead")
   dbFetch(res, n, ...)
 })
 
@@ -901,6 +916,9 @@ setMethod("dbFetch", signature(res="MonetDBResult", n="numeric"), def=function(r
   df
 })
 
+# as per is.integer documentation
+is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
+
 # most of the heavy lifting here
 setMethod("dbFetch", signature(res="MonetDBEmbeddedResult", n="numeric"), def=function(res, n, ...) {
   if (!res@env$success) {
@@ -909,9 +927,23 @@ setMethod("dbFetch", signature(res="MonetDBEmbeddedResult", n="numeric"), def=fu
   if (!dbIsValid(res)) {
     stop("Cannot fetch results from closed response.")
   }
-  if (res@env$info$type == Q_UPDATE) { 
+  if (res@env$info$type != Q_TABLE && res@env$info$type != Q_PREPARE) { 
+    warning("trying to fetch from query result without table")
     return(data.frame())
   }
+  if (length(n) != 1) {
+    stop("need exactly one value in n")
+  }
+  if (is.infinite(n)) {
+    n <- -1
+  }
+  if (n < - 1) {
+    stop("cannot fetch negative n other than -1")
+  }
+  if (!is.wholenumber(n)) {
+    stop("n needs to be not a whole number")
+  }
+
   if (n == 0) {
     return(head(res@env$resp$tuples, 0))
   }
@@ -929,11 +961,15 @@ setMethod("dbFetch", signature(res="MonetDBEmbeddedResult", n="numeric"), def=fu
   if (n > -1) {
     n <- min(n, res@env$info$rows - res@env$delivered)
     res@env$delivered <- res@env$delivered + n
-    return(res@env$resp$tuples[(res@env$delivered - n + 1):(res@env$delivered),, drop=F])
+    df <- res@env$resp$tuples[(res@env$delivered - n + 1):(res@env$delivered),, drop=F]
+    attr(df, "row.names") <- c(NA, as.integer(-nrow(df)))
+    return(df)
   }
   start <- res@env$delivered + 1
   res@env$delivered <- res@env$info$rows
-  return(res@env$resp$tuples[start:res@env$info$rows,, drop=F])
+  df <- res@env$resp$tuples[start:res@env$info$rows,, drop=F]
+  attr(df, "row.names") <- c(NA, as.integer(-nrow(df)))
+  return(df)
 })
 
 setMethod("dbClearResult", "MonetDBResult", def = function(res, ...) {
@@ -948,8 +984,12 @@ setMethod("dbClearResult", "MonetDBResult", def = function(res, ...) {
 }, valueClass = "logical")
 
 setMethod("dbClearResult", "MonetDBEmbeddedResult", def = function(res, ...) {
+  if (!res@env$open) {
+    warning("result has already been cleared")
+  }
+  res@env$open <- FALSE
   if (res@env$info$type == Q_TABLE) {
-    res@env$open <- FALSE
+    res@env$conn@connenv$resultsets <- res@env$conn@connenv$resultsets - 1
   }
   return(invisible(TRUE))
 }, valueClass = "logical")

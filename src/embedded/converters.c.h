@@ -154,10 +154,9 @@ static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
 	allocator.res = NULL;
 	allocator.data = masq;
 
-	// TODO: verify this is correct
-//					if (BATcount(b) > R_SHORT_LEN_MAX) {
-//						hdr_len += sizeof(R_long_vec_hdr_t);
-//					}
+//	if (BATcount(b) > R_SHORT_LEN_MAX) {
+//		hdr_len += sizeof(R_long_vec_hdr_t);
+//	}
 
 	masq->sexp_ptr = masq->data_map - hdr_len;
 	// pointer fun, we know we are allowed to write there
