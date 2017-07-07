@@ -247,8 +247,13 @@ SEXP monetdb_append_R(SEXP connsexp, SEXP schemasexp, SEXP namesexp, SEXP tabled
 	assert(ad);
 
 	for (i = 0; i < col_ct; i++) {
+		const char* df_colname = CHAR(STRING_ELT(GET_NAMES(tabledatasexp), i));
 		SEXP ret_col = VECTOR_ELT(tabledatasexp, i);
 		int bat_type = t_column_types[i];
+		if (strcmp(df_colname, t_column_names[i]) != 0) {
+			msg = createException(MAL, "embedded", "Append column name mismatch %s <> %s ", t_column_names[i], df_colname);
+			goto wrapup;
+		}
 		b = sexp_to_bat(ret_col, bat_type);
 		if (b == NULL) {
 			msg = createException(MAL, "embedded", "Could not convert column %i %s to type %i ", i, t_column_names[i], bat_type);

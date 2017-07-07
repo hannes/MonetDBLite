@@ -133,6 +133,8 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 		goto cleanup;
 	}
 	GDKsetenv("monet_mod_path", "");
+	GDKsetenv("max_clients", "256");
+
 	GDKsetenv("mapi_disable", "true");
 	if (sequential) {
 		GDKsetenv("sql_optimizer", "sequential_pipe");
