@@ -923,7 +923,7 @@ table_ref(mvc *sql, sql_rel *rel, symbol *tableref, int lateral)
 			}
 			return rel;
 		}
-		if ((isMergeTable(t) || isReplicaTable(t)) && list_empty(t->tables.set))
+		if ((isMergeTable(t) || isReplicaTable(t)) && list_empty(t->members.set))
 			return sql_error(sql, 02, "MERGE or REPLICA TABLE should have at least one table associated");
 
 		return rel_basetable(sql, t, tname);
@@ -4960,6 +4960,8 @@ rel_query(mvc *sql, sql_rel *rel, symbol *sq, int toplevel, exp_kind ek, int app
 					fnd = table_ref(sql, rel, n->data.sym, 0);
 				}
 				used = 1;
+				if (!fnd && lateral)
+					res = NULL;
 			}
 
 			if (!fnd)

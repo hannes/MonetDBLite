@@ -768,7 +768,7 @@
 #define PACKAGE "MonetDB"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "11.27.0"
+#define PACKAGE_VERSION "11.27.2"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "https://bugs.monetdb.org/"
