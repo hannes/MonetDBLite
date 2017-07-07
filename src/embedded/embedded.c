@@ -237,6 +237,7 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	b->output_format = OFMT_NONE;
 	m->user_id = m->role_id = USER_MONETDB;
 	m->cache = 0;
+	m->errstr[0] = '\0';
 
 	if (result) {
 		m->reply_size = -2; /* do not clean up result tables */
@@ -271,7 +272,6 @@ cleanup:
 	MSresetInstructions(c->curprg->def, 1);
 	bstream_destroy(c->fdin);
 	c->fdin = NULL;
-
 
 	sres = SQLautocommit(c, m);
 	if (!sres && !res) {
@@ -329,6 +329,7 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 		f->res = types;
 		rel = rel_insert(m, rel_basetable(m, t, t->base.name), rel_table_func(m->sa, NULL, exp_op(m->sa,  args, f), exps, 1));
 		m->scanner.rs = NULL;
+		m->errstr[0] = '\0';
 
 		if (rel && backend_dumpstmt((backend *) c->sqlcontext, c->curprg->def, rel, 1, 1, "append") < 0) {
 			return GDKstrdup("Append plan generation failure");

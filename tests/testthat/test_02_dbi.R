@@ -383,7 +383,6 @@ test_that("booleans, dates, datetime and raw can be written and read back", {
 })
 
 # TODO: write into decimal col?
-
 test_that("pk violations throw errors", {
 	expect_false(dbExistsTable(con, tname))
 	dbBegin(con)
@@ -391,6 +390,18 @@ test_that("pk violations throw errors", {
 	expect_error(dbWriteTable(con, tname, data.frame(i=as.integer(rep(1, 10)), j=21:30), append=T))
 	dbRollback(con)
 	expect_false(dbExistsTable(con, tname))
+})
+
+test_that("sql errrors get cleaned after borked appends", {
+	tf <- tempfile()
+	qq <- paste0("COPY INTO ", tname, " FROM '", tf, "' USING DELIMITERS ','")
+	dbWriteTable(con, tname, mtcars)
+	write.csv(mtcars, tf, row.names=F)
+	expect_error(dbExecute(con, qq))
+	write.table(mtcars, tf, row.names=F, col.names=F, sep=",")
+	dbExecute(con, qq)
+	expect_true(dbExistsTable(con, tname))
+	dbRemoveTable(con, tname)
 })
 
 
