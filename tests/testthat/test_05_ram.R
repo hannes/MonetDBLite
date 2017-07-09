@@ -11,6 +11,7 @@ Sys.setenv("R_TESTS" = "")
 
 
 test_that( "MonetDBLite handles heavy shutdown/startup situations" , {
+	skip_on_cran()
 	if (Sys.getenv("MONETDBLITE_DEBUG") != "") skip("Skipping on Hannes' poor box")
 
 	single_restarts <- 
@@ -49,7 +50,9 @@ test_that( "MonetDBLite handles heavy shutdown/startup situations" , {
 
 
 test_that( "MonetDBLite handles low RAM together with heavy shutdown/startup situations" , {
+	skip_on_cran()
 	skip("Too heavy for now")
+
 	ram_stress_test <- 
 		function( driver , repetitions = 1000 , this_limit , server_shutdown ){
 			library(DBI)
