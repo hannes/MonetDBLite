@@ -84,8 +84,11 @@ boolean silentFlag = true, sequentialFlag = false;
 MonetDBEmbeddedDatabase.startDatabase(directoryPath.toString(), silentFlag, sequentialFlag);
 ```
 
-The `silent` and `sequential` flags are left for debugging purposes. They should be left as `true` and `false`
-respectively. 
+The `silent` flag is left for debugging purposes. If passed as `false`, errors found in the Embedded Database will be
+thrown to the stdout. If the `sequentialFlag` is provided as `true`, MonetDBLite will use sequential pipeline instead
+of the default one. In this pipeline some of MonetDBLite's optimizers are disabled. It is use mainly to make some tests
+to work deterministically, i.e., avoid ambiguous output by avoiding parallelism. For better performance this flag should
+be set to `false`.
 
 **Before exiting the JVM it is VERY important to shutdown the database, otherwise the program will cause many memory
 leaks!** The `void MonetDBEmbeddedDatabase.stopDatabase()` class method shuts down the embedded database and any pending
