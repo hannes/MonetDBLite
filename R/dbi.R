@@ -371,9 +371,10 @@ setMethod("dbSendQuery", signature(conn="MonetDBEmbeddedConnection", statement="
   env <- new.env(parent=emptyenv())
   env$open <- TRUE
 
-  if (resp$type == Q_TABLE) {
+  if (resp$type == Q_TABLE || resp$type == Q_PREPARE) {
     meta <- new.env(parent=emptyenv())
-    meta$type  <- Q_TABLE
+    meta$type  <- resp$type
+
     meta$id    <- -1
     meta$rows  <- NROW(resp$tuples)
     meta$cols  <- NCOL(resp$tuples)
@@ -385,6 +386,7 @@ setMethod("dbSendQuery", signature(conn="MonetDBEmbeddedConnection", statement="
     env$success = TRUE
     env$conn <- conn
     attr(resp$tuples, "__rows") <- NULL
+   
     env$resp <- resp
     env$delivered <- -1
     env$query <- statement

@@ -405,6 +405,20 @@ test_that("sql errrors get cleaned after borked appends", {
 })
 
 
+test_that("prepared statements work", {
+	res <- dbSendQuery(con, "PREPARE select schemas.id as schema_id, tables.id as tables_id, schemas.name as schema_name, tables.name as table_name from schemas join tables on schemas.id=tables.schema_id WHERE schemas.name LIKE ? and tables.name LIKE ?")
+	expect_true(is.numeric(res@env$resp$prepare))
+	expect_true(res@env$resp$prepare > 0)
+
+	prepres <- dbFetch(res, -1)
+	expect_true(nrow(prepres) > 0)
+	expect_true(ncol(prepres) > 0)
+
+	qq <- paste0("EXEC ", res@env$resp$prepare, "('sys', 'tab__s')")
+	res <- dbGetQuery(con, qq)
+	expect_true(nrow(res) > 0)
+})
+
 test_that("we can disconnect", {
 	expect_true(dbIsValid(con))
 	dbDisconnect(con)

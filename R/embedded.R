@@ -71,6 +71,11 @@ monetdb_embedded_query <- function(conn, query, execute=TRUE, resultconvert=TRUE
 	}
 	if (is.list(res)) {
 		resp$type <- 1 # Q_TABLE
+		if ("__prepare" %in% names(attributes(res))) {
+			resp$type <- Q_PREPARE
+			resp$prepare = attr(res, "__prepare")
+			attr(res, "__prepare") <- NULL
+		}
 		attr(res, "row.names") <- c(NA_integer_, as.integer(-1 * attr(res, "__rows")))
   		class(res) <- "data.frame"
 		names(res) <- gsub("\\", "", names(res), fixed=T)
