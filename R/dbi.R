@@ -857,7 +857,7 @@ setMethod("dbBind", "MonetDBEmbeddedResult", def = function(res, params, ...) {
       stop("need ", nrow(params_info), " parameters for query")
     }
     exec_str <- paste0("EXEC ", res@env$resp$prepare, " (", 
-      paste0(vapply(params, function(x) dbQuoteString(res@env$conn, x), "character"), collapse=","), ")")
+      paste0(vapply(params, function(x) dbQuoteString(res@env$conn, as.character(x)), "character"), collapse=","), ")")
     dbClearResult(res)
     invisible(dbSendQuery(res@env$conn, exec_str))
 })
