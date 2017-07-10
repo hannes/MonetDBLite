@@ -880,7 +880,7 @@ MT_check_nr_cores(void)
 lng
 GDKusec(void)
 {
-return 0;
+return 0; // hahahahahahah
 }
 
 
