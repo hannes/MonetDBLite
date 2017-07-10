@@ -55,7 +55,7 @@ typedef struct CURRENT_INSTR{
 } Workset;
 
 // WARNING: this is also defined in embedded.h
-typedef int (*monetdb_progress_callback)(void* conn, void* data, size_t num_statements, size_t num_completed_statement, float percentage_done);
+typedef int (*monetdb_progress_callback_malh)(void* conn, void* data, size_t num_statements, size_t num_completed_statement, float percentage_done);
 
 typedef struct CLIENT {
 	int idx;        /* entry in mal_clients */
@@ -186,7 +186,7 @@ typedef struct CLIENT {
 	protocol_version protocol;
 	int compute_column_widths;
 
-	monetdb_progress_callback progress_callback;
+	monetdb_progress_callback_malh progress_callback;
 	void* progress_data;
 	size_t progress_done;
 	size_t progress_len;

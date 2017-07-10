@@ -11,8 +11,7 @@ Sys.setenv("R_TESTS" = "")
 
 
 test_that( "MonetDBLite handles heavy shutdown/startup situations" , {
-	skip_on_cran()
-	if (Sys.getenv("MONETDBLITE_DEBUG") != "") skip("Skipping on Hannes' poor box")
+	skip("Too heavy for now")
 
 	single_restarts <- 
 		function( repetitions = ( 128 * 4 ) + 1 ){
@@ -50,7 +49,6 @@ test_that( "MonetDBLite handles heavy shutdown/startup situations" , {
 
 
 test_that( "MonetDBLite handles low RAM together with heavy shutdown/startup situations" , {
-	skip_on_cran()
 	skip("Too heavy for now")
 
 	ram_stress_test <- 

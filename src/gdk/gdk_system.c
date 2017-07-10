@@ -896,9 +896,6 @@ GDKusec(void)
 	}
 #endif
 #ifdef HAVE_CLOCK_GETTIME
-#if defined(CLOCK_UPTIME_FAST)
-#define CLK_ID CLOCK_UPTIME_FAST	/* FreeBSD */
-#else
 #define CLK_ID CLOCK_MONOTONIC		/* Posix (fallback) */
 #endif
 	{
@@ -911,7 +908,6 @@ GDKusec(void)
 		if (clock_gettime(CLK_ID, &ts) == 0)
 			return (ts.tv_sec - tsbase.tv_sec) * 1000000 + ts.tv_nsec / 1000;
 	}
-#endif
 #ifdef HAVE_GETTIMEOFDAY
 	{
 		static struct timeval tpbase;	/* automatically initialized to 0 */
