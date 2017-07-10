@@ -122,6 +122,10 @@ static int monetdb_r_hdrsize() {
     return siz;
 }
 
+#if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
+#define MAP_ANONYMOUS		MAP_ANON
+#endif
+
 static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
 	R_MASQ_BAT* masq = malloc(sizeof(R_MASQ_BAT));
 	SEXP varvalue;
