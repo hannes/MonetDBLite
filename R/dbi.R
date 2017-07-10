@@ -843,6 +843,25 @@ monetdbRtype <- function(dbType) {
   rtype
 }
 
+setMethod("dbBind", "MonetDBEmbeddedResult", def = function(res, params, ...) {
+   if (res@env$resp$type != Q_PREPARE) stop("Not a prepared statement. Prefix query with PREPARE and add ? placeholders")
+     if (!res@env$open) {
+      stop("result has already been cleared")
+    }
+    if (!is.list(params)) {
+      stop("need a list as params")
+    }
+    prep <- res@env$resp$tuples
+    params_info <- prep[prep$result_or_param == "param",]
+    if (length(params) != nrow(params_info)) {
+      stop("need ", nrow(params_info), " parameters for query")
+    }
+    exec_str <- paste0("EXEC ", res@env$resp$prepare, " (", 
+      paste0(vapply(params, function(x) dbQuoteString(res@env$conn, x), "character"), collapse=","), ")")
+    dbClearResult(res)
+    invisible(dbSendQuery(res@env$conn, exec_str))
+})
+
 setMethod("fetch", signature(res="MonetDBResult", n="numeric"), def=function(res, n, ...) {
   dbFetch(res, n, ...)
 })
@@ -1119,6 +1138,7 @@ setMethod("dbGetRowsAffected", "MonetDBEmbeddedResult", def = function(res, ...)
       return(0L)
     }
 })
+
 
 # adapted from RMonetDB, no java-specific things in here...
 monet.read.csv <- monetdb.read.csv <- function(conn, files, tablename, header=TRUE, 
