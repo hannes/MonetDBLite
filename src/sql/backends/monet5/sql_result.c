@@ -982,82 +982,26 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 	node *n;
 	int nparam = c->params ? list_length(c->params) : 0;
 	int nrows = nparam;
-	size_t len1 = 0, len4 = 0, len5 = 0, len6 = 0;	/* column widths */
-	int len2 = 1, len3 = 1;
 	sql_arg *a;
 	sql_subtype *t;
 	sql_rel *r = q->rel;
+	BAT *b_inout   = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	BAT *b_offset  = COLnew(0, TYPE_int, nrows, TRANSIENT);
+	BAT *b_type   = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	BAT *b_digits = COLnew(0, TYPE_int, nrows, TRANSIENT);
+	BAT *b_scale  = COLnew(0, TYPE_int, nrows, TRANSIENT);
+	BAT *b_schema = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	BAT *b_table  = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	BAT *b_column = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	int result_offset = 0, param_offset = 0;
 
-	if (!out)
-		return 0;
-
-	if (is_topn(r->op))
-		r = r->l;
-	if (r && is_project(r->op) && r->exps) {
-		unsigned int max2 = 10, max3 = 10;	/* to help calculate widths */
-		nrows += list_length(r->exps);
-
-		for (n = r->exps->h; n; n = n->next) {
-			const char *name;
-			sql_exp *e = n->data;
-			size_t slen;
-
-			t = exp_subtype(e);
-			slen = strlen(t->type->sqlname);
-			if (slen > len1)
-				len1 = slen;
-			while (t->digits >= max2) {
-				len2++;
-				max2 *= 10;
-			}
-			while (t->scale >= max3) {
-				len3++;
-				max3 *= 10;
-			}
-			name = e->rname;
-			if (!name && e->type == e_column && e->l)
-				name = e->l;
-			slen = name ? strlen(name) : 0;
-			if (slen > len5)
-				len5 = slen;
-			name = e->name;
-			if (!name && e->type == e_column && e->r)
-				name = e->r;
-			slen = name ? strlen(name) : 0;
-			if (slen > len6)
-				len6 = slen;
-		}
-	}
-	/* calculate column widths */
-	if (c->params) {
-		unsigned int max2 = 10, max3 = 10;	/* to help calculate widths */
-
-		for (n = c->params->h; n; n = n->next) {
-			size_t slen;
-
-			a = n->data;
-			t = &a->type;
-			slen = strlen(t->type->sqlname);
-			if (slen > len1)
-				len1 = slen;
-			while (t->digits >= max2) {
-				len2++;
-				max2 *= 10;
-			}
-			while (t->scale >= max3) {
-				len3++;
-				max3 *= 10;
-			}
-
-		}
-	}
-
-	/* write header, query type: Q_PREPARE */
-	if (mnstr_printf(out, "&5 %d %d 6 %d\n"	/* TODO: add type here: r(esult) or u(pdate) */
-			 "%% .prepare,\t.prepare,\t.prepare,\t.prepare,\t.prepare,\t.prepare # table_name\n" "%% type,\tdigits,\tscale,\tschema,\ttable,\tcolumn # name\n" "%% varchar,\tint,\tint,\tstr,\tstr,\tstr # type\n" "%% " SZFMT ",\t%d,\t%d,\t"
-			 SZFMT ",\t" SZFMT ",\t" SZFMT " # length\n", q->id, nrows, nrows, len1, len2, len3, len4, len5, len6) < 0) {
+	if (!b_inout || !b_type || !b_digits || !b_scale || !b_schema || !b_table || !b_column) {
 		return -1;
 	}
+	out = NULL; // make sure we never write to this here
+	(void) w;
+	if (is_topn(r->op))
+		r = r->l;
 
 	if (r && is_project(r->op) && r->exps) {
 		for (n = r->exps->h; n; n = n->next) {
@@ -1072,9 +1016,17 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 			if (!rname && e->type == e_column && e->l)
 				rname = e->l;
 
-			if (mnstr_printf(out, "[ \"%s\",\t%d,\t%d,\t\"%s\",\t\"%s\",\t\"%s\"\t]\n", t->type->sqlname, t->digits, t->scale, schema ? schema : "", rname ? rname : "", name ? name : "") < 0) {
+			if (BUNappend(b_inout,  "result",             FALSE) != GDK_SUCCEED ||
+				BUNappend(b_offset, &result_offset,       FALSE) != GDK_SUCCEED ||
+				BUNappend(b_type,   t->type->sqlname,     FALSE) != GDK_SUCCEED ||
+				BUNappend(b_digits, &(t->digits),         FALSE) != GDK_SUCCEED ||
+				BUNappend(b_scale,  &(t->scale),          FALSE) != GDK_SUCCEED ||
+				BUNappend(b_schema, schema ? schema : "", FALSE) != GDK_SUCCEED ||
+				BUNappend(b_table,  rname ? rname : "",   FALSE) != GDK_SUCCEED ||
+				BUNappend(b_column, name ? name : "",     FALSE) != GDK_SUCCEED) {
 				return -1;
 			}
+			result_offset++;
 		}
 	}
 	if (c->params) {
@@ -1087,18 +1039,40 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 			t = &a->type;
 
 			if (t) {
-				if (mnstr_printf(out, "[ \"%s\",\t%d,\t%d,\tNULL,\tNULL,\tNULL\t]\n", t->type->sqlname, t->digits, t->scale) < 0) {
+				if (BUNappend(b_inout,  "param",          FALSE) != GDK_SUCCEED ||
+					BUNappend(b_offset, &param_offset,    FALSE) != GDK_SUCCEED ||
+					BUNappend(b_type,   t->type->sqlname, FALSE) != GDK_SUCCEED ||
+					BUNappend(b_digits, &(t->digits),     FALSE) != GDK_SUCCEED ||
+					BUNappend(b_scale,  &(t->scale),      FALSE) != GDK_SUCCEED ||
+					BUNappend(b_schema, str_nil,          FALSE) != GDK_SUCCEED ||
+					BUNappend(b_table,  str_nil,          FALSE) != GDK_SUCCEED ||
+					BUNappend(b_column, str_nil,          FALSE) != GDK_SUCCEED) {
 					return -1;
 				}
+
 				/* add to the query cache parameters */
 				q->params[i] = *t;
+				param_offset++;
 			} else {
 				return -1;
 			}
 		}
 	}
-	if (mvc_export_warning(out, w) != 1)
+
+
+	c->results = res_table_create(c->session->tr, c->result_id++, q->id, 8, Q_PREPARE, NULL, NULL);
+	if (!c->results ||
+			!res_col_create(c->session->tr, c->results, "prepare", "result_or_param",   "varchar", 0, 0, TYPE_bat, b_inout) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "col_index",         "int",     0, 0, TYPE_bat, b_offset) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "type",              "varchar", 0, 0, TYPE_bat, b_type) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "digits",            "int",     0, 0, TYPE_bat, b_digits) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "scale",             "int",     0, 0, TYPE_bat, b_scale) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "schema",            "varchar", 0, 0, TYPE_bat, b_schema) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "table",             "varchar", 0, 0, TYPE_bat, b_table) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "column",            "varchar", 0, 0, TYPE_bat, b_column)) {
 		return -1;
+	}
+	// all is well we have a result set
 	return 0;
 }
 

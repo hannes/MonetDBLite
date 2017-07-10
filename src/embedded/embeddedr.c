@@ -121,6 +121,7 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 		PutRNGstate();
 		return monetdb_error_R(err);
 	}
+
 	if (output && output->nr_cols > 0) {
 		int i = 0, ncols = output->nr_cols;
 		ssize_t nrows = -1;
@@ -163,21 +164,12 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 			}
 		}
 		SET_ATTR(retlist, install("__rows"), Rf_ScalarReal(nrows));
+		if (prepare_id > 0) {
+			SET_ATTR(retlist, install("__prepare"), Rf_ScalarReal(prepare_id));
+		}
+
 		monetdb_cleanup_result(R_ExternalPtrAddr(connsexp), output);
 		SET_NAMES(retlist, names);
-		/*
-	PROTECT(tmp = mkString("data.frame"));
-    setAttrib(data, R_ClassSymbol, tmp);
-    UNPROTECT(1);
-    if (length(row_names) == nr) {
-	setAttrib(data, R_RowNamesSymbol, row_names);
-
-	PROTECT(row_names = allocVector(INTSXP, 2));
-	INTEGER(row_names)[0] = NA_INTEGER;
-	INTEGER(row_names)[1] = nr;
-	setAttrib(data, R_RowNamesSymbol, row_names);
-	UNPROTECT(1);
-		 */
 		UNPROTECT(ncols * 2 + 2);
 		PutRNGstate();
 		return retlist;

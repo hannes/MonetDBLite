@@ -48,6 +48,8 @@ FILE* embedded_stderr;
 
 void* monetdb_connect(void) {
 	Client conn = NULL;
+	str msg;
+	mvc *m;
 	if (!monetdb_embedded_initialized) {
 		return NULL;
 	}
@@ -58,7 +60,9 @@ void* monetdb_connect(void) {
 	if (SQLinitClient(conn) != MAL_SUCCEED) {
 		return NULL;
 	}
-	((backend *) conn->sqlcontext)->mvc->session->auto_commit = 1;
+	if ((msg = getSQLContext(conn, NULL, &m, NULL)) != MAL_SUCCEED)
+		return msg;
+	m->session->auto_commit = 1;
 
 	return conn;
 }
@@ -236,7 +240,7 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	m->scanner.rs = c->fdin;
 	b->output_format = OFMT_NONE;
 	m->user_id = m->role_id = USER_MONETDB;
-	m->cache = 0;
+	//m->cache = 0;
 	m->errstr[0] = '\0';
 
 	if (result) {
@@ -249,7 +253,7 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 		goto cleanup;
 	}
 
-	if (prepare_id && (m->emode & m_prepare)) {
+	if (prepare_id && m->emode == m_prepare) {
 		*prepare_id = b->q->id;
 	}
 
@@ -305,9 +309,13 @@ char* monetdb_append(void* conn, const char* schema, const char* table, append_d
 	}
 
 	SQLtrans(m);
+	if (!m->sa) { // unclear why this is required
+		m->sa = sa_create();
+	}
 	{
 		sql_rel *rel;
 		node *n;
+
 		list *exps = sa_list(m->sa), *args = sa_list(m->sa), *types = sa_list(m->sa);
 		sql_schema *s = mvc_bind_schema(m, schema);
 		sql_table *t = mvc_bind_table(m, s, table);

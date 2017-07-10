@@ -58,7 +58,9 @@ SQLexecutePrepared(Client c, backend *be, MalBlkPtr mb)
 	int i;
 	str ret;
 	cq *q= be->q;
-
+	if (!mb) {
+		throw(SQL,"sql.prepare","no MAL block");
+	}
 	pci = getInstrPtr(mb, 0);
 	if (pci->argc >= MAXARG){
 		argv = (ValPtr *) GDKmalloc(sizeof(ValPtr) * pci->argc);
