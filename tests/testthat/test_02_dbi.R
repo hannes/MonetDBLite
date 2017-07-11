@@ -406,18 +406,84 @@ test_that("sql errrors get cleaned after borked appends", {
 
 
 test_that("prepared statements work", {
-	res <- dbSendQuery(con, "PREPARE select schemas.id as schema_id, tables.id as tables_id, schemas.name as schema_name, tables.name as table_name from schemas join tables on schemas.id=tables.schema_id WHERE schemas.name LIKE ? and tables.name LIKE ?")
-	expect_true(is.numeric(res@env$resp$prepare))
-	expect_true(res@env$resp$prepare > 0)
+	expect_false(dbExistsTable(con, tname))
+	mtcars_test <- mtcars
+	mtcars_test$model <- row.names(mtcars_test)
+	row.names(mtcars_test) <- NULL
 
-	prepres <- dbFetch(res, -1)
-	expect_true(nrow(prepres) > 0)
-	expect_true(ncol(prepres) > 0)
+	dbWriteTable(con, tname, mtcars_test)
+	expect_true(dbExistsTable(con, tname))
 
-	qq <- paste0("EXEC ", res@env$resp$prepare, "('sys', 'tab__s')")
-	res <- dbGetQuery(con, qq)
-	expect_true(nrow(res) > 0)
+	res <- dbSendQuery(con, "PREPARE select model, cyl from monetdbtest")
+	df <- dbFetch(dbBind(res, list()), -1)
+	expect_equal(df, mtcars_test[,c("model", "cyl")])
+	dbClearResult(res)
+
+	res <- dbSendQuery(con, "PREPARE select model, cyl from monetdbtest where cyl = ?")
+	df <- dbFetch(dbBind(res, list(4)), -1)
+	cmp <- mtcars_test[mtcars_test$cyl == 4,c("model", "cyl")]
+	row.names(cmp) <- NULL
+	expect_equal(df, cmp)
+
+	df <- dbFetch(dbBind(res, list(6L)), -1)
+	cmp <- mtcars_test[mtcars_test$cyl == 6,c("model", "cyl")]
+	row.names(cmp) <- NULL
+	expect_equal(df, cmp)
+	dbClearResult(res)
+
+	res <- dbSendQuery(con, "PREPARE select model, cyl from monetdbtest where model LIKE ?")
+	df <- dbFetch(dbBind(res, list("Merc%")), -1)
+	cmp <- mtcars_test[grepl("Merc.*",mtcars_test$model), c("model", "cyl")]
+	row.names(cmp) <- NULL
+	expect_equal(df, cmp)
+	dbClearResult(res)
+
+	res <- dbSendQuery(con, "PREPARE select model, cyl from monetdbtest where model LIKE ? and cyl=?")
+	df <- dbFetch(dbBind(res, list("Merc%", 8)), -1)
+	cmp <- mtcars_test[grepl("Merc.*",mtcars_test$model) & mtcars_test$cyl == 8, c("model", "cyl")]
+	row.names(cmp) <- NULL
+	expect_equal(df, cmp)
+
+	# wrong number of arguments to dbBind
+	expect_error(dbFetch(dbBind(res, list(42)), -1))
+	dbClearResult(res)
+
+	dbRemoveTable(con, tname)
+	expect_false(dbExistsTable(con, tname))
+
+	dbExecute(con, "CREATE TABLE monetdbtest (a INTEGER, b DOUBLE, c STRING, d BOOLEAN)")
+	expect_true(dbExistsTable(con, tname))
+
+	refdata <- data.frame(a=as.integer(c(84, 42, 12)),
+	  b=c(84.5, 42.5, NA),
+	  c=c("Ford Prefect", "Zaphod Beeblebrox", NA),
+	  d=c(TRUE, FALSE, NA), stringsAsFactors=FALSE)
+
+	res <- dbSendQuery(con, "PREPARE INSERT INTO monetdbtest (a, b, c, d) VALUES (?, ?, ?, ?)")
+	res2 <- dbBind(res, as.list(refdata[1,]))
+	res2 <- dbBind(res, as.list(refdata[2,]))
+	res2 <- dbBind(res, as.list(refdata[3,]))
+	df <- dbReadTable(con, "monetdbtest")
+	expect_equal(df, refdata)
+
+	res <- dbSendQuery(con, "PREPARE UPDATE monetdbtest SET b=?, c=? WHERE a=?")
+	res2 <- dbBind(res, list(13.37, "Arthur Dent", 42))
+	df <- dbReadTable(con, "monetdbtest")
+	refdata[refdata$a == 42, "b"] <- 13.37
+	refdata[refdata$a == 42, "c"] <- "Arthur Dent"
+	expect_equal(df, refdata)
+
+	res <- dbSendQuery(con, "PREPARE DELETE FROM monetdbtest WHERE a=?")
+	res2 <- dbBind(res, list(84))
+	df <- dbReadTable(con, "monetdbtest")
+	refdata2 <- refdata[refdata$a != 84, ]
+	row.names(refdata2) <- 1:nrow(refdata2)
+	expect_equal(df, refdata2)
+
+	dbRemoveTable(con, tname)
+	expect_false(dbExistsTable(con, tname))
 })
+
 
 test_that("we can disconnect", {
 	expect_true(dbIsValid(con))

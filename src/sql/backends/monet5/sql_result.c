@@ -985,8 +985,8 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 	sql_arg *a;
 	sql_subtype *t;
 	sql_rel *r = q->rel;
-	BAT *b_inout   = COLnew(0, TYPE_str, nrows, TRANSIENT);
-	BAT *b_offset  = COLnew(0, TYPE_int, nrows, TRANSIENT);
+	BAT *b_inout  = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	BAT *b_offset = COLnew(0, TYPE_int, nrows, TRANSIENT);
 	BAT *b_type   = COLnew(0, TYPE_str, nrows, TRANSIENT);
 	BAT *b_digits = COLnew(0, TYPE_int, nrows, TRANSIENT);
 	BAT *b_scale  = COLnew(0, TYPE_int, nrows, TRANSIENT);
@@ -1058,7 +1058,6 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 			}
 		}
 	}
-
 
 	c->results = res_table_create(c->session->tr, c->result_id++, q->id, 8, Q_PREPARE, NULL, NULL);
 	if (!c->results ||

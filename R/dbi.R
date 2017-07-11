@@ -856,11 +856,20 @@ setMethod("dbBind", "MonetDBEmbeddedResult", def = function(res, params, ...) {
     if (length(params) != nrow(params_info)) {
       stop("need ", nrow(params_info), " parameters for query")
     }
-    exec_str <- paste0("EXEC ", res@env$resp$prepare, " (", 
-      paste0(vapply(params, function(x) dbQuoteString(res@env$conn, as.character(x)), "character"), collapse=","), ")")
-    dbClearResult(res)
+    quoted_params <- vapply(params, function(x) {
+      if (is.na(x)) "NULL"
+      else if (is.numeric(x) || is.logical(x)) {
+        as.character(x)
+      } else {
+        dbQuoteString(res@env$conn, as.character(x))
+      }
+    }
+    , "character")
+    
+    exec_str <- sprintf("EXEC %d(%s)", res@env$resp$prepare, paste0(quoted_params, collapse=","))
     invisible(dbSendQuery(res@env$conn, exec_str))
 })
+
 
 setMethod("fetch", signature(res="MonetDBResult", n="numeric"), def=function(res, n, ...) {
   dbFetch(res, n, ...)
