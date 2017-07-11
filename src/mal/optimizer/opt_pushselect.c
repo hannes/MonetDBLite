@@ -627,6 +627,7 @@ OPTpushselectImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr 
 		if (old[i])
 			pushInstruction(mb,old[i]);
 	GDKfree(vars);
+	GDKfree(nvars);
 	GDKfree(slices);
 	GDKfree(rslices);
 	GDKfree(old);
