@@ -1002,7 +1002,10 @@ setMethod("dbFetch", signature(res="MonetDBEmbeddedResult", n="numeric"), def=fu
   if (!dbIsValid(res)) {
     stop("Cannot fetch results from closed response.")
   }
-  if (res@env$info$type != Q_TABLE && res@env$info$type != Q_PREPARE) { 
+  if (res@env$info$type == Q_PREPARE) { 
+   stop("Need to bind parameters to prepared statement first")
+  }
+  if (res@env$info$type != Q_TABLE) { 
     warning("trying to fetch from query result without table")
     return(data.frame())
   }
@@ -1070,7 +1073,10 @@ setMethod("dbClearResult", "MonetDBEmbeddedResult", def = function(res, ...) {
 setMethod("dbHasCompleted", "MonetDBResult", def = function(res, ...) {
   if (!res@env$open) {
     stop("result has already been cleared")
-  } 
+  }
+  if (res@env$info$type == Q_PREPARE) {
+    return(FALSE)
+  }
   if (res@env$info$type == Q_TABLE) {
     return(res@env$delivered == res@env$info$rows)
   }
@@ -1123,7 +1129,7 @@ setMethod("dbGetRowCount", "MonetDBResult", def = function(res, ...) {
   if (!res@env$open) {
     stop("result has already been cleared")
   } 
-  if (res@env$info$type != Q_TABLE && res@env$info$type != Q_PREPARE) {
+  if (res@env$info$type != Q_TABLE) {
     return(0L)
   }
   if (res@env$delivered < 1) {
@@ -1141,6 +1147,9 @@ setMethod("dbGetRowsAffected", "MonetDBEmbeddedResult", def = function(res, ...)
   if (!res@env$open) {
     stop("result has already been cleared")
   } 
+  if (res@env$info$type == Q_PREPARE) {
+    return(as.integer(NA))
+  }
   if (res@env$info$type == Q_UPDATE) {
     return(res@env$info$rows)
     } else {
