@@ -57,7 +57,7 @@ addons:
 
 before_deploy:
     # Preparing the RSA key
-    - openssl aes-256-cbc -K $encrypted_e5ce453b448a_key -iv $encrypted_e5ce453b448a_iv -in id_monetdb.enc -out /tmp/id_monetdb -d
+    - openssl aes-256-cbc -K $encrypted_aa4c171103b2_key -iv $encrypted_aa4c171103b2_iv -in id_monetdb.enc -out /tmp/id_monetdb -d
     - eval "$(ssh-agent -s)"
     - chmod 600 /tmp/id_monetdb
     - ssh-add /tmp/id_monetdb
