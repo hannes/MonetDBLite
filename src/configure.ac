@@ -1971,6 +1971,7 @@ for comp in \
 	'atomic_ops   ' \
 	'pthread      ' \
 	'zlib         ' \
+
 ; do
 	eval "org=\$org_have_$comp"
 	eval "have=\$have_$comp"
