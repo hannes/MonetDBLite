@@ -81,6 +81,7 @@ src/embedded/windows/sedscript
 monetdb-java-lite/target/
 monetdb-java-lite/.gradle/
 monetdb-java-lite/build/
+monetdb-java-lite/synchronizing/
 monetdb-java-lite/output/
 monetdb-java-lite/src/main/resources/
 monetdb-java-lite/hs_err_*

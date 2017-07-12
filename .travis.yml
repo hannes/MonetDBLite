@@ -50,13 +50,6 @@ script:
     - mv gradle.properties monetdb-java-lite/
     - cd monetdb-java-lite
     - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_131 && ./gradlew -i build && ./gradlew javadoc && chmod -R 777 build'
-    # Copy the header file for our Downloads section and fix this weird renaming bug
-    - cp ../HEADER.html build/libs
-    # Move the javadocs
-    - mkdir -p build/libs/javadocs/embedded
-    - cp -R build/docs/javadoc/* build/libs/javadocs/embedded/
-    # Move the libraries
-    - mv build/libs/workdir-2.30.jar build/libs/monetdb-java-lite-2.30.jar
     - cd ..
 
 addons:
