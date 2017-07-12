@@ -193,9 +193,6 @@ SEXP monetdb_startup_R(SEXP dbdirsexp, SEXP silentsexp, SEXP sequentialsexp) {
 		error("MonetDBLite already initialized");
 	}
 
-#if defined(WIN32) && !defined(_WIN64)
-	Rf_warning("MonetDBLite running in a 32-Bit Windows. This is not recommended.");
-#endif
 	GetRNGstate();
 	res = monetdb_startup((char*) CHAR(STRING_ELT(dbdirsexp, 0)),
 		LOGICAL(silentsexp)[0], LOGICAL(sequentialsexp)[0]);
@@ -336,6 +333,9 @@ void R_init_libmonetdb5(DllInfo *dll) {
 	monetdb_lib_path = strdup(*((char**) dll)); // not evil at all
 	R_registerRoutines(dll, NULL, R_CallDef, NULL, NULL);
 	R_useDynamicSymbols(dll, FALSE);
+#if defined(WIN32) && !defined(_WIN64)
+	Rf_warning("MonetDBLite running in a 32-Bit Windows. This is not recommended.");
+#endif
 }
 
 
