@@ -45,7 +45,7 @@ script:
     # Assemble everything! Decrypt the necessary files and run gradle
     - cd MonetDBLite
     - openssl aes-256-cbc -K $encrypted_e5ce453b448a_key -iv $encrypted_e5ce453b448a_iv -in secring.gpg.enc -out secring.gpg -d
-    - openssl aes-256-cbc -K $encrypted_e5ce453b448a_key -iv $encrypted_e5ce453b448a_iv -in gradle.properties.enc -out gradle.properties -d
+    - openssl aes-256-cbc -K $encrypted_3eba8b62c709_key -iv $encrypted_3eba8b62c709_iv -in gradle.properties.enc -out gradle.properties -d
     - mv secring.gpg monetdb-java-lite/
     - mv gradle.properties monetdb-java-lite/
     - cd monetdb-java-lite
