@@ -28,8 +28,7 @@ install:
 
 script:
     - jdk_switcher use oraclejdk8
-    # Compile for the 3 operative systems! May the God be with us! We will create 3 distinct directories for each compilation!
-    # We are using Docker containers to protect ourselves from Ubuntu's evil locales! :(
+    # Compile for the 3 operating systems! May the God be with us! We will create 3 distinct directories for each compilation!
     - cd ..
     - cp -rf MonetDBLite MonetDBLiteMacOSX/
     - cp -rf MonetDBLite MonetDBLiteWindows/
@@ -43,9 +42,13 @@ script:
     - cd ..
     - mv MonetDBLiteMacOSX/monetdb-java-lite/src/main/resources/libs/macosx/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
     - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
-    # Assemble everything! Gradle will run tests, so we should still be away of Ubuntu!
-    - cd MonetDBLite/monetdb-java-lite
-    # For now we will skip the tests because of locale problems with the JVM on Travis
+    # Assemble everything! Decrypt the necessary files and run gradle
+    - cd MonetDBLite
+    - openssl aes-256-cbc -K $encrypted_e5ce453b448a_key -iv $encrypted_e5ce453b448a_iv -in secring.gpg.enc -out secring.gpg -d
+    - openssl aes-256-cbc -K $encrypted_e5ce453b448a_key -iv $encrypted_e5ce453b448a_iv -in gradle.properties.enc -out gradle.properties -d
+    - mv secring.gpg monetdb-java-lite/
+    - mv gradle.properties monetdb-java-lite/
+    - cd monetdb-java-lite
     - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_131 && ./gradlew -i build && ./gradlew javadoc && chmod -R 777 build'
     # Copy the header file for our Downloads section and fix this weird renaming bug
     - cp ../HEADER.html build/libs
@@ -53,7 +56,7 @@ script:
     - mkdir -p build/libs/javadocs/embedded
     - cp -R build/docs/javadoc/* build/libs/javadocs/embedded/
     # Move the libraries
-    - mv build/libs/workdir-2.25.jar build/libs/monetdb-java-lite-2.25.jar
+    - mv build/libs/workdir-2.30.jar build/libs/monetdb-java-lite-2.30.jar
     - cd ..
 
 addons:
@@ -69,7 +72,7 @@ before_deploy:
 deploy:
     provider: script
     skip_cleanup: true
-    script: rsync -aqz --ignore-times monetdb-java-lite/build/libs/ ferreira@monetdb.org:/var/www/html/downloads/Java-Experimental/
+    script: ./deploy.sh
     on:
         branch: Jul2017Lite-Java
 

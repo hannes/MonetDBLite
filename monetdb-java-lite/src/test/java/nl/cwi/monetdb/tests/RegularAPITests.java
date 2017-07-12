@@ -10,6 +10,7 @@ package nl.cwi.monetdb.tests;
 
 import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedDatabase;
 import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
+import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedPreparedStatement;
 import nl.cwi.monetdb.embedded.mapping.MonetDBRow;
 import nl.cwi.monetdb.embedded.mapping.NullMappings;
 import nl.cwi.monetdb.embedded.resultset.QueryResultSet;
@@ -678,6 +679,57 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
 
         int rows6 = connection.executeUpdate("DROP TABLE testupdates;");
         Assertions.assertEquals(-2, rows6, "The deletion should have affected no rows!");
+    }
+
+    @Test
+    @DisplayName("Test prepared statement in the regular API")
+    void testPreparedStatements() throws MonetDBEmbeddedException {
+        connection.executeUpdate("CREATE TABLE testPrepared (a int, b clob);");
+
+        MonetDBEmbeddedPreparedStatement statement1 = connection.prepareStatement("INSERT INTO testPrepared VALUES (?, ?);");
+        statement1.setInt(1, 12);
+        statement1.setString(2, "lekker");
+        Assertions.assertEquals(1, statement1.executeUpdate(), "The insertion should have affected one row!");
+
+        Assertions.assertThrows(MonetDBEmbeddedException.class, statement1::executeQuery);
+
+        statement1.setInt(1, 13);
+        statement1.setString(2, "smullen");
+        Assertions.assertFalse(statement1.execute(), "It should have returned false!");
+
+        statement1.setInt(1, 14);
+        statement1.setString(2, "heerlijk");
+        statement1.executeAndIgnore();
+
+        statement1.close();
+
+        MonetDBEmbeddedPreparedStatement statement2 = connection.prepareStatement("SELECT * FROM testPrepared WHERE a=?;");
+        statement2.setInt(1, 13);
+
+        QueryResultSet qrs = statement2.executeQuery();
+        Assertions.assertEquals(1, qrs.getNumberOfRows(), "The result set should have returned one row!");
+        Assertions.assertEquals("smullen", qrs.getStringByColumnIndexAndRow(2, 1), "The string value is not the inserted one!");
+        qrs.close();
+
+        Assertions.assertThrows(MonetDBEmbeddedException.class, statement2::executeUpdate);
+
+        statement2.setInt(1, 13);
+        Assertions.assertTrue(statement2.execute(), "It should have returned true!");
+
+        statement2.setInt(1, 14);
+        statement2.executeAndIgnore();
+
+        statement2.close();
+
+        MonetDBEmbeddedPreparedStatement statement3 = connection.prepareStatement("SELECT * FROM testPrepared WHERE 1=0;");
+        Assertions.assertThrows(MonetDBEmbeddedException.class, () -> statement3.setInt(1, 50));
+
+        QueryResultSet qrs2 = statement3.executeQuery();
+        Assertions.assertEquals(0, qrs2.getNumberOfRows(), "The result set should have no rows!");
+        qrs2.close();
+        statement3.close();
+
+        connection.executeUpdate("DROP TABLE testPrepared;");
     }
 
     @Test

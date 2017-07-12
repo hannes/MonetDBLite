@@ -238,6 +238,50 @@ public class MonetDBEmbeddedConnection implements Closeable {
     }
 
     /**
+     * Starts a prepared statement.
+     *
+     * @param query The SQL query string
+     * @return A prepared statement object where the user will set the parameters
+     * @throws MonetDBEmbeddedException If an error in the database occurred
+     * @since 2.30
+     */
+    public MonetDBEmbeddedPreparedStatement prepareStatement(String query) throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
+        if (!query.endsWith(";")) {
+            query += ";";
+        }
+        PreparedQueryResultSet res = this.prepareStatementInternal(this.connectionPointer, "PREPARE " + query,
+                true);
+        results.put(res.getRandomIdentifier(), res);
+        return new MonetDBEmbeddedPreparedStatement(this, res);
+    }
+
+    /**
+     * Executes a prepared statement.
+     *
+     * @param query The SQL query string
+     * @return The boolean indicating if the query is a result set or not
+     * @throws MonetDBEmbeddedException If an error in the database occurred
+     * @since 2.30
+     */
+    ExecResultSet executePrepareStatement(String query) throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
+        return this.executePrepareStatementInternal(this.connectionPointer, query, true);
+    }
+
+    /**
+     * Executes a prepared statement, without returning the result.
+     *
+     * @param query The SQL query string
+     * @throws MonetDBEmbeddedException If an error in the database occurred
+     * @since 2.30
+     */
+    void executePreparedStatementAndIgnore(String query) throws MonetDBEmbeddedException {
+        this.checkConnectionIsNotClosed();
+        this.executePrepareStatementAndIgnoreInternal(this.connectionPointer, query, true);
+    }
+
+    /**
      * Retrieves a database table for further operations on it such as appending data.
      *
      * @param schemaName The schema of the table
@@ -388,6 +432,24 @@ public class MonetDBEmbeddedConnection implements Closeable {
      */
     private native QueryResultSet sendQueryInternal(long connectionPointer, String query, boolean execute)
             throws MonetDBEmbeddedException;
+
+    /**
+     * Internal implementation of prepareStatement.
+     */
+    private native PreparedQueryResultSet prepareStatementInternal(long connectionPointer, String query,
+                                                                   boolean execute) throws MonetDBEmbeddedException;
+
+    /**
+     * Internal implementation of a prepared statement execution.
+     */
+    private native ExecResultSet executePrepareStatementInternal(long connectionPointer, String query,
+                                                                 boolean execute) throws MonetDBEmbeddedException;
+
+    /**
+     * Internal implementation of a prepared statement execution without allocations.
+     */
+    private native void executePrepareStatementAndIgnoreInternal(long connectionPointer, String query,
+                                                                 boolean execute) throws MonetDBEmbeddedException;
 
     /**
      * Internal implementation of getMonetDBTable.

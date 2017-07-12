@@ -14,32 +14,56 @@ serialize and deserialize data, making the connection much faster :)
 The existing JDBC driver for MonetDB was extended to accommodate both a MAPI (regular socket connection) and an embedded
 connection, while aiming at the simplicity of the integration of both connections.
 
-## JNI C code
-
-MonetDBJavaLite is heavily based and dependent on the generic one (i.e MonetDBLite). To interface Java with C it uses
-JNI. JNI code comes with two complementing parts - Java and native C code. In the Java code it is declared as a function
-`native`, which indicates that it is actually implemented in C. Later the implementation is written inside the native
-library. This is where it's called the embedded C-level interface function from the Java code.
-
 ## Delivery and Installation
-
-> The current version of MonetDBJavaLite is 2.25
 
 There are two jars distributed: The new MonetDB JDBC driver jar (`monetdb-jdbc-new-<version>.jar`), and the
 MonetDBJavaLite jar (`monetdb-java-lite-<version>.jar`). The former can be used independently, if only MAPI JDBC
 connections are desired. The latter contains the embedded server code. For both the Embedded API and the Embedded JDBC
 connections, the second jar is also required in the `CLASSPATH`.
 
+> The current version for both `monetdb-jdbc-new` and `monetdb-java-lite` is 2.30 
+
+> **IMPORTANT** The version of the JDBC driver for MonetDBJavaLite is not synced with the version of the original
+MonetDB JDBC driver.
+
 The **`monetdb-jdbc-new-<version>.jar` is still compatible with JVM 7**, however the **`monetdb-java-lite-<version>.jar`
 requires JVM 8 to run**, as we found problems running in the JVM 8 when we compiled to target JVM 7
 (the problem might be related to the JVM rather than us). Currently the **`monetdb-java-lite-<version>.jar`
 only supports 64-bit architectures**.
 
-The `monetdb-jdbc-new-<version>.jar` is both CPU and Operating System independent. ON the other hand, the
+The `monetdb-jdbc-new-<version>.jar` is both CPU and Operating System independent. On the other hand, the
 `monetdb-java-lite-<version>.jar` contains the JNI code for 64-bit Linux, Windows and MacOS X.
 
-As this software is still experimental, we haven't made it available in a public Maven repository yet. Both jars can be
-obtained through the Download section of our [website](https://www.monetdb.org/downloads/Java-Experimental/). 
+Both jars can be obtained through the download section of our 
+[website](https://www.monetdb.org/downloads/Java-Experimental/).
+
+Starting on version `2.30`, both jars can be obtained
+from the Maven Central repository. Note that `monetdb-java-lite` depends on `monetdb-jdbc-new`, so only the second one
+is required to list in the project's dependencies.
+
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/monetdb/monetdb-jdbc-new/badge.svg)](https://maven-badges.herokuapp.com/maven-central/monetdb/monetdb-jdbc-new)
+```xml
+<dependency>
+  <groupId>monetdb</groupId>
+  <artifactId>monetdb-jdbc-new</artifactId>
+  <version>2.30</version>
+</dependency>
+```
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/monetdb/monetdb-java-lite/badge.svg)](https://maven-badges.herokuapp.com/maven-central/monetdb/monetdb-java-lite)
+```xml
+<dependency>
+  <groupId>monetdb</groupId>
+  <artifactId>monetdb-java-lite</artifactId>
+  <version>2.30</version>
+</dependency>
+```
+
+## JNI C code
+
+MonetDBJavaLite is heavily based and dependent on the generic one (i.e MonetDBLite). To interface Java with C it uses
+JNI. JNI code comes with two complementing parts - Java and native C code. In the Java code it is declared as a function
+`native`, which indicates that it is actually implemented in C. Later the implementation is written inside the native
+library. This is where it's called the embedded C-level interface function from the Java code.
 
 ## Libraries
 
@@ -232,6 +256,33 @@ for (MonetDBRow singleRow : arrayRep) {
 
 qrs.close(); //don't forget ;)
 ```
+
+### Prepared statements
+
+Since version `2.30` is possible to use regular
+[JDBC Prepared Statements](https://docs.oracle.com/javase/8/docs/api/java/sql/PreparedStatement.html) in the Embedded
+API. The API is similar to the JDBC one, but just by taking the most important methods, which are implemented by
+MonetDB's JDBC driver. 
+
+```java
+connection.executeUpdate("CREATE TABLE testPrepared (oneValue int, information clob);");
+MonetDBEmbeddedPreparedStatement statement1 = connection.prepareStatement("INSERT INTO testPrepared VALUES (?, ?);");
+statement1.setInt(1, 12);
+statement1.setString(2, "lekker");
+int numberOfRowsAffected = statement1.executeUpdate();
+//... do something with numberOfRowsAffected
+statement1.close(); //don't forget ;)
+
+MonetDBEmbeddedPreparedStatement statement2 = connection.prepareStatement("SELECT * FROM testPrepared WHERE oneValue=?;");
+statement2.setInt(1, 12);
+QueryResultSet qrs = statement2.executeQuery();
+//... do something with the result set
+qrs.close();
+statement2.close(); //don't forget ;)
+```
+
+If you prefer to ignore the result of execution of the prepared statement you can use the `void executeAndIgnore()`
+method, which ignores the results (but eventual Exceptions) by not allocating resources for them.
 
 ### Utilities methods
 

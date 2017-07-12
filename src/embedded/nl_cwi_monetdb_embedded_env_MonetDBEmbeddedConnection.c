@@ -31,66 +31,42 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnectio
     setAutocommitFlag((Client) connectionPointer, toSet);
 }
 
-JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_sendUpdateInternal
-    (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring query, jboolean execute) {
-    res_table *output = NULL;
-    lng lastId, rowCount;
-    jint returnValue = -1;
-    int query_type;
-    const char *query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
-    char *err;
-    (void) jconnection;
+static int executeQuery(JNIEnv *env, jlong connectionPointer, jstring query, jboolean execute, res_table **output,
+                        int *query_type, lng *lastId, lng *rowCount, lng *prepareID) {
+    const char *query_string_tmp;
+    char* err;
 
+    if(connectionPointer == 0) {
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "Connection already closed?");
+        return 1;
+    }
+    query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
+    if(query_string_tmp == NULL) {
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
+        return 2;
+    }
     // Execute the query
-    err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output, &query_type, &lastId, &rowCount, NULL);
+    err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) output, query_type, lastId, rowCount, prepareID);
     (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
-    monetdb_cleanup_result((Client) connectionPointer, output);
     if (err) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
-        return -1;
+        GDKfree(err);
+        return 3;
     }
-    if(query_type == Q_UPDATE) {
-        returnValue = (jint) rowCount;
-    } else if(query_type == Q_SCHEMA) {
-        returnValue = -2;
-    }
-    return returnValue;
+    return 0;
 }
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_sendQueryInternal
-    (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring query, jboolean execute) {
+static jobject generateQueryResultSet(JNIEnv *env, jobject jconnection, jlong connectionPointer, res_table *output, int query_type, lng prepareID) {
     int i, numberOfColumns, numberOfRows;
-    const char *query_string_tmp;
-    char *err = NULL, *nextSQLName;
-    res_table *output = NULL;
+    char *nextSQLName;
     jobject result;
     jintArray typesIDs;
     jint* copy;
     JResultSet* thisResultSet;
     res_col col;
 
-    if(connectionPointer == 0) {
-       (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "Connection already closed?");
-       return NULL;
-    }
-
-    query_string_tmp = (*env)->GetStringUTFChars(env, query, NULL);
-    if(query_string_tmp == NULL) {
-        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "System out of memory!");
-        return NULL;
-    }
-
-    //execute the query
-    err = monetdb_query((Client) connectionPointer, (char*) query_string_tmp, (char) execute, (void**) &output, NULL, NULL, NULL, NULL);
-    (*env)->ReleaseStringUTFChars(env, query, query_string_tmp);
-    if (err) {
-        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), err);
-        GDKfree(err);
-        monetdb_cleanup_result((Client) connectionPointer, output);
-        return NULL;
-    }
     // Check if we had results, otherwise we send an exception
-    if (output && output->nr_cols > 0) {
+    if (output && (query_type == Q_TABLE || query_type == Q_PREPARE || query_type == Q_BLOCK) && output->nr_cols > 0) {
         numberOfColumns = output->nr_cols;
     } else {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "There query returned no results?");
@@ -98,7 +74,6 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
         return NULL;
     }
 
-    //QueryResultSetMonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns, int numberOfRows, int[] typesIDs)
     copy = GDKmalloc(sizeof(jint) * numberOfColumns);
     thisResultSet = createResultSet((Client) connectionPointer, output);
     if(thisResultSet == NULL || copy == NULL) {
@@ -146,11 +121,108 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
     } else {
         numberOfRows = BATcount(thisResultSet->bats[0]);
         (*env)->SetIntArrayRegion(env, typesIDs, 0, numberOfColumns, copy);
-        result = (*env)->NewObject(env, getQueryResultSetID(), getQueryResultSetConstructorID(), jconnection,
-                                   (jlong) thisResultSet, numberOfColumns, numberOfRows, typesIDs);
+        if(prepareID) {
+            //public PreparedQueryResultSet(MonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns, int numberOfRows, int[] typesIDs, long preparedID)
+            result = (*env)->NewObject(env, getPreparedQueryResultSetClassID(), getPreparedQueryResultSetClassConstructorID(), jconnection,
+                                       (jlong) thisResultSet, numberOfColumns, numberOfRows, typesIDs, (jlong) prepareID);
+        } else {
+            //QueryResultSet(MonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns, int numberOfRows, int[] typesIDs)
+            result = (*env)->NewObject(env, getQueryResultSetID(), getQueryResultSetConstructorID(), jconnection,
+                                       (jlong) thisResultSet, numberOfColumns, numberOfRows, typesIDs);
+        }
     }
     GDKfree(copy);
     return result;
+}
+
+JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_sendUpdateInternal
+    (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring query, jboolean execute) {
+    res_table *output = NULL;
+    lng rowCount;
+    jint returnValue = -1;
+    int query_type, res;
+
+    (void) jconnection;
+    res = executeQuery(env, connectionPointer, query, execute, &output, &query_type, NULL, &rowCount, NULL);
+    monetdb_cleanup_result((Client) connectionPointer, output);
+    if(res) {
+        return returnValue;
+    } else if(query_type == Q_UPDATE) {
+        returnValue = (jint) rowCount;
+    } else if(query_type == Q_SCHEMA) {
+        returnValue = -2;
+    }
+    return returnValue;
+}
+
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_sendQueryInternal
+    (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring query, jboolean execute) {
+    int query_type, res;
+    res_table *output = NULL;
+
+    res = executeQuery(env, connectionPointer, query, execute, &output, &query_type, NULL, NULL, NULL);
+    if(res) {
+        return NULL;
+    } else if(query_type != Q_TABLE && query_type != Q_BLOCK) {
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The query did not produce a result set!");
+        monetdb_cleanup_result((Client) connectionPointer, output);
+        return NULL;
+    } else {
+        return generateQueryResultSet(env, jconnection, connectionPointer, output, query_type, 0);
+    }
+}
+
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_prepareStatementInternal
+    (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring query, jboolean execute) {
+    int query_type, res;
+    res_table *output = NULL;
+    lng prepareID;
+
+    res = executeQuery(env, connectionPointer, query, execute, &output, &query_type, NULL, NULL, &prepareID);
+    if(res) {
+        return NULL;
+    } else if(query_type != Q_PREPARE) {
+        (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The query not produce a prepared statement!");
+        monetdb_cleanup_result((Client) connectionPointer, output);
+        return NULL;
+    } else {
+        return generateQueryResultSet(env, jconnection, connectionPointer, output, query_type, prepareID);
+    }
+}
+
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_executePrepareStatementInternal
+    (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring query, jboolean execute) {
+    int query_type, res;
+    lng rowCount;
+    res_table *output = NULL;
+    jobject resultSet = NULL;
+    jint returnValue = -1;
+    jboolean retStatus = JNI_FALSE;
+
+    res = executeQuery(env, connectionPointer, query, execute, &output, &query_type, NULL, &rowCount, NULL);
+    if(res) {
+        return NULL;
+    } else if(query_type == Q_TABLE || query_type == Q_BLOCK || query_type == Q_PREPARE) {
+        retStatus = JNI_TRUE;
+        resultSet = generateQueryResultSet(env, jconnection, connectionPointer, output, query_type, 0);
+    } else {
+        if(query_type == Q_UPDATE) {
+            returnValue = (jint) rowCount;
+        } else if(query_type == Q_SCHEMA) {
+            returnValue = -2;
+        }
+        monetdb_cleanup_result((Client) connectionPointer, output);
+    }
+    //public ExecResultSet(boolean status, QueryResultSet resultSet, int numberOfRows)
+    return (*env)->NewObject(env, getExecResultSetClassID(), getExecResultSetClassConstructorID(), retStatus, resultSet, returnValue);
+}
+
+JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_executePrepareStatementAndIgnoreInternal
+    (JNIEnv *env, jobject jconnection, jlong connectionPointer, jstring query, jboolean execute) {
+    res_table *output = NULL;
+    (void) jconnection;
+    (void) executeQuery(env, connectionPointer, query, execute, &output, NULL, NULL, NULL, NULL);
+    monetdb_cleanup_result((Client) connectionPointer, output);
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_getMonetDBTableInternal

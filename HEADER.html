@@ -29,7 +29,7 @@ connection, while aiming at the simplicity of the integration of both connection
 <h2 id="deliveryandinstallation">Delivery and Installation</h2>
 
 <blockquote>
-  <p>The current version of MonetDBJavaLite is 2.25</p>
+  <p>The current version of MonetDBJavaLite is 2.30</p>
 </blockquote>
 
 <p>There are two jars distributed: The new MonetDB JDBC driver jar (<code>monetdb-jdbc-new-&lt;version&gt;.jar</code>), and the
@@ -45,8 +45,28 @@ only supports 64-bit architectures</strong>.</p>
 <p>The <code>monetdb-jdbc-new-&lt;version&gt;.jar</code> is both CPU and Operating System independent. ON the other hand, the
   <code>monetdb-java-lite-&lt;version&gt;.jar</code> contains the JNI code for 64-bit Linux, Windows and MacOS X.</p>
 
-<p>As this software is still experimental, we haven't made it available in a public Maven repository yet. Both jars can be
-obtained through the Download section of our <a href="https://www.monetdb.org/downloads/Java-Experimental/">website</a>. </p>
+<p>Both jars can be obtained through the download section of our section of our
+  <a href="https://www.monetdb.org/downloads/Java-Experimental/">website</a>. </p>
+
+<p>Starting on version <code>2.30</code>, both jars can be obtained from the Maven Central repository. Note that
+  <code>monetdb-java-lite</code> depends on <code>monetdb-jdbc-new</code>, so only the second one is required to list in
+  the project's dependencies.
+
+<pre>
+&lt;dependency&gt;
+  &lt;groupId&gt;monetdb&lt;/groupId&gt;
+  &lt;artifactId&gt;monetdb-jdbc-new&lt;/artifactId&gt;
+  &lt;version&gt;2.30&lt;/version&gt;
+&lt;/dependency&gt;
+</pre>
+<pre>
+&lt;dependency&gt;
+  &lt;groupId>monetdb&lt;/groupId&gt;
+  &lt;artifactId>monetdb-java-lite&lt;/artifactId&gt;
+  &lt;version&gt;2.30&lt;/version&gt;
+&lt;/dependency&gt;
+</pre>
+</p>
 
 <h2 id="libraries">Libraries</h2>
 

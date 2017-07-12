@@ -21,6 +21,10 @@ static jmethodID jDBCDBEmbeddedConnectionConstructorID;
 
 static jclass queryResultSetID;
 static jmethodID queryResultSetConstructorID;
+static jclass preparedQueryResultSetClassID;
+static jmethodID preparedQueryResultSetClassConstructorID;
+static jclass execResultSetClassID;
+static jmethodID execResultSetClassConstructorID;
 static jclass monetDBTableClassID;
 static jmethodID monetDBTableClassConstructorID;
 
@@ -141,6 +145,20 @@ void initializeIDS(JNIEnv *env) {
     queryResultSetConstructorID = (*env)->GetMethodID(env, queryResultSetID, "<init>", "(Lnl/cwi/monetdb/embedded/env/MonetDBEmbeddedConnection;JII[I)V");
 
     connectionResultPointerID = (*env)->GetFieldID(env, queryResultSetID, "structPointer", "J");
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "nl/cwi/monetdb/embedded/resultset/PreparedQueryResultSet");
+    preparedQueryResultSetClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    //public PreparedQueryResultSet(MonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns, int numberOfRows, int[] typesIDs, long preparedID)
+    preparedQueryResultSetClassConstructorID = (*env)->GetMethodID(env, preparedQueryResultSetClassID, "<init>", "(Lnl/cwi/monetdb/embedded/env/MonetDBEmbeddedConnection;JII[IJ)V");
+
+    tempLocalRef = (jobject) (*env)->FindClass(env, "nl/cwi/monetdb/embedded/resultset/ExecResultSet");
+    execResultSetClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
+    (*env)->DeleteLocalRef(env, tempLocalRef);
+
+    //public ExecResultSet(boolean status, QueryResultSet resultSet, int numberOfRows)
+    execResultSetClassConstructorID = (*env)->GetMethodID(env, execResultSetClassID, "<init>", "(ZLnl/cwi/monetdb/embedded/resultset/QueryResultSet;I)V");
 
     tempLocalRef = (jobject) (*env)->FindClass(env, "nl/cwi/monetdb/embedded/tables/MonetDBTable");
     monetDBTableClassID = (jclass) (*env)->NewGlobalRef(env, tempLocalRef);
@@ -335,6 +353,8 @@ void releaseIDS(JNIEnv *env) {
     (*env)->DeleteGlobalRef(env, monetDBEmbeddedConnectionClassID);
     (*env)->DeleteGlobalRef(env, jDBCEmbeddedConnectionClassID);
     (*env)->DeleteGlobalRef(env, queryResultSetID);
+    (*env)->DeleteGlobalRef(env, preparedQueryResultSetClassID);
+    (*env)->DeleteGlobalRef(env, execResultSetClassID);
     (*env)->DeleteGlobalRef(env, monetDBTableClassID);
 
     /* Java MonetDB mappings classes */
@@ -408,6 +428,22 @@ jclass getQueryResultSetID(void) {
 
 jmethodID getQueryResultSetConstructorID(void) {
     return queryResultSetConstructorID;
+}
+
+jclass getPreparedQueryResultSetClassID(void) {
+    return preparedQueryResultSetClassID;
+}
+
+jmethodID getPreparedQueryResultSetClassConstructorID(void) {
+    return preparedQueryResultSetClassConstructorID;
+}
+
+jclass getExecResultSetClassID(void) {
+    return execResultSetClassID;
+}
+
+jmethodID getExecResultSetClassConstructorID(void) {
+    return execResultSetClassConstructorID;
 }
 
 jclass getMonetDBTableClassID(void) {

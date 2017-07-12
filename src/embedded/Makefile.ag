@@ -50,6 +50,7 @@ lib_embeddedjava  = {
 			nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection.c nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection.h \
 			nl_cwi_monetdb_embedded_mapping_NullMappings.c nl_cwi_monetdb_embedded_mapping_NullMappings.h \
 			nl_cwi_monetdb_embedded_resultset_QueryResultSet.c nl_cwi_monetdb_embedded_resultset_QueryResultSet.h \
+			nl_cwi_monetdb_embedded_env_MonetDBEmbeddedPreparedStatement.c nl_cwi_monetdb_embedded_env_MonetDBEmbeddedPreparedStatement.h \
 			nl_cwi_monetdb_embedded_tables_MonetDBTable.c nl_cwi_monetdb_embedded_tables_MonetDBTable.h
 
 	VERSION = 1

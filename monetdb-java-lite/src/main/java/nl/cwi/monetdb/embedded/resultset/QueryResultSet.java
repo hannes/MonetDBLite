@@ -28,7 +28,7 @@ import java.util.ListIterator;
  *
  * @author <a href="mailto:pedro.ferreira@monetdbsolutions.com">Pedro Ferreira</a>
  */
-public strictfp final class QueryResultSet extends AbstractConnectionResult implements Iterable {
+public strictfp class QueryResultSet extends AbstractConnectionResult implements Iterable {
 
     /**
      * Get the string representation of a typesID
@@ -84,8 +84,8 @@ public strictfp final class QueryResultSet extends AbstractConnectionResult impl
     /** For debugging only */
     private int[] typesIDs;
 
-    private QueryResultSet(MonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns,
-                           int numberOfRows, int[] typesIDs) {
+    QueryResultSet(MonetDBEmbeddedConnection connection, long structPointer, int numberOfColumns, int numberOfRows,
+                   int[] typesIDs) {
         super(connection);
         this.structPointer = structPointer;
         this.numberOfColumns = numberOfColumns;

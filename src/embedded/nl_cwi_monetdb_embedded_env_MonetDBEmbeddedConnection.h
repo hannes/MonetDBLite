@@ -41,6 +41,30 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnec
 
 /*
  * Class:     nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection
+ * Method:    prepareStatementInternal
+ * Signature: (JLjava/lang/String;Z)Lnl/cwi/monetdb/embedded/resultset/PreparedQueryResultSet;
+ */
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_prepareStatementInternal
+  (JNIEnv *, jobject, jlong, jstring, jboolean);
+
+/*
+ * Class:     nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection
+ * Method:    executePrepareStatementInternal
+ * Signature: (JLjava/lang/String;Z)Lnl/cwi/monetdb/embedded/resultset/ExecResultSet;
+ */
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_executePrepareStatementInternal
+  (JNIEnv *, jobject, jlong, jstring, jboolean);
+
+/*
+ * Class:     nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection
+ * Method:    executePrepareStatementAndIgnoreInternal
+ * Signature: (JLjava/lang/String;Z)V
+ */
+JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection_executePrepareStatementAndIgnoreInternal
+  (JNIEnv *, jobject, jlong, jstring, jboolean);
+
+/*
+ * Class:     nl_cwi_monetdb_embedded_env_MonetDBEmbeddedConnection
  * Method:    getMonetDBTableInternal
  * Signature: (JLjava/lang/String;Ljava/lang/String;)Lnl/cwi/monetdb/embedded/tables/MonetDBTable;
  */
