@@ -14,6 +14,9 @@ addons:
         packages:
             - oracle-java8-installer
 
+addons:
+    ssh_known_hosts: monetdb.org
+
 services:
     - docker
 
@@ -44,30 +47,28 @@ script:
     - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
     # Assemble everything! Decrypt the necessary files and run gradle
     - cd MonetDBLite
-    - openssl aes-256-cbc -K $encrypted_e5ce453b448a_key -iv $encrypted_e5ce453b448a_iv -in secring.gpg.enc -out secring.gpg -d
-    - openssl aes-256-cbc -K $encrypted_3eba8b62c709_key -iv $encrypted_3eba8b62c709_iv -in gradle.properties.enc -out gradle.properties -d
-    - mv secring.gpg monetdb-java-lite/
-    - mv gradle.properties monetdb-java-lite/
+    - openssl aes-256-cbc -K $encrypted_e5ce453b448a_key -iv $encrypted_e5ce453b448a_iv -in secring.gpg.enc -out monetdb-java-lite/secring.gpg -d
+    - openssl aes-256-cbc -K $encrypted_3eba8b62c709_key -iv $encrypted_3eba8b62c709_iv -in gradle.properties.enc -out monetdb-java-lite/gradle.properties -d
+    - openssl aes-256-cbc -K $encrypted_aa4c171103b2_key -iv $encrypted_aa4c171103b2_iv -in id_monetdb.enc -out /tmp/id_monetdb -d
     - cd monetdb-java-lite
     - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_131 && ./gradlew -i build && ./gradlew javadoc && chmod -R 777 build'
-    - cd ..
-
-addons:
-    ssh_known_hosts: monetdb.org
-
-before_deploy:
-    # Preparing the RSA key
-    - openssl aes-256-cbc -K $encrypted_aa4c171103b2_key -iv $encrypted_aa4c171103b2_iv -in id_monetdb.enc -out /tmp/id_monetdb -d
+    # Upload to the Maven Central Repository -- but due to bugs in Gradle we are doing it manually
+    # ./gradlew uploadArchives
+    # Update the website downloads directory
     - eval "$(ssh-agent -s)"
     - chmod 600 /tmp/id_monetdb
     - ssh-add /tmp/id_monetdb
-
-deploy:
-    provider: script
-    skip_cleanup: true
-    script: scripts/deploy.sh
-    on:
-        branch: Jul2017Lite-Java
+    - mkdir -p synchronizing/javadocs/embedded
+    # Move the header file for our Downloads section
+    - mv ../HEADER.html synchronizing
+    # Move the javadocs
+    - mv build/docs/javadoc/* synchronizing/javadocs/embedded/
+    # Download the monetdb-jdbc-new jar
+    - curl https://search.maven.org/remotecontent?filepath=monetdb/monetdb-jdbc-new/2.30/monetdb-jdbc-new-2.30.jar --output synchronizing/monetdb-jdbc-new-2.30.jar
+    # Move the monetdb-java-lite jar
+    - mv build/libs/monetdb-java-lite-2.30.jar synchronizing
+    # Rsync the library files to the monet.org machine
+    - rsync -aqz --ignore-times synchronizing/* ferreira@monetdb.org:/var/www/html/downloads/Java-Experimental/
 
 notifications:
     email:
