@@ -23,7 +23,7 @@ before_install:
     - sudo apt-get install -qq -y realpath coreutils
 
 install:
-    # Disable default "./gradlew assemble" command.
+    # Disable default "./gradlew assemble" command
     - true
 
 script:
