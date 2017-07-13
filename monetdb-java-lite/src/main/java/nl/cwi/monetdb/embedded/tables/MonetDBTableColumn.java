@@ -8,6 +8,7 @@
 
 package nl.cwi.monetdb.embedded.tables;
 
+import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
 import nl.cwi.monetdb.embedded.mapping.AbstractColumn;
 
 /**
@@ -28,7 +29,7 @@ public final class MonetDBTableColumn extends AbstractColumn {
     private final boolean isNullable;
 
     protected MonetDBTableColumn(String columnType, String columnName, int columnDigits, int columnScale,
-                                 String defaultValue, boolean isNullable) {
+                                 String defaultValue, boolean isNullable) throws MonetDBEmbeddedException {
         super(columnType, columnName, columnDigits, columnScale);
         this.defaultValue = defaultValue;
         this.isNullable = isNullable;

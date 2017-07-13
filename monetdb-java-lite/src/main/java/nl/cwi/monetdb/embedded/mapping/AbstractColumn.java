@@ -8,6 +8,8 @@
 
 package nl.cwi.monetdb.embedded.mapping;
 
+import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
+
 /**
  * A single Java representation of a MonetDB column.
  *
@@ -35,7 +37,8 @@ public abstract class AbstractColumn {
      */
     private final int columnScale;
 
-    protected AbstractColumn(String columnType, String columnName, int columnDigits, int columnScale) {
+    protected AbstractColumn(String columnType, String columnName, int columnDigits, int columnScale)
+            throws MonetDBEmbeddedException {
         this.mapping = MonetDBToJavaMapping.getJavaMappingFromMonetDBString(columnType);
         this.columnName = columnName;
         this.columnDigits = columnDigits;

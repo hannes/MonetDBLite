@@ -7,6 +7,7 @@ import nl.cwi.monetdb.embedded.resultset.QueryResultSet;
 import nl.cwi.monetdb.jdbc.MonetWrapper;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.sql.*;
@@ -392,15 +393,15 @@ public final class MonetDBEmbeddedPreparedStatement extends AbstractConnectionRe
     }
 
     /**
-     * Sets the designated parameter to the given Java boolean value. The driver converts this to an SQL BIT value when
-     * it sends it to the database.
+     * Sets the designated parameter to the given Java boolean value. The driver converts this to an SQL BOOLEAN value
+     * when it sends it to the database.
      *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the parameter value
      * @throws MonetDBEmbeddedException if a database access error occurs
      */
     public void setBoolean(int parameterIndex, boolean x) throws MonetDBEmbeddedException {
-        setValue(parameterIndex, "" + x);
+        setValue(parameterIndex, Boolean.toString(x));
     }
 
     /**
@@ -412,7 +413,7 @@ public final class MonetDBEmbeddedPreparedStatement extends AbstractConnectionRe
      * @throws MonetDBEmbeddedException if a database access error occurs
      */
     public void setByte(int parameterIndex, byte x) throws MonetDBEmbeddedException {
-        setValue(parameterIndex, "" + x);
+        setValue(parameterIndex, Byte.toString(x));
     }
 
     private static final String HEXES = "0123456789ABCDEF";
@@ -511,7 +512,7 @@ public final class MonetDBEmbeddedPreparedStatement extends AbstractConnectionRe
      * @throws MonetDBEmbeddedException if a database access error occurs
      */
     public void setDouble(int parameterIndex, double x) throws MonetDBEmbeddedException {
-        setValue(parameterIndex, "" + x);
+        setValue(parameterIndex, Double.toString(x));
     }
 
     /**
@@ -523,7 +524,7 @@ public final class MonetDBEmbeddedPreparedStatement extends AbstractConnectionRe
      * @throws MonetDBEmbeddedException if a database access error occurs
      */
     public void setFloat(int parameterIndex, float x) throws MonetDBEmbeddedException {
-        setValue(parameterIndex, "" + x);
+        setValue(parameterIndex, Float.toString(x));
     }
 
     /**
@@ -535,7 +536,7 @@ public final class MonetDBEmbeddedPreparedStatement extends AbstractConnectionRe
      * @throws MonetDBEmbeddedException if a database access error occurs
      */
     public void setInt(int parameterIndex, int x) throws MonetDBEmbeddedException {
-        setValue(parameterIndex, "" + x);
+        setValue(parameterIndex, Integer.toString(x));
     }
 
     /**
@@ -547,7 +548,362 @@ public final class MonetDBEmbeddedPreparedStatement extends AbstractConnectionRe
      * @throws MonetDBEmbeddedException if a database access error occurs
      */
     public void setLong(int parameterIndex, long x) throws MonetDBEmbeddedException {
-        setValue(parameterIndex, "" + x);
+        setValue(parameterIndex, Long.toString(x));
+    }
+
+    /**
+     * Sets the value of the designated parameter using the given object.  The second parameter must be of type Object;
+     * therefore, the java.lang equivalent objects should be used for built-in types.
+     *
+     * This method throws an exception if there is an ambiguity, for example, if the object is of a class implementing
+     * more than one of the interfaces named above.
+     *
+     * @param index the first parameter is 1, the second is 2, ...
+     * @param x the object containing the input parameter value
+     * @throws MonetDBEmbeddedException if a database access error occurs or the type of the given object is ambiguous
+     */
+    public void setObject(int index, Object x) throws MonetDBEmbeddedException {
+        int targetSqlType = MonetDBToJavaMapping
+                .getJavaMappingFromMonetDBStringOrdinalValue(monetdbType[getParamIdx(index)]);
+        setObject(index, x, targetSqlType);
+    }
+
+    /**
+     * Sets the value of the designated parameter with the given object. This method is like the method setObject below,
+     * except that it assumes a scale of zero.
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param x the object containing the input parameter value
+     * @param targetSqlType the Java ordinal value from MonetDBToJavaMapping
+     * @throws MonetDBEmbeddedException if a database access error occurs
+     */
+    public void setObject(int parameterIndex, Object x, int targetSqlType) throws MonetDBEmbeddedException {
+        setObject(parameterIndex, x, targetSqlType, 0);
+    }
+
+    /**
+     * Sets the value of the designated parameter with the given object. The second argument must be an object type;
+     * for integral values, the java.lang equivalent objects should be used.
+     *
+     * Note that this method may be used to pass database-specific abstract data types.
+     *
+     * To meet the requirements of this interface, the Java object is converted in the driver, instead of using a SQL
+     * CAST construct.
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param x the object containing the input parameter value
+     * @param targetSqlType the Java ordinal value from MonetDBToJavaMapping
+     * @param scale for java.sql.Types.DECIMAL or java.sql.Types.NUMERIC types, this is the number of digits after the
+     *              decimal point. For Java Object types InputStream and Reader, this is the length of the data in the
+     *              stream or reader.  For all other types, this value will be ignored.
+     * @throws MonetDBEmbeddedException if a database access error occurs
+     * @see Types
+     */
+    public void setObject(int parameterIndex, Object x, int targetSqlType, int scale) throws MonetDBEmbeddedException {
+        if (x instanceof String) {
+            switch (targetSqlType) {
+                case 1: //CHAR:
+                case 2: //VARCHAR:
+                case 3: //CLOB:
+                    setString(parameterIndex, (String)x);
+                    break;
+                case 4: //TINYINT
+                case 5: //SMALLINT
+                case 6: //INTEGER
+                case 11: //MonthInterval
+                {
+                    int val;
+                    try {
+                        val = Integer.parseInt((String)x);
+                    } catch (NumberFormatException e) {
+                        val = 0;
+                    }
+                    setInt(parameterIndex, val);
+                } break;
+                case 7: //BIGINT
+                case 12: //SecondInterval
+                {
+                    long val;
+                    try {
+                        val = Long.parseLong((String)x);
+                    } catch (NumberFormatException e) {
+                        val = 0;
+                    }
+                    setLong(parameterIndex, val);
+                } break;
+                case 9: //REAL
+                {
+                    float val;
+                    try {
+                        val = Float.parseFloat((String)x);
+                    } catch (NumberFormatException e) {
+                        val = 0;
+                    }
+                    setFloat(parameterIndex, val);
+                } break;
+                case 10: //DOUBLE
+                {
+                    double val;
+                    try {
+                        val = Double.parseDouble((String)x);
+                    } catch (NumberFormatException e) {
+                        val = 0;
+                    }
+                    setDouble(parameterIndex, val);
+                } break;
+                case 8: //DECIMAL
+                {
+                    BigDecimal val;
+                    try {
+                        val = new BigDecimal((String)x);
+                    } catch (NumberFormatException e) {
+                        try {
+                            val = new BigDecimal(0.0);
+                        } catch (NumberFormatException ex) {
+                            throw new MonetDBEmbeddedException("Internal error: unable to create template BigDecimal: " + ex.getMessage());
+                        }
+                    }
+                    val = val.setScale(scale, BigDecimal.ROUND_HALF_UP);
+                    setBigDecimal(parameterIndex, val);
+                } break;
+                case 0: //BOOLEAN
+                    setBoolean(parameterIndex, Boolean.valueOf((String) x));
+                    break;
+                case 18: //Blob:
+                    setBytes(parameterIndex, ((String)x).getBytes());
+                    break;
+                case 15: //Types.DATE:
+                {
+                    java.sql.Date val;
+                    try {
+                        val = java.sql.Date.valueOf((String)x);
+                    } catch (IllegalArgumentException e) {
+                        val = new java.sql.Date(0L);
+                    }
+                    setDate(parameterIndex, val);
+                } break;
+                case 13: //Types.TIME:
+                case 14: //TIMETZ:
+                {
+                    Time val;
+                    try {
+                        val = Time.valueOf((String)x);
+                    } catch (IllegalArgumentException e) {
+                        val = new Time(0L);
+                    }
+                    setTime(parameterIndex, val);
+                } break;
+                case 16: //Types.TIMESTAMP:
+                case 17: //TIMESTAMPTZ:
+                {
+                    Timestamp val;
+                    try {
+                        val = Timestamp.valueOf((String)x);
+                    } catch (IllegalArgumentException e) {
+                        val = new Timestamp(0L);
+                    }
+                    setTimestamp(parameterIndex, val);
+                } break;
+                default:
+                    throw new MonetDBEmbeddedException("Conversion not allowed");
+            }
+        } else if (x instanceof BigDecimal || x instanceof Byte || x instanceof Short || x instanceof Integer ||
+                x instanceof Long || x instanceof Float || x instanceof Double) {
+            Number num = (Number)x;
+            switch (targetSqlType) {
+                case 4: //TINYINT
+                    setByte(parameterIndex, num.byteValue());
+                    break;
+                case 5: //SMALLINT
+                    setShort(parameterIndex, num.shortValue());
+                    break;
+                case 6: //INTEGER
+                case 11: //MonthInterval
+                    setInt(parameterIndex, num.intValue());
+                    break;
+                case 7: //BIGINT
+                case 12: //SecondInterval
+                    if (x instanceof BigDecimal) {
+                        BigDecimal bd = (BigDecimal)x;
+                        setLong(parameterIndex, bd.setScale(scale, BigDecimal.ROUND_HALF_UP).longValue());
+                    } else {
+                        setLong(parameterIndex, num.longValue());
+                    }
+                    break;
+                case 9: //REAL
+                    setFloat(parameterIndex, num.floatValue());
+                    break;
+                case 10: //DOUBLE
+                    setDouble(parameterIndex, num.doubleValue());
+                    break;
+                case 8: //DECIMAL
+                    if (x instanceof BigDecimal) {
+                        setBigDecimal(parameterIndex, (BigDecimal)x);
+                    } else {
+                        setBigDecimal(parameterIndex,
+                                new BigDecimal(num.doubleValue()));
+                    }
+                    break;
+                case 0: //BOOLEAN
+                    if (num.doubleValue() != 0.0) {
+                        setBoolean(parameterIndex, true);
+                    } else {
+                        setBoolean(parameterIndex, false);
+                    }
+                    break;
+                case 1: //CHAR:
+                case 2: //VARCHAR:
+                case 3: //CLOB:
+                    setString(parameterIndex, x.toString());
+                    break;
+                default:
+                    throw new MonetDBEmbeddedException("Conversion not allowed");
+            }
+        } else if (x instanceof Boolean) {
+            boolean val = (Boolean) x;
+            switch (targetSqlType) {
+                case 4: //TINYINT
+                    setByte(parameterIndex, (byte)(val ? 1 : 0));
+                    break;
+                case 5: //SMALLINT
+                    setShort(parameterIndex, (short)(val ? 1 : 0));
+                    break;
+                case 6: //INTEGER
+                case 11: //MonthInterval
+                    setInt(parameterIndex, (val ? 1 : 0));  // do not cast to (int) as it generates a compiler warning
+                    break;
+                case 7: //BIGINT
+                case 12: //SecondInterval
+                    setLong(parameterIndex, (long)(val ? 1 : 0));
+                    break;
+                case 9: //REAL
+                    setFloat(parameterIndex, (float)(val ? 1.0 : 0.0));
+                    break;
+                case 10: //DOUBLE
+                    setDouble(parameterIndex, (val ? 1.0 : 0.0));  // do no cast to (double) as it generates a compiler warning
+                    break;
+                case 8: //DECIMAL
+                {
+                    BigDecimal dec;
+                    try {
+                        dec = new BigDecimal(val ? 1.0 : 0.0);
+                    } catch (NumberFormatException e) {
+                        throw new MonetDBEmbeddedException("Internal error: unable to create template BigDecimal: " + e.getMessage());
+                    }
+                    setBigDecimal(parameterIndex, dec);
+                } break;
+                case 0: //BOOLEAN
+                    setBoolean(parameterIndex, val);
+                    break;
+                case 1: //CHAR:
+                case 2: //VARCHAR:
+                case 3: //CLOB:
+                    setString(parameterIndex, x.toString());
+                    break;
+                default:
+                    throw new MonetDBEmbeddedException("Conversion not allowed");
+            }
+        } else if (x instanceof BigInteger) {
+            BigInteger num = (BigInteger)x;
+            switch (targetSqlType) {
+                case 7: //BIGINT
+                case 12: //SecondInterval
+                    setLong(parameterIndex, num.longValue());
+                    break;
+                case 8: //DECIMAL
+                {
+                    BigDecimal dec;
+                    try {
+                        dec = new BigDecimal(num);
+                    } catch (NumberFormatException e) {
+                        throw new MonetDBEmbeddedException("Internal error: unable to create template BigDecimal: " + e.getMessage());
+                    }
+                    setBigDecimal(parameterIndex, dec);
+                } break;
+                case 1: //CHAR:
+                case 2: //VARCHAR:
+                case 3: //CLOB:
+                    setString(parameterIndex, x.toString());
+                    break;
+                default:
+                    throw new MonetDBEmbeddedException("Conversion not allowed");
+            }
+        } else if (x instanceof byte[]) {
+            switch (targetSqlType) {
+                case 18: //Blob:
+                    setBytes(parameterIndex, (byte[])x);
+                    break;
+                default:
+                    throw new MonetDBEmbeddedException("Conversion not allowed");
+            }
+        } else if (x instanceof java.sql.Date || x instanceof Timestamp || x instanceof Time || x instanceof Calendar ||
+                x instanceof java.util.Date)
+        {
+            switch (targetSqlType) {
+                case 15: //Types.DATE:
+                    if (x instanceof java.sql.Date) {
+                        setDate(parameterIndex, (java.sql.Date)x);
+                    } else if (x instanceof Timestamp) {
+                        setDate(parameterIndex, new java.sql.Date(((Timestamp)x).getTime()));
+                    } else if (x instanceof java.util.Date) {
+                        setDate(parameterIndex, new java.sql.Date(((java.util.Date)x).getTime()));
+                    } else {
+                        setDate(parameterIndex, new Date(((Calendar)x).getTimeInMillis()));
+                    }
+                    break;
+                case 13: //Types.TIME:
+                case 14: //TIMETZ:
+                    if (x instanceof Time) {
+                        setTime(parameterIndex, (Time)x);
+                    } else if (x instanceof Timestamp) {
+                        setTime(parameterIndex, new Time(((Timestamp)x).getTime()));
+                    } else if (x instanceof java.util.Date) {
+                        setTime(parameterIndex, new java.sql.Time(((java.util.Date)x).getTime()));
+                    } else {
+                        setTime(parameterIndex, new Time(((Calendar)x).getTimeInMillis()));
+                    }
+                    break;
+                case 16: //Types.TIMESTAMP:
+                case 17: //TIMESTAMPTZ:
+                    if (x instanceof Timestamp) {
+                        setTimestamp(parameterIndex, (Timestamp)x);
+                    } else if (x instanceof java.sql.Date) {
+                        setTimestamp(parameterIndex, new Timestamp(((java.sql.Date)x).getTime()));
+                    } else if (x instanceof java.util.Date) {
+                        setTimestamp(parameterIndex, new java.sql.Timestamp(((java.util.Date)x).getTime()));
+                    } else {
+                        setTimestamp(parameterIndex, new Timestamp(((Calendar)x).getTimeInMillis()));
+                    }
+                    break;
+                case 1: //CHAR:
+                case 2: //VARCHAR:
+                case 3: //CLOB:
+                    setString(parameterIndex, x.toString());
+                    break;
+                default:
+                    throw new MonetDBEmbeddedException("Conversion not allowed");
+            }
+        } else if (x instanceof Blob) {
+            setBlob(parameterIndex, (Blob)x);
+        } else if (x instanceof Clob) {
+            setClob(parameterIndex, (Clob)x);
+        } else if (x instanceof java.net.URL) {
+            setURL(parameterIndex, (java.net.URL)x);
+        } else {
+            throw new MonetDBEmbeddedException("No support for setObject() with object of type: " + x.getClass().getName());
+        }
+    }
+
+    /**
+     * Sets the designated parameter to the given Java short value. The driver converts this to an SQL SMALLINT value
+     * when it sends it to the database.
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param x the parameter value
+     * @throws MonetDBEmbeddedException if a database access error occurs
+     */
+    public void setShort(int parameterIndex, short x) throws MonetDBEmbeddedException {
+        setValue(parameterIndex, Short.toString(x));
     }
 
     /**
@@ -1002,8 +1358,8 @@ public final class MonetDBEmbeddedPreparedStatement extends AbstractConnectionRe
             @Override
             public int getColumnType(int column) throws SQLException {
                 try {
-                    return MonetDBToJavaMapping.getJavaMappingFromMonetDBString(monetdbType[getColumnIdx(column)])
-                            .ordinal();
+                    return MonetDBToJavaMapping
+                            .getJavaMappingFromMonetDBStringOrdinalValue(monetdbType[getColumnIdx(column)]);
                 } catch (IndexOutOfBoundsException e) {
                     throw new SQLException(e);
                 }
@@ -1139,8 +1495,8 @@ public final class MonetDBEmbeddedPreparedStatement extends AbstractConnectionRe
             @Override
             public int getParameterType(int param) throws SQLException {
                 try {
-                    return MonetDBToJavaMapping.getJavaMappingFromMonetDBString(monetdbType[getParamIdx(param)])
-                            .ordinal();
+                    return MonetDBToJavaMapping
+                            .getJavaMappingFromMonetDBStringOrdinalValue(monetdbType[getParamIdx(param)]);
                 } catch (IndexOutOfBoundsException e) {
                     throw new SQLException(e);
                 }

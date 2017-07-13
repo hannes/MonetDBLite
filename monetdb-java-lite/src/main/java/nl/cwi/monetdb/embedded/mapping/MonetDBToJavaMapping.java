@@ -8,6 +8,8 @@
 
 package nl.cwi.monetdb.embedded.mapping;
 
+import nl.cwi.monetdb.embedded.env.MonetDBEmbeddedException;
+
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Time;
@@ -60,9 +62,29 @@ public enum MonetDBToJavaMapping {
      *
      * @param sqlName The MonetDB's data type SQL name
      * @return A MonetDBToJavaMapping enum value, or null if it has no mapping
+     * @throws MonetDBEmbeddedException If the sql name doesn't exist
      */
-    public static MonetDBToJavaMapping getJavaMappingFromMonetDBString(String sqlName) {
-        return monetDBMappings.get(sqlName);
+    public static MonetDBToJavaMapping getJavaMappingFromMonetDBString(String sqlName) throws MonetDBEmbeddedException {
+        MonetDBToJavaMapping attempt = monetDBMappings.get(sqlName);
+        if(attempt == null) {
+            throw new MonetDBEmbeddedException("The SQL type " + sqlName + " is not mapped");
+        }
+        return attempt;
+    }
+
+    /**
+     * Get the corresponding MonetDBToJavaMapping from MonetDB internal data type.
+     *
+     * @param sqlName The MonetDB's data type SQL name
+     * @return A MonetDBToJavaMapping enum value, or null if it has no mapping
+     * @throws MonetDBEmbeddedException If the sql name doesn't exist
+     */
+    public static int getJavaMappingFromMonetDBStringOrdinalValue(String sqlName) throws MonetDBEmbeddedException {
+        MonetDBToJavaMapping attempt = monetDBMappings.get(sqlName);
+        if(attempt == null) {
+            throw new MonetDBEmbeddedException("The SQL type " + sqlName + " is not mapped");
+        }
+        return monetDBMappings.get(sqlName).ordinal();
     }
 
     /**
