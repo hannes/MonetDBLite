@@ -313,10 +313,17 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 		}
 	} else if (battype == TYPE_date && ATOMstorage(battype) == TYPE_int) {
 		ValRecord val;
-		val.vtype = TYPE_int;
-		val.val.ival = 719528;
-		b = BATcalcsubcst(b, &val, NULL, TYPE_int, 1);
-		BAT_TO_REALSXP(b, int, varvalue, 0);
+		BAT *b2;
+		val.vtype = TYPE_dbl;
+		val.val.dval = 719528;
+		b2 = BATcalcsubcst(b, &val, NULL, TYPE_dbl, 1);
+		if(!b2) {
+			return NULL;
+		}
+		varvalue = bat_to_sexp(b2, NULL, unfix);
+		if (!varvalue) {
+			return NULL;
+		}
 	    setAttrib(varvalue, R_ClassSymbol, mkString("Date"));
 	} else if (battype == TYPE_timestamp && ATOMstorage(battype) == TYPE_lng) {
 		BUN j, n = BATcount(b);
