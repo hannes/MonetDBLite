@@ -1850,7 +1850,6 @@ append_wastream(const char *filename)
 }
 
 
-
 static stream *
 file_stream(const char *name)
 {

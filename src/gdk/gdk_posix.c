@@ -278,7 +278,7 @@ MT_getrss(void)
 	int fd;
 	psinfo_t psbuff;
 
-	fd = open("/proc/self/psinfo", O_RDONLY);
+	fd = open("/proc/self/psinfo", O_RDONLY | O_CLOEXEC);
 	if (fd >= 0) {
 		if (read(fd, &psbuff, sizeof(psbuff)) == sizeof(psbuff)) {
 			close(fd);
@@ -325,7 +325,7 @@ MT_getrss(void)
 	/* get RSS on Linux */
 	int fd;
 
-	fd = open("/proc/self/stat", O_RDONLY);
+	fd = open("/proc/self/stat", O_RDONLY | O_CLOEXEC);
 	if (fd >= 0) {
 		char buf[1024], *r = buf;
 		ssize_t i, sz = read(fd, buf, 1024);
@@ -354,7 +354,7 @@ MT_mmap_addr(const char *path, int mode, size_t len, void* addr)
 	int fd = -1;
 	void *ret;
 	if (path != NULL) {
-		fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY), MONETDB_MODE);
+		fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY) | O_CLOEXEC, MONETDB_MODE);
 		if (fd < 0) {
 			GDKsyserror("MT_mmap: open %s failed\n", path);
 			return MAP_FAILED;
@@ -449,7 +449,7 @@ MT_mremap(const char *path, int mode, void *old_address, size_t old_size, size_t
 	if (!(mode & MMAP_COPY) && path != NULL) {
 		/* "normal" memory map */
 
-		if ((fd = open(path, O_RDWR)) < 0) {
+		if ((fd = open(path, O_RDWR | O_CLOEXEC)) < 0) {
 			GDKsyserror("MT_mremap: open(%s) failed\n", path);
 			fprintf(stderr, "= %s:%d: MT_mremap(%s,"PTRFMT","SZFMT","SZFMT"): open() failed\n", __FILE__, __LINE__, path, PTRFMTCAST old_address, old_size, *new_size);
 			return NULL;
@@ -513,7 +513,7 @@ MT_mremap(const char *path, int mode, void *old_address, size_t old_size, size_t
 #ifdef MAP_ANONYMOUS
 		flags |= MAP_ANONYMOUS;
 #else
-		if ((fd = open("/dev/zero", O_RDWR)) < 0) {
+		if ((fd = open("/dev/zero", O_RDWR | O_CLOEXEC)) < 0) {
 			GDKsyserror("MT_mremap: open(/dev/zero) failed\n");
 			fprintf(stderr, "= %s:%d: MT_mremap(%s,"PTRFMT","SZFMT","SZFMT"): open('/dev/zero') failed\n", __FILE__, __LINE__, path?path:"NULL", PTRFMTCAST old_address, old_size, *new_size);
 			return NULL;
@@ -596,7 +596,7 @@ MT_mremap(const char *path, int mode, void *old_address, size_t old_size, size_t
 					}
 
 					strcat(strcpy(p, path), ".tmp");
-					fd = open(p, O_RDWR | O_CREAT,
+					fd = open(p, O_RDWR | O_CREAT | O_CLOEXEC,
 						  MONETDB_MODE);
 					if (fd < 0) {
 						GDKsyserror("MT_mremap: open(%s) failed\n", (char *) p);
