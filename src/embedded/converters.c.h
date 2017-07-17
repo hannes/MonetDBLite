@@ -541,7 +541,11 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		ValRecord val;
 		val.vtype = TYPE_int;
 		val.val.ival = 719528;
-		SXP_TO_BAT(int, NUMERIC_POINTER, ISNA(*p));
+		if (IS_INTEGER(s)) {
+			SXP_TO_BAT(int, INTEGER_POINTER, *p==NA_INTEGER);
+		} else {
+			SXP_TO_BAT(int, NUMERIC_POINTER, ISNA(*p));
+		}
 		b = BATcalcaddcst(b, &val, NULL, TYPE_int, 1);
 	}
 
