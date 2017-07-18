@@ -12,3 +12,6 @@
 ^windows-buildfiles
 ^codecov\.yml
 ^build
+^src/monetdb_config\.h\.in
+^src/sql/scripts
+^MonetDBLite_*

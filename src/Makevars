@@ -12,7 +12,7 @@ endif
 
 DEPSDIR=$(OBJDIR)/deps
 
-PKG_CFLAGS=$(R_XTRA_CPPFLAGS) -DLIBGDK -DLIBMAL -DLIBOPTIMIZER -DLIBSTREAM -DHAVE_EMBEDDED_R
+PKG_CFLAGS=$(R_XTRA_CPPFLAGS) $(CPICFLAGS) -DLIBGDK -DLIBMAL -DLIBOPTIMIZER -DLIBSTREAM -DHAVE_EMBEDDED_R
 
 PKG_LDFLAGS=-lm -lpthread -ldl
 INCLUDE_FLAGS= -I. -Icommon  \
@@ -38,7 +38,6 @@ ifeq ($(OS),Windows_NT)
 #    endif
 else
     UNAME_S := $(shell uname -s)
-    PKG_CFLAGS += -fPIC
     ifeq ($(UNAME_S),Linux)
 		LDFLAGS += -lrt
     endif
