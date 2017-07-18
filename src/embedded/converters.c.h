@@ -105,7 +105,7 @@ static void monetdb_r_free(R_allocator_t *allocator, void *ptr) {
 
 
 // because R_ParseEvalString is not exported
-static int monetdb_r_hdrsize() {
+static int monetdb_r_hdrsize(void) {
     SEXP s = PROTECT(mkString("as.integer(utils::object.size(integer(0)))"));
     int siz = -1;
     ParseStatus status;

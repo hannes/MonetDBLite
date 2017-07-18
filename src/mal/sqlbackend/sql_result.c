@@ -994,7 +994,7 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 	BAT *b_table  = COLnew(0, TYPE_str, nrows, TRANSIENT);
 	BAT *b_column = COLnew(0, TYPE_str, nrows, TRANSIENT);
 	int result_offset = 0, param_offset = 0;
-
+	(void) out;
 	if (!b_inout || !b_type || !b_digits || !b_scale || !b_schema || !b_table || !b_column) {
 		return -1;
 	}
