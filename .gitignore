@@ -2,3 +2,4 @@
 .project
 .cproject
 build
+libmonetdb5.so

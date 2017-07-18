@@ -1,10 +1,4 @@
-^src/buildtools/autogen
-^src/buildtools/doc
-^src/buildtools/doc
-^src/autom4te\.cache
-^src/config\.cache
-^Makefile\.ag
-^Makefile\.msc
+^src/build
 ^\.hgeol
 ^\.travis\.yml
 ^init\.sh
@@ -12,12 +6,8 @@
 ^buildandtest\.sh
 ^appveyor\.yml
 ^\.git
-.*\.la
-.*\.lo
 .*\.sql
 .*\.mal
-.*\.ag
-.*\.msc
 ^speed_comparisons\.png
 ^windows-buildfiles
 ^codecov\.yml

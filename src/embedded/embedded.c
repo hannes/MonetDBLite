@@ -470,20 +470,20 @@ void monetdb_shutdown(void) {
 
 
 #define GENERATE_BASE_HEADERS(type, tpename)                                   \
-	static int tpename##_is_null(type value);
+	static int tpename##_is_null(type value)
 
 #define GENERATE_BASE_FUNCTIONS(tpe, tpename, mname)                                  \
 	GENERATE_BASE_HEADERS(tpe, tpename);                                       \
 	static int tpename##_is_null(tpe value) { return value == mname##_nil; }
 
-GENERATE_BASE_FUNCTIONS(int8_t, int8_t, bte);
-GENERATE_BASE_FUNCTIONS(int16_t, int16_t, sht);
-GENERATE_BASE_FUNCTIONS(int32_t, int32_t, int);
-GENERATE_BASE_FUNCTIONS(int64_t, int64_t, lng);
-GENERATE_BASE_FUNCTIONS(size_t, size_t, oid);
+GENERATE_BASE_FUNCTIONS(int8_t, int8_t, bte)
+GENERATE_BASE_FUNCTIONS(int16_t, int16_t, sht)
+GENERATE_BASE_FUNCTIONS(int32_t, int32_t, int)
+GENERATE_BASE_FUNCTIONS(int64_t, int64_t, lng)
+GENERATE_BASE_FUNCTIONS(size_t, size_t, oid)
 
-GENERATE_BASE_FUNCTIONS(float, float, flt);
-GENERATE_BASE_FUNCTIONS(double, double, dbl);
+GENERATE_BASE_FUNCTIONS(float, float, flt)
+GENERATE_BASE_FUNCTIONS(double, double, dbl)
 
 GENERATE_BASE_HEADERS(char*, str);
 GENERATE_BASE_HEADERS(monetdb_data_blob, blob);
@@ -733,12 +733,11 @@ wrapup:
 	return NULL;
 }
 
-size_t monetdb_result_fetch_bat(monetdb_result* res, size_t column_index) {
-	// we simply return the BAT id
+void* monetdb_result_fetch_rawcol(monetdb_result* res, size_t column_index) {
 	monetdb_result_internal* result = (monetdb_result_internal*) res;
 	if (column_index >= res->ncols) // index out of range
-		return (size_t)-1;
-	return result->monetdb_resultset->cols[column_index].b;
+		return NULL;
+	return &(result->monetdb_resultset->cols[column_index]);
 }
 
 void data_from_date(date d, monetdb_data_date *ptr)

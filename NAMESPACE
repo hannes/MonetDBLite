@@ -1,0 +1,28 @@
+import(DBI,digest,methods,codetools,utils)
+
+# export only driver constructor, everything else is DBI stuff..
+export(MonetDB,MonetR,MonetDBR,MonetDB.R,RMonetDB)
+export(MonetDBLite,monetdblite,RMonetDBLite,rmonetdblite)
+export(monet.read.csv,monetdb.read.csv)
+# those are not in the DBI
+exportMethods(dbSendUpdate,dbSendUpdateAsync,mdbapply,isIdCurrent,initExtension)
+# shorthands
+export(mc,ml)
+
+# control.R
+export(monetdb.server.setup)
+export(monetdb.server.start)
+export(monetdb.server.stop)
+export(monetdbd.liststatus)
+export(monetdb.liststatus)
+export(monetdb.server.shutdown)
+export(monetdb.server.getpid)
+
+# dplyr.R
+export(src_monetdb, src_monetdblite)
+# rest of dplyr.R exported via hack in src_monetdb
+
+# embedded.R
+export(monetdblite_shutdown)
+
+useDynLib(libmonetdb5, .registration = TRUE)

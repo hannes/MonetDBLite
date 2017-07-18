@@ -702,7 +702,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 111 "src/sql/server/sql_parser.y"
+#line 111 "sql/server/sql_parser.y"
 {
 	int		i_val,bval;
 	lng		l_val,operation;
@@ -713,7 +713,7 @@ typedef union YYSTYPE
 	sql_subtype	type;
 }
 /* Line 1529 of yacc.c.  */
-#line 717 "src/sql/server/sql_parser.tab.h"
+#line 717 "sql/server/sql_parser.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
