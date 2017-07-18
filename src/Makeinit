@@ -1,0 +1,80 @@
+SQLSCRIPTS=\
+sql/scripts/09_like.sql \
+sql/scripts/10_math.sql \
+sql/scripts/11_times.sql \
+sql/scripts/13_date.sql \
+sql/scripts/15_querylog.sql \
+sql/scripts/16_tracelog.sql \
+sql/scripts/17_temporal.sql \
+sql/scripts/18_index.sql \
+sql/scripts/20_vacuum.sql \
+sql/scripts/21_dependency_functions.sql \
+sql/scripts/22_clients.sql \
+sql/scripts/25_debug.sql \
+sql/scripts/26_sysmon.sql \
+sql/scripts/27_rejects.sql \
+sql/scripts/39_analytics.sql \
+sql/scripts/41_md5sum.sql \
+sql/scripts/51_sys_schema_extension.sql \
+sql/scripts/75_storagemodel.sql \
+sql/scripts/80_statistics.sql \
+sql/scripts/99_system.sql
+
+MALSCRIPTS=\
+mal/modules/aggr.mal \
+mal/modules/algebra.mal \
+mal/modules/bat5.mal \
+mal/modules/batExtensions.mal \
+mal/modules/batmmath.mal \
+mal/modules/batmtime.mal \
+mal/modules/batstr.mal \
+mal/modules/blob.mal \
+mal/modules/group.mal \
+mal/modules/iterator.mal \
+mal/modules/language.mal \
+mal/modules/mal_init.mal \
+mal/modules/manifold.mal \
+mal/modules/mat.mal \
+mal/modules/mkey.mal \
+mal/modules/mmath.mal \
+mal/modules/mtime.mal \
+mal/modules/oltp.mal \
+mal/modules/orderidx.mal \
+mal/modules/pcre.mal \
+mal/modules/sample.mal \
+mal/modules/str.mal \
+mal/modules/tablet.mal \
+mal/optimizer/optimizer.mal \
+mal/sqlbackend/sql.mal \
+mal/sqlbackend/sql_aggr_bte.mal \
+mal/sqlbackend/sql_aggr_dbl.mal \
+mal/sqlbackend/sql_aggr_flt.mal \
+mal/sqlbackend/sql_aggr_int.mal \
+mal/sqlbackend/sql_aggr_lng.mal \
+mal/sqlbackend/sql_aggr_sht.mal \
+mal/sqlbackend/sql_decimal.mal \
+mal/sqlbackend/sql_inspect.mal \
+mal/sqlbackend/sql_rank.mal \
+mal/sqlbackend/sql_transaction.mal \
+mal/sqlbackend/sqlcatalog.mal
+
+MALAUTO=\
+mal/modules/01_batcalc.mal \
+mal/modules/01_calc.mal \
+mal/sqlbackend/40_sql.mal 
+
+
+all: sqlparser inlines
+
+sqlparser: sql/server/sql_parser.h sql/server/sql_parser.y
+	bison -b sql/server/sql_parser -y  -d -p sql -r all sql/server/sql_parser.y
+	rm sql/server/sql_parser.output
+
+inlines: $(MALSCRIPTS) $(SQLSCRIPTS)
+	rm -rf build/inlines
+	mkdir -p build/inlines/createdb
+	mkdir -p build/inlines/autoload
+	cp $(MALSCRIPTS)  build/inlines
+	cp $(MALAUTO)     build/inlines/autoload
+	cp $(SQLSCRIPTS)  build/inlines/createdb
+	python embedded/inlined_scripts.py build/inlines/ ../../embedded/inlined_scripts.c
