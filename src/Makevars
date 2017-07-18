@@ -1,6 +1,6 @@
 OPTIMIZE=$(OPT)
 
-CC=gcc
+# CC=gcc
 
 ifneq ($(OPTIMIZE), true)
 	OPTFLAGS=-O0 -g -Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition
@@ -12,50 +12,16 @@ endif
 
 DEPSDIR=$(OBJDIR)/deps
 
-PKG_CFLAGS=$(R_XTRA_CPPFLAGS) $(CPICFLAGS) -DLIBGDK -DLIBMAL -DLIBOPTIMIZER -DLIBSTREAM -DHAVE_EMBEDDED_R
 
-PKG_LDFLAGS=-lm -lpthread -ldl
-INCLUDE_FLAGS= -I. -Icommon  \
+PKG_CFLAGS=$(R_XTRA_CPPFLAGS) $(CPICFLAGS) -DLIBGDK -DLIBMAL -DLIBOPTIMIZER -DLIBSTREAM -DHAVE_EMBEDDED_R
+PKG_CFLAGS += -I. -Icommon  \
 -Iembedded -Imapisplit -Igdk \
 -Imal/mal -Imal/modules -Imal/optimizer -Imal/sqlbackend \
 -Isql/include -Isql/common -Isql/server -Isql/storage -Isql/storage/bat
 
-
-SOEXT=so
-		
-ifeq ($(OS),Windows_NT)
-	SOEXT=dll
-    PKG_CFLAGS += -DWIN32 -D__CYGWIN__
-#    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
-#        CFLAGS += -D AMD64
-#    else
-#        ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-#            CFLAGS += -D AMD64
-#        endif
-#        ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-#            CFLAGS += -D IA32
-#        endif
-#    endif
-else
-    UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-		LDFLAGS += -lrt
-    endif
-  #   ifeq ($(UNAME_S),Darwin)
-		# SOEXT=dylib
-  #   endif
-#    UNAME_P := $(shell uname -p)
-#    ifeq ($(UNAME_P),x86_64)
-#        CCFLAGS += -D AMD64
-#    endif
-#    ifneq ($(filter %86,$(UNAME_P)),)
-#        CCFLAGS += -D IA32
-#    endif
-#    ifneq ($(filter arm%,$(UNAME_P)),)
-#        CCFLAGS += -D ARM
-#    endif
-endif
-
+# TODO: find a nicer way building this
+$(shell mkdir -p build && $(CC) $(PKG_CFLAGS) embedded/defines.c -o ./build/defines)
+PKG_CFLAGS += $(shell build/defines) 
 
 SQLSCRIPTS=\
 sql/scripts/09_like.sql \
@@ -122,7 +88,7 @@ mal/modules/01_batcalc.mal \
 mal/modules/01_calc.mal \
 mal/sqlbackend/40_sql.mal 
 
-COBJECTS=\
+OBJECTS=\
 $(OBJDIR)/common/monet_options.o \
 $(OBJDIR)/common/stream.o \
 $(OBJDIR)/common/mutils.o \
@@ -310,24 +276,15 @@ $(OBJDIR)/sql/storage/store_dependency.o \
 $(OBJDIR)/sql/storage/store_sequence.o
 
 
-# TODO: find a nicer way building this
-$(shell mkdir -p build && $(CC) $(PKG_CFLAGS) embedded/defines.c -o ./build/defines)
-PKG_CFLAGS += $(shell build/defines) 
+ODIRS=$(dir $(OBJECTS))
+DDIRS=$(subst $(OBJDIR), $(DEPSDIR), $(ODIRS))
+$(shell mkdir -p $(ODIRS) $(DDIRS))
 
-LIBFILE=libmonetdb5.$(SOEXT)
+$(OBJDIR)/%.o: %.c
+	$(CC) $(PKG_CFLAGS) -MMD -MF $(subst $(OBJDIR),$(DEPSDIR),$(subst .o,.d,$@)) $(OPTFLAGS) -c $(subst $(OBJDIR)/,,$(subst .o,.c,$@)) -o $@
 
-.PHONY: all clean test create_build_directory init test $(LIBFILE)
+init: sqlparser inlines
 
-all: create_build_directory $(COBJECTS) $(LIBFILE)
-
-
-clean:
-	rm -rf build
-
-create_build_directory:
-	mkdir -p $(OBJDIR)
-	mkdir -p $(DEPSDIR)
-	
 sqlparser: sql/server/sql_parser.h sql/server/sql_parser.y
 	bison -b sql/server/sql_parser -y  -d -p sql -r all sql/server/sql_parser.y
 	rm sql/server/sql_parser.output
@@ -340,19 +297,3 @@ inlines: $(MALSCRIPTS) $(SQLSCRIPTS)
 	cp $(MALAUTO)     build/inlines/autoload
 	cp $(SQLSCRIPTS)  build/inlines/createdb
 	python embedded/inlined_scripts.py build/inlines/ ../../embedded/inlined_scripts.c
- 	
- 
-init: sqlparser inlines
-
-DEPS = $(shell find $(DEPSDIR) -name "*.d")
--include $(DEPS)
-
-
-$(OBJDIR)/%.o: %.c
-	mkdir -p $(shell dirname $@)
-	mkdir -p $(subst $(OBJDIR),$(DEPSDIR),$(shell dirname $@))
-	
-	$(CC) $(PKG_CFLAGS) -MMD -MF $(subst $(OBJDIR),$(DEPSDIR),$(subst .o,.d,$@)) $(INCLUDE_FLAGS) $(OPTFLAGS) -c $(subst $(OBJDIR)/,,$(subst .o,.c,$@)) -o $@
-
-$(LIBFILE): $(COBJECTS) 
-	$(SHLIB_LINK) $(COBJECTS) $(OPTFLAGS) -o $(LIBFILE)

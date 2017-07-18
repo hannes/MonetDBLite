@@ -25,4 +25,4 @@ export(src_monetdb, src_monetdblite)
 # embedded.R
 export(monetdblite_shutdown)
 
-useDynLib(libmonetdb5, .registration = TRUE)
+useDynLib(MonetDBLite, .registration = TRUE)

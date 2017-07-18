@@ -25,6 +25,6 @@ SEXP monetdb_connect_R(void);
 SEXP monetdb_disconnect_R(SEXP connsexp);
 SEXP monetdb_shutdown_R(void);
 
-void R_init_libmonetdb5(DllInfo *dll);
+void R_init_MonetDBLite(DllInfo *dll);
 
 #endif
