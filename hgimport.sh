@@ -8,3 +8,4 @@
 git pull && \
 git pull hg branches/Jul2017
 git status --porcelain | awk '{if ($1=="DU") print $2}' | xargs git rm # && \
+make -C src -f Makevars init

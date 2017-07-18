@@ -12,18 +12,13 @@ endif
 
 DEPSDIR=$(OBJDIR)/deps
 
-PKG_CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER -DLIBSTREAM -DHAVE_EMBEDDED_R
+PKG_CFLAGS=$(R_XTRA_CPPFLAGS) -DLIBGDK -DLIBMAL -DLIBOPTIMIZER -DLIBSTREAM -DHAVE_EMBEDDED_R
 
 PKG_LDFLAGS=-lm -lpthread -ldl
 INCLUDE_FLAGS= -I. -Icommon  \
 -Iembedded -Imapisplit -Igdk \
 -Imal/mal -Imal/modules -Imal/optimizer -Imal/sqlbackend \
 -Isql/include -Isql/common -Isql/server -Isql/storage -Isql/storage/bat
-
-
-PKG_CFLAGS += $(shell R CMD config --cppflags)
-PKG_LDFLAGS += $(shell R CMD config --ldflags)
-
 
 
 SOEXT=so
@@ -361,4 +356,4 @@ $(OBJDIR)/%.o: %.c
 	$(CC) $(PKG_CFLAGS) -MMD -MF $(subst $(OBJDIR),$(DEPSDIR),$(subst .o,.d,$@)) $(INCLUDE_FLAGS) $(OPTFLAGS) -c $(subst $(OBJDIR)/,,$(subst .o,.c,$@)) -o $@
 
 $(LIBFILE): $(COBJECTS) 
-	$(CC) $(subst -fopenmp,,$(PKG_LDFLAGS)) $(COBJECTS) $(OPTFLAGS) -o $(LIBFILE) -shared
+	$(SHLIB_LINK) $(COBJECTS) $(OPTFLAGS) -o $(LIBFILE)

@@ -3,3 +3,4 @@
 .cproject
 build
 libmonetdb5.so
+MonetDBLite_*.t*
