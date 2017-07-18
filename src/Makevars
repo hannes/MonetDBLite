@@ -38,6 +38,7 @@ ifeq ($(OS),Windows_NT)
 #    endif
 else
     UNAME_S := $(shell uname -s)
+    PKG_CFLAGS += -fPIC
     ifeq ($(UNAME_S),Linux)
 		LDFLAGS += -lrt
     endif
