@@ -310,23 +310,24 @@ $(OBJDIR)/sql/storage/store_dependency.o \
 $(OBJDIR)/sql/storage/store_sequence.o
 
 
+ODIRS=$(dir $(COBJECTS))
+DDIRS=$(subst $(OBJDIR), $(DEPSDIR), $(ODIRS))
+$(shell mkdir -p $(ODIRS) $(DDIRS))
+
 # TODO: find a nicer way building this
 $(shell mkdir -p build && $(CC) $(CFLAGS) src/embedded/defines.c -o ./build/defines)
 CFLAGS += $(shell build/defines) 
 
 LIBFILE=build/libmonetdb5.$(SOEXT)
 
-.PHONY: all clean test create_build_directory init test $(LIBFILE)
+.PHONY: all clean test init test $(LIBFILE)
 
-all: create_build_directory $(COBJECTS) $(LIBFILE)
+all: $(COBJECTS) $(LIBFILE)
 
 
 clean:
 	rm -rf build
 
-create_build_directory:
-	mkdir -p $(OBJDIR)
-	mkdir -p $(DEPSDIR)
 	
 sqlparser: src/sql/server/sql_parser.h src/sql/server/sql_parser.y
 	bison -b src/sql/server/sql_parser -y  -d -p sql -r all src/sql/server/sql_parser.y
@@ -362,9 +363,6 @@ DEPS = $(shell find $(DEPSDIR) -name "*.d")
 
 
 $(OBJDIR)/%.o: src/%.c
-	mkdir -p $(shell dirname $@)
-	mkdir -p $(subst $(OBJDIR),$(DEPSDIR),$(shell dirname $@))
-	
 	$(CC) $(CFLAGS) -MMD -MF $(subst $(OBJDIR),$(DEPSDIR),$(subst .o,.d,$@)) $(INCLUDE_FLAGS) $(OPTFLAGS) -c $(subst $(OBJDIR)/,src/,$(subst .o,.c,$@)) -o $@
 
 $(LIBFILE): $(COBJECTS) 
