@@ -276,7 +276,7 @@ MT_mmap_addr(const char *path, int mode, size_t len, void* addr)
 	int fd = -1;
 	void *ret;
 	if (path != NULL) {
-		fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY), MONETDB_MODE);
+		fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY) | O_CLOEXEC, MONETDB_MODE);
 		if (fd < 0) {
 			GDKsyserror("MT_mmap: open %s failed\n", path);
 			return MAP_FAILED;

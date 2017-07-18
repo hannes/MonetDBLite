@@ -59,6 +59,8 @@ typedef struct {
 
 monetdb_connection monetdb_connect(void) {
 	Client conn = NULL;
+	str msg;
+	mvc *m;
 	if (!monetdb_embedded_initialized) {
 		return NULL;
 	}
@@ -69,7 +71,9 @@ monetdb_connection monetdb_connect(void) {
 	if (SQLinitClient(conn) != MAL_SUCCEED) {
 		return NULL;
 	}
-	((backend *) conn->sqlcontext)->mvc->session->auto_commit = 1;
+	if ((msg = getSQLContext(conn, NULL, &m, NULL)) != MAL_SUCCEED)
+		return msg;
+	m->session->auto_commit = 1;
 
 	return conn;
 }
@@ -145,6 +149,8 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 		goto cleanup;
 	}
 	GDKsetenv("monet_mod_path", "");
+	GDKsetenv("max_clients", "256");
+
 	GDKsetenv("mapi_disable", "true");
 	if (sequential) {
 		GDKsetenv("sql_optimizer", "sequential_pipe");
@@ -246,7 +252,8 @@ char* monetdb_query(monetdb_connection conn, char* query, char execute, monetdb_
 	m->scanner.rs = c->fdin;
 	b->output_format = OFMT_NONE;
 	m->user_id = m->role_id = USER_MONETDB;
-	m->cache = 0;
+	//m->cache = 0;
+	m->errstr[0] = '\0';
 
 	if (result) {
 		m->reply_size = -2; /* do not clean up result tables */
@@ -258,7 +265,7 @@ char* monetdb_query(monetdb_connection conn, char* query, char execute, monetdb_
 		goto cleanup;
 	}
 
-	if (prepare_id && (m->emode & m_prepare)) {
+	if (prepare_id && m->emode == m_prepare) {
 		*prepare_id = b->q->id;
 	}
 
@@ -303,7 +310,6 @@ cleanup:
 	bstream_destroy(c->fdin);
 	c->fdin = NULL;
 
-
 	sres = SQLautocommit(c, m);
 	if (!sres && !res) {
 		return GDKstrdup("Cannot COMMIT/ROLLBACK without a valid transaction.");
@@ -335,9 +341,13 @@ char* monetdb_append(monetdb_connection conn, const char* schema, const char* ta
 	}
 
 	SQLtrans(m);
+	if (!m->sa) { // unclear why this is required
+		m->sa = sa_create();
+	}
 	{
 		sql_rel *rel;
 		node *n;
+
 		list *exps = sa_list(m->sa), *args = sa_list(m->sa), *types = sa_list(m->sa);
 		sql_schema *s = mvc_bind_schema(m, schema);
 		sql_table *t = mvc_bind_table(m, s, table);
@@ -359,6 +369,7 @@ char* monetdb_append(monetdb_connection conn, const char* schema, const char* ta
 		f->res = types;
 		rel = rel_insert(m, rel_basetable(m, t, t->base.name), rel_table_func(m->sa, NULL, exp_op(m->sa,  args, f), exps, 1));
 		m->scanner.rs = NULL;
+		m->errstr[0] = '\0';
 
 		if (rel && backend_dumpstmt((backend *) c->sqlcontext, c->curprg->def, rel, 1, 1, "append") < 0) {
 			return GDKstrdup("Append plan generation failure");
