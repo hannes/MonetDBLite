@@ -300,6 +300,7 @@ setMethod("dbSendQuery", signature(conn="MonetDBConnection", statement="characte
   })
 
   env <- new.env(parent=emptyenv())
+  env$open <- TRUE
 
   if (resp$type == Q_TABLE) {
     # we have to pass this as an environment to make conn object available to result for fetching

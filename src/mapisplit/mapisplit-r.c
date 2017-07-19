@@ -15,7 +15,7 @@ SEXP mapi_split(SEXP mapiLinesVector, SEXP numCols) {
 	int cRow;
 	int cCol;
 	char **elems = malloc(sizeof(char*)* cols);
-	if (elems) {
+	if (!elems) {
 		error("Memory allocation failure");
 	}
 
