@@ -1663,10 +1663,7 @@ store_exit(void)
 	 */
 	sql_trans_destroy(gtrans);
 	gtrans = NULL;
-
-	if (store_allocator) {
-		sa_destroy(store_allocator);
-	}
+	store_allocator = NULL;
 
 	// this is required to not create phantom dependencies after same-process restart
 	store_oid = 0;
