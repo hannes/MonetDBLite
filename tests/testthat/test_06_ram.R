@@ -1,10 +1,12 @@
-if( .Platform$OS.type != 'windows' ) {
-	devtools::install_github("krlmlr/ulimit")
-	library(ulimit)
-}
+test_that( "just install ulimit" , {
+	skip("Too heavy for now")
+	if( .Platform$OS.type != 'windows' ) {
+		devtools::install_github("krlmlr/ulimit")
+		library(ulimit)
+	}
+})
 
 library(testthat)
-library(callr)
 
 # otherwise callr does not work
 Sys.setenv("R_TESTS" = "")
