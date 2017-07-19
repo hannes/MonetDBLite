@@ -531,7 +531,6 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 			if (BUNappend(b, ele_blob, FALSE) != GDK_SUCCEED) {
 				return NULL;
 			}
-			GDKfree(ele_blob);
 		}
 	}
 
