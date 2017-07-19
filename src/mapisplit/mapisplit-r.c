@@ -14,7 +14,10 @@ SEXP mapi_split(SEXP mapiLinesVector, SEXP numCols) {
 	SEXP colVec;
 	int cRow;
 	int cCol;
-	char* elems[cols];
+	char **elems = malloc(sizeof(char*)* cols);
+	if (elems) {
+		error("Memory allocation failure");
+	}
 
 	if (!IS_CHARACTER(mapiLinesVector) || rows < 1 || cols < 1) {
 		error("Invalid input to mapi_split: type=%d, rows=%d, cols=%d", TYPEOF(mapiLinesVector), rows, cols);
@@ -48,6 +51,7 @@ SEXP mapi_split(SEXP mapiLinesVector, SEXP numCols) {
 		}
 		free(val);
 	}
+	free(elems);
 
 	UNPROTECT(1);
 	return colVec;
