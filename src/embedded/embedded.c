@@ -199,7 +199,7 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	backend *b;
 	char* qname = "somequery";
 	size_t query_len = strlen(query) + 3;
-	char* nq = GDKmalloc(query_len);
+	char* nq;
 	buffer query_buf;
 	stream *query_stream;
 
@@ -216,15 +216,16 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	b = (backend *) c->sqlcontext;
 	m = b->mvc;
 
-	if (!nq) {
-		return GDKstrdup( "WARNING: could not setup query stream.");
-	}
-	sprintf(nq, "%s\n;", query);
-
 	query_stream = buffer_rastream(&query_buf, qname);
 	if (!query_stream) {
 		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
+
+	nq = GDKmalloc(query_len);
+	if (!nq) {
+		return GDKstrdup( "WARNING: could not setup query stream.");
+	}
+	sprintf(nq, "%s\n;", query);
 
 	query_buf.pos = 0;
 	query_buf.len = query_len;

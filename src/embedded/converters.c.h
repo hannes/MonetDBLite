@@ -515,9 +515,11 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		for (i = 0; i < cnt; i++) {
 			SEXP list_ele = VECTOR_ELT(s, i);
 			size_t blob_len = LENGTH(list_ele);
+			char free_blob = FALSE;
 			if (!list_ele || !(IS_RAW(list_ele) || is_single_NA(list_ele))) return NULL; // FIXME
 			if (IS_RAW(list_ele)) {
 				ele_blob = GDKmalloc(blobsize(blob_len));
+				free_blob = TRUE;
 				if (!ele_blob) {
 					return NULL;
 				}
@@ -530,7 +532,13 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 			}
 			BLOBput(b->tvheap, &bun_offset, ele_blob);
 			if (BUNappend(b, ele_blob, FALSE) != GDK_SUCCEED) {
+				if (free_blob) {
+					GDKfree(ele_blob);
+				}
 				return NULL;
+			}
+			if (free_blob) {
+				GDKfree(ele_blob);
 			}
 		}
 	}
