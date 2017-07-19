@@ -537,7 +537,7 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		}
 	}
 
-	if (type == TYPE_date && IS_NUMERIC(s) && strcmp("Date", CHAR(STRING_ELT(GET_CLASS(s), 0))) == 0) {
+	if (type == TYPE_date && (IS_NUMERIC(s) || IS_INTEGER(s)) && strcmp("Date", CHAR(STRING_ELT(GET_CLASS(s), 0))) == 0) {
 		ValRecord val;
 		val.vtype = TYPE_int;
 		val.val.ival = 719528;
