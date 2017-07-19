@@ -1653,10 +1653,8 @@ store_exit(void)
 	   (current implementation) simply keep the gtrans alive and simply
 	   exit (but leak memory).
 	 */
-//	if (!transactions) {
-		sql_trans_destroy(gtrans);
-		gtrans = NULL;
-//	}
+	sql_trans_destroy(gtrans);
+	gtrans = NULL;
 
 	// this is required to not create phantom dependencies after same-process restart
 	store_oid = 0;
