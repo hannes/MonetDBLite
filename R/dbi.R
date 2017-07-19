@@ -655,7 +655,6 @@ if (is.null(getGeneric("dbSendUpdate"))) setGeneric("dbSendUpdate", function(con
                                                                              async=FALSE) standardGeneric("dbSendUpdate"))
 setMethod("dbSendUpdate", signature(conn="MonetDBConnection", statement="character"),  
           def=function(conn, statement, ..., list=NULL, async=FALSE) {
-            .Deprecated("DBI has dbExecute and sqlInterpolate which can replace this.")
 
             if(!is.null(list) || length(list(...))){
               if (length(list(...))) statement <- .bindParameters(statement, list(...))
