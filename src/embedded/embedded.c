@@ -198,6 +198,12 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	mvc* m;
 	backend *b;
 	char* qname = "somequery";
+	size_t query_len = strlen(query) + 3;
+	char* nq = GDKmalloc(query_len);
+
+	// TODO what about execute flag?! remove when result set is there for prepared stmts
+	(void) execute;
+
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
 	}
@@ -208,11 +214,6 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	b = (backend *) c->sqlcontext;
 	m = b->mvc;
 
-	// TODO what about execute flag?! remove when result set is there for prepared stmts
-	(void) execute;
-
-	size_t query_len = strlen(query) + 3;
-	char* nq = GDKmalloc(query_len);
 	if (!nq) {
 		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
@@ -240,7 +241,6 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	m->scanner.rs = c->fdin;
 	b->output_format = OFMT_NONE;
 	m->user_id = m->role_id = USER_MONETDB;
-	//m->cache = 0;
 	m->errstr[0] = '\0';
 
 	if (result) {

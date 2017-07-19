@@ -20,7 +20,6 @@ MTSAFE
 INCLUDES = ../mal/mal \
 		   ../mal/modules \
 		   ../mal/optimizer \
-		   ../mal/extras/rapi \
 		   ../gdk \
 		   ../common/stream \
 		   ../common/utils \
