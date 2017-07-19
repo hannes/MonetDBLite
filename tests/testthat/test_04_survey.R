@@ -34,7 +34,7 @@ test_that("db allows database-backed survey designs", {
 	close(dclus1)
 	close(rclus1)
 
-	dbDisconnect( con , shutdown = TRUE )
+	dbDisconnect(con)
 })
 
 
@@ -72,6 +72,10 @@ test_that("db allows svyby commands", {
 	expect_true(is.na(svyby(~api00,~comp_imp+sch_wide,design=dclus1,svymean,drop.empty.groups=FALSE)[2,3]) )
 	expect_equal(round(svyby(~api00,~comp_imp+sch_wide,design=dclus1,svymean)[2,3],3),654.074)
 
-	expect_true( dbDisconnect( dclus1$db$connection , shutdown = TRUE ) )
+	expect_true( dbDisconnect(dclus1$db$connection) )
 })
 
+
+test_that("shutdown", {
+	MonetDBLite::monetdblite_shutdown()
+})
