@@ -200,6 +200,8 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	char* qname = "somequery";
 	size_t query_len = strlen(query) + 3;
 	char* nq = GDKmalloc(query_len);
+	buffer query_buf;
+	stream *query_stream;
 
 	// TODO what about execute flag?! remove when result set is there for prepared stmts
 	(void) execute;
@@ -219,8 +221,7 @@ char* monetdb_query(void* conn, char* query, char execute, void** result, long* 
 	}
 	sprintf(nq, "%s\n;", query);
 
-	buffer query_buf;
-	stream* query_stream = buffer_rastream(&query_buf, qname);
+	query_stream = buffer_rastream(&query_buf, qname);
 	if (!query_stream) {
 		return GDKstrdup( "WARNING: could not setup query stream.");
 	}

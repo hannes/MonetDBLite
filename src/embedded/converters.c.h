@@ -110,12 +110,13 @@ static int monetdb_r_hdrsize(void) {
     int siz = -1;
     ParseStatus status;
     SEXP ps = PROTECT(R_ParseVector(s, -1, &status, R_NilValue));
+    SEXP val;
     if (status != PARSE_OK ||
 	TYPEOF(ps) != EXPRSXP ||
 	LENGTH(ps) != 1) {
     	return siz;
     }
-    SEXP val = eval(VECTOR_ELT(ps, 0), R_GlobalEnv);
+    val = eval(VECTOR_ELT(ps, 0), R_GlobalEnv);
     siz = INTEGER(val)[0];
 
     UNPROTECT(2); /* s, ps */
