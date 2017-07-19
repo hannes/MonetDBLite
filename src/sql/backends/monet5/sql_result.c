@@ -998,8 +998,9 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 	if (!b_inout || !b_type || !b_digits || !b_scale || !b_schema || !b_table || !b_column) {
 		return -1;
 	}
-	out = NULL; // make sure we never write to this here
 	(void) w;
+	(void) out;
+
 	if (is_topn(r->op))
 		r = r->l;
 
