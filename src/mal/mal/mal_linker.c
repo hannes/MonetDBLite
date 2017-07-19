@@ -64,7 +64,7 @@ getAddress(stream *out, str modname, str fcnname, int silent)
 
 	/* First try the last module loaded */
 	if( prev >= 0){
-		adr = (MALfcn) dlsym(filesLoaded[prev].handle, fcnname);
+		adr = (MALfcn) (intptr_t) dlsym(filesLoaded[prev].handle, fcnname);
 		if( adr != NULL)
 			return adr; /* found it */
 	}
@@ -78,7 +78,7 @@ getAddress(stream *out, str modname, str fcnname, int silent)
 		if (idx != prev &&		/* skip already searched module */
 			filesLoaded[idx].handle &&
 			(idx == 0 || filesLoaded[idx].handle != filesLoaded[0].handle)) {
-			adr = (MALfcn) dlsym(filesLoaded[idx].handle, fcnname);
+			adr = (MALfcn) (intptr_t) dlsym(filesLoaded[idx].handle, fcnname);
 			if (adr != NULL)  {
 				prev = idx;
 				return adr; /* found it */
@@ -103,7 +103,7 @@ getAddress(stream *out, str modname, str fcnname, int silent)
 		return NULL;
 	}
 
-	adr = (MALfcn) dlsym(dl, fcnname);
+	adr = (MALfcn) (intptr_t) dlsym(dl, fcnname);
 	filesLoaded[lastfile].modname = GDKstrdup("libmonetdb5");
 	filesLoaded[lastfile].fullname = GDKstrdup("libmonetdb5");
 	filesLoaded[lastfile].handle = dl;

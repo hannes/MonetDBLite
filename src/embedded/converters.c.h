@@ -110,12 +110,13 @@ static int monetdb_r_hdrsize(void) {
     int siz = -1;
     ParseStatus status;
     SEXP ps = PROTECT(R_ParseVector(s, -1, &status, R_NilValue));
+    SEXP val;
     if (status != PARSE_OK ||
 	TYPEOF(ps) != EXPRSXP ||
 	LENGTH(ps) != 1) {
     	return siz;
     }
-    SEXP val = eval(VECTOR_ELT(ps, 0), R_GlobalEnv);
+    val = eval(VECTOR_ELT(ps, 0), R_GlobalEnv);
     siz = INTEGER(val)[0];
 
     UNPROTECT(2); /* s, ps */
@@ -354,10 +355,8 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 	} else if (battype == TYPE_sqlblob) {
 		BUN j, n = BATcount(b);
 		BATiter li = bat_iterator(b);
-		blob* ele_null = BLOBnull();
-
 		varvalue = PROTECT(NEW_LIST(n));
-		if (!varvalue || !ele_null) {
+		if (!varvalue) {
 			return NULL;
 		}
 
@@ -516,9 +515,11 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 		for (i = 0; i < cnt; i++) {
 			SEXP list_ele = VECTOR_ELT(s, i);
 			size_t blob_len = LENGTH(list_ele);
+			char free_blob = FALSE;
 			if (!list_ele || !(IS_RAW(list_ele) || is_single_NA(list_ele))) return NULL; // FIXME
 			if (IS_RAW(list_ele)) {
 				ele_blob = GDKmalloc(blobsize(blob_len));
+				free_blob = TRUE;
 				if (!ele_blob) {
 					return NULL;
 				}
@@ -531,13 +532,18 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 			}
 			BLOBput(b->tvheap, &bun_offset, ele_blob);
 			if (BUNappend(b, ele_blob, FALSE) != GDK_SUCCEED) {
+				if (free_blob) {
+					GDKfree(ele_blob);
+				}
 				return NULL;
 			}
-			GDKfree(ele_blob);
+			if (free_blob) {
+				GDKfree(ele_blob);
+			}
 		}
 	}
 
-	if (type == TYPE_date && IS_NUMERIC(s) && strcmp("Date", CHAR(STRING_ELT(GET_CLASS(s), 0))) == 0) {
+	if (type == TYPE_date && (IS_NUMERIC(s) || IS_INTEGER(s)) && strcmp("Date", CHAR(STRING_ELT(GET_CLASS(s), 0))) == 0) {
 		ValRecord val;
 		val.vtype = TYPE_int;
 		val.val.ival = 719528;

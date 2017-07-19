@@ -210,6 +210,14 @@ char* monetdb_query(monetdb_connection conn, char* query, char execute, monetdb_
 	mvc* m;
 	backend *b;
 	char* qname = "somequery";
+	size_t query_len = strlen(query) + 3;
+	char* nq;
+	buffer query_buf;
+	stream *query_stream;
+
+	// TODO what about execute flag?! remove when result set is there for prepared stmts
+	(void) execute;
+
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
 	}
@@ -220,21 +228,16 @@ char* monetdb_query(monetdb_connection conn, char* query, char execute, monetdb_
 	b = (backend *) c->sqlcontext;
 	m = b->mvc;
 
-	// TODO what about execute flag?! remove when result set is there for prepared stmts
-	(void) execute;
+	query_stream = buffer_rastream(&query_buf, qname);
+	if (!query_stream) {
+		return GDKstrdup( "WARNING: could not setup query stream.");
+	}
 
-	size_t query_len = strlen(query) + 3;
-	char* nq = GDKmalloc(query_len);
+	nq = GDKmalloc(query_len);
 	if (!nq) {
 		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
 	sprintf(nq, "%s\n;", query);
-
-	buffer query_buf;
-	stream* query_stream = buffer_rastream(&query_buf, qname);
-	if (!query_stream) {
-		return GDKstrdup( "WARNING: could not setup query stream.");
-	}
 
 	query_buf.pos = 0;
 	query_buf.len = query_len;
@@ -252,7 +255,6 @@ char* monetdb_query(monetdb_connection conn, char* query, char execute, monetdb_
 	m->scanner.rs = c->fdin;
 	b->output_format = OFMT_NONE;
 	m->user_id = m->role_id = USER_MONETDB;
-	//m->cache = 0;
 	m->errstr[0] = '\0';
 
 	if (result) {
@@ -473,6 +475,7 @@ void monetdb_unregister_progress(monetdb_connection conn) {
 
 void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
+		SQLepilogue(NULL); // just do it here, i don't trust mserver_reset to call this
 		mserver_reset(0);
 		fclose(embedded_stdout);
 		monetdb_embedded_initialized = 0;

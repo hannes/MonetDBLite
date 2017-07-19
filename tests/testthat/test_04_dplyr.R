@@ -163,8 +163,6 @@ test_that("dplyr summarise 2", {
 	  select(arr_delay) %>% 
 	  mutate(rank = rank(desc(arr_delay)))
 
-	expect_true( "tbl_monetdb" %in% class( ranked_monetdb ) )
-	expect_equal( class( collect( ranked_monetdb ) ) , c( "grouped_df" , "tbl_df" , "tbl" , "data.frame" ) )
 })
 
 

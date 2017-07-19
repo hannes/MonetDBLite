@@ -382,6 +382,26 @@ test_that("booleans, dates, datetime and raw can be written and read back", {
 	expect_false(dbExistsTable(con, tname))
 })
 
+test_that("both numeric and integer dates can be written", {
+	dbBegin(con)
+	
+	expect_false(dbExistsTable(con, tname))
+	dbWriteTable(con, tname, data.frame(double_date = structure(1, class="Date")))
+	expect_true(dbExistsTable(con, tname))
+	res <- dbReadTable(con, tname)
+	expect_equal(as.Date("1970-01-02"), res$double_date)
+	dbRemoveTable(con, tname)
+
+	expect_false(dbExistsTable(con, tname))
+	dbWriteTable(con, tname, data.frame(integer_date=structure(1L,class="Date")))
+	expect_true(dbExistsTable(con, tname))
+	res <- dbReadTable(con, tname)
+	expect_equal(as.Date("1970-01-02"), res$integer_date)
+
+	dbRollback(con)
+	expect_false(dbExistsTable(con, tname))
+})
+
 # TODO: write into decimal col?
 test_that("pk violations throw errors", {
 	expect_false(dbExistsTable(con, tname))

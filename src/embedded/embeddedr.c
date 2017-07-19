@@ -40,6 +40,7 @@ static SEXP monetdb_error_R(char* err) {
 	if (retChr) {
 		retVec = ScalarString(retChr);
 	}
+	GDKfree(err);
 	UNPROTECT(1);
 	return retVec;
 }
@@ -64,17 +65,19 @@ static void printf_str_repeat(char* str, size_t n) {
 }
 
 static int monetdb_progress_R(void* conn, void* data, size_t num_statements, size_t num_completed_statement, float percentage_done) {
+	size_t barwidth = monetdb_progress_width - 7;
+	size_t bars = (size_t) round(barwidth * percentage_done);
+	long ts = 0;
+
 	(void) conn;
 	(void) data;
 	(void) num_statements;
 	(void) num_completed_statement;
-	size_t barwidth = monetdb_progress_width - 7;
-	size_t bars = (size_t) round(barwidth * percentage_done);
 
 	if (!data) {
 		return 0;
 	}
-	long ts = *((long*) data);
+	ts = *((long*) data);
 	if (ts <= 0) {
 		*((long*) data) = GDKusec();
 		return 0;
@@ -105,13 +108,13 @@ SEXP monetdb_query_R(SEXP connsexp, SEXP querysexp, SEXP executesexp, SEXP resul
 	GetRNGstate();
 	monetdb_unregister_progress(connptr);
 	if (LOGICAL(progressbarsexp)[0]) {
-		monetdb_progress_width = Rf_GetOptionWidth();
-		if (monetdb_progress_width < 20) {
-			monetdb_progress_width = 80;
-		}
 		void* tsdata = malloc(sizeof(long));
 		if (!tsdata) {
 			return monetdb_error_R("Memory allocation failed");
+		}
+		monetdb_progress_width = Rf_GetOptionWidth();
+		if (monetdb_progress_width < 20) {
+			monetdb_progress_width = 80;
 		}
 		monetdb_register_progress(connptr, monetdb_progress_R, tsdata);
 	}
@@ -334,9 +337,6 @@ void R_init_MonetDBLite(DllInfo *dll) {
 	monetdb_lib_path = strdup(*((char**) dll)); // not evil at all
 	R_registerRoutines(dll, NULL, R_CallDef, NULL, NULL);
 	R_useDynamicSymbols(dll, FALSE);
-#if defined(WIN32) && !defined(_WIN64)
-	Rf_warning("MonetDBLite running in a 32-Bit Windows. This is not recommended.");
-#endif
 }
 
 

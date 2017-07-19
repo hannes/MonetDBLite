@@ -300,6 +300,7 @@ setMethod("dbSendQuery", signature(conn="MonetDBConnection", statement="characte
   })
 
   env <- new.env(parent=emptyenv())
+  env$open <- TRUE
 
   if (resp$type == Q_TABLE) {
     # we have to pass this as an environment to make conn object available to result for fetching
@@ -654,7 +655,6 @@ if (is.null(getGeneric("dbSendUpdate"))) setGeneric("dbSendUpdate", function(con
                                                                              async=FALSE) standardGeneric("dbSendUpdate"))
 setMethod("dbSendUpdate", signature(conn="MonetDBConnection", statement="character"),  
           def=function(conn, statement, ..., list=NULL, async=FALSE) {
-            .Deprecated("DBI has dbExecute and sqlInterpolate which can replace this.")
 
             if(!is.null(list) || length(list(...))){
               if (length(list(...))) statement <- .bindParameters(statement, list(...))

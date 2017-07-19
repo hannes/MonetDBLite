@@ -341,8 +341,8 @@ MCforkClient(Client father)
 		son->scenario = father->scenario;
 		if (son->prompt)
 			GDKfree(son->prompt);
-		son->prompt = GDKstrdup(father->prompt);
-		son->promptlength = strlen(father->prompt);
+		son->prompt = NULL;
+		son->promptlength = 0;
 		son->nspace = newModule(NULL, putName("child"));
 	}
 	return son;
