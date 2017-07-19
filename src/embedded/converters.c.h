@@ -354,10 +354,8 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 	} else if (battype == TYPE_sqlblob) {
 		BUN j, n = BATcount(b);
 		BATiter li = bat_iterator(b);
-		blob* ele_null = BLOBnull();
-
 		varvalue = PROTECT(NEW_LIST(n));
-		if (!varvalue || !ele_null) {
+		if (!varvalue) {
 			return NULL;
 		}
 

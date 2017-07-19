@@ -23,7 +23,7 @@ src_monetdb <- function(dbname="demo", host = "localhost", port = 50000L, user =
   dplyrMt[["db_explain.MonetDBEmbeddedConnection"]]    <- db_explain.MonetDBEmbeddedConnection
   dplyrMt[["db_desc.MonetDBEmbeddedConnection"]]       <- db_desc.MonetDBEmbeddedConnection
 
-  dbplyr::src_sql("monetdb", con, info = DBI::dbGetInfo(con))
+  dbplyr::src_dbi(con)
 }
 
 

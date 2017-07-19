@@ -40,6 +40,7 @@ static SEXP monetdb_error_R(char* err) {
 	if (retChr) {
 		retVec = ScalarString(retChr);
 	}
+	GDKfree(err);
 	UNPROTECT(1);
 	return retVec;
 }

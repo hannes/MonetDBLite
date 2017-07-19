@@ -451,6 +451,8 @@ MCstopClients(Client cntxt)
 	for (c = mal_clients + 1; c < mal_clients + MAL_MAXCLIENTS; c++) {
 		if (c && cntxt != c) {
 			if (c->mode == RUNCLIENT){
+				SQLexitClient(c);
+				MCcloseClient(c);
 				c->mode = FINISHCLIENT;
 			}
 			else if (c->mode == FREECLIENT)
