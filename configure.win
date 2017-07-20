@@ -1,13 +1,6 @@
 # figure out where the sourcetree is
 SRC=`pwd | sed -e 's|/cygdrive/||' -e 's|/|:/|'`"/src"
 
-# figure out bitness
-BITS=64
-if [ "$R_ARCH" = "/i386" ] 
-then
-	BITS=32
-fi
-
 CC=`$R_CMD config CC`
 ADD_CFLAGS="-O3"
 if [ ! -z $MONETDBLITE_DEBUG ] ; then
@@ -23,9 +16,6 @@ cp src/embedded/windows/monetdb_config.h.in src/
 
 # pmc stands for "poor man's configure", it does something similar using the sedscript
 sh src/embedded/windows/pmc.sh
-
-# download/unpack some dependencies
-R --quiet -e "download.file('http://github.com/hannesmuehleisen/MonetDBLite/raw/bb652b076adca70456c51a7cd068ba837c37b7cc/windows-buildfiles/msvcr100-$BITS.dll', 'src/embedded/windows/msvcr100.dll', mode='wb')"
 
 cd src
 
@@ -51,5 +41,3 @@ then
 fi
 
 cd ../
-mkdir -p "$R_PACKAGE_DIR/libs/$R_ARCH/"
-cp src/embedded/windows/msvcr100.dll "$R_PACKAGE_DIR/libs/$R_ARCH/"

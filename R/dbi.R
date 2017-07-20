@@ -500,7 +500,6 @@ setMethod("dbWriteTable", signature(conn="MonetDBConnection", name = "character"
 
 
   if (is.character(value)) {
-    message("Treating character vector parameter as file name(s) for monetdb.read.csv()")
     monetdb.read.csv(conn=conn, files=value, tablename=name, ...)
     return(invisible(TRUE))
   }
