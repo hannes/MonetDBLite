@@ -53,7 +53,6 @@ test_that( "MonetDBLite handles heavy shutdown/startup situations" , {
 
 
 test_that( "MonetDBLite handles low RAM together with heavy shutdown/startup situations" , {
-	skip("Too heavy for now")
 
 	ram_stress_test <- 
 		function( driver , repetitions = 1000 , this_limit , server_shutdown ){
@@ -78,7 +77,7 @@ test_that( "MonetDBLite handles low RAM together with heavy shutdown/startup sit
 		if( driver == 'RSQLite' ) shutdown_choices <- 'never' else shutdown_choices <- c( 'never' , 'at completion' , 'always' )
 		for( shut_down in shutdown_choices ){
 			# before any ram-stress testing, try everything without any ram ceiling
-			for( my_memlimit in c( Inf , 35 ) ){
+			for( my_memlimit in c( Inf , 50 ) ){
 				my_cmdargs <- if( my_memlimit < Inf & .Platform$OS.type == 'windows' ) paste0( "--slave --max-mem-size=" , my_memlimit , "M" ) else "--slave"
 				result <-
 					callr::r( 
