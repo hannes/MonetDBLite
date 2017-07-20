@@ -6,5 +6,5 @@ if [ $# -eq 1 ]; then
 	sed -f src/embedded/windows/sedscript $1 > $NN
 else
 	touch src/config.status
-	find src -name "*.in" -type f -exec sh $0 {} \;
+	find src -name '*.in' -type f -exec sh $0 {} \;
 fi
