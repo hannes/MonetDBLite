@@ -53,7 +53,7 @@ test_that( "MonetDBLite handles heavy shutdown/startup situations" , {
 
 
 test_that( "MonetDBLite handles low RAM together with heavy shutdown/startup situations" , {
-
+	skip_on_cran()
 	ram_stress_test <- 
 		function( driver , repetitions = 1000 , this_limit , server_shutdown ){
 			library(DBI)
