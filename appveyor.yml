@@ -14,10 +14,9 @@ install:
 shallow_clone: true
 
 branches:
-  only:
-    - master
-    - Jul2017Lite-R
-    - Jul2017Lite-R-Makefile
+    except:
+      - /.*-Java/
+      - /.*-C/
 
 environment:
 #  global:
