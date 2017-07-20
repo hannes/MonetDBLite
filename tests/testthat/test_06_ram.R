@@ -1,19 +1,21 @@
+library(testthat)
+
+
 test_that( "just install ulimit" , {
-	skip("Too heavy for now")
+	skip_on_cran()
 	if( .Platform$OS.type != 'windows' ) {
 		devtools::install_github("krlmlr/ulimit")
 		library(ulimit)
 	}
 })
 
-library(testthat)
 
 # otherwise callr does not work
 Sys.setenv("R_TESTS" = "")
 
 
 test_that( "MonetDBLite handles heavy shutdown/startup situations" , {
-	skip("Too heavy for now")
+	skip_on_cran()
 
 	single_restarts <- 
 		function( repetitions = ( 128 * 4 ) + 1 ){
