@@ -28,12 +28,12 @@ dplyr_sql_translate_env <- function(con) {
       median = dbplyr::sql_prefix("MEDIAN")
     ),
     window = dbplyr::sql_translator(.parent = dbplyr::base_no_win,
-      row_number   = win_rank("row_number"),
-      min_rank     = win_rank("rank"),
-      rank         = win_rank("rank"),
-      dense_rank   = win_rank("dense_rank"),
-      percent_rank = win_rank("percent_rank"),
-      cume_dist    = win_rank("cume_dist")
+      row_number   = dbplyr::win_rank("row_number"),
+      min_rank     = dbplyr::win_rank("rank"),
+      rank         = dbplyr::win_rank("rank"),
+      dense_rank   = dbplyr::win_rank("dense_rank"),
+      percent_rank = dbplyr::win_rank("percent_rank"),
+      cume_dist    = dbplyr::win_rank("cume_dist")
     )
   )
 }
