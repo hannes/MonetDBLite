@@ -9,6 +9,6 @@
   		dplyrMt[["sample_n.tbl_monetdb"]] <- dplyr_sample_n
   		dplyrMt[["sample_frac.tbl_monetdb"]] <- dplyr_sample_frac
   		dplyrMt[["tbl.src_monetdb"]] <- dplyr_tbl_monetdb
-	}, error = function(){NA})
+	}, error = function(e){NA})
   TRUE
 }
