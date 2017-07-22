@@ -11,4 +11,4 @@ SystemRequirements: GNU make
 Depends: R (>= 3.2.0)
 Imports: DBI (>= 0.6), digest (>= 0.6.4), methods, codetools
 Suggests: assertthat, testthat, survey, nycflights13, RSQLite, dbplyr, dplyr, gdata, callr, devtools, DBItest
-Collate: mapi.R dbi.R dbapply.R dplyr.R control.R embedded.R
+Collate: mapi.R dbi.R dbapply.R dplyr.R control.R embedded.R zzz.R

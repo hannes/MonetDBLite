@@ -5,4 +5,5 @@ rm MonetDBLite_*
 R CMD build . && \
 R CMD INSTALL --build MonetDBLite_*.tar.gz && \
 R CMD INSTALL MonetDBLite_*.tgz && \
-(cd tests; R -f testthat.R)
+(cd tests; R  --slave -f testthat.R) && \
+(cd ~/source/dbplyr/tests && git pull && R --slave -f testthat.R)

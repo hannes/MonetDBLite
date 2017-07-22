@@ -12,7 +12,6 @@ test_that("we can connect", {
 	my_db_monetdb <<- MonetDBLite::src_monetdblite(dbdir)
 })
 
-# TEMPORARY until https://github.com/hannesmuehleisen/MonetDBLite/issues/15
 flights <- nycflights13::flights
 flights$time_hour <- as.numeric( flights$time_hour )
 
@@ -31,6 +30,11 @@ test_that("dplyr copy_to()", {
 test_that("explain works", {
 	explain(flights_monetdb)
 	explain(flights_sqlite)
+})
+
+test_that("sample works", {
+	a <- collect(sample_n(flights_monetdb, 10))
+	b <- collect(sample_frac(flights_monetdb, 0.1))
 })
 
 
@@ -164,6 +168,7 @@ test_that("dplyr summarise 2", {
 	  mutate(rank = rank(desc(arr_delay)))
 
 })
+
 
 
 test_that("shutdown", {
