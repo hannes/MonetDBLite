@@ -341,7 +341,7 @@ AS_CASE([$host],
 		# it disables, however, the availability of madvise, which is
 		# in use use by GDK, so we cannot just AC_DEFINE this, but
 		# rather have to enable it where it is necessary
-		MSGCONTROL_FLAGS="-D_XOPEN_SOURCE=500"
+		MSGCONTROL_FLAGS="-D_XPG4_2"
 		AC_SUBST([MSGCONTROL_FLAGS])])
 
 # (try to) determine compiler type (gcc, icc, clang) (and version)
@@ -1226,6 +1226,7 @@ AS_CASE([$have_zlib],
 AS_VAR_IF([have_zlib], [yes], [
 	AC_DEFINE([HAVE_LIBZ], 1, [Define if you have the z library])])
 AM_CONDITIONAL([HAVE_LIBZ], [test x"$have_zlib" != xno])
+
 
 
 
