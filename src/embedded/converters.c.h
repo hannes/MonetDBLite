@@ -84,13 +84,14 @@ static void monetdb_r_masq_free(R_MASQ_BAT* masq) {
 
 static void* monetdb_r_alloc(R_allocator_t *allocator, size_t length) {
 	R_MASQ_BAT* masq = (R_MASQ_BAT*) allocator->data;
+	// R normalizes vector lengths to a multiple of 8Byte
+	size_t data_len = (((masq->data_len-1) / sizeof(double)) + 1) * sizeof(double);
 
-	// double-check we computed the length correctly below
-	if (length <= masq->data_len || (length - masq->data_len) > MT_pagesize()) {
+	if (length <= masq->data_len || (length - data_len) > MT_pagesize()) {
 		error("Wrong header size");
 		return NULL;
 	}
-	masq->sexp_ptr = masq->data_map - (length - masq->data_len);
+	masq->sexp_ptr = masq->data_map - (length - data_len);
 	return masq->sexp_ptr;
 }
 
