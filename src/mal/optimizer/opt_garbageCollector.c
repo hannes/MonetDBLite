@@ -25,10 +25,11 @@
 str
 OPTgarbageCollectorImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
-	int i, j, limit, slimit;
+	int i, limit, slimit;
 	InstrPtr p, *old;
 	int actions = 0;
 #ifndef HAVE_EMBEDDED
+	int j;
 	char buf[256];
 	lng usec = GDKusec();
 #endif
