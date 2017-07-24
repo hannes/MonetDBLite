@@ -505,6 +505,20 @@ test_that("prepared statements work", {
 })
 
 
+test_that("we can dress up", {
+	dbBegin(con)
+	expect_false(dbExistsTable(con, tname))
+	a <- as.integer(1:2000001)
+	b <- as.numeric(a)
+	dbWriteTable(con, tname, data.frame(a=a, b=b))
+	rr <- dbReadTable(con, tname)
+	expect_equal(a, rr$a)
+	expect_equal(b, rr$b)
+	dbRemoveTable(con, tname)
+	expect_false(dbExistsTable(con, tname))
+	dbRollback(con)
+})
+
 test_that("we can disconnect", {
 	expect_true(dbIsValid(con))
 	dbDisconnect(con)
