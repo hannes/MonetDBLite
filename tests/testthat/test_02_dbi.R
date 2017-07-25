@@ -542,3 +542,6 @@ test_that("we can disconnect", {
 	gc()
 })
 
+MonetDBLite:::monetdb_embedded_shutdown()
+
+
