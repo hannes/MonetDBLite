@@ -1,20 +1,6 @@
 \name{src_monetdb}
 \alias{src_monetdb}
 \alias{src_monetdblite}
-\alias{tbl.src_monetdb}
-\alias{src_desc.src_monetdb}
-\alias{src_translate_env.src_monetdb}
-\alias{sample_frac.tbl_monetdb}
-\alias{sample_n.tbl_monetdb}
-\alias{db_analyze.MonetDBConnection}
-\alias{db_create_index.MonetDBConnection}
-\alias{db_insert_into.MonetDBConnection}
-\alias{db_query_fields.MonetDBConnection}
-\alias{db_query_rows.MonetDBConnection}
-\alias{db_query_fields.MonetDBEmbeddedConnection}
-\alias{db_query_rows.MonetDBEmbeddedConnection}
-\alias{db_save_query.MonetDBConnection}
-\alias{sql_subquery.MonetDBConnection}
 
 \title{dplyr integration from MonetDBLite}
 \usage{
@@ -23,7 +9,6 @@ src_monetdb(dbname, host = "localhost", port = 50000L, user = "monetdb",
 
 src_monetdblite(dbdir = tempdir(), ...)
 
-\method{tbl}{src_monetdb}(src, from, ...)
 }
 \arguments{
 \item{dbname}{Database name}
@@ -37,11 +22,7 @@ src_monetdblite(dbdir = tempdir(), ...)
 \item{...}{for the src, other arguments passed on to the underlying
 database connector, \code{dbConnect}.}
 
-\item{src}{a MonetDB src created with \code{src_monetdb}.}
-
 \item{dbdir}{a directory to start MonetDBLite in}
-
-\item{from}{Either a string giving the name of table in database, or SQL described a derived table or compound join.}
 }
 \description{
 Use \code{src_monetdb} to connect to an existing MonetDB database,

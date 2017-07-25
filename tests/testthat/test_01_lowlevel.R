@@ -294,9 +294,10 @@ test_that("check for database corruption at the conclusion of all other tests", 
 	cs <- MonetDBLite:::monetdb_embedded_query( con , corruption_sniff )
 	expect_equal( as.character(cs$type), "1" )
 	expect_equal(0, nrow( cs$tuples))
+	MonetDBLite:::monetdb_embedded_disconnect(con)
 	MonetDBLite:::monetdb_embedded_shutdown()
-
 	expect_false(MonetDBLite:::monetdb_embedded_env$is_started)
 	expect_equal(MonetDBLite:::monetdb_embedded_env$started_dir, "")
+	gc()
 })
 

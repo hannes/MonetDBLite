@@ -404,7 +404,7 @@ recover_dir(int farmid, int direxists)
 
 static gdk_return BBPrecover(int farmid);
 static gdk_return BBPrecover_subdir(void);
-static int BBPdiskscan(const char *);
+static int BBPdiskscan(const char *, size_t);
 
 #ifdef GDKLIBRARY_SORTEDPOS
 static void
@@ -1149,7 +1149,7 @@ BBPreadEntries(FILE *fp, int bbpversion)
 			   &properties,
 			   &count, &capacity, &base,
 			   &nread) < 8)
-			GDKfatal("BBPinit: invalid format for BBP.dir%s", buf);
+			GDKfatal("BBPinit: invalid format for BBP.dir\n%s", buf);
 
 		/* convert both / and \ path separators to our own DIR_SEP */
 #if DIR_SEP != '/'
@@ -1459,7 +1459,7 @@ BBPinit(void)
 			char *d = GDKfilepath(i, NULL, BATDIR, NULL);
 			if (d == NULL)
 				GDKfatal("BBPinit: malloc failed\n");
-			BBPdiskscan(d);
+			BBPdiskscan(d, strlen(d) - strlen(BATDIR));
 			GDKfree(d);
 		}
 	}
@@ -3662,7 +3662,7 @@ getdesc(bat bid)
 }
 
 static int
-BBPdiskscan(const char *parent)
+BBPdiskscan(const char *parent, size_t baseoff)
 {
 	DIR *dirp = opendir(parent);
 	struct dirent *dent;
@@ -3692,9 +3692,9 @@ BBPdiskscan(const char *parent)
 			continue;	/* ignore .dot files and directories (. ..) */
 
 		if (strncmp(dent->d_name, "BBP.", 4) == 0 &&
-		    (strcmp(parent, BATDIR) == 0 ||
-		     strncmp(parent, BAKDIR, strlen(BAKDIR)) == 0 ||
-		     strncmp(parent, SUBDIR, strlen(SUBDIR)) == 0))
+		    (strcmp(parent + baseoff, BATDIR) == 0 ||
+		     strncmp(parent + baseoff, BAKDIR, strlen(BAKDIR)) == 0 ||
+		     strncmp(parent + baseoff, SUBDIR, strlen(SUBDIR)) == 0))
 			continue;
 
 		p = strchr(dent->d_name, '.');
@@ -3712,7 +3712,7 @@ BBPdiskscan(const char *parent)
 		strncpy(dst, dent->d_name, dstlen);
 		fullname[sizeof(fullname) - 1] = 0;
 
-		if (p == NULL && BBPdiskscan(fullname) == 0) {
+		if (p == NULL && BBPdiskscan(fullname, baseoff) == 0) {
 			/* it was a directory */
 			continue;
 		}

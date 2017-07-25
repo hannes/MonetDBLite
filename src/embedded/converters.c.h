@@ -65,6 +65,7 @@ typedef struct R_MASQ_BAT {
 	char* data_map;
 	char* sexp_ptr;
 	size_t data_map_len;
+	size_t data_len;
 	bat bat_cache_id;
 } R_MASQ_BAT;
 
@@ -83,12 +84,14 @@ static void monetdb_r_masq_free(R_MASQ_BAT* masq) {
 
 static void* monetdb_r_alloc(R_allocator_t *allocator, size_t length) {
 	R_MASQ_BAT* masq = (R_MASQ_BAT*) allocator->data;
+	// R normalizes vector lengths to a multiple of 8Byte
+	size_t data_len = (((masq->data_len-1) / sizeof(double)) + 1) * sizeof(double);
 
-	// double-check we computed the length correctly below
-	if (length > (size_t)((masq->data_map + masq->data_map_len) - masq->sexp_ptr)) {
+	if (length <= masq->data_len || (length - data_len) > MT_pagesize()) {
+		error("Wrong header size");
 		return NULL;
 	}
-
+	masq->sexp_ptr = masq->data_map - (length - data_len);
 	return masq->sexp_ptr;
 }
 
@@ -103,26 +106,6 @@ static void monetdb_r_free(R_allocator_t *allocator, void *ptr) {
 	monetdb_r_masq_free(masq);
 }
 
-
-// because R_ParseEvalString is not exported
-static int monetdb_r_hdrsize(void) {
-    SEXP s = PROTECT(mkString("as.integer(utils::object.size(integer(0)))"));
-    int siz = -1;
-    ParseStatus status;
-    SEXP ps = PROTECT(R_ParseVector(s, -1, &status, R_NilValue));
-    SEXP val;
-    if (status != PARSE_OK ||
-	TYPEOF(ps) != EXPRSXP ||
-	LENGTH(ps) != 1) {
-    	return siz;
-    }
-    val = eval(VECTOR_ELT(ps, 0), R_GlobalEnv);
-    siz = INTEGER(val)[0];
-
-    UNPROTECT(2); /* s, ps */
-    return siz;
-}
-
 #if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
 #define MAP_ANONYMOUS		MAP_ANON
 #endif
@@ -130,7 +113,6 @@ static int monetdb_r_hdrsize(void) {
 static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
 	R_MASQ_BAT* masq = malloc(sizeof(R_MASQ_BAT));
 	SEXP varvalue;
-	size_t hdr_len = monetdb_r_hdrsize() + sizeof(R_allocator_t);//40 +  // sizeof(SEXPREC_ALIGNED) is 40 but not exported
 	R_allocator_t allocator;
 
 	char* filename = GDKfilepath(b->T.heap.farmid, BATDIR, b->T.heap.filename, NULL);
@@ -146,6 +128,7 @@ static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
 	masq->base_map = mmap(NULL,                           masq->data_map_len + MT_pagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	masq->data_map = mmap(masq->base_map + MT_pagesize(), masq->data_map_len,                 PROT_READ,              MAP_PRIVATE | MAP_FIXED,     fd, 0);
 	masq->bat_cache_id = b->batCacheid;
+	masq->data_len = BATcount(b) * ATOMsize(b->ttype);
 	close(fd);
 
 	// check if the MAP_FIXED worked as expected
@@ -159,11 +142,6 @@ static SEXP monetdb_r_dressup(BAT *b, SEXPTYPE target_type) {
 	allocator.res = NULL;
 	allocator.data = masq;
 
-//	if (BATcount(b) > R_SHORT_LEN_MAX) {
-//		hdr_len += sizeof(R_long_vec_hdr_t);
-//	}
-
-	masq->sexp_ptr = masq->data_map - hdr_len;
 	// pointer fun, we know we are allowed to write there
 	// call R's own allocator to set up various structures for us
 	varvalue = PROTECT(allocVector3(target_type, BATcount(b), &allocator));
@@ -231,7 +209,7 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 #ifndef NATIVE_WIN32
 		// special case: bulk memcpy/masquerade
 		if (b->T.heap.storage != STORE_MMAP ||
-				BATcount(b) < 2000000 || BATcount(b) > R_SHORT_LEN_MAX) {
+				BATcount(b) < 2000000) {
 			BAT_TO_INTSXP(b, int, varvalue, 1);
 		} else {
 			varvalue = monetdb_r_dressup(b, INTSXP);
@@ -252,7 +230,7 @@ static SEXP bat_to_sexp(BAT* b, sql_subtype *subtype, int *unfix) {
 #ifndef NATIVE_WIN32
 		// special case: bulk memcpy/masquerade, but only if there are no NULLs
 		if (!b->tnonil || b->tnil || b->T.heap.storage != STORE_MMAP ||
-				BATcount(b) < 1000000 || BATcount(b) > R_SHORT_LEN_MAX) {
+				BATcount(b) < 1000000) {
 			BAT_TO_REALSXP(b, dbl, varvalue, 1);
 		} else {
 			varvalue = monetdb_r_dressup(b, REALSXP);
