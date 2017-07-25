@@ -125,7 +125,7 @@ setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="m
         # open socket with 5-sec timeout so we can check whether everything works
         suppressWarnings(socket <- socket <<- .mapiConnect(host, port, 5))
         # authenticate
-        .mapiAuthenticate(socket, dbname, user, password, language=language)
+        socket <- socket <<- .mapiAuthenticate(socket, dbname, user, password, language=language)
         .mapiDisconnect(socket)
         break
       }, error = function(e) {
@@ -147,8 +147,7 @@ setMethod("dbConnect", "MonetDBDriver", def=function(drv, dbname="demo", user="m
   connenv$exception <- list()
   connenv$autocommit <- TRUE
   connenv$params <- list(drv=drv, host=host, port=port, timeout=timeout, dbname=dbname, user=user, password=password, language=language)
-  connenv$socket <- .mapiConnect(host, port, timeout) 
-  .mapiAuthenticate(connenv$socket, dbname, user, password, language=language)
+  connenv$socket <- .mapiAuthenticate(.mapiConnect(host, port, timeout), dbname, user, password, language=language)
   
   conn <- new("MonetDBConnection", connenv=connenv)
   if (getOption("monetdb.sequential", FALSE)) {
@@ -285,7 +284,7 @@ setMethod("dbSendQuery", signature(conn="MonetDBConnection", statement="characte
   resp <- NA
   tryCatch({
     mresp <- .mapiRequest(conn, paste0("s", statement, "\n;"), async=async)
-    resp <- .mapiParseResponse(mresp)
+    resp <- .mapiParseResponse(conn@connenv$socket, mresp)
   }, interrupt = function(ex) {
     message("Interrupted query execution. Attempting to fix connection....")
       
@@ -937,7 +936,7 @@ setMethod("dbFetch", signature(res="MonetDBResult", n="numeric"), def=function(r
   
   # if our tuple cache in res@env$data does not contain n rows, we fetch from server until it does
   while (length(res@env$data) < n) {
-    cresp <- .mapiParseResponse(.mapiRequest(res@env$conn, paste0("Xexport ", .mapiLongInt(info$id), 
+    cresp <- .mapiParseResponse(res@env$conn, .mapiRequest(res@env$conn, paste0("Xexport ", .mapiLongInt(info$id), 
       " ", .mapiLongInt(info$index), " ", .mapiLongInt(n-length(res@env$data)))))
     stopifnot(cresp$type == Q_BLOCK && cresp$rows > 0)
     

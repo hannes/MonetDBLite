@@ -1,7 +1,10 @@
 # MAPI implementation for R
 
 PROTOCOL_v9 <- 9
+PROTOCOL_v10 <- 10
+
 MAX_PACKET_SIZE <- 8192
+
 
 HASH_ALGOS <- c("md5", "sha1", "crc32", "sha256", "sha512")
 
@@ -20,8 +23,10 @@ Q_TRANSACTION <- 4
 Q_PREPARE     <- 5
 Q_BLOCK       <- 6
 
+TIMEOUT_MSG = "Empty response from MonetDB server, probably a timeout. You can increase the time to wait for responses with the 'timeout' parameter to 'dbConnect()'."
 
-REPLY_SIZE    <- 100 # Apparently, -1 means unlimited, but we will start with a small result set. 
+
+REPLY_SIZE    <- 10000 # Apparently, -1 means unlimited, but we will start with a small result set. 
 # The entire set might never be fetch()'ed after all!
 
 # .mapiRead and .mapiWrite implement MonetDB's MAPI protocol. It works as follows: 
@@ -70,7 +75,7 @@ REPLY_SIZE    <- 100 # Apparently, -1 means unlimited, but we will start with a 
     dmesg <- conObj@connenv$deferred[[1]]
     conObj@connenv$deferred[[1]] <- NULL
     .mapiWrite(conObj@connenv$socket, dmesg)
-    dresp <- .mapiParseResponse(.mapiRead(conObj@connenv$socket))
+    dresp <- .mapiParseResponse(conObj@connenv$socket, .mapiRead(conObj@connenv$socket))
     if (dresp$type == MSG_MESSAGE) {
       conObj@connenv$lock <- 0
       warning(paste("II: Failed to execute deferred statement '", dmesg, "'. Server said: '", 
@@ -102,24 +107,39 @@ REPLY_SIZE    <- 100 # Apparently, -1 means unlimited, but we will start with a 
 .mapiRead <- function(con) {
   if (!identical(class(con)[[1]], "sockconn"))
     stop("I can only be called with a MonetDB connection object as parameter.")
-  resp <- list()
-  repeat {
-    unpacked <- readBin(con, "integer", n=1, size=2, signed=FALSE, endian="little")
-    
-    if (length(unpacked) == 0) {
-      stop("Empty response from MonetDB server, probably a timeout. You can increase the time to wait for responses with the 'timeout' parameter to 'dbConnect()'.")
-    }
+  resp <- raw()
 
-    length <- bitwShiftR(unpacked, 1)
-    final  <- bitwAnd(unpacked, 1)
-        
+  prot <- attr(con, "protocol")
+  if (is.null(prot)) prot <- PROTOCOL_v9
+
+  repeat {
+
+    if (prot == PROTOCOL_v10) {
+      unpacked <- readBin(con, "integer", n=2, size=4, signed=TRUE, endian="little")
+      if (length(unpacked) == 0 || unpacked[2] != 0) {
+        print(unpacked)
+        stop(TIMEOUT_MSG)
+      }
+
+      length <- bitwShiftR(unpacked[1], 1)
+      final  <- bitwAnd(unpacked[1], 1)
+    }
+    else {
+      unpacked <- readBin(con, "integer", n=1, size=2, signed=FALSE, endian="little")
+      if (length(unpacked) == 0) {
+        stop(TIMEOUT_MSG, "aaah")
+      }
+
+      length <- bitwShiftR(unpacked, 1)
+      final  <- bitwAnd(unpacked, 1)
+    }
     if (length == 0) break
     # no raw handling here (see .mapiWrite), since server tells us the length in bytes already
-    resp <- c(resp, readChar(con, length, useBytes = TRUE))    
+    resp <- c(resp, readBin(con, "raw", length, 1)) 
+    print(str(resp))   
     if (final == 1) break
   }
-  if (getOption("monetdb.debug.mapi", F)) message("RX: '", substring(paste0(resp, collapse=""), 1, 200))
-  return(paste0("", resp, collapse=""))
+  return(resp)
 }
 
 .mapiWrite <- function(con, msg) {
@@ -128,17 +148,32 @@ REPLY_SIZE    <- 100 # Apparently, -1 means unlimited, but we will start with a 
     stop("I can only be called with a MonetDB connection object as parameter.")
   final <- FALSE
   pos <- 0
+
+
+  prot <- attr(con, "protocol")
+  if (is.null(prot)) prot <- PROTOCOL_v9
+
+  write_size <- MAX_PACKET_SIZE
+  if (prot == PROTOCOL_v10) {
+    write_size <-  1000000
+  }
+
   if (getOption("monetdb.debug.mapi", F))  message("TX: '", msg)
   # convert to raw byte array, otherwise multibyte characters are 'difficult'
   msgr <- charToRaw(msg)
   msglen <- length(msgr)
   while (!final) {
-    bytes <- min(MAX_PACKET_SIZE, msglen - pos)
+    bytes <- min(write_size, msglen - pos)
     reqr <- msgr[(pos + 1) : (pos + bytes)]
     pos <- pos + bytes
     final <- max(msglen - pos, 0) == 0            
-    header <- as.integer(bitwOr(bitwShiftL(bytes, 1), as.numeric(final)))
-    writeBin(header, con, 2, endian="little")
+    if (prot == PROTOCOL_v10) {
+      header <- c(as.integer(bitwOr(bitwShiftL(bytes, 1), as.numeric(final))), 0L)
+      writeBin(header, con, 4, endian="little")
+    } else {
+      header <- as.integer(bitwOr(bitwShiftL(bytes, 1), as.numeric(final)))
+      writeBin(header, con, 2, endian="little")
+    }
     writeBin(reqr, con, endian="little")
   }
   flush(con)
@@ -157,8 +192,90 @@ REPLY_SIZE    <- 100 # Apparently, -1 means unlimited, but we will start with a 
   formatC(someint, format="d")
 }
 
+readLongAsDbl <- function(con) {
+    raw_val <- as.numeric(readBin(con, "integer", 2, 4))
+    raw_val[1] + raw_val[2] * 2^32
+}
+
+findString <- function(resp, start_idx) {
+  while (start_idx < length(resp) && resp[start_idx] != 0L) {
+      start_idx <- start_idx + 1
+  }
+  start_idx
+}
+
 # determines and partially parses the answer from the server in response to a query
-.mapiParseResponse <- function(response) {
+.mapiParseResponse <- function(con, response) {
+  if (response[1] == 42L) {
+    if (getOption("monetdb.debug.query", F)) message("QQ: PROT10 query result")
+    env <- new.env(parent=emptyenv())
+    env$type  <- Q_TABLE
+
+    dd <- rawConnection(response)
+    # throw away first two characters
+    readBin(dd, "raw", 2, 1)
+
+    env$id            <- readBin(dd, "integer", 1, 4)
+    env$qid           <- readLongAsDbl(dd)
+    env$rows          <- readLongAsDbl(dd)
+    env$cols          <- readLongAsDbl(dd)
+    env$tz            <- readBin(dd, "integer", 1, 4)
+    env$tables        <- character(env$cols)
+    env$names         <- character(env$cols)
+    env$types         <- character(env$cols)
+    env$nulls         <- list(env$cols)
+    env$precision     <- integer(env$cols)
+    env$scale         <- integer(env$cols)
+    env$internal_size <- integer(env$cols)
+    env$index         <- 0
+
+    idx <- 35
+
+    for (c in seq(env$cols)) {
+      nidx <- findString(response, idx)
+      env$tables[c] <- readChar(dd, nidx-idx)
+      readBin(dd, "raw", 1, 1)
+      idx <- nidx + 1
+
+      nidx <- findString(response, idx)
+      env$names[c] <- readChar(dd, nidx-idx)
+      readBin(dd, "raw", 1, 1)
+      idx <- nidx + 1
+
+      nidx <- findString(response, idx)
+      env$types[c] <- toupper(readChar(dd, nidx-idx))
+      readBin(dd, "raw", 1, 1)
+
+      idx <- nidx + 1
+
+      env$internal_size[c] <- readBin(dd, "integer", 1, 4)
+      env$precision[c] <- readBin(dd, "integer", 1, 4)
+      env$scale[c] <- readBin(dd, "integer", 1, 4)
+      null_length <- readBin(dd, "integer", 1, 4)
+
+      if (null_length > 0) {
+        env$nulls[c] <- readBin(dd, "raw", null_length, 1)
+      } else {
+        env$nulls[c] <- NA
+      } 
+      
+      # skip print width  
+      readBin(dd, "raw", 8, 1)
+      idx <- idx + 24
+    }
+
+    # consume prompt
+    .mapiRead(con)
+
+    return(env)
+  }
+
+  if (response[1] == 43L || response[1] == 44L) {
+    stop("fuu")
+  }
+
+  response = rawToChar(response)
+
   if (response == MSG_PROMPT) { # prompt
     return(list(type = MSG_PROMPT))
   }
@@ -270,7 +387,7 @@ REPLY_SIZE    <- 100 # Apparently, -1 means unlimited, but we will start with a 
   # read challenge from server, it looks like this
   # oRzY7XZr1EfNWETqU6b2:merovingian:9:RIPEMD160, SHA256, SHA1, MD5:LIT:SHA512:
   # salt:protocol:protocolversion:hashfunctions:endianness:hashrequested
-  challenge <- .mapiRead(con)
+  challenge <- rawToChar(.mapiRead(con))
   credentials <- strsplit(challenge, ":", fixed=TRUE)
   
   algos <- strsplit(credentials[[1]][4], ", ", fixed=TRUE)
@@ -279,7 +396,12 @@ REPLY_SIZE    <- 100 # Apparently, -1 means unlimited, but we will start with a 
   if (protocolVersion != PROTOCOL_v9) {
     stop("Protocol versions != 9 NOT SUPPORTED")
   }
-  
+  attr(con, "protocol") <- PROTOCOL_v9
+
+  if (grepl("PROT10", algos) && !getOption('monetdb.disable.prot10', FALSE)) {
+    protocolVersion <- PROTOCOL_v10
+  }
+
   pwhashfunc <- tolower(credentials[[1]][6])
   salt <- credentials[[1]][1]
   
@@ -302,10 +424,14 @@ REPLY_SIZE    <- 100 # Apparently, -1 means unlimited, but we will start with a 
   # we respond to the authentication challeng with something like
   # LIT:monetdb:{SHA512}eec43c24242[...]cc33147:sql:acs
   # endianness:username:passwordhash:language:databasename
+
+  # TODO: make block size a parameter (twice!)
   authString <- paste0("LIT:", user, ":{", toupper(endhashfunc), "}", hashsum, ":", language, ":", 
-                       dbname, ":")
+                       dbname, ":", if(protocolVersion == PROTOCOL_v10) "PROT10:COMPRESSION_NONE:1000000" )
+ 
   .mapiWrite(con, authString)
-  authResponse <- .mapiRead(con)
+  attr(con, "protocol") <- protocolVersion
+  authResponse <- rawToChar(.mapiRead(con))
   respKey <- substring(authResponse, 1, 1)
   
   if (respKey != MSG_PROMPT) {
@@ -334,6 +460,7 @@ REPLY_SIZE    <- 100 # Apparently, -1 means unlimited, but we will start with a 
       .mapiWrite(con, "Xauto_commit 1"); .mapiRead(con)
     }
   }
+  return(con)
 }
 
 .monetdbd.command <- function(passphrase, host="localhost", port=50000L, timeout=86400L) {

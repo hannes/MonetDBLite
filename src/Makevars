@@ -212,5 +212,8 @@ ODIRS=$(dir $(OBJECTS))
 DDIRS=$(subst $(OBJDIR), $(DEPSDIR), $(ODIRS))
 $(shell mkdir -p $(ODIRS) $(DDIRS))
 
+$(shell rm -f MonetDBLite.*)
+
+
 $(OBJDIR)/%.o: %.c
 	$(CC) $(PKG_CFLAGS) -MMD -MF $(subst $(OBJDIR),$(DEPSDIR),$(subst .o,.d,$@)) $(OPTFLAGS) -c $(subst $(OBJDIR)/,,$(subst .o,.c,$@)) -o $@
