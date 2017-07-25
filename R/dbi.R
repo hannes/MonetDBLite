@@ -310,6 +310,7 @@ setMethod("dbSendQuery", signature(conn="MonetDBConnection", statement="characte
     env$info <- resp
     env$delivered <- -1
     env$query <- statement
+
   }
   if (resp$type == Q_UPDATE || resp$type == Q_CREATE || resp$type == MSG_ASYNC_REPLY || resp$type == MSG_PROMPT) {
     env$success = TRUE

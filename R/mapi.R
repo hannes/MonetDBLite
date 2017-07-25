@@ -26,7 +26,7 @@ Q_BLOCK       <- 6
 TIMEOUT_MSG = "Empty response from MonetDB server, probably a timeout. You can increase the time to wait for responses with the 'timeout' parameter to 'dbConnect()'."
 
 
-REPLY_SIZE    <- 10000 # Apparently, -1 means unlimited, but we will start with a small result set. 
+REPLY_SIZE    <- 100 # Apparently, -1 means unlimited, but we will start with a small result set. 
 # The entire set might never be fetch()'ed after all!
 
 # .mapiRead and .mapiWrite implement MonetDB's MAPI protocol. It works as follows: 
@@ -117,7 +117,6 @@ REPLY_SIZE    <- 10000 # Apparently, -1 means unlimited, but we will start with 
     if (prot == PROTOCOL_v10) {
       unpacked <- readBin(con, "integer", n=2, size=4, signed=TRUE, endian="little")
       if (length(unpacked) == 0 || unpacked[2] != 0) {
-        print(unpacked)
         stop(TIMEOUT_MSG)
       }
 
@@ -136,7 +135,6 @@ REPLY_SIZE    <- 10000 # Apparently, -1 means unlimited, but we will start with 
     if (length == 0) break
     # no raw handling here (see .mapiWrite), since server tells us the length in bytes already
     resp <- c(resp, readBin(con, "raw", length, 1)) 
-    print(str(resp))   
     if (final == 1) break
   }
   return(resp)
@@ -204,8 +202,9 @@ findString <- function(resp, start_idx) {
   start_idx
 }
 
+
 # determines and partially parses the answer from the server in response to a query
-.mapiParseResponse <- function(con, response) {
+.mapiParseResponse <- function(con, response, qenv=NULL) {
   if (response[1] == 42L) {
     if (getOption("monetdb.debug.query", F)) message("QQ: PROT10 query result")
     env <- new.env(parent=emptyenv())
@@ -231,6 +230,7 @@ findString <- function(resp, start_idx) {
 
     idx <- 35
 
+
     for (c in seq(env$cols)) {
       nidx <- findString(response, idx)
       env$tables[c] <- readChar(dd, nidx-idx)
@@ -245,18 +245,17 @@ findString <- function(resp, start_idx) {
       nidx <- findString(response, idx)
       env$types[c] <- toupper(readChar(dd, nidx-idx))
       readBin(dd, "raw", 1, 1)
-
       idx <- nidx + 1
 
       env$internal_size[c] <- readBin(dd, "integer", 1, 4)
       env$precision[c] <- readBin(dd, "integer", 1, 4)
       env$scale[c] <- readBin(dd, "integer", 1, 4)
       null_length <- readBin(dd, "integer", 1, 4)
-
       if (null_length > 0) {
-        env$nulls[c] <- readBin(dd, "raw", null_length, 1)
+        env$nulls[[c]] <- readBin(dd, "raw", null_length, 1)
+        idx <- idx + null_length
       } else {
-        env$nulls[c] <- NA
+        env$nulls[[c]] <- NA
       } 
       
       # skip print width  
@@ -264,14 +263,46 @@ findString <- function(resp, start_idx) {
       idx <- idx + 24
     }
 
-    # consume prompt
-    .mapiRead(con)
-
+    # consume initial data
+    env$tuples <- .mapiParseResponse (con, .mapiRead(con), env)
     return(env)
   }
 
   if (response[1] == 43L || response[1] == 44L) {
-    stop("fuu")
+    env <- qenv
+    message("fuu")
+    resp <- list(env$cols)
+    dd <- rawConnection(response)
+    # throw away first two characters
+    readBin(dd, "raw", 2, 1)
+    rows  <- readLongAsDbl(dd)
+
+    # solaris alignment
+    readBin(dd, "raw", 6, 1)
+    idx <- 16
+
+    for (c in seq(env$cols)) {
+      mod <- idx %% 8
+      if (mod != 0) {
+        remd <- 8 - mod
+        readBin(dd, "raw", remd, 1)
+        idx <- idx + remd
+      }
+      if (env$internal_size[c] < 0) { # variable-length types
+        clen <- readLongAsDbl(dd)
+        idx <- idx + 8
+      } else { # constant-length types
+        clen <- rows * env$internal_size[c]
+      }
+      resp[[c]] <- readBin(dd, "raw", clen, 1)
+      idx <- idx + clen
+    }
+    names(resp) <- env$names
+    env$index <- env$index + rows
+    # consume prompt
+    # TODO: consume other chunks if there    
+    return(resp)
+
   }
 
   response = rawToChar(response)
