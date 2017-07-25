@@ -505,19 +505,30 @@ test_that("prepared statements work", {
 })
 
 
+test_that("we can we can run x statements", {
+	for (i in seq(1:100)) {
+		dbBegin(con)
+		res <- dbListTables(con)
+		dbRollback(con)
+	}
+	expect_true(dbIsValid(con))
+})
+
+
+# for some reason, this test case kills its connections
 test_that("we can dress up", {
-	dbBegin(con)
 	expect_false(dbExistsTable(con, tname))
 	a <- as.integer(1:2000001)
 	b <- as.numeric(a)
 	dbWriteTable(con, tname, data.frame(a=a, b=b))
+	expect_true(dbExistsTable(con, tname))
 	rr <- dbReadTable(con, tname)
 	expect_equal(a, rr$a)
 	expect_equal(b, rr$b)
 	dbRemoveTable(con, tname)
 	expect_false(dbExistsTable(con, tname))
-	dbRollback(con)
 })
+
 
 test_that("we can disconnect", {
 	expect_true(dbIsValid(con))
