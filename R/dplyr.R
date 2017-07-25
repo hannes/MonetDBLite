@@ -43,7 +43,7 @@ dplyr_sample_n <- function(x, size, replace = FALSE, weight = NULL) {
     stop("Sorry, replace and weight are not supported for MonetDB tables. \
       Consider collect()'ing first.")
   }
-  tbl(x$src, dbplyr::sql(dbplyr::build_sql("SELECT * FROM (", dbplyr::sql_render(x, x$src$con), ") AS s SAMPLE ", as.integer(size))))
+  dplyr::tbl(x$src, dbplyr::sql(dbplyr::build_sql("SELECT * FROM (", dbplyr::sql_render(x, x$src$con), ") AS s SAMPLE ", as.integer(size))))
 }
 
 dplyr_sample_frac <- function(tbl, frac=1, replace = FALSE, weight = NULL) {
