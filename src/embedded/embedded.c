@@ -429,7 +429,7 @@ void monetdb_unregister_progress(void* conn) {
 
 void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
-		//SQLepilogue(NULL); // just do it here, i don't trust mserver_reset to call this
+		SQLepilogue(NULL); // just do it here, i don't trust mserver_reset to call this
 		mserver_reset(0);
 		fclose(embedded_stdout);
 		monetdb_embedded_initialized = 0;
