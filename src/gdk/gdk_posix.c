@@ -1017,8 +1017,11 @@ int
 win_stat(const char *pathname, struct _stat64 *st)
 {
 	char buf[128], *p = reduce_dir_name(pathname, buf, sizeof(buf));
-	int ret = _stat64(p, st);
+	int ret;
 
+	if (p == NULL)
+		return -1;
+	ret = _stat64(p, st);
 	if (p != buf)
 		free(p);
 	return ret;
@@ -1028,8 +1031,11 @@ int
 win_rmdir(const char *pathname)
 {
 	char buf[128], *p = reduce_dir_name(pathname, buf, sizeof(buf));
-	int ret = _rmdir(p);
+	int ret;
 
+	if (p == NULL)
+		return -1;
+	ret = _rmdir(p);
 	if (ret < 0 && errno != ENOENT) {
 		/* it could be the <expletive deleted> indexing
 		 * service which prevents us from doing what we have a
@@ -1095,9 +1101,12 @@ int
 win_mkdir(const char *pathname, const int mode)
 {
 	char buf[128], *p = reduce_dir_name(pathname, buf, sizeof(buf));
-	int ret = _mkdir(p);
+	int ret;
 
 	(void) mode;
+	if (p == NULL)
+		return -1;
+	ret = _mkdir(p);
 	if (p != buf)
 		free(p);
 	return ret;

@@ -182,33 +182,26 @@ SQLprelude(void *ret)
 }
 
 str
-SQLepilogue(void *ret)
+SQLexit(Client c)
 {
-	Client c = mal_clients;
-#ifndef HAVE_EMBEDDED
-	c++;
+#ifdef _SQL_SCENARIO_DEBUG
+	fprintf(stderr, "#SQLexit\n");
 #endif
-	(void) ret;
+	(void) c;		/* not used */
 	MT_lock_set(&sql_contextLock);
 	if (SQLinitialized) {
-		// exit all clients
-		for (; c < mal_clients + MAL_MAXCLIENTS; c++) {
-			if (c->mode == RUNCLIENT){
-				SQLexitClient(c);
-			}
-		}
 		mvc_exit();
-#ifdef HAVE_EMBEDDED
-		{ // clean up scenario registry so we do not run out
-			Scenario s = findScenario("sql");
-			Scenario ms = findScenario("msql");
-			if (s) s->name = NULL;
-			if (ms) ms->name = NULL;
-		}
-#endif
 		SQLinitialized = FALSE;
 	}
 	MT_lock_unset(&sql_contextLock);
+	return MAL_SUCCEED;
+}
+
+str
+SQLepilogue(void *ret)
+{
+	(void) ret;
+	SQLexit(NULL);
 	return MAL_SUCCEED;
 }
 
@@ -268,18 +261,6 @@ SQLinit(void)
 		}
 		GDKregister(idlethread);
 	}
-	return MAL_SUCCEED;
-}
-
-str
-SQLexit(Client c)
-{
-#ifdef _SQL_SCENARIO_DEBUG
-	fprintf(stderr, "#SQLexit\n");
-#endif
-	(void) c;		/* not used */
-	if (SQLinitialized == FALSE)
-		throw(SQL, "SQLexit", "Catalogue not available");
 	return MAL_SUCCEED;
 }
 
@@ -439,9 +420,8 @@ SQLinitClient(Client c)
 #ifdef _SQL_SCENARIO_DEBUG
 	fprintf(stderr, "#SQLinitClient\n");
 #endif
-	assert(SQLinitialized);
-//	if (SQLinitialized == 0 && (msg = SQLprelude(NULL)) != MAL_SUCCEED)
-//		return msg;
+	if (SQLinitialized == 0 && (msg = SQLprelude(NULL)) != MAL_SUCCEED) 
+		return msg;
 	MT_lock_set(&sql_contextLock);
 	/*
 	 * Based on the initialization return value we can prepare a SQLinit
@@ -609,13 +589,11 @@ SQLinitClient(Client c)
 str
 SQLresetClient(Client c)
 {
+	if (c->sqlcontext == NULL)
+		throw(SQL, "SQLexitClient", "MVC catalogue not available");
 	if (c->sqlcontext) {
-		backend *be = NULL;
-		mvc *m = NULL;
-		if (c->sqlcontext == NULL)
-			throw(SQL, "SQLexitClient", "MVC catalogue not available");
-		be = (backend *) c->sqlcontext;
-		m = be->mvc;
+		backend *be = c->sqlcontext;
+		mvc *m = be->mvc;
 
 		assert(m->session);
 		if (m->session->auto_commit && m->session->active) {

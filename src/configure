@@ -8918,10 +8918,16 @@ eval ac_res=\$${cache_var}
 $as_echo "$ac_res" >&6; }
 	eval "test \"x\$${cache_var}\" = xyes && X_CFLAGS=\"${X_CFLAGS} -fsanitize=$enable_sanitizer\""
 
-				if test "x$enable_sanitizer" = xthread; then :
+				 if test "x$enable_sanitizer" = xthread; then :
   X_CFLAGS="$X_CFLAGS -DNO_ATOMIC_INSTRUCTIONS"
 fi
 fi
+			case $X_CFLAGS in #(
+  *-fsanitize=*) :
+     ;; #(
+  *) :
+    as_fn_error $? "--enable-sanitizer not supported by this compiler" "$LINENO" 5 ;;
+esac
 
 	cache_var=m_cv_cc_has__fno_omit_frame_pointer
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${CC} supports -fno-omit-frame-pointer" >&5
