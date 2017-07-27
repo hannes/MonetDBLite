@@ -131,7 +131,7 @@ str
 SQLprelude(void *ret)
 {
 	str tmp;
-	Scenario ms, s = getFreeScenario();
+	Scenario s = getFreeScenario();
 
 	(void) ret;
 	if (!s)
@@ -147,21 +147,6 @@ SQLprelude(void *ret)
 	s->parser = "SQLparser";
 	s->engine = "SQLengine";
 
-	ms = getFreeScenario();
-	if (!ms)
-		throw(MAL, "sql.start", "out of scenario slots");
-
-	ms->name = "M_S_Q_L";
-	ms->language = "msql";
-	ms->initSystem = NULL;
-	ms->exitSystem = "SQLexit";
-	ms->initClient = "SQLinitClient";
-	ms->exitClient = "SQLexitClient";
-	ms->reader = "MALreader";
-	ms->parser = "MALparser";
-	ms->optimizer = "MALoptimizer";
-	/* ms->tactics = .. */
-	ms->engine = "MALengine";
 	tmp = SQLinit();
 	if (tmp != MAL_SUCCEED) {
 		fprintf(stderr, "Fatal error during initialization:\n%s\n", tmp);
@@ -177,7 +162,6 @@ SQLprelude(void *ret)
 #endif
 	/* only register availability of scenarios AFTER we are inited! */
 	s->name = "sql";
-	ms->name = "msql";
 	return MAL_SUCCEED;
 }
 
@@ -190,8 +174,15 @@ SQLexit(Client c)
 	(void) c;		/* not used */
 	MT_lock_set(&sql_contextLock);
 	if (SQLinitialized) {
+		Scenario ms = findScenario("msql"), s = findScenario("sql");
 		mvc_exit();
 		SQLinitialized = FALSE;
+		if (ms) {
+			ms->name = NULL;
+		}
+		if (s) {
+			s->name = NULL;
+		}
 	}
 	MT_lock_unset(&sql_contextLock);
 	return MAL_SUCCEED;
