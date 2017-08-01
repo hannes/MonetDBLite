@@ -20,10 +20,6 @@
 #define MINIZ_LITTLE_ENDIAN 1
 #endif
 
-#if MINIZ_X86_OR_X64_CPU
-#define MINIZ_USE_UNALIGNED_LOADS_AND_STORES 0
-#endif
-
 #if defined(_M_X64) || defined(_WIN64) || defined(__MINGW64__) || defined(_LP64) || defined(__LP64__) || defined(__ia64__) || defined(__x86_64__)
 #define MINIZ_HAS_64BIT_REGISTERS 1
 #endif
