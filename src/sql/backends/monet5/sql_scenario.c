@@ -168,13 +168,18 @@ SQLprelude(void *ret)
 str
 SQLexit(Client c)
 {
+
 #ifdef _SQL_SCENARIO_DEBUG
 	fprintf(stderr, "#SQLexit\n");
 #endif
-	(void) c;		/* not used */
 	MT_lock_set(&sql_contextLock);
 	if (SQLinitialized) {
 		Scenario ms = findScenario("msql"), s = findScenario("sql");
+		for (c = mal_clients; c < mal_clients + MAL_MAXCLIENTS; c++) {
+			if (c->mode == RUNCLIENT){
+				SQLexitClient(c);
+			}
+		}
 		mvc_exit();
 		SQLinitialized = FALSE;
 		if (ms) {
