@@ -56,4 +56,50 @@ SEXP mapi_split(SEXP mapiLinesVector, SEXP numCols) {
 	UNPROTECT(1);
 	return colVec;
 }
+
+SEXP mapi_read_null_string(SEXP raw_vec, SEXP rowsR) {
+	const int rows = INTEGER_POINTER(AS_INTEGER(rowsR))[0];
+	SEXP colVec = PROTECT(NEW_STRING(rows));
+	char* start = (char *) RAW_POINTER(raw_vec);
+	int cRow = 0;
+	if (!colVec) {
+		error("Memory allocation failure");
+	}
+
+	while (cRow < rows) {
+		SEXP s = mkChar(start);
+		if (!s) {
+			error("Memory allocation failure");
+		}
+		SET_STRING_ELT(colVec, cRow++, s);
+		while (*start != 0) {
+			start++;
+		}
+		start++;
+	}
+
+	UNPROTECT(1);
+	return colVec;
+}
+
+
+SEXP mapi_read_long_dbl(SEXP raw_vec) {
+	const int rows = LENGTH(raw_vec)/8;
+	SEXP colVec = PROTECT(NEW_NUMERIC(rows));
+	long long * start = (long long *) RAW_POINTER(raw_vec);
+	int cRow = 0;
+
+	if (!colVec) {
+		error("Memory allocation failure");
+	}
+	while (cRow < rows) {
+		NUMERIC_POINTER(colVec)[cRow] = start[cRow];
+		cRow++;
+	}
+	// TODO: NULLs
+	UNPROTECT(1);
+	return colVec;
+}
+
+
 #endif

@@ -330,6 +330,8 @@ static const R_CallMethodDef R_CallDef[] = {
    CALLDEF(monetdb_disconnect_R, 1),
    CALLDEF(monetdb_shutdown_R, 0),
    CALLDEF(mapi_split, 2),
+   CALLDEF(mapi_read_null_string, 2),
+   CALLDEF(mapi_read_long_dbl, 1),
    {NULL, NULL, 0}
 };
 

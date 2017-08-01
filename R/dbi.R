@@ -284,7 +284,7 @@ setMethod("dbSendQuery", signature(conn="MonetDBConnection", statement="characte
   resp <- NA
   tryCatch({
     mresp <- .mapiRequest(conn, paste0("s", statement, "\n;"), async=async)
-    resp <- .mapiParseResponse(conn@connenv$socket, mresp)
+    resp <- .mapiParseResponse(conn, mresp)
   }, interrupt = function(ex) {
     message("Interrupted query execution. Attempting to fix connection....")
       
@@ -935,53 +935,81 @@ setMethod("dbFetch", signature(res="MonetDBResult", n="numeric"), def=function(r
     return(data.frame(df, stringsAsFactors=F))
   }
   
-  # if our tuple cache in res@env$data does not contain n rows, we fetch from server until it does
-  while (length(res@env$data) < n) {
-    cresp <- .mapiParseResponse(res@env$conn, .mapiRequest(res@env$conn, paste0("Xexport ", .mapiLongInt(info$id), 
-      " ", .mapiLongInt(info$index), " ", .mapiLongInt(n-length(res@env$data)))))
-    stopifnot(cresp$type == Q_BLOCK && cresp$rows > 0)
-    
-    res@env$data <- c(res@env$data, cresp$tuples)
-    info$index <- info$index + cresp$rows
-    # if (getOption("monetdb.profile", T))  .profiler_progress(length(res@env$data), n)
-  }
-  
-  # convert tuple string vector into matrix so we can access a single column efficiently
-  # call to a faster C implementation for the annoying task of splitting everyting into fields
-  parts <- .Call(mapi_split, res@env$data[1:n], as.integer(info$cols))
-  
-  # convert values column by column
-  for (j in seq.int(info$cols)) {	
-    col <- ct[[j]]
-    if (col == .CT_INT) 
-      df[[j]] <- as.integer(parts[[j]])
-    if (col == .CT_NUM) 
-      df[[j]] <- as.numeric(parts[[j]])
-    if (col == .CT_BOOL) 
-      df[[j]] <- parts[[j]]=="true"
-    if (col == .CT_CHR) { 
-      df[[j]] <- parts[[j]]
-      Encoding(df[[j]]) <- "UTF-8"
+  if(.mapiIsProt10(res@env$conn@connenv$socket)) {
+    e <- res@env$info
+     while (length(e$data_df[[1]]) < n) {
+
+      e <- .mapiParseResponse(res@env$conn, .mapiRequest(res@env$conn, paste0("Xexport ", .mapiLongInt(info$id), 
+        " ", .mapiLongInt(e$index), " ", .mapiLongInt(n-length(e$data_df[[1]])))), e)
+
+      }
+      res@env <- e
+      # now we have a data_df that has at least n rows 
+    if (n == length(res@env$data_df[[1]])) {
+      df <- res@env$data_df
+      names(df) <- info$names
+      res@env$data_df <- res@env$data_df_empty
     }
-    if (col == .CT_RAW) {
-      df[[j]] <- lapply(parts[[j]], charToRaw)
+    else {
+      for (i in seq.int(info$cols)) {
+        df[[i]] <- res@env$data_df[[i]][seq(1, n)]
+        res@env$data_df[[i]] <- res@env$data_df[[i]][seq(n+1, length(res@env$data_df[[i]]))]
+      }
+
+      df <- res@env$data_df[seq(1, n), ]
+      res@env$data_df <- res@env$data_df[seq(n+1, nrow(res@env$data_df)), ]
     }
-  }
-  
-  # remove the already delivered tuples from the background holder or clear it altogether
-  if (n+1 >= length(res@env$data)) {
-    res@env$data <- character()
   }
   else {
-    res@env$data <- res@env$data[seq(n+1, length(res@env$data))]
+    # if our tuple cache in res@env$data does not contain n rows, we fetch from server until it does
+    while (length(res@env$data) < n) {
+      cresp <- .mapiParseResponse(res@env$conn, .mapiRequest(res@env$conn, paste0("Xexport ", .mapiLongInt(info$id), 
+        " ", .mapiLongInt(info$index), " ", .mapiLongInt(n-length(res@env$data)))))
+      print(str(cresp))
+      stopifnot(cresp$type == Q_BLOCK && cresp$rows > 0)
+      
+      res@env$data <- c(res@env$data, cresp$tuples)
+      info$index <- info$index + cresp$rows
+      # if (getOption("monetdb.profile", T))  .profiler_progress(length(res@env$data), n)
+    }
+    
+    # convert tuple string vector into matrix so we can access a single column efficiently
+    # call to a faster C implementation for the annoying task of splitting everyting into fields
+    parts <- .Call(mapi_split, res@env$data[1:n], as.integer(info$cols))
+    
+    # convert values column by column
+    for (j in seq.int(info$cols)) { 
+      col <- ct[[j]]
+      if (col == .CT_INT) 
+        df[[j]] <- as.integer(parts[[j]])
+      if (col == .CT_NUM) 
+        df[[j]] <- as.numeric(parts[[j]])
+      if (col == .CT_BOOL) 
+        df[[j]] <- parts[[j]]=="true"
+      if (col == .CT_CHR) { 
+        df[[j]] <- parts[[j]]
+        Encoding(df[[j]]) <- "UTF-8"
+      }
+      if (col == .CT_RAW) {
+        df[[j]] <- lapply(parts[[j]], charToRaw)
+      }
+    }
+    
+    # remove the already delivered tuples from the background holder or clear it altogether
+    if (n+1 >= length(res@env$data)) {
+      res@env$data <- character()
+    }
+    else {
+      res@env$data <- res@env$data[seq(n+1, length(res@env$data))]
+    }
   }
+  
   res@env$delivered <- res@env$delivered + n
   
   # this is a trick so we do not have to call data.frame(), which is expensive
   attr(df, "row.names") <- c(NA_integer_, length(df[[1]]))
   class(df) <- "data.frame"
   
-  # if (getOption("monetdb.profile", T))  .profiler_clear()
   df
 })
 
