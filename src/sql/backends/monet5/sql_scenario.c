@@ -893,6 +893,8 @@ cachable(mvc *m, sql_rel *r)
 		return 0;
 	if (m->type == Q_TRANS )	/* m->type == Q_SCHEMA || cachable to make sure we have trace on alter statements  */
 		return 0;
+	if (m->type != Q_PREPARE)
+		return 0;
 	/* we don't store queries with a large footprint */
 	if(r && sa_size(m->sa) > MAX_QUERY) 
 		return 0;
