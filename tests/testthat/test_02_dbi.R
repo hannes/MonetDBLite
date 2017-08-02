@@ -174,6 +174,24 @@ test_that("various parameters to dbWriteTable work as expected", {
 
 
 
+test_that("select * from table never uses parallelization", {
+	dbBegin(con)
+	dbWriteTable(con, tname, data.frame(a=1:10^7))
+	expect_true(dbExistsTable(con, tname))
+	ex <- dbGetQuery(con, "explain select * from monetdbtest")
+	expect_false(grepl("packIncrement", ex$explain))
+
+	ex <- dbGetQuery(con, "explain select * from monetdbtest")
+	expect_false(grepl("packIncrement", ex$explain))
+	
+	ex <- dbGetQuery(con, "explain select * from monetdbtest")
+	expect_false(grepl("packIncrement", ex$explain))
+	dbRollback(con)
+	expect_false(dbExistsTable(con, tname))
+})
+
+
+
 like_match <- function(pattern, data, case_insensitive) {
 	dbBegin(con)
 	dbWriteTable(con, "borat", data.frame(a=data))
