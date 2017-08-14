@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
@@ -770,10 +771,10 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
 
         //We could use a Java 8 stream with the StringJoin aggregator, but let's be simple...
         String csvToImport =
-                column1[0] + "," + column2[0] + "," + column3[0] + "\n" +
-                "NULL"     + "," + column2[1] + "," + column3[1] + "\n" +
-                column1[2] + "," + "NULL"     + "," + column3[2] + "\n" +
-                column1[3] + "," + column2[3] + "," + "NULL"     + "\n";
+                "\"" + column1[0] + "\"," + column2[0] + "," + column3[0] + "\n" +
+                       "null"     + ","   + column2[1] + "," + column3[1] + "\n" +
+                "\"" + column1[2] + "\"," + "null"     + "," + column3[2] + "\n" +
+                "\"" + column1[3] + "\"," + column2[3] + "," + "null"     + "\n";
         PrintWriter pw = new PrintWriter(csvImportFile);
         pw.write(csvToImport);
         pw.flush();
@@ -803,10 +804,9 @@ public class RegularAPITests extends MonetDBJavaLiteTesting {
 
         connection.executeUpdate("COPY SELECT * FROM testCSV INTO '" + csvExportFilePath + "' USING DELIMITERS ',','\n';");
 
-        //TODO Fix on the native code
-        // Compare the two files!
-        //String csvExported = new String(Files.readAllBytes(Paths.get(csvExportFilePath)), StandardCharsets.UTF_8);
-        //Assertions.assertEquals(csvToImport, csvExported, "The CSVs are not equal!");
+        //Compare the two files!
+        String csvExported = new String(Files.readAllBytes(Paths.get(csvExportFilePath)), StandardCharsets.UTF_8);
+        Assertions.assertEquals(csvToImport, csvExported, "The CSVs are not equal!");
 
         int rows2 = connection.executeUpdate("DROP TABLE testCSV;");
         Assertions.assertEquals(-2, rows2, "The deletion should have affected no rows!");
