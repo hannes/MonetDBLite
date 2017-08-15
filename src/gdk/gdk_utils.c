@@ -73,6 +73,9 @@ static void GDKunlockHome(int farmid);
 static int
 GDKenvironment(const char *dbpath)
 {
+	if (GDKinmemory()) {
+		return 1;
+	}
 	if (dbpath == 0) {
 		fprintf(stderr, "!GDKenvironment: database name missing.\n");
 		return 0;
@@ -223,14 +226,6 @@ BATSIGignore(int nr)
 }
 #endif
 
-#ifdef WIN32
-static void
-BATSIGabort(int nr)
-{
-	GDKexit(3);		/* emulate Windows exit code without pop-up */
-}
-#endif
-
 #ifndef NATIVE_WIN32
 static void
 BATSIGinterrupt(int nr)
@@ -307,97 +302,8 @@ size_t _MT_npages = 0;		/* variable holding memory size in pages */
 void
 MT_init(void)
 {
-#ifdef _MSC_VER
-	{
-		SYSTEM_INFO sysInfo;
-
-		GetSystemInfo(&sysInfo);
-		_MT_pagesize = sysInfo.dwPageSize;
-	}
-#elif defined(HAVE_SYS_SYSCTL_H) && defined(HW_PAGESIZE)
-	{
-		int size;
-		size_t len = sizeof(int);
-		int mib[2];
-
-		/* Everyone should have permission to make this call,
-		 * if we get a failure something is really wrong. */
-		mib[0] = CTL_HW;
-		mib[1] = HW_PAGESIZE;
-		sysctl(mib, 2, &size, &len, NULL, 0);
-		_MT_pagesize = size;
-	}
-#elif defined(HAVE_SYSCONF) && defined(_SC_PAGESIZE)
-	_MT_pagesize = (size_t)sysconf(_SC_PAGESIZE);
-#endif
-	if (_MT_pagesize <= 0)
-		_MT_pagesize = 4096;	/* default */
-
-#ifdef WIN32
-	{
-		MEMORYSTATUSEX memStatEx;
-
-		memStatEx.dwLength = sizeof(memStatEx);
-		if (GlobalMemoryStatusEx(&memStatEx))
-			_MT_npages = (size_t) (memStatEx.ullTotalPhys / _MT_pagesize);
-	}
-#elif defined(HAVE_SYS_SYSCTL_H) && defined(HW_MEMSIZE) && SIZEOF_SIZE_T == SIZEOF_LNG
-	/* Darwin, 64-bits */
-	{
-		uint64_t size = 0;
-		size_t len = sizeof(size);
-		int mib[2];
-
-		/* Everyone should have permission to make this call,
-		 * if we get a failure something is really wrong. */
-		mib[0] = CTL_HW;
-		mib[1] = HW_MEMSIZE;
-		sysctl(mib, 2, &size, &len, NULL, 0);
-		_MT_npages = size / _MT_pagesize;
-	}
-#elif defined(HAVE_SYS_SYSCTL_H) && defined (HW_PHYSMEM64) && SIZEOF_SIZE_T == SIZEOF_LNG
-	/* OpenBSD, 64-bits */
-	{
-		int64_t size = 0;
-		size_t len = sizeof(size);
-		int mib[2];
-
-		/* Everyone should have permission to make this call,
-		 * if we get a failure something is really wrong. */
-		mib[0] = CTL_HW;
-		mib[1] = HW_PHYSMEM64;
-		sysctl(mib, 2, &size, &len, NULL, 0);
-		_MT_npages = size / _MT_pagesize;
-	}
-#elif defined(HAVE_SYS_SYSCTL_H) && defined(HW_PHYSMEM)
-	/* NetBSD, OpenBSD, Darwin, 32-bits; FreeBSD 32 & 64-bits */
-	{
-# ifdef __FreeBSD__
-		unsigned long size = 0; /* type long required by sysctl() (?) */
-# else
-		int size = 0;
-# endif
-		size_t len = sizeof(size);
-		int mib[2];
-
-		/* Everyone should have permission to make this call,
-		 * if we get a failure something is really wrong. */
-		mib[0] = CTL_HW;
-		mib[1] = HW_PHYSMEM;
-		sysctl(mib, 2, &size, &len, NULL, 0);
-		_MT_npages = size / _MT_pagesize;
-	}
-#elif defined(HAVE_SYSCONF) && defined(_SC_PHYS_PAGES)
-	_MT_npages = (size_t)sysconf(_SC_PHYS_PAGES);
-# if SIZEOF_SIZE_T == SIZEOF_INT
-	/* Bug #2935: the value returned here can be more than what can be
-	 * addressed on Solaris, so cap the value */
-	if (UINT_MAX / _MT_pagesize < _MT_npages)
-		_MT_npages = UINT_MAX / _MT_pagesize;
-# endif
-#else
-# error "don't know how to get the amount of physical memory for your OS"
-#endif
+	_MT_pagesize = sysconf(_SC_PAGESIZE);
+	_MT_npages = 42;
 }
 
 /*
@@ -433,19 +339,6 @@ GDKinit(opt *set, int setlen)
 	int farmid;
 	char buf[16];
 
-	/* some sanity checks (should also find if symbols are not defined) */
-	assert(sizeof(char) == SIZEOF_CHAR);
-	assert(sizeof(short) == SIZEOF_SHORT);
-	assert(sizeof(int) == SIZEOF_INT);
-	assert(sizeof(long) == SIZEOF_LONG);
-	assert(sizeof(lng) == SIZEOF_LNG);
-#ifdef HAVE_HGE
-	assert(sizeof(hge) == SIZEOF_HGE);
-#endif
-	assert(sizeof(oid) == SIZEOF_OID);
-	assert(sizeof(void *) == SIZEOF_VOID_P);
-	assert(sizeof(size_t) == SIZEOF_SIZE_T);
-	assert(SIZEOF_OID == SIZEOF_INT || SIZEOF_OID == SIZEOF_LNG);
 
 #ifdef NEED_MT_LOCK_INIT
 	MT_lock_init(&MT_system_lock,"MT_system_lock");
@@ -511,18 +404,19 @@ GDKinit(opt *set, int setlen)
 				GDKlockHome(farmid);
 		}
 	}
-
-	/* Mserver by default takes 80% of all memory as a default */
-	GDK_mem_maxsize = (size_t) ((double) MT_npages() * (double) MT_pagesize() * 0.815);
 	BBPinit();
 
-	if (GDK_mem_maxsize / 16 < GDK_mmap_minsize_transient) {
-		GDK_mmap_minsize_transient = GDK_mem_maxsize / 16;
-		if (GDK_mmap_minsize_persistent > GDK_mmap_minsize_transient)
-			GDK_mmap_minsize_persistent = GDK_mmap_minsize_transient;
-	}
+	// Hardcode this for MonetDBLite
+	GDK_mmap_minsize_persistent = MMAP_MINSIZE_PERSISTENT;
+	GDK_mmap_minsize_transient = 1024 * 1024 * 10; // 10 MB, have param here?
+	GDK_mmap_pagesize = MMAP_PAGESIZE;
+	GDK_mem_maxsize = GDK_VM_MAXSIZE;
+	GDK_vm_maxsize = GDK_VM_MAXSIZE;
+
 
 	n = (opt *) malloc(setlen * sizeof(opt));
+	if (n == NULL)
+		GDKfatal("GDKinit: malloc failed\n");
 	for (i = 0; i < setlen; i++) {
 		int done = 0;
 		int j;
@@ -539,33 +433,6 @@ GDKinit(opt *set, int setlen)
 		if (!done) {
 			n[nlen] = set[i];
 			nlen++;
-		}
-	}
-	/* check some options before creating our first BAT */
-	for (i = 0; i < nlen; i++) {
-		if (strcmp("gdk_mem_maxsize", n[i].name) == 0) {
-			GDK_mem_maxsize = (size_t) strtoll(n[i].value, NULL, 10);
-			GDK_mem_maxsize = MAX(1 << 26, GDK_mem_maxsize);
-		} else if (strcmp("gdk_vm_maxsize", n[i].name) == 0) {
-			GDK_vm_maxsize = (size_t) strtoll(n[i].value, NULL, 10);
-			GDK_vm_maxsize = MAX(1 << 30, GDK_vm_maxsize);
-			if (GDK_vm_maxsize < GDK_mmap_minsize_persistent / 4)
-				GDK_mmap_minsize_persistent = GDK_vm_maxsize / 4;
-			if (GDK_vm_maxsize < GDK_mmap_minsize_transient / 4)
-				GDK_mmap_minsize_transient = GDK_vm_maxsize / 4;
-		} else if (strcmp("gdk_mmap_minsize_persistent", n[i].name) == 0) {
-			GDK_mmap_minsize_persistent = (size_t) strtoll(n[i].value, NULL, 10);
-		} else if (strcmp("gdk_mmap_minsize_transient", n[i].name) == 0) {
-			GDK_mmap_minsize_transient = (size_t) strtoll(n[i].value, NULL, 10);
-		} else if (strcmp("gdk_mmap_pagesize", n[i].name) == 0) {
-			GDK_mmap_pagesize = (size_t) strtoll(n[i].value, NULL, 10);
-			if (GDK_mmap_pagesize < 1 << 12 ||
-			    GDK_mmap_pagesize > 1 << 20 ||
-			    /* x & (x - 1): turn off rightmost 1 bit;
-			     * i.e. if result is zero, x is power of
-			     * two */
-			    (GDK_mmap_pagesize & (GDK_mmap_pagesize - 1)) != 0)
-				GDKfatal("GDKinit: gdk_mmap_pagesize must be power of 2 between 2**12 and 2**20\n");
 		}
 	}
 
@@ -589,16 +456,22 @@ GDKinit(opt *set, int setlen)
 	if (GDKnr_threads == 0)
 		GDKnr_threads = MT_check_nr_cores();
 
-	if ((p = GDKgetenv("gdk_dbpath")) != NULL &&
-	    (p = strrchr(p, DIR_SEP)) != NULL) {
-		if (GDKsetenv("gdk_dbname", p + 1) != GDK_SUCCEED)
-			GDKfatal("GDKinit: GDKsetenv failed");
+	if (!GDKinmemory()) {
+		if ((p = GDKgetenv("gdk_dbpath")) != NULL &&
+			(p = strrchr(p, DIR_SEP)) != NULL) {
+			if (GDKsetenv("gdk_dbname", p + 1) != GDK_SUCCEED)
+				GDKfatal("GDKinit: GDKsetenv failed");
 #if DIR_SEP != '/'		/* on Windows look for different separator */
-	} else if ((p = GDKgetenv("gdk_dbpath")) != NULL &&
-	    (p = strrchr(p, '/')) != NULL) {
-		if (GDKsetenv("gdk_dbname", p + 1) != GDK_SUCCEED)
-			GDKfatal("GDKinit: GDKsetenv failed");
+		} else if ((p = GDKgetenv("gdk_dbpath")) != NULL &&
+			(p = strrchr(p, '/')) != NULL) {
+			if (GDKsetenv("gdk_dbname", p + 1) != GDK_SUCCEED)
+				GDKfatal("GDKinit: GDKsetenv failed");
 #endif
+		}
+	} else {
+		if (GDKsetenv("gdk_dbname", ":inmemory") != GDK_SUCCEED) {
+			GDKfatal("GDKinit: GDKsetenv failed");
+		}
 	}
 	if (GDKgetenv("gdk_vm_maxsize") == NULL) {
 		snprintf(buf, sizeof(buf), SZFMT, GDK_vm_maxsize);
@@ -623,11 +496,6 @@ GDKinit(opt *set, int setlen)
 	if (GDKgetenv("gdk_mmap_pagesize") == NULL) {
 		snprintf(buf, sizeof(buf), SZFMT, GDK_mmap_pagesize);
 		if (GDKsetenv("gdk_mmap_pagesize", buf) != GDK_SUCCEED)
-			GDKfatal("GDKinit: GDKsetenv failed");
-	}
-	if (GDKgetenv("monet_pid") == NULL) {
-		snprintf(buf, sizeof(buf), "%d", (int) getpid());
-		if (GDKsetenv("monet_pid", buf) != GDK_SUCCEED)
 			GDKfatal("GDKinit: GDKsetenv failed");
 	}
 
@@ -700,6 +568,7 @@ GDKreset(int status, int exit)
 	Thread t, s;
 	struct serverthread *st;
 	int farmid;
+	int i;
 
 	(void) exit;
 
@@ -771,11 +640,12 @@ GDKreset(int status, int exit)
 		TEMDEBUG GDKlockstatistics(1);
 #endif
 		GDKdebug = 0;
-		GDK_mmap_minsize_persistent = MMAP_MINSIZE_PERSISTENT;
-		GDK_mmap_minsize_transient = MMAP_MINSIZE_TRANSIENT;
-		GDK_mmap_pagesize = MMAP_PAGESIZE;
-		GDK_mem_maxsize = (size_t) ((double) MT_npages() * (double) MT_pagesize() * 0.815);
-		GDK_vm_maxsize = GDK_VM_MAXSIZE;
+		// this is set in the next gdkinit anyway?
+//		GDK_mmap_minsize_persistent = MMAP_MINSIZE_PERSISTENT;
+//		GDK_mmap_minsize_transient = MMAP_MINSIZE_TRANSIENT;
+//		GDK_mmap_pagesize = MMAP_PAGESIZE;
+//		GDK_mem_maxsize = (size_t) ((double) MT_npages() * (double) MT_pagesize() * 0.815);
+//		GDK_vm_maxsize = GDK_VM_MAXSIZE;
 		GDKatomcnt = TYPE_str + 1;
 
 		GDK_vm_trim = 1;
@@ -789,8 +659,16 @@ GDKreset(int status, int exit)
 		GDKnrofthreads = 0;
 		close_stream((stream *) THRdata[0]);
 		close_stream((stream *) THRdata[1]);
-		memset((char*) GDKbatLock,0, sizeof(GDKbatLock));
-		memset((char*) GDKbbpLock,0,sizeof(GDKbbpLock));
+		for (i = 0; i <= BBP_BATMASK; i++) {
+			MT_lock_destroy(&GDKbatLock[i].swap);
+			MT_lock_destroy(&GDKbatLock[i].hash);
+			MT_lock_destroy(&GDKbatLock[i].imprints);
+		}
+		for (i = 0; i <= BBP_THREADMASK; i++) {
+			MT_lock_destroy(&GDKbbpLock[i].alloc);
+			MT_lock_destroy(&GDKbbpLock[i].trim);
+			GDKbbpLock[i].free = 0;
+		}
 
 		memset((char*) GDKthreads, 0, sizeof(GDKthreads));
 		memset((char*) THRdata, 0, sizeof(THRdata));
@@ -799,6 +677,19 @@ GDKreset(int status, int exit)
 		MT_lock_unset(&GDKthreadLock);
 		//gdk_system_reset(); CHECK OUT
 	}
+#ifdef NEED_MT_LOCK_INIT
+	MT_lock_destroy(&MT_system_lock);
+#if defined(USE_PTHREAD_LOCKS) && defined(ATOMIC_LOCK)
+	MT_lock_destroy(&GDKstoppedLock);
+	MT_lock_destroy(&mbyteslock);
+#endif
+	MT_lock_destroy(&GDKnameLock);
+	MT_lock_destroy(&GDKthreadLock);
+	MT_lock_destroy(&GDKtmLock);
+#ifndef NDEBUG
+	MT_lock_destroy(&mallocsuccesslock);
+#endif
+#endif
 #ifndef HAVE_EMBEDDED
 	if (exit) {
 		MT_global_exit(status);
@@ -1049,7 +940,7 @@ GDKerror(const char *format, ...)
 	}
 	va_start(ap, format);
 	if (vsnprintf(message + len, sizeof(message) - (len + 2), format, ap) < 0)
-		strcpy(message, GDKERROR "an error occurred within GDKerror, possibly malloc failure.\n");
+		strcpy(message, GDKERROR "an error occurred within GDKerror.\n");
 	va_end(ap);
 
 	GDKaddbuf(message);
@@ -1403,7 +1294,8 @@ THRprintf(stream *s, const char *format, ...)
 		if (bf != THRprintbuf)
 			free(bf);
 		bf = (str) malloc(bfsz);
-		assert(bf != NULL);
+		if (bf == NULL)
+			return -1;
 	} while (1);
 
 	p += n;
@@ -1418,17 +1310,6 @@ THRprintf(stream *s, const char *format, ...)
 	return n;
 }
 
-static const char *_gdk_version_string = VERSION;
-/**
- * Returns the GDK version as internally allocated string.  Hence the
- * string does not have to (and should not) be freed.  Do not inline
- * this function or the wrong VERSION will be used.
- */
-const char *
-GDKversion(void)
-{
-	return (_gdk_version_string);
-}
 
 /**
  * Extracts the last directory from a path string, if possible.
@@ -1530,7 +1411,7 @@ GDKmemfail(const char *s, size_t len)
  */
 
 /* we allocate extra space and return a pointer offset by this amount */
-#define MALLOC_EXTRA_SPACE	(2 * SIZEOF_VOID_P)
+#define MALLOC_EXTRA_SPACE	(2 * sizeof(void*))
 
 #ifdef NDEBUG
 #define DEBUG_SPACE	0
@@ -1817,11 +1698,6 @@ void *
 GDKmmap(const char *path, int mode, size_t len)
 {
 	void *ret;
-
-	if (GDKvm_cursize() + len >= GDK_vm_maxsize) {
-		GDKerror("allocating too much virtual address space\n");
-		return NULL;
-	}
 	ret = MT_mmap(path, mode, len);
 	if (ret == NULL) {
 		GDKmemfail("GDKmmap", len);
@@ -1849,12 +1725,6 @@ void *
 GDKmremap(const char *path, int mode, void *old_address, size_t old_size, size_t *new_size)
 {
 	void *ret;
-
-	if (*new_size > old_size &&
-	    GDKvm_cursize() + *new_size - old_size >= GDK_vm_maxsize) {
-		GDKerror("allocating too much virtual address space\n");
-		return NULL;
-	}
 	ret = MT_mremap(path, mode, old_address, old_size, new_size);
 	if (ret == NULL) {
 		GDKmemfail("GDKmremap", *new_size);

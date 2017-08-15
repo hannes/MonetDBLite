@@ -649,6 +649,8 @@ rel_named_table_function(mvc *sql, sql_rel *rel, symbol *query, int lateral)
 			if (!f->rel || !rel || !sf)
 				return NULL;
 		}
+		if (!sf)
+			return NULL;
 		exps = list_dup(exps, NULL);
 		append(exps, tid);
 		e = exp_op(sql->sa, exps, sf);
@@ -923,7 +925,7 @@ table_ref(mvc *sql, sql_rel *rel, symbol *tableref, int lateral)
 			}
 			return rel;
 		}
-		if ((isMergeTable(t) || isReplicaTable(t)) && list_empty(t->tables.set))
+		if ((isMergeTable(t) || isReplicaTable(t)) && list_empty(t->members.set))
 			return sql_error(sql, 02, "MERGE or REPLICA TABLE should have at least one table associated");
 
 		return rel_basetable(sql, t, tname);
@@ -3318,8 +3320,9 @@ _rel_aggr(mvc *sql, sql_rel **rel, int distinct, sql_schema *s, char *aname, dno
 	if (!groupby) {
 		char *uaname = malloc(strlen(aname) + 1);
 		sql_exp *e = sql_error(sql, 02, "%s: missing group by",
-				toUpperCopy(uaname, aname));
-		free(uaname);
+				       uaname ? toUpperCopy(uaname, aname) : aname);
+		if (uaname)
+			free(uaname);
 		return e;
 	}
 
@@ -3346,8 +3349,9 @@ _rel_aggr(mvc *sql, sql_rel **rel, int distinct, sql_schema *s, char *aname, dno
 	if (f == sql_where) {
 		char *uaname = malloc(strlen(aname) + 1);
 		sql_exp *e = sql_error(sql, 02, "%s: not allowed in WHERE clause",
-				toUpperCopy(uaname, aname));
-		free(uaname);
+				       uaname ? toUpperCopy(uaname, aname) : aname);
+		if (uaname)
+			free(uaname);
 		return e;
 	}
 	
@@ -3357,8 +3361,9 @@ _rel_aggr(mvc *sql, sql_rel **rel, int distinct, sql_schema *s, char *aname, dno
 		if (strcmp(aname, "count") != 0) {
 			char *uaname = malloc(strlen(aname) + 1);
 			sql_exp *e = sql_error(sql, 02, "%s: unable to perform '%s(*)'",
-					toUpperCopy(uaname, aname), aname);
-			free(uaname);
+					       uaname ? toUpperCopy(uaname, aname) : aname, aname);
+			if (uaname)
+				free(uaname);
 			return e;
 		}
 		a = sql_bind_aggr(sql->sa, s, aname, NULL);
@@ -3466,9 +3471,10 @@ _rel_aggr(mvc *sql, sql_rel **rel, int distinct, sql_schema *s, char *aname, dno
 		}
 
 		e = sql_error(sql, 02, "%s: no such operator '%s(%s)'",
-				toUpperCopy(uaname, aname), aname, type);
+			      uaname ? toUpperCopy(uaname, aname) : aname, aname, type);
 
-		free(uaname);
+		if (uaname)
+			free(uaname);
 		return e;
 	}
 }
@@ -4185,8 +4191,9 @@ rel_rankop(mvc *sql, sql_rel **rel, symbol *se, int f)
 	if (f == sql_where) {
 		char *uaname = malloc(strlen(aname) + 1);
 		e = sql_error(sql, 02, "%s: not allowed in WHERE clause",
-				toUpperCopy(uaname, aname));
-		free(uaname);
+			      uaname ? toUpperCopy(uaname, aname) : aname);
+		if (uaname)
+			free(uaname);
 		return e;
 	}
 
@@ -4960,6 +4967,8 @@ rel_query(mvc *sql, sql_rel *rel, symbol *sq, int toplevel, exp_kind ek, int app
 					fnd = table_ref(sql, rel, n->data.sym, 0);
 				}
 				used = 1;
+				if (!fnd && lateral)
+					res = NULL;
 			}
 
 			if (!fnd)

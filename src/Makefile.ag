@@ -1,7 +1,0 @@
-SUBDIRS = common gdk mal sql embedded
-EXTRA_DIST = configure configure.ac configure.ag libversions
-headers_config = {
-DIR = includedir/monetdb
-HEADERS = h
-SOURCES = monetdb_config.h
-}

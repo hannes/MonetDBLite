@@ -15,7 +15,7 @@
 #include "mal_exception.h"
 #include <math.h>
 
-#ifdef WIN32
+#ifdef NATIVE_WIN32
 # include <float.h>
 #if _MSC_VER <= 1600 && !defined(__MINGW64__) //MonetDBJavaLite compilation fix
 /* Windows spells these differently */

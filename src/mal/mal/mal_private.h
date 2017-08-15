@@ -22,7 +22,7 @@ __hidden void MCpopClientInput(Client c)
 	__attribute__((__visibility__("hidden")));
 __hidden str defaultScenario(Client c)	/* used in src/mal/mal_session.c */
 	__attribute__((__visibility__("hidden")));
-__hidden void exitScenario(Client c)		/* used in src/mal/mal_session.c */
+__hidden void mdbStep(Client cntxt, MalBlkPtr mb, MalStkPtr stk, int pc)
 	__attribute__((__visibility__("hidden")));
 
 __hidden str runFactory(Client cntxt, MalBlkPtr mb, MalBlkPtr mbcaller, MalStkPtr stk, InstrPtr pci)

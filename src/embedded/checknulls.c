@@ -17,12 +17,13 @@
 
 #define CHECK_NULLS_LEVEL_ONE(NAME, JAVA_CAST, NULL_CONST) \
     void check##NAME##Nulls(JNIEnv* env, jbooleanArray input, jint size, BAT* b) { \
+        int i; \
         const JAVA_CAST* array = (const JAVA_CAST*) Tloc(b, 0); \
         jboolean* aux = (jboolean*) GDKmalloc(sizeof(jboolean) * size); \
         if(aux == NULL) { \
             (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
         } else { \
-            for(int i = 0 ; i < size ; i++) { \
+            for(i = 0 ; i < size ; i++) { \
                 aux[i] = (array[i] == NULL_CONST##_nil) ? JNI_TRUE : JNI_FALSE; \
             } \
             (*env)->SetBooleanArrayRegion(env, input, 0, size, aux); \
@@ -42,12 +43,13 @@ CHECK_NULLS_LEVEL_ONE(Date, jint, int)
 CHECK_NULLS_LEVEL_ONE(Time, jint, int)
 
 void checkTimestampNulls(JNIEnv* env, jbooleanArray input, jint size, BAT* b) {
+    int i;
     const timestamp* array = (const timestamp*) Tloc(b, 0);
     jboolean* aux = (jboolean*) GDKmalloc(sizeof(jboolean) * size);
     if(aux == NULL) {
         (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!");
     } else {
-        for(int i = 0 ; i < size ; i++) {
+        for(i = 0 ; i < size ; i++) {
             aux[i] = ts_isnil(array[i]) ? JNI_TRUE : JNI_FALSE;
         }
         (*env)->SetBooleanArrayRegion(env, input, 0, size, aux);
@@ -63,13 +65,14 @@ void checkTimestampNulls(JNIEnv* env, jbooleanArray input, jint size, BAT* b) {
 
 #define CHECK_NULLS_LEVEL_TWO(NAME, GET_ATOM, CHECK_ATOM) \
     void check##NAME##Nulls(JNIEnv* env, jbooleanArray input, jint size, BAT* b) { \
+        BUN p, q; \
         BATiter li = bat_iterator(b); \
         jboolean* aux = (jboolean*) GDKmalloc(sizeof(jboolean) * size); \
         if(aux == NULL) { \
             (*env)->ThrowNew(env, getMonetDBEmbeddedExceptionClassID(), "The system went out of memory!"); \
         } else { \
             int i = 0; \
-            for (BUN p = 0, q = (BUN) size; p < q; p++) { \
+            for (p = 0, q = (BUN) size; p < q; p++) { \
                 GET_ATOM \
                 aux[i++] = (CHECK_ATOM) ? JNI_TRUE : JNI_FALSE; \
             } \

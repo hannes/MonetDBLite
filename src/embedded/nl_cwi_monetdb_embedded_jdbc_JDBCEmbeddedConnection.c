@@ -27,7 +27,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
     (JNIEnv *env, jobject jdbccon, jlong resultSetPointer, jobjectArray columnNames, jintArray columnLengths,
     jobjectArray types, jobjectArray tableNames) {
     res_table *output = (res_table *) resultSetPointer;
-    int numberOfColumns = (*env)->GetArrayLength(env, columnNames);
+    int numberOfColumns = (*env)->GetArrayLength(env, columnNames), i;
     jint* columnLengthsFound;
     res_col col;
     jstring colname, sqlname, tablename;
@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_jdbc_JDBCEmbeddedConnection_
             return;
         }
 
-        for (int i = 0; i < numberOfColumns; i++) {
+        for (i = 0; i < numberOfColumns; i++) {
             col = output->cols[i];
             columnLengthsFound[i] = col.type.digits;
             colname = (*env)->NewStringUTF(env, col.name);

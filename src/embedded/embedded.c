@@ -33,6 +33,8 @@
 #include "rel_rel.h"
 #include "rel_updates.h"
 
+/*#include "mtime.h"
+#include "blob.h"*/
 #include "decompress.c"
 #include "inlined_scripts.c"
 
@@ -43,18 +45,28 @@ static int monetdb_embedded_initialized = 0;
 FILE* embedded_stdout;
 FILE* embedded_stderr;
 
+/*static void monetdb_destroy_column(monetdb_column* column);
+
+typedef struct {
+	monetdb_result res;
+	res_table *monetdb_resultset;
+	monetdb_column **converted_columns;
+} monetdb_result_internal;*/
+
 char* monetdb_connect(Client* conn) {
 	str retval = MAL_SUCCEED;
+	Client cc;
+
 	if (!monetdb_embedded_initialized) {
-		retval = GDKstrdup("The embedded database is not initialized!");
+		return GDKstrdup("The embedded database is not initialized!");
 	}
 	*conn = MCforkClient(&mal_clients[0]);
 	if (!MCvalid(*conn)) {
-		retval = GDKstrdup("The client fork failed!");
+		return GDKstrdup("The client fork failed!");
 	}
 	retval = SQLinitClient(*conn);
 	if(!retval) {
-		Client cc = *conn;
+		cc = *conn;
 		((backend *) cc->sqlcontext)->mvc->session->auto_commit = 1;
 	}
 	return retval;
@@ -68,7 +80,7 @@ void monetdb_disconnect(Client conn) {
 	MCcloseClient(conn);
 }
 
-#ifdef WIN32
+#ifdef NATIVE_WIN32
 #define NULLFILE "nul"
 #else
 #define NULLFILE "/dev/null"
@@ -124,14 +136,16 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	embedded_stderr = embedded_stdout;
 
 	setlen = mo_builtin_settings(&set);
-	setlen = mo_add_option(&set, setlen, opt_cmdline, "gdk_dbpath", dbdir);
-
-	BBPaddfarm(dbdir, (1 << PERSISTENT) | (1 << TRANSIENT));
+	if (dbdir) {
+		setlen = mo_add_option(&set, setlen, opt_cmdline, "gdk_dbpath", dbdir);
+		BBPaddfarm(dbdir, (1 << PERSISTENT) | (1 << TRANSIENT));
+	}
 	if (GDKinit(set, setlen) == 0) {
 		retval = GDKstrdup("GDKinit() failed");
 		goto cleanup;
 	}
 	GDKsetenv("monet_mod_path", "");
+	GDKsetenv("max_clients", "256");
 	GDKsetenv("mapi_disable", "true");
 	if (sequential) {
 		GDKsetenv("sql_optimizer", "sequential_pipe");
@@ -187,9 +201,14 @@ char* monetdb_query(Client c, char* query, char execute, void** result, int* que
 	mvc* m;
 	backend *b;
 	char* qname = "somequery", *nq;
-	size_t query_len;
+	size_t query_len = strlen(query) + 3;
 	buffer query_buf;
-	stream* query_stream;
+	stream *query_stream;
+	b = (backend *) c->sqlcontext;
+	m = b->mvc;
+
+	// TODO what about execute flag?! remove when result set is there for prepared stmts
+	(void) execute;
 
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
@@ -198,23 +217,16 @@ char* monetdb_query(Client c, char* query, char execute, void** result, int* que
 		return GDKstrdup("Invalid connection");
 	}
 
-	b = (backend *) c->sqlcontext;
-	m = b->mvc;
+	query_stream = buffer_rastream(&query_buf, qname);
+	if (!query_stream) {
+		return GDKstrdup( "WARNING: could not setup query stream.");
+	}
 
-	// TODO what about execute flag?! remove when result set is there for prepared stmts
-	(void) execute;
-
-	query_len = strlen(query) + 3;
 	nq = GDKmalloc(query_len);
 	if (!nq) {
 		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
 	sprintf(nq, "%s\n;", query);
-
-	query_stream = buffer_rastream(&query_buf, qname);
-	if (!query_stream) {
-		return GDKstrdup( "WARNING: could not setup query stream.");
-	}
 
 	query_buf.pos = 0;
 	query_buf.len = query_len;
@@ -232,7 +244,7 @@ char* monetdb_query(Client c, char* query, char execute, void** result, int* que
 	m->scanner.rs = c->fdin;
 	b->output_format = OFMT_NONE;
 	m->user_id = m->role_id = USER_MONETDB;
-	m->cache = DEFAULT_CACHESIZE;
+	m->errstr[0] = '\0';
 
 	if (result) {
 		m->reply_size = -2; /* do not clean up result tables */
@@ -288,7 +300,7 @@ char* monetdb_query(Client c, char* query, char execute, void** result, int* que
 }
 
 char* monetdb_append(Client c, const char* schema, const char* table, append_data *data, int ncols) {
-    mvc* m;
+	mvc* m;
 	int i;
 	str res = MAL_SUCCEED;
 
@@ -309,25 +321,20 @@ char* monetdb_append(Client c, const char* schema, const char* table, append_dat
 	}
 
 	SQLtrans(m);
+	if (!m->sa) { // unclear why this is required
+		m->sa = sa_create();
+	}
+	if(!m->sa) {
+		return GDKstrdup("Ups not enough memory to allocate the buffer!");
+	}
 	{
 		sql_rel *rel;
 		node *n;
-		list *exps, *args, *types;
-		sql_schema *s;
-		sql_table *t;
-		sql_subfunc *f;
 
-		if(!m->sa)
-			m->sa = sa_create();
-		if(!m->sa)
-			return GDKstrdup("Ups not enough memory to allocate the buffer!");
-
-		exps = sa_list(m->sa);
-		args = sa_list(m->sa);
-		types = sa_list(m->sa);
-		s = mvc_bind_schema(m, schema);
-		t = mvc_bind_table(m, s, table);
-		f = sql_find_func(m->sa, mvc_bind_schema(m, "sys"), "append", 1, F_UNION, NULL);
+		list *exps = sa_list(m->sa), *args = sa_list(m->sa), *types = sa_list(m->sa);
+		sql_schema *s = mvc_bind_schema(m, schema);
+		sql_table *t = mvc_bind_table(m, s, table);
+		sql_subfunc *f = sql_find_func(m->sa, mvc_bind_schema(m, "sys"), "append", 1, F_UNION, NULL);
 
 		if (!t) {
 			return GDKstrdup("Can't find table.");
@@ -345,6 +352,7 @@ char* monetdb_append(Client c, const char* schema, const char* table, append_dat
 		f->res = types;
 		rel = rel_insert(m, rel_basetable(m, t, t->base.name), rel_table_func(m->sa, NULL, exp_op(m->sa,  args, f), exps, 1));
 		m->scanner.rs = NULL;
+		m->errstr[0] = '\0';
 
 		if (rel && backend_dumpstmt((backend *) c->sqlcontext, c->curprg->def, rel, 1, 1, "append") < 0) {
 			return GDKstrdup("Append plan generation failure");
@@ -407,14 +415,6 @@ str monetdb_get_columns(Client conn, const char* schema_name, const char *table_
 	}
 
 	return msg;
-}
-
-void monetdb_shutdown(void) {
-	if (monetdb_embedded_initialized) {
-		mserver_reset(0);
-		fclose(embedded_stdout);
-		monetdb_embedded_initialized = 0;
-	}
 }
 
 char* monetdb_find_table(Client conn, sql_table** table, const char* schema_name, const char* table_name) {
@@ -525,3 +525,382 @@ void monetdb_unregister_progress(void* conn) {
 		free(c->progress_data);
 	c->progress_data = NULL;
 }
+
+void monetdb_shutdown(void) {
+	if (monetdb_embedded_initialized) {
+		SQLepilogue(NULL); // just do it here, i don't trust mserver_reset to call this
+		mserver_reset(0);
+		fclose(embedded_stdout);
+		monetdb_embedded_initialized = 0;
+	}
+}
+
+/*#define GENERATE_BASE_HEADERS(type, tpename)                                   \
+	static int tpename##_is_null(type value)
+
+#define GENERATE_BASE_FUNCTIONS(tpe, tpename, mname)                                  \
+	GENERATE_BASE_HEADERS(tpe, tpename);                                       \
+	static int tpename##_is_null(tpe value) { return value == mname##_nil; }
+
+GENERATE_BASE_FUNCTIONS(int8_t, int8_t, bte)
+GENERATE_BASE_FUNCTIONS(int16_t, int16_t, sht)
+GENERATE_BASE_FUNCTIONS(int32_t, int32_t, int)
+GENERATE_BASE_FUNCTIONS(int64_t, int64_t, lng)
+GENERATE_BASE_FUNCTIONS(size_t, size_t, oid)
+
+GENERATE_BASE_FUNCTIONS(float, float, flt)
+GENERATE_BASE_FUNCTIONS(double, double, dbl)
+
+GENERATE_BASE_HEADERS(char*, str);
+GENERATE_BASE_HEADERS(monetdb_data_blob, blob);
+
+GENERATE_BASE_HEADERS(monetdb_data_date, date);
+GENERATE_BASE_HEADERS(monetdb_data_time, time);
+GENERATE_BASE_HEADERS(monetdb_data_timestamp, timestamp);
+
+
+#define GENERATE_BAT_INPUT_BASE(tpe)                                           \
+	monetdb_column_##tpe *bat_data =                                  \
+		GDKzalloc(sizeof(monetdb_column_##tpe));                      \
+	if (!bat_data) {                                                           \
+		msg = GDKstrdup("Malloc failure!");                                    \
+		goto wrapup;                                                           \
+	}                                                                          \
+	bat_data->type = monetdb_##tpe;                                            \
+	bat_data->is_null = tpe##_is_null;                                         \
+	bat_data->scale = pow(10, sqltpe->scale);                                  \
+	column_result = (monetdb_column*) bat_data;
+
+#define GENERATE_BAT_INPUT(b, tpe, mtype)                                             \
+	{                                                                          \
+		GENERATE_BAT_INPUT_BASE(tpe);                                          \
+		bat_data->count = BATcount(b);                                         \
+		bat_data->null_value = mtype##_nil;                                    \
+		bat_data->data = GDKmalloc(                                            \
+			bat_data->count * sizeof(bat_data->null_value));                   \
+		if (!bat_data->data) {                                                 \
+			msg = GDKstrdup("Malloc failure!");                                \
+			goto wrapup;                                                       \
+		}                                                                      \
+		if (b->tdense && !b->tnodense) {                                       \
+			size_t it = 0;                                                     \
+			tpe val = b->T.seq;                                                \
+			// bat is dense, materialize it                                    \
+			for (it = 0; it < bat_data->count; it++) {                         \
+				bat_data->data[it] = val++;                                    \
+			}                                                                  \
+		} else {                                                               \
+			// bat is not dense, copy it                                       \
+			tpe* baseptr = (tpe *)Tloc(b, 0);                                  \
+			memcpy(bat_data->data, baseptr,                                    \
+				bat_data->count * sizeof(bat_data->null_value));               \
+		}                                                                      \
+	}
+
+
+static void data_from_date(date d, monetdb_data_date *ptr);
+static void data_from_time(daytime d, monetdb_data_time *ptr);
+static void data_from_timestamp(timestamp d, monetdb_data_timestamp *ptr);
+
+monetdb_column* monetdb_result_fetch(monetdb_result* res, size_t column_index) {
+	BAT* b = NULL;
+	int bat_type;
+	str msg = NULL;
+	monetdb_result_internal* result = (monetdb_result_internal*) res;
+	sql_subtype* sqltpe = NULL;
+	monetdb_column* column_result = NULL;
+	size_t j = 0;
+	if (column_index >= res->ncols) {
+		msg = GDKstrdup("Index out of range!");
+		goto wrapup;
+	}
+	// check if we have the column converted already
+	if (result->converted_columns[column_index]) {
+		return result->converted_columns[column_index];
+	}
+	// otherwise we have to convert the column
+	b = BATdescriptor(result->monetdb_resultset->cols[column_index].b);
+	if (!b) {
+		msg = GDKstrdup("Malloc failure!");
+		goto wrapup;
+	}
+	bat_type = b->ttype;
+	sqltpe = &result->monetdb_resultset->cols[column_index].type;
+
+	if (bat_type == TYPE_bit || bat_type == TYPE_bte) {
+		GENERATE_BAT_INPUT(b, int8_t, bte);
+	} else if (bat_type == TYPE_sht) {
+		GENERATE_BAT_INPUT(b, int16_t, sht);
+	} else if (bat_type == TYPE_int) {
+		GENERATE_BAT_INPUT(b, int32_t, int);
+	} else if (bat_type == TYPE_oid) {
+		GENERATE_BAT_INPUT(b, size_t, oid);
+	} else if (bat_type == TYPE_lng) {
+		GENERATE_BAT_INPUT(b, int64_t, lng);
+	} else if (bat_type == TYPE_flt) {
+		GENERATE_BAT_INPUT(b, float, flt);
+	} else if (bat_type == TYPE_dbl) {
+		GENERATE_BAT_INPUT(b, double, dbl);
+	} else if (bat_type == TYPE_str) {
+		BATiter li;
+		BUN p = 0, q = 0;
+		GENERATE_BAT_INPUT_BASE(str);
+		bat_data->count = BATcount(b);
+		bat_data->data = GDKzalloc(sizeof(char *) * bat_data->count);
+		bat_data->null_value = NULL;
+		if (!bat_data->data) {
+			msg = createException(MAL, "cudf.eval", MAL_MALLOC_FAIL);
+			goto wrapup;
+		}
+
+		j = 0;
+		li = bat_iterator(b);
+		BATloop(b, p, q)
+		{
+			char *t = (char *)BUNtail(li, p);
+			if (strcmp(t, str_nil) == 0) {
+				bat_data->data[j] = NULL;
+			} else {
+				bat_data->data[j] = GDKstrdup(t);
+				if (!bat_data->data[j]) {
+					goto wrapup;
+				}
+			}
+			j++;
+		}
+	} else if (bat_type == TYPE_date) {
+		date *baseptr;
+		GENERATE_BAT_INPUT_BASE(date);
+		bat_data->count = BATcount(b);
+		bat_data->data =
+			GDKmalloc(sizeof(bat_data->null_value) * bat_data->count);
+		if (!bat_data->data) {
+			msg = GDKstrdup("Malloc failure!");
+			goto wrapup;
+		}
+
+		baseptr = (date *)Tloc(b, 0);
+		for (j = 0; j < bat_data->count; j++) {
+			data_from_date(baseptr[j], bat_data->data + j);
+		}
+		data_from_date(date_nil, &bat_data->null_value);
+	} else if (bat_type == TYPE_daytime) {
+		daytime *baseptr;
+		GENERATE_BAT_INPUT_BASE(time);
+		bat_data->count = BATcount(b);
+		bat_data->data =
+			GDKmalloc(sizeof(bat_data->null_value) * bat_data->count);
+		if (!bat_data->data) {
+			msg = GDKstrdup("Malloc failure!");
+			goto wrapup;
+		}
+
+		baseptr = (daytime *)Tloc(b, 0);
+		for (j = 0; j < bat_data->count; j++) {
+			data_from_time(baseptr[j], bat_data->data + j);
+		}
+		data_from_time(daytime_nil, &bat_data->null_value);
+	} else if (bat_type == TYPE_timestamp) {
+		timestamp *baseptr;
+		GENERATE_BAT_INPUT_BASE(timestamp);
+		bat_data->count = BATcount(b);
+		bat_data->data =
+			GDKmalloc(sizeof(bat_data->null_value) * bat_data->count);
+		if (!bat_data->data) {
+			msg = GDKstrdup("Malloc failure!");
+			goto wrapup;
+		}
+
+		baseptr = (timestamp *)Tloc(b, 0);
+		for (j = 0; j < bat_data->count; j++) {
+			data_from_timestamp(baseptr[j], bat_data->data + j);
+		}
+		data_from_timestamp(*timestamp_nil, &bat_data->null_value);
+	} else if (bat_type == TYPE_blob || bat_type == TYPE_sqlblob) {
+		BATiter li;
+		BUN p = 0, q = 0;
+		size_t j;
+		GENERATE_BAT_INPUT_BASE(blob);
+		bat_data->count = BATcount(b);
+		bat_data->data =
+			GDKmalloc(sizeof(monetdb_data_blob) * bat_data->count);
+		if (!bat_data->data) {
+			msg = GDKstrdup("Malloc failure!");
+			goto wrapup;
+		}
+		j = 0;
+
+		li = bat_iterator(b);
+		BATloop(b, p, q)
+		{
+			blob *t = (blob *)BUNtail(li, p);
+			if (t->nitems == ~(size_t)0) {
+				bat_data->data[j].size = 0;
+				bat_data->data[j].data = NULL;
+			} else {
+				bat_data->data[j].size = t->nitems;
+				bat_data->data[j].data = GDKmalloc(t->nitems);
+				if (!bat_data->data[j].data) {
+					msg = GDKstrdup("Malloc failure!");
+					goto wrapup;
+				}
+				memcpy(bat_data->data[j].data, t->data, t->nitems);
+			}
+			j++;
+		}
+		bat_data->null_value.size = 0;
+		bat_data->null_value.data = NULL;
+	} else {
+		// unsupported type: convert to string
+		BATiter li;
+		BUN p = 0, q = 0;
+		GENERATE_BAT_INPUT_BASE(str);
+		bat_data->count = BATcount(b);
+		bat_data->null_value = NULL;
+		bat_data->data = GDKzalloc(sizeof(char *) * bat_data->count);
+		if (!bat_data->data) {
+			msg = GDKstrdup("Malloc failure!");
+			goto wrapup;
+		}
+		j = 0;
+
+		li = bat_iterator(b);
+		BATloop(b, p, q)
+		{
+			void *t = BUNtail(li, p);
+			if (BATatoms[bat_type].atomCmp(
+					t, BATatoms[bat_type].atomNull) == 0) {
+				bat_data->data[j] = NULL;
+			} else {
+				char *result = NULL;
+				int length = 0;
+				if (BATatoms[bat_type].atomToStr(&result, &length, t) ==
+					0) {
+					msg = GDKstrdup("Failed to convert element to string");
+					goto wrapup;
+				}
+				bat_data->data[j] = result;
+			}
+			j++;
+		}
+	}
+	BBPunfix(b->batCacheid);
+	result->converted_columns[column_index] = column_result;
+	return result->converted_columns[column_index];
+wrapup:
+	if (b) {
+		BBPunfix(b->batCacheid);
+	}
+	monetdb_destroy_column(column_result);
+	if (msg) {
+		// FIXME: show message somehow?
+		GDKfree(msg);
+	}
+	return NULL;
+}
+
+void* monetdb_result_fetch_rawcol(monetdb_result* res, size_t column_index) {
+	monetdb_result_internal* result = (monetdb_result_internal*) res;
+	if (column_index >= res->ncols) // index out of range
+		return NULL;
+	return &(result->monetdb_resultset->cols[column_index]);
+}
+
+void data_from_date(date d, monetdb_data_date *ptr)
+{
+	int day, month, year;
+	MTIMEfromdate(d, &day, &month, &year);
+	ptr->day = day;
+	ptr->month = month;
+	ptr->year = year;
+}
+
+void data_from_time(daytime d, monetdb_data_time *ptr)
+{
+	int hour, min, sec, msec;
+	MTIMEfromtime(d, &hour, &min, &sec, &msec);
+	ptr->hours = hour;
+	ptr->minutes = min;
+	ptr->seconds = sec;
+	ptr->ms = msec;
+}
+
+void data_from_timestamp(timestamp d, monetdb_data_timestamp *ptr)
+{
+	data_from_date(d.payload.p_days, &ptr->date);
+	data_from_time(d.payload.p_msecs, &ptr->time);
+}
+
+static date date_from_data(monetdb_data_date *ptr)
+{
+	return MTIMEtodate(ptr->day, ptr->month, ptr->year);
+}
+
+static daytime time_from_data(monetdb_data_time *ptr)
+{
+	return MTIMEtotime(ptr->hours, ptr->minutes, ptr->seconds, ptr->ms);
+}
+
+static timestamp timestamp_from_data(monetdb_data_timestamp *ptr)
+{
+	timestamp d;
+	d.payload.p_days = date_from_data(&ptr->date);
+	d.payload.p_msecs = time_from_data(&ptr->time);
+	return d;
+}
+
+int date_is_null(monetdb_data_date value)
+{
+	monetdb_data_date null_value;
+	data_from_date(date_nil, &null_value);
+	return value.year == null_value.year && value.month == null_value.month &&
+		   value.day == null_value.day;
+}
+
+int time_is_null(monetdb_data_time value)
+{
+	monetdb_data_time null_value;
+	data_from_time(daytime_nil, &null_value);
+	return value.hours == null_value.hours &&
+		   value.minutes == null_value.minutes &&
+		   value.seconds == null_value.seconds && value.ms == null_value.ms;
+}
+
+int timestamp_is_null(monetdb_data_timestamp value)
+{
+	return ts_isnil(timestamp_from_data(&value));
+}
+
+int str_is_null(char *value) {
+	return value == NULL;
+}
+
+int blob_is_null(monetdb_data_blob value) {
+	return value.data == NULL;
+}
+
+void monetdb_destroy_column(monetdb_column* column) {
+	size_t j;
+	if (!column) {
+		return;
+	}
+
+	if (column->type == monetdb_str) {
+		// FIXME: clean up individual strings
+		char** data = (char**)column->data;
+		for(j = 0; j < column->count; j++) {
+			if (data[j]) {
+				GDKfree(data[j]);
+			}
+		}
+	} else if (column->type == monetdb_blob) {
+		monetdb_data_blob* data = (monetdb_data_blob*)column->data;
+		for(j = 0; j < column->count; j++) {
+			if (data[j].data) {
+				GDKfree(data[j].data);
+			}
+		}
+	}
+	GDKfree(column->data);
+	GDKfree(column);
+}*/

@@ -15,7 +15,6 @@
 #include "mal_parser.h"	     /* for parseMAL() */
 #include "mal_namespace.h"
 #include "mal_builder.h"
-#include "mal_authorize.h"
 #include "mal_private.h"
 #include <gdk.h>	/* for opendir and friends */
 
@@ -33,30 +32,34 @@ malBootstrap(void)
 
 	c = MCinitClient((oid) 0, 0, 0);
 	if (!c) {
-		GDKerror("malBootstrap:Failed to initialise client");
+		GDKerror("malBootstrap: Failed to initialize client");
 		return 0;
 	}
 	c->nspace = newModule(NULL, putName("user"));
 	if ( (msg = defaultScenario(c)) ) {
 		freeException(msg);
-		GDKerror("malBootstrap:Failed to initialise default scenario");
+		MALexitClient(c);
+		GDKerror("malBootstrap: Failed to initialize default scenario");
 		return 0;
 	}
 	MSinitClientPrg(c, "user", "main");
 	if( MCinitClientThread(c) < 0){
-		GDKerror("malBootstrap:Failed to create client thread");
+		MALexitClient(c);
+		GDKerror("malBootstrap: Failed to create client thread");
 		return 0;
 	}
 	s = malInclude(c, bootfile, 0);
 	if (s != NULL) {
-		mnstr_printf(GDKout, "!%s\n", s);
+		GDKerror("malBootstrap: Failed to load startup script %s", s);
+		MALexitClient(c);
 		GDKfree(s);
 		return 0;
 	}
 	pushEndInstruction(c->curprg->def);
 	chkProgram(c->fdout, c->nspace, c->curprg->def);
 	if (c->curprg->def->errors) {
-		showErrors(c);
+		GDKerror("malBootstrap: Failed to check startup script %s", GDKerrbuf);
+		MALexitClient(c);
 		return 0;
 	}
 	s = MALengine(c);
@@ -64,6 +67,7 @@ malBootstrap(void)
 		GDKfree(s);
 		return 0;
 	}
+	MALexitClient(c);
 	return 1;
 }
 
@@ -117,6 +121,9 @@ MSinitClientPrg(Client cntxt, str mod, str nme)
 		MSresetClientPrg(cntxt);
 		return;
 	}
+	if (cntxt->nspace == 0) {
+		cntxt->nspace = newModule(NULL, putName("user"));
+	}
 	cntxt->curprg = newFunction(putName("user"), putName(nme), FUNCTIONsymbol);
 	if( cntxt->curprg == 0){
 		GDKerror("MSinitClientPrg" "Failed to create function");
@@ -134,188 +141,8 @@ MSinitClientPrg(Client cntxt, str mod, str nme)
 	assert(cntxt->curprg->def != NULL);
 }
 
-/*
- * The default method to interact with the database server is to connect
- * using a port number. The first line received should contain
- * authorization information, such as user name.
- *
- * The scheduleClient receives a challenge response consisting of
- * endian:user:password:lang:database:
- */
-static void
-exit_streams( bstream *fin, stream *fout )
-{
-	if (fout && fout != GDKstdout) {
-		mnstr_flush(fout);
-		close_stream(fout);
-	}
-	if (fin)
-		bstream_destroy(fin);
-}
 
-const char* mal_enableflag = "mal_for_all";
 
-void
-MSscheduleClient(str command, str challenge, bstream *fin, stream *fout, protocol_version protocol, size_t blocksize, int compute_column_widths)
-{
-	char *user = command, *algo = NULL, *passwd = NULL, *lang = NULL;
-	char *database = NULL, *s, *dbname;
-	Client c;
-
-	/* decode BIG/LIT:user:{cypher}passwordchal:lang:database: line */
-
-	/* byte order */
-	s = strchr(user, ':');
-	if (s) {
-		*s = 0;
-		mnstr_set_byteorder(fin->s, strcmp(user, "BIG") == 0);
-		user = s + 1;
-	} else {
-		mnstr_printf(fout, "!incomplete challenge '%s'\n", user);
-		exit_streams(fin, fout);
-		GDKfree(command);
-		return;
-	}
-
-	/* passwd */
-	s = strchr(user, ':');
-	if (s) {
-		*s = 0;
-		passwd = s + 1;
-		/* decode algorithm, i.e. {plain}mypasswordchallenge */
-		if (*passwd != '{') {
-			mnstr_printf(fout, "!invalid password entry\n");
-			exit_streams(fin, fout);
-			GDKfree(command);
-			return;
-		}
-		algo = passwd + 1;
-		s = strchr(algo, '}');
-		if (!s) {
-			mnstr_printf(fout, "!invalid password entry\n");
-			exit_streams(fin, fout);
-			GDKfree(command);
-			return;
-		}
-		*s = 0;
-		passwd = s + 1;
-	} else {
-		mnstr_printf(fout, "!incomplete challenge '%s'\n", user);
-		exit_streams(fin, fout);
-		GDKfree(command);
-		return;
-	}
-
-	/* lang */
-	s = strchr(passwd, ':');
-	if (s) {
-		*s = 0;
-		lang = s + 1;
-	} else {
-		mnstr_printf(fout, "!incomplete challenge, missing language\n");
-		exit_streams(fin, fout);
-		GDKfree(command);
-		return;
-	}
-
-	/* database */
-	s = strchr(lang, ':');
-	if (s) {
-		*s = 0;
-		database = s + 1;
-		/* we can have stuff following, make it void */
-		s = strchr(database, ':');
-		if (s)
-			*s = 0;
-	}
-
-	dbname = GDKgetenv("gdk_dbname");
-	if (database != NULL && database[0] != '\0' &&
-		strcmp(database, dbname) != 0)
-	{
-		mnstr_printf(fout, "!request for database '%s', "
-						   "but this is database '%s', "
-						   "did you mean to connect to monetdbd instead?\n",
-				database, dbname);
-		/* flush the error to the client, and abort further execution */
-		exit_streams(fin, fout);
-		GDKfree(command);
-		return;
-	} else {
-		str err;
-		oid uid;
-		Client root = &mal_clients[0];
-
-		/* access control: verify the credentials supplied by the user,
-		 * no need to check for database stuff, because that is done per
-		 * database itself (one gets a redirect) */
-		err = AUTHcheckCredentials(&uid, root, user, passwd, challenge, algo);
-		if (err != MAL_SUCCEED) {
-			mnstr_printf(fout, "!%s\n", err);
-			exit_streams(fin, fout);
-			freeException(err);
-			GDKfree(command);
-			return;
-		}
-
-		c = MCinitClient(uid, fin, fout);
-		if (c == NULL) {
-			if ( MCshutdowninprogress())
-				mnstr_printf(fout, "!system shutdown in progress, please try again later\n");
-			else
-				mnstr_printf(fout, "!maximum concurrent client limit reached "
-								   "(%d), please try again later\n", MAL_MAXCLIENTS);
-			exit_streams(fin, fout);
-			GDKfree(command);
-			return;
-		}
-		/* move this back !! */
-		if (c->nspace == 0) {
-			c->nspace = newModule(NULL, putName("user"));
-		}
-
-		if ((s = setScenario(c, lang)) != NULL) {
-			mnstr_printf(c->fdout, "!%s\n", s);
-			mnstr_flush(c->fdout);
-			GDKfree(s);
-			c->mode = FINISHCLIENT;
-		}
-		if (!GDKgetenv_isyes(mal_enableflag) &&
-				(strncasecmp("sql", lang, 3) != 0 && uid != 0)) {
-
-			mnstr_printf(fout, "!only the 'monetdb' user can use non-sql languages. "
-					           "run mserver5 with --set %s=yes to change this.\n", mal_enableflag);
-			exit_streams(fin, fout);
-			GDKfree(command);
-			return;
-		}
-	}
-
-	MSinitClientPrg(c, "user", "main");
-
-	GDKfree(command);
-
-	/* NOTE ABOUT STARTING NEW THREADS
-	 * At this point we have conducted experiments (Jun 2012) with
-	 * reusing threads.  The implementation used was a lockless array of
-	 * semaphores to wake up threads to do work.  Experimentation on
-	 * Linux, Solaris and Darwin showed no significant improvements, in
-	 * most cases no improvements at all.  Hence the following
-	 * conclusion: thread reuse doesn't save up on the costs of just
-	 * forking new threads.  Since the latter means no difficulties of
-	 * properly maintaining a pool of threads and picking the workers
-	 * out of them, it is favourable just to start new threads on
-	 * demand. */
-
-	/* fork a new thread to handle this client */
-
-	c->protocol = protocol;
-	c->blocksize = blocksize;
-	c->compute_column_widths = compute_column_widths;
-
-	mnstr_settimeout(c->fdin->s, 50, GDKexiting);
-	MSserveClient(c);
-}
 
 /*
  * After the client initialization has been finished, we can start the
@@ -381,91 +208,6 @@ MSresetVariables(Client cntxt, MalBlkPtr mb, MalStkPtr glb, int start)
 
 	if (mb->errors == 0)
 		trimMalVariables_(mb, glb);
-}
-
-/*
- * This is a phtread started function.  Here we start the client. We
- * need to initialize and allocate space for the global variables.
- * Thereafter it is up to the scenario interpreter to process input.
- */
-void
-MSserveClient(void *dummy)
-{
-	MalBlkPtr mb;
-	Client c = (Client) dummy;
-	str msg = 0;
-
-	if (!isAdministrator(c) && MCinitClientThread(c) < 0) {
-		MCcloseClient(c);
-		return;
-	}
-	/*
-	 * A stack frame is initialized to keep track of global variables.
-	 * The scenarios are run until we finally close the last one.
-	 */
-	mb = c->curprg->def;
-	if (c->glb == NULL)
-		c->glb = newGlobalStack(MAXGLOBALS + mb->vsize);
-	if (c->glb == NULL) {
-		showException(c->fdout, MAL, "serveClient", MAL_MALLOC_FAIL);
-		c->mode = RUNCLIENT;
-	} else {
-		c->glb->stktop = mb->vtop;
-		c->glb->blk = mb;
-	}
-
-	if (c->scenario == 0)
-		msg = defaultScenario(c);
-	if (msg) {
-		showException(c->fdout, MAL, "serveClient", "could not initialize default scenario");
-		c->mode = RUNCLIENT;
-		freeException(msg);
-	} else {
-		do {
-			do {
-				msg = runScenario(c);
-				freeException(msg);
-				if (c->mode == FINISHCLIENT)
-					break;
-				resetScenario(c);
-			} while (c->scenario && !GDKexiting());
-		} while (c->scenario && c->mode != FINISHCLIENT && !GDKexiting());
-	}
-	/* pre announce our exiting: cleaning up may take a while and we
-	 * don't want to get killed during that time for fear of
-	 * deadlocks */
-	MT_exiting_thread();
-	/*
-	 * At this stage we should clean out the MAL block
-	 */
-	if (c->backup) {
-		assert(0);
-		freeSymbol(c->backup);
-		c->backup = 0;
-	}
-	if (c->curprg) {
-		assert(0);
-		freeSymbol(c->curprg);
-		c->curprg = 0;
-	}
-	if (c->nspace) {
-		assert(0);
-	}
-
-	if (c->mode > FINISHCLIENT) {
-		if (isAdministrator(c) /* && moreClients(0)==0 */) {
-			if (c->scenario) {
-				exitScenario(c);
-			}
-		}
-	}
-	if (!isAdministrator(c))
-		MCcloseClient(c);
-	if (c->nspace && strcmp(c->nspace->name, "user") == 0) {
-		GDKfree(c->nspace->space);
-		GDKfree(c->nspace);
-		c->nspace = NULL;
-	}
 }
 
 /*

@@ -320,7 +320,9 @@ int
 BBPselectfarm(int role, int type, enum heaptype hptype)
 {
 	int i;
-
+	if (GDKinmemory()) {
+		return 0;
+	}
 	assert(role >= 0 && role < 32);
 	(void) type;		/* may use in future */
 	(void) hptype;		/* may use in future */
@@ -402,7 +404,7 @@ recover_dir(int farmid, int direxists)
 
 static gdk_return BBPrecover(int farmid);
 static gdk_return BBPrecover_subdir(void);
-static int BBPdiskscan(const char *);
+static int BBPdiskscan(const char *, size_t);
 
 #ifdef GDKLIBRARY_SORTEDPOS
 static void
@@ -1005,7 +1007,7 @@ heapinit(BAT *b, const char *buf, int *hashash, const char *HT, int bbpversion, 
 		strcpy(type, "bte");
 	/* silently convert wrd columns to int or lng */
 	else if (strcmp(type, "wrd") == 0)
-		strcpy(type, width == SIZEOF_INT ? "int" : "lng");
+		strcpy(type, width == sizeof(int) ? "int" : "lng");
 #ifdef HAVE_HGE
 	else if (strcmp(type, "hge") == 0)
 		havehge = 1;
@@ -1147,7 +1149,7 @@ BBPreadEntries(FILE *fp, int bbpversion)
 			   &properties,
 			   &count, &capacity, &base,
 			   &nread) < 8)
-			GDKfatal("BBPinit: invalid format for BBP.dir%s", buf);
+			GDKfatal("BBPinit: invalid format for BBP.dir\n%s", buf);
 
 		/* convert both / and \ path separators to our own DIR_SEP */
 #if DIR_SEP != '/'
@@ -1322,6 +1324,31 @@ BBPaddfarm(const char *dirname, int rolemask)
 		if (BBPfarms[i].dirname == NULL) {
 			BBPfarms[i].dirname = GDKstrdup(dirname);
 			BBPfarms[i].roles = rolemask;
+			if ((rolemask & 1) == 0) {
+				char *bbpdir;
+				int j;
+
+				for (j = 0; j < i; j++)
+					if (strcmp(BBPfarms[i].dirname,
+						   BBPfarms[j].dirname) == 0)
+						return;
+				/* if an extra farm, make sure we
+				 * don't find a BBP.dir there that
+				 * might belong to an existing
+				 * database */
+				bbpdir = GDKfilepath(i, BATDIR, "BBP", "dir");
+				if (bbpdir == NULL)
+					GDKfatal("BBPaddfarm: malloc failed\n");
+				if (stat(bbpdir, &st) != -1 || errno != ENOENT)
+					GDKfatal("BBPaddfarm: %s is a database\n", dirname);
+				GDKfree(bbpdir);
+				bbpdir = GDKfilepath(i, BAKDIR, "BBP", "dir");
+				if (bbpdir == NULL)
+					GDKfatal("BBPaddfarm: malloc failed\n");
+				if (stat(bbpdir, &st) != -1 || errno != ENOENT)
+					GDKfatal("BBPaddfarm: %s is a database\n", dirname);
+				GDKfree(bbpdir);
+			}
 			return;
 		}
 	}
@@ -1347,76 +1374,93 @@ BBPinit(void)
 	FILE *fp = NULL;
 	struct stat st;
 	int bbpversion;
-	str bbpdirstr = GDKfilepath(0, BATDIR, "BBP", "dir");
-	str backupbbpdirstr = GDKfilepath(0, BAKDIR, "BBP", "dir");
+	int i;
 
 #ifdef NEED_MT_LOCK_INIT
 	MT_lock_init(&GDKunloadLock, "GDKunloadLock");
 	ATOMIC_INIT(BBPsizeLock);
 #endif
 
-	if (BBPfarms[0].dirname == NULL) {
-		BBPaddfarm(".", 1 << PERSISTENT);
-		BBPaddfarm(".", 1 << TRANSIENT);
-	}
+	if (!GDKinmemory()) {
 
-	if (GDKremovedir(0, DELDIR) != GDK_SUCCEED)
-		GDKfatal("BBPinit: cannot remove directory %s\n", DELDIR);
+		str bbpdirstr = GDKfilepath(0, BATDIR, "BBP", "dir");
+		str backupbbpdirstr = GDKfilepath(0, BAKDIR, "BBP", "dir");
 
-	/* first move everything from SUBDIR to BAKDIR (its parent) */
-	if (BBPrecover_subdir() != GDK_SUCCEED)
-		GDKfatal("BBPinit: cannot properly recover_subdir process %s. Please check whether your disk is full or write-protected", SUBDIR);
+		if (GDKremovedir(0, DELDIR) != GDK_SUCCEED)
+			GDKfatal("BBPinit: cannot remove directory %s\n", DELDIR);
 
-	/* try to obtain a BBP.dir from bakdir */
-	if (stat(backupbbpdirstr, &st) == 0) {
-		/* backup exists; *must* use it */
-		if (recover_dir(0, stat(bbpdirstr, &st) == 0) != GDK_SUCCEED)
-			goto bailout;
-		if ((fp = GDKfilelocate(0, "BBP", "r", "dir")) == NULL)
-			GDKfatal("BBPinit: cannot open recovered BBP.dir.");
-	} else if ((fp = GDKfilelocate(0, "BBP", "r", "dir")) == NULL) {
-		/* there was no BBP.dir either. Panic! try to use a
-		 * BBP.bak */
-		if (stat(backupbbpdirstr, &st) < 0) {
-			/* no BBP.bak (nor BBP.dir or BACKUP/BBP.dir):
-			 * create a new one */
-			IODEBUG fprintf(stderr, "#BBPdir: initializing BBP.\n");	/* BBPdir instead of BBPinit for backward compatibility of error messages */
-			if (BBPdir(0, NULL) != GDK_SUCCEED)
+		/* first move everything from SUBDIR to BAKDIR (its parent) */
+		if (BBPrecover_subdir() != GDK_SUCCEED)
+			GDKfatal("BBPinit: cannot properly recover_subdir process %s. Please check whether your disk is full or write-protected", SUBDIR);
+
+		/* try to obtain a BBP.dir from bakdir */
+		if (stat(backupbbpdirstr, &st) == 0) {
+			/* backup exists; *must* use it */
+			if (recover_dir(0, stat(bbpdirstr, &st) == 0) != GDK_SUCCEED)
 				goto bailout;
-		} else if (GDKmove(0, BATDIR, "BBP", "bak", BATDIR, "BBP", "dir") == GDK_SUCCEED)
-			IODEBUG fprintf(stderr, "#BBPinit: reverting to dir saved in BBP.bak.\n");
+			if ((fp = GDKfilelocate(0, "BBP", "r", "dir")) == NULL)
+				GDKfatal("BBPinit: cannot open recovered BBP.dir.");
+		} else if ((fp = GDKfilelocate(0, "BBP", "r", "dir")) == NULL) {
+			/* there was no BBP.dir either. Panic! try to use a
+			 * BBP.bak */
+			if (stat(backupbbpdirstr, &st) < 0) {
+				/* no BBP.bak (nor BBP.dir or BACKUP/BBP.dir):
+				 * create a new one */
+				IODEBUG fprintf(stderr, "#BBPdir: initializing BBP.\n");	/* BBPdir instead of BBPinit for backward compatibility of error messages */
+				if (BBPdir(0, NULL) != GDK_SUCCEED)
+					goto bailout;
+			} else if (GDKmove(0, BATDIR, "BBP", "bak", BATDIR, "BBP", "dir") == GDK_SUCCEED)
+				IODEBUG fprintf(stderr, "#BBPinit: reverting to dir saved in BBP.bak.\n");
 
-		if ((fp = GDKfilelocate(0, "BBP", "r", "dir")) == NULL)
-			goto bailout;
+			if ((fp = GDKfilelocate(0, "BBP", "r", "dir")) == NULL)
+				goto bailout;
+		}
+		assert(fp != NULL);
+		GDKfree(bbpdirstr); // passive-aggressive note
+		GDKfree(backupbbpdirstr);
 	}
-	assert(fp != NULL);
-
 	/* scan the BBP.dir to obtain current size */
 	BBPlimit = 0;
 	memset(BBP, 0, sizeof(BBP));
 	ATOMIC_SET(BBPsize, 1, BBPsizeLock);
 	BBPdirty(1);
 
-	bbpversion = BBPheader(fp);
-
+	if (!GDKinmemory()) {
+		bbpversion = BBPheader(fp);
+	}
 	BBPextend(0, FALSE);		/* allocate BBP records */
 	ATOMIC_SET(BBPsize, 1, BBPsizeLock);
 
-	BBPreadEntries(fp, bbpversion);
-	fclose(fp);
-
+	if (!GDKinmemory()) {
+		BBPreadEntries(fp, bbpversion);
+		fclose(fp);
+	}
 	if (BBPinithash(0) != GDK_SUCCEED)
 		GDKfatal("BBPinit: BBPinithash failed");
 
 	/* will call BBPrecover if needed */
-	if (BBPprepare(FALSE) != GDK_SUCCEED)
-		GDKfatal("BBPinit: cannot properly prepare process %s. Please check whether your disk is full or write-protected", BAKDIR);
+	if (!GDKinmemory()) {
+		if (BBPprepare(FALSE) != GDK_SUCCEED)
+			GDKfatal("BBPinit: cannot properly prepare process %s. Please check whether your disk is full or write-protected", BAKDIR);
+
 
 	/* cleanup any leftovers (must be done after BBPrecover) */
-	{
-		char *d = GDKfilepath(0, NULL, BATDIR, NULL);
-		BBPdiskscan(d);
-		GDKfree(d);
+	for (i = 0; i < MAXFARMS && BBPfarms[i].dirname != NULL; i++) {
+		int j;
+		for (j = 0; j < i; j++) {
+			/* don't clean a directory twice */
+			if (BBPfarms[j].dirname &&
+			    strcmp(BBPfarms[i].dirname,
+				   BBPfarms[j].dirname) == 0)
+				break;
+		}
+		if (j == i) {
+			char *d = GDKfilepath(i, NULL, BATDIR, NULL);
+			if (d == NULL)
+				GDKfatal("BBPinit: malloc failed\n");
+			BBPdiskscan(d, strlen(d) - strlen(BATDIR));
+			GDKfree(d);
+		}
 	}
 
 #ifdef GDKLIBRARY_SORTEDPOS
@@ -1433,8 +1477,8 @@ BBPinit(void)
 #endif
 	if (bbpversion < GDKLIBRARY)
 		TMcommit();
-	GDKfree(bbpdirstr);
-	GDKfree(backupbbpdirstr);
+
+	}
 	return;
 
       bailout:
@@ -2143,7 +2187,7 @@ BBPinsert(BAT *bn)
 		BBP_logical(i) = BBP_bak(i);
 
 	/* Keep the physical location around forever */
-	if (BBP_physical(i) == NULL) {
+	if (!GDKinmemory() && BBP_physical(i) == NULL) {
 		char name[64], *nme;
 
 		BBPgetsubdir(dirname, i);
@@ -3619,7 +3663,7 @@ getdesc(bat bid)
 }
 
 static int
-BBPdiskscan(const char *parent)
+BBPdiskscan(const char *parent, size_t baseoff)
 {
 	DIR *dirp = opendir(parent);
 	struct dirent *dent;
@@ -3649,9 +3693,9 @@ BBPdiskscan(const char *parent)
 			continue;	/* ignore .dot files and directories (. ..) */
 
 		if (strncmp(dent->d_name, "BBP.", 4) == 0 &&
-		    (strcmp(parent, BATDIR) == 0 ||
-		     strncmp(parent, BAKDIR, strlen(BAKDIR)) == 0 ||
-		     strncmp(parent, SUBDIR, strlen(SUBDIR)) == 0))
+		    (strcmp(parent + baseoff, BATDIR) == 0 ||
+		     strncmp(parent + baseoff, BAKDIR, strlen(BAKDIR)) == 0 ||
+		     strncmp(parent + baseoff, SUBDIR, strlen(SUBDIR)) == 0))
 			continue;
 
 		p = strchr(dent->d_name, '.');
@@ -3663,13 +3707,13 @@ BBPdiskscan(const char *parent)
 			/* found a file with too long a name
 			   (i.e. unknown); stop pruning in this
 			   subdir */
-			IODEBUG fprintf(stderr, "BBPdiskscan: unexpected file %s, leaving %s.\n", dent->d_name, parent);
+			fprintf(stderr, "BBPdiskscan: unexpected file %s, leaving %s.\n", dent->d_name, parent);
 			break;
 		}
 		strncpy(dst, dent->d_name, dstlen);
 		fullname[sizeof(fullname) - 1] = 0;
 
-		if (p == NULL && BBPdiskscan(fullname) == 0) {
+		if (p == NULL && BBPdiskscan(fullname, baseoff) == 0) {
 			/* it was a directory */
 			continue;
 		}
@@ -3725,7 +3769,7 @@ BBPdiskscan(const char *parent)
 		if (!ok) {
 			/* found an unknown file; stop pruning in this
 			 * subdir */
-			IODEBUG fprintf(stderr, "BBPdiskscan: unexpected file %s, leaving %s.\n", dent->d_name, parent);
+			fprintf(stderr, "BBPdiskscan: unexpected file %s, leaving %s.\n", dent->d_name, parent);
 			break;
 		}
 		if (delete) {

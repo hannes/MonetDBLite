@@ -1092,7 +1092,6 @@ str
 strPrelude(void *ret)
 {
 	int i;
-	(void) ret;
 //	if (UTF8_upperBat == NULL) { // always, lite, ya know
 		i = UTF8_CONVERSIONS;
 
@@ -1120,6 +1119,7 @@ strPrelude(void *ret)
 	UTF8_upperBat = NULL;
 	UTF8_lowerBat = NULL;
 	throw(MAL, "str.prelude", GDK_EXCEPTION);
+	(void) ret;
 }
 
 str
@@ -1299,7 +1299,7 @@ strEpilogue(void *ret)
 
 #define UTF8_PUTCHAR(X1,X2)												\
 	do {																\
-		if ((X1) < 0 || (SIZEOF_INT > 4 && (int) (X1) >= 0x80000000)) {	\
+		if ((X1) < 0 || (sizeof(int) > 4 && (int) (X1) >= 0x80000000)) {	\
 			*(X2)++ = '\200';											\
 		} else if ((X1) < 0x80) {										\
 			*(X2)++ = (X1);												\
@@ -2461,7 +2461,7 @@ bit STRlike(const char* const_pattern, const char* const_data, bit case_insensit
 	BATiter toi = bat_iterator(UTF8_lowerBat);
 	BATiter fromi = bat_iterator(UTF8_upperBat);
 	BUN UTF8_CONV_r;
-	char *back_pat = 0, *back_str = NULL;
+	char *back_pat = NULL, *back_str = NULL;
 	str pattern = (char*) const_pattern;
 	str pattern_start = NULL;
 	str data = (char*) const_data;

@@ -20,9 +20,10 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_get
     JResultSet* thisResultSet = (JResultSet*) structPointer;
     res_table *output = thisResultSet->output;
     jint numberOfColumns = output->nr_cols;
+    int i;
     (void) queryResultSet;
 
-    for (int i = 0; i < numberOfColumns; i++) {
+    for (i = 0; i < numberOfColumns; i++) {
         res_col col = output->cols[i];
         jstring colname = (*env)->NewStringUTF(env, col.name);
         (*env)->SetObjectArrayElement(env, result, i, colname);
@@ -35,9 +36,10 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_get
     JResultSet* thisResultSet = (JResultSet*) structPointer;
     res_table *output = thisResultSet->output;
     jint numberOfColumns = output->nr_cols;
+    int i;
     (void) queryResultSet;
 
-    for (int i = 0; i < numberOfColumns; i++) {
+    for (i = 0; i < numberOfColumns; i++) {
         res_col col = output->cols[i];
         jstring coltype = (*env)->NewStringUTF(env, col.type.type->sqlname);
         (*env)->SetObjectArrayElement(env, result, i, coltype);
@@ -50,9 +52,10 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_get
     JResultSet* thisResultSet = (JResultSet*) structPointer;
     res_table *output = thisResultSet->output;
     jint numberOfColumns = output->nr_cols;
+    int i;
     (void) queryResultSet;
 
-    for (int i = 0; i < numberOfColumns; i++) {
+    for (i = 0; i < numberOfColumns; i++) {
         res_col col = output->cols[i];
         jstring toCall = (*env)->NewStringUTF(env, col.type.type->sqlname);
         jobject next = (*env)->CallStaticObjectMethod(env, getMappingEnumID(), getGetEnumValueID(), toCall);
@@ -68,9 +71,10 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_get
     res_table *output = thisResultSet->output;
     jint numberOfColumns = output->nr_cols;
     jint* fdigits = GDKmalloc(numberOfColumns * sizeof(jint));
+    int i;
     (void) queryResultSet;
 
-    for (int i = 0; i < numberOfColumns; i++) {
+    for (i = 0; i < numberOfColumns; i++) {
         res_col col = output->cols[i];
         fdigits[i] = col.type.digits;
     }
@@ -84,9 +88,10 @@ JNIEXPORT void JNICALL Java_nl_cwi_monetdb_embedded_resultset_QueryResultSet_get
     res_table *output = thisResultSet->output;
     jint numberOfColumns = output->nr_cols;
     jint* fscales = GDKmalloc(numberOfColumns * sizeof(jint));
+    int i;
     (void) queryResultSet;
 
-    for (int i = 0; i < numberOfColumns; i++) {
+    for (i = 0; i < numberOfColumns; i++) {
         res_col col = output->cols[i];
         fscales[i] = col.type.scale;
     }

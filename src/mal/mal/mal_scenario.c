@@ -97,9 +97,7 @@
 #include "mal_scenario.h"
 #include "mal_linker.h"		/* for getAddress() */
 #include "mal_client.h"
-#include "mal_authorize.h"
 #include "mal_exception.h"
-#include "mal_profiler.h"
 #include "mal_private.h"
 
 #ifdef HAVE_SYS_TIMES_H
@@ -465,19 +463,6 @@ resetScenario(Client c)
 		c->phase[i] = c->oldphase[i];
 	}
 	c->oldscenario = 0;
-}
-
-void
-exitScenario(Client c)
-{
-	Scenario scen = scenarioRec;
-
-	if (c->scenario == 0)
-		return;
-	scen = findScenario(c->scenario);
-	if (scen->exitSystemCmd)
-		(*scen->exitSystemCmd) (c);
-	c->scenario = NULL;
 }
 
 /*

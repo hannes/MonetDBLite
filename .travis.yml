@@ -32,21 +32,10 @@ install:
 script:
     - jdk_switcher use oraclejdk8
     # Compile for the 3 operating systems! May the God be with us! We will create 3 distinct directories for each compilation!
-    - cd ..
-    - cp -rf MonetDBLite MonetDBLiteMacOSX/
-    - cp -rf MonetDBLite MonetDBLiteWindows/
-    - cd MonetDBLite
     - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e CROSS_TRIPLE=x86_64-linux-gnu -e TRAVIS=1 multiarch/crossbuild bash compile.sh linux
-    - cd ../MonetDBLiteMacOSX
     - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e CROSS_TRIPLE=x86_64-apple-darwin -e TRAVIS=1 multiarch/crossbuild bash compile.sh macosx
-    - cd ../MonetDBLiteWindows
     - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true -e TRAVIS=1 pedrotadim/compilemonetdblite bash compile.sh windows
-    # Assemble everything with Gradle, but move the generated binaries first
-    - cd ..
-    - mv MonetDBLiteMacOSX/monetdb-java-lite/src/main/resources/libs/macosx/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
-    - mv MonetDBLiteWindows/monetdb-java-lite/src/main/resources/libs/windows/ MonetDBLite/monetdb-java-lite/src/main/resources/libs/
     # Assemble everything! Decrypt the necessary files and run gradle
-    - cd MonetDBLite
     - openssl aes-256-cbc -K $encrypted_e5ce453b448a_key -iv $encrypted_e5ce453b448a_iv -in secring.gpg.enc -out monetdb-java-lite/secring.gpg -d
     - openssl aes-256-cbc -K $encrypted_3eba8b62c709_key -iv $encrypted_3eba8b62c709_iv -in gradle.properties.enc -out monetdb-java-lite/gradle.properties -d
     - openssl aes-256-cbc -K $encrypted_aa4c171103b2_key -iv $encrypted_aa4c171103b2_iv -in id_monetdb.enc -out /tmp/id_monetdb -d
@@ -66,7 +55,7 @@ script:
     # Download the monetdb-jdbc-new jar
     - curl https://search.maven.org/remotecontent?filepath=monetdb/monetdb-jdbc-new/2.31/monetdb-jdbc-new-2.31.jar --output synchronizing/monetdb-jdbc-new-2.31.jar
     # Move the monetdb-java-lite jar
-    - mv build/libs/monetdb-java-lite-2.31.jar synchronizing
+    - mv build/libs/monetdb-java-lite-*.jar synchronizing
     # Rsync the library files to the monet.org machine
     - rsync -aqz --ignore-times synchronizing/* ferreira@monetdb.org:/var/www/html/downloads/Java-Experimental/
 

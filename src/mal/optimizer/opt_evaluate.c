@@ -120,7 +120,6 @@ OPTevaluateImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 	InstrPtr p;
 	int i, k, limit, barrier;
 	MalStkPtr env = NULL;
-	int profiler;
 	int debugstate = cntxt->itrace, actions = 0, constantblock = 0;
 	int *alias = 0, *assigned = 0, atop, use; 
 	str msg = MAL_SUCCEED;
@@ -179,8 +178,6 @@ OPTevaluateImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 		if (use && p->retc == 1 && OPTallConstant(cntxt, mb, p) && !isUnsafeFunction(p)) {
 			barrier = p->barrier;
 			p->barrier = 0;
-			profiler = malProfileMode;	/* we don't trace it */
-			malProfileMode = 0;
 			if ( env == NULL) {
 				env = prepareMALstack(mb,  2 * mb->vsize);
 				if (!env) {
@@ -190,7 +187,6 @@ OPTevaluateImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 				env->keepAlive = TRUE;
 			}
 			msg = reenterMAL(cntxt, mb, i, i + 1, env);
-			malProfileMode= profiler;
 			p->barrier = barrier;
 #ifdef DEBUG_OPT_EVALUATE
 			fprintf(stderr, "#retc var %s\n", getVarName(mb, getArg(p, 0)));

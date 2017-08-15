@@ -232,9 +232,9 @@ OPTpostponeAppends(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr p)
 	for( i=0; i<limit; i++){
 		if ( getModuleId(old[i]) == sqlRef && getFunctionId(old[i]) == appendRef){
 			// only postpone under strict conditions
-			assert( isVarConstant(mb,getArg(old[i],2)));
+			/*assert( isVarConstant(mb,getArg(old[i],2)));
 			assert( isVarConstant(mb,getArg(old[i],3)));
-			assert( isVarConstant(mb,getArg(old[i],4)));
+			assert( isVarConstant(mb,getArg(old[i],4)));*/
 			if( actions )
 				pushInstruction(mb, old[i]);
 			else {

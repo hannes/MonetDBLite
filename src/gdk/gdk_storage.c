@@ -33,6 +33,10 @@
 #include <fcntl.h>
 #endif
 
+#ifndef O_CLOEXEC
+#define O_CLOEXEC 0
+#endif
+
 /* GDKfilepath returns a newly allocated string containing the path
  * name of a database farm.
  * The arguments are the farmID or -1, the name of a subdirectory
@@ -52,6 +56,10 @@ GDKfilepath(int farmid, const char *dir, const char *name, const char *ext)
 	char sep[2];
 	size_t pathlen;
 	char *path;
+
+	if (GDKinmemory()) {
+		return GDKstrdup(":inmemory");
+	}
 
 	assert(dir == NULL || *dir != DIR_SEP);
 	assert(farmid == NOFARM ||
@@ -87,6 +95,10 @@ GDKfilepath(int farmid, const char *dir, const char *name, const char *ext)
 	return path;
 }
 
+int GDKinmemory(void) {
+	return BBPfarms[0].dirname == NULL;
+}
+
 /* make sure the parent directory of DIR exists (the argument itself
  * is usually a file that is to be created) */
 gdk_return
@@ -95,6 +107,7 @@ GDKcreatedir(const char *dir)
 	char path[PATHLENGTH];
 	char *r;
 	DIR *dirp;
+	assert(!GDKinmemory());
 
 	IODEBUG fprintf(stderr, "#GDKcreatedir(%s)\n", dir);
 	assert(MT_path_absolute(dir));
@@ -139,6 +152,7 @@ GDKremovedir(int farmid, const char *dirname)
 	char *path;
 	struct dirent *dent;
 	int ret;
+	assert(!GDKinmemory());
 
 	if ((dirnamestr = GDKfilepath(farmid, NULL, dirname, NULL)) == NULL)
 		return GDK_FAIL;
@@ -182,6 +196,7 @@ GDKfdlocate(int farmid, const char *nme, const char *mode, const char *extension
 {
 	char *path;
 	int fd, flags = 0;
+	assert(!GDKinmemory());
 
 	if (nme == NULL || *nme == 0)
 		return -1;
@@ -208,11 +223,11 @@ GDKfdlocate(int farmid, const char *nme, const char *mode, const char *extension
 #ifdef WIN32
 	flags |= strchr(mode, 'b') ? O_BINARY : O_TEXT;
 #endif
-	fd = open(path, flags, MONETDB_MODE);
+	fd = open(path, flags | O_CLOEXEC, MONETDB_MODE);
 	if (fd < 0 && *mode == 'w') {
 		/* try to create the directory, in case that was the problem */
 		if (GDKcreatedir(path) == GDK_SUCCEED) {
-			fd = open(path, flags, MONETDB_MODE);
+			fd = open(path, flags | O_CLOEXEC, MONETDB_MODE);
 			if (fd < 0)
 				GDKsyserror("GDKfdlocate: cannot open file %s\n", path);
 		}
@@ -318,6 +333,7 @@ GDKextendf(int fd, size_t size, const char *fn)
 	struct stat stb;
 	int rt = 0;
 	int t0 = 0;
+	assert(!GDKinmemory());
 
 	if (fstat(fd, &stb) < 0) {
 		/* shouldn't happen */
@@ -373,13 +389,14 @@ GDKextend(const char *fn, size_t size)
 {
 	int fd, flags = O_RDWR;
 	gdk_return rt = GDK_FAIL;
+	assert(!GDKinmemory());
 
 #ifdef O_BINARY
 	/* On Windows, open() fails if the file is bigger than 2^32
 	 * bytes without O_BINARY. */
 	flags |= O_BINARY;
 #endif
-	if ((fd = open(fn, flags)) >= 0) {
+	if ((fd = open(fn, flags | O_CLOEXEC)) >= 0) {
 		rt = GDKextendf(fd, size, fn);
 		close(fd);
 	} else {
@@ -402,6 +419,7 @@ gdk_return
 GDKsave(int farmid, const char *nme, const char *ext, void *buf, size_t size, storage_t mode, int dosync)
 {
 	int err = 0;
+	assert(!GDKinmemory());
 
 	IODEBUG fprintf(stderr, "#GDKsave: name=%s, ext=%s, mode %d, dosync=%d\n", nme, ext ? ext : "", (int) mode, dosync);
 
@@ -494,6 +512,7 @@ char *
 GDKload(int farmid, const char *nme, const char *ext, size_t size, size_t *maxsize, storage_t mode)
 {
 	char *ret = NULL;
+	assert(!GDKinmemory());
 
 	assert(size <= *maxsize);
 	IODEBUG {
@@ -658,6 +677,8 @@ BATmsyncImplementation(void *arg)
 void
 BATmsync(BAT *b)
 {
+	assert(!GDKinmemory());
+
 	/* we don't sync views */
 	if (isVIEW(b))
 		return;
@@ -724,6 +745,7 @@ BATsave(BAT *bd)
 	char *nme;
 	BAT bs;
 	BAT *b = bd;
+	assert(!GDKinmemory());
 
 	BATcheck(b, "BATsave", GDK_FAIL);
 
@@ -785,6 +807,7 @@ BATload_intern(bat bid, int lock)
 {
 	str nme;
 	BAT *b;
+	assert(!GDKinmemory());
 
 	assert(bid > 0);
 
@@ -851,9 +874,13 @@ BATload_intern(bat bid, int lock)
 void
 BATdelete(BAT *b)
 {
-	bat bid = b->batCacheid;
-	str o = BBP_physical(bid);
-	BAT *loaded = BBP_cache(bid);
+	bat bid;
+	str o;
+	BAT *loaded;
+
+	bid = b->batCacheid;
+	o = BBP_physical(bid);
+	loaded = BBP_cache(bid);
 
 	assert(bid > 0);
 	if (loaded) {
@@ -862,6 +889,7 @@ BATdelete(BAT *b)
 		IMPSdestroy(b);
 		OIDXdestroy(b);
 	}
+
 	if (b->batCopiedtodisk || (b->theap.storage != STORE_MEM)) {
 		if (b->ttype != TYPE_void &&
 		    HEAPdelete(&b->theap, o, "tail") &&

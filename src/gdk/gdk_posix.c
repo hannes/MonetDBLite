@@ -26,15 +26,15 @@
 #ifdef HAVE_FCNTL_H
 # include <fcntl.h>
 #endif
-#ifdef HAVE_PROCFS_H
-# include <procfs.h>
-#endif
-#ifdef HAVE_MACH_TASK_H
-# include <mach/task.h>
-#endif
-#ifdef HAVE_MACH_MACH_INIT_H
-# include <mach/mach_init.h>
-#endif
+//#ifdef HAVE_PROCFS_H
+//# include <procfs.h>
+//#endif
+//#ifdef HAVE_MACH_TASK_H
+//# include <mach/task.h>
+//#endif
+//#ifdef HAVE_MACH_MACH_INIT_H
+//# include <mach/mach_init.h>
+//#endif
 #if defined(HAVE_KVM_H) && defined(HAVE_SYS_SYSCTL_H)
 # include <kvm.h>
 # include <sys/param.h>
@@ -65,6 +65,10 @@
 
 #define MMAP_ADVISE		7
 #define MMAP_WRITABLE		(MMAP_WRITE|MMAP_COPY)
+
+#ifndef O_CLOEXEC
+#define O_CLOEXEC 0
+#endif
 
 /* DDALERT: AIX4.X 64bits needs HAVE_SETENV==0 due to a AIX bug, but
  * it probably isn't detected so by configure */
@@ -269,84 +273,6 @@ MT_init_posix(void)
 {
 }
 
-/* return RSS in bytes */
-size_t
-MT_getrss(void)
-{
-#if defined(HAVE_PROCFS_H) && defined(__sun__)
-	/* retrieve RSS the Solaris way (2.6+) */
-	int fd;
-	psinfo_t psbuff;
-
-	fd = open("/proc/self/psinfo", O_RDONLY);
-	if (fd >= 0) {
-		if (read(fd, &psbuff, sizeof(psbuff)) == sizeof(psbuff)) {
-			close(fd);
-			return psbuff.pr_rssize * 1024;
-		}
-		close(fd);
-	}
-#elif defined(HAVE_TASK_INFO)
-	/* Darwin/MACH call for process' RSS */
-	task_t task = mach_task_self();
-	struct task_basic_info_64 t_info;
-	mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_64_COUNT;
-
-	if (task_info(task, TASK_BASIC_INFO_64, (task_info_t)&t_info, &t_info_count) != KERN_INVALID_POLICY)
-		return t_info.resident_size;  /* bytes */
-#elif defined(HAVE_KVM_H) && defined(HAVE_SYS_SYSCTL_H)
-	/* get RSS on FreeBSD and NetBSD */
-	struct kinfo_proc *ki;
-	int ski = 1;
-	kvm_t *kd;
-	size_t rss = 0;
-
-	kd = kvm_open(NULL, "/dev/null", NULL, O_RDONLY, "kvm_open");
-	if (kd == NULL)
-		return 0;
-
-	ki = kvm_getprocs(kd, KERN_PROC_PID, getpid(), &ski);
-	if (ki == NULL) {
-		kvm_close(kd);
-		return 0;
-	}
-
-#ifdef __NetBSD__		/* should we use configure for this? */
-	/* see bug 3217 */
-	rss = ki->kp_eproc.e_vm.vm_rssize;
-#else
-	rss = ki->ki_rssize;
-#endif
-
-	kvm_close(kd);
-
-	return rss * MT_pagesize();
-#elif defined(__linux__)
-	/* get RSS on Linux */
-	int fd;
-
-	fd = open("/proc/self/stat", O_RDONLY);
-	if (fd >= 0) {
-		char buf[1024], *r = buf;
-		ssize_t i, sz = read(fd, buf, 1024);
-
-		close(fd);
-		if (sz > 0) {
-			for (i = 0; i < 23; i++) {
-				while (*r && (*r == ' ' || *r == '\t'))
-					r++;
-				while (*r && (*r != ' ' && *r != '\t'))
-					r++;
-			}
-			while (*r && (*r == ' ' || *r == '\t'))
-				r++;
-			return ((size_t) atol(r)) * MT_pagesize();
-		}
-	}
-#endif
-	return 0;
-}
-
 
 void *
 MT_mmap_addr(const char *path, int mode, size_t len, void* addr)
@@ -354,7 +280,7 @@ MT_mmap_addr(const char *path, int mode, size_t len, void* addr)
 	int fd = -1;
 	void *ret;
 	if (path != NULL) {
-		fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY), MONETDB_MODE);
+		fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY) | O_CLOEXEC, MONETDB_MODE);
 		if (fd < 0) {
 			GDKsyserror("MT_mmap: open %s failed\n", path);
 			return MAP_FAILED;
@@ -449,7 +375,7 @@ MT_mremap(const char *path, int mode, void *old_address, size_t old_size, size_t
 	if (!(mode & MMAP_COPY) && path != NULL) {
 		/* "normal" memory map */
 
-		if ((fd = open(path, O_RDWR)) < 0) {
+		if ((fd = open(path, O_RDWR | O_CLOEXEC)) < 0) {
 			GDKsyserror("MT_mremap: open(%s) failed\n", path);
 			fprintf(stderr, "= %s:%d: MT_mremap(%s,"PTRFMT","SZFMT","SZFMT"): open() failed\n", __FILE__, __LINE__, path, PTRFMTCAST old_address, old_size, *new_size);
 			return NULL;
@@ -513,7 +439,7 @@ MT_mremap(const char *path, int mode, void *old_address, size_t old_size, size_t
 #ifdef MAP_ANONYMOUS
 		flags |= MAP_ANONYMOUS;
 #else
-		if ((fd = open("/dev/zero", O_RDWR)) < 0) {
+		if ((fd = open("/dev/zero", O_RDWR | O_CLOEXEC)) < 0) {
 			GDKsyserror("MT_mremap: open(/dev/zero) failed\n");
 			fprintf(stderr, "= %s:%d: MT_mremap(%s,"PTRFMT","SZFMT","SZFMT"): open('/dev/zero') failed\n", __FILE__, __LINE__, path?path:"NULL", PTRFMTCAST old_address, old_size, *new_size);
 			return NULL;
@@ -596,7 +522,7 @@ MT_mremap(const char *path, int mode, void *old_address, size_t old_size, size_t
 					}
 
 					strcat(strcpy(p, path), ".tmp");
-					fd = open(p, O_RDWR | O_CREAT,
+					fd = open(p, O_RDWR | O_CREAT | O_CLOEXEC,
 						  MONETDB_MODE);
 					if (fd < 0) {
 						GDKsyserror("MT_mremap: open(%s) failed\n", (char *) p);
@@ -1005,8 +931,11 @@ int
 win_stat(const char *pathname, struct _stat64 *st)
 {
 	char buf[128], *p = reduce_dir_name(pathname, buf, sizeof(buf));
-	int ret = _stat64(p, st);
+	int ret;
 
+	if (p == NULL)
+		return -1;
+	ret = _stat64(p, st);
 	if (p != buf)
 		free(p);
 	return ret;
@@ -1016,8 +945,11 @@ int
 win_rmdir(const char *pathname)
 {
 	char buf[128], *p = reduce_dir_name(pathname, buf, sizeof(buf));
-	int ret = _rmdir(p);
+	int ret;
 
+	if (p == NULL)
+		return -1;
+	ret = _rmdir(p);
 	if (ret < 0 && errno != ENOENT) {
 		/* it could be the <expletive deleted> indexing
 		 * service which prevents us from doing what we have a
@@ -1083,16 +1015,19 @@ int
 win_mkdir(const char *pathname, const int mode)
 {
 	char buf[128], *p = reduce_dir_name(pathname, buf, sizeof(buf));
-	int ret = _mkdir(p);
+	int ret;
 
 	(void) mode;
+	if (p == NULL)
+		return -1;
+	ret = _mkdir(p);
 	if (p != buf)
 		free(p);
 	return ret;
 }
 #endif
 
-#ifndef WIN32
+#ifndef NATIVE_WIN32
 
 void
 MT_sleep_ms(unsigned int ms)

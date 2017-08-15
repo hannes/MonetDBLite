@@ -880,65 +880,7 @@ MT_check_nr_cores(void)
 lng
 GDKusec(void)
 {
-	/* Return the time in microseconds since an epoch.  The epoch
-	 * is roughly the time this program started. */
-#ifdef _MSC_VER
-	static LARGE_INTEGER freq, start;	/* automatically initialized to 0 */
-	LARGE_INTEGER ctr;
-
-	if (start.QuadPart == 0 &&
-	    (!QueryPerformanceFrequency(&freq) ||
-	     !QueryPerformanceCounter(&start)))
-		start.QuadPart = -1;
-	if (start.QuadPart > 0) {
-		QueryPerformanceCounter(&ctr);
-		return (lng) (((ctr.QuadPart - start.QuadPart) * 1000000) / freq.QuadPart);
-	}
-#endif
-#ifdef HAVE_CLOCK_GETTIME
-#if defined(CLOCK_UPTIME_FAST)
-#define CLK_ID CLOCK_UPTIME_FAST	/* FreeBSD */
-#else
-#define CLK_ID CLOCK_MONOTONIC		/* Posix (fallback) */
-#endif
-	{
-		static struct timespec tsbase;
-		struct timespec ts;
-		if (tsbase.tv_sec == 0) {
-			clock_gettime(CLK_ID, &tsbase);
-			return tsbase.tv_nsec / 1000;
-		}
-		if (clock_gettime(CLK_ID, &ts) == 0)
-			return (ts.tv_sec - tsbase.tv_sec) * 1000000 + ts.tv_nsec / 1000;
-	}
-#endif
-#ifdef HAVE_GETTIMEOFDAY
-	{
-		static struct timeval tpbase;	/* automatically initialized to 0 */
-		struct timeval tp;
-
-		if (tpbase.tv_sec == 0) {
-			gettimeofday(&tpbase, NULL);
-			return (lng) tpbase.tv_usec;
-		}
-		gettimeofday(&tp, NULL);
-		return (lng) (tp.tv_sec - tpbase.tv_sec) * 1000000 + (lng) tp.tv_usec;
-	}
-#else
-#ifdef HAVE_FTIME
-	{
-		static struct timeb tbbase;	/* automatically initialized to 0 */
-		struct timeb tb;
-
-		if (tbbase.time == 0) {
-			ftime(&tbbase);
-			return (lng) tbbase.millitm * 1000;
-		}
-		ftime(&tb);
-		return (lng) (tb.time - tbbase.time) * 1000000 + (lng) tb.millitm * 1000;
-	}
-#endif
-#endif
+return 0; // hahahahahahah
 }
 
 

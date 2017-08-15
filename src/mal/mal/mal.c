@@ -22,7 +22,6 @@ int have_hge;
 
 #include "mal_stack.h"
 #include "mal_linker.h"
-#include "mal_authorize.h"
 #include "mal_session.h"
 #include "mal_scenario.h"
 #include "mal_parser.h"
@@ -30,7 +29,6 @@ int have_hge;
 #include "mal_namespace.h"  /* for initNamespace() */
 #include "mal_client.h"
 #include "mal_dataflow.h"
-#include "mal_profiler.h"
 #include "mal_private.h"
 #include "mal_runtime.h"
 #include "mal_resource.h"
@@ -100,8 +98,6 @@ int mal_init(void){
 	initResource();
 	if( malBootstrap() == 0)
 		return -1;
-	/* set up the profiler if needed, output sent to console */
-	initProfiler();
 	return 0;
 }
 
@@ -119,9 +115,6 @@ void mserver_reset(int exit)
 {
 	GDKprepareExit();
 	MCstopClients(0);
-	setHeartbeat(-1);
-	stopProfiler();
-	AUTHreset(); 
 	mal_factory_reset();
 	mal_dataflow_reset();
 	if (mal_clients) {
@@ -132,7 +125,8 @@ void mserver_reset(int exit)
 		GDKfree(mal_clients->prompt);
 		GDKfree(mal_clients->username);
 		freeStack(mal_clients->glb);
-		freeSymbol(mal_clients->curprg);
+		if (mal_clients->nspace)
+			freeModule(mal_clients->nspace);
 	}
 	mal_client_reset();
 	mal_linker_reset();

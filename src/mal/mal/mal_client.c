@@ -47,7 +47,6 @@
 #include "mal_namespace.h"
 #include "mal_private.h"
 #include "mal_runtime.h"
-#include "mal_authorize.h"
 
 int MAL_MAXCLIENTS = 0;
 ClientRec *mal_clients;
@@ -56,7 +55,7 @@ void
 mal_client_reset(void)
 {
 	MAL_MAXCLIENTS = 0;
-	if ( mal_clients)
+	if (mal_clients) 
 		GDKfree(mal_clients);
 }
 
@@ -180,7 +179,6 @@ MCexitClient(Client c)
 	fprintf(stderr,"# Exit client %d\n", c->idx);
 #endif
 	finishSessionProfiler(c);
-	MPresetProfiler(c->fdout);
 	if (c->father == NULL) { /* normal client */
 		if (c->fdout && c->fdout != GDKstdout) {
 			(void) mnstr_close(c->fdout);
@@ -295,7 +293,6 @@ MCinitClientThread(Client c)
 	t = THRnew(cname);
 	if (t == 0) {
 		showException(c->fdout, MAL, "initClientThread", "Failed to initialize client");
-		MPresetProfiler(c->fdout);
 		return -1;
 	}
 	/*
@@ -344,8 +341,8 @@ MCforkClient(Client father)
 		son->scenario = father->scenario;
 		if (son->prompt)
 			GDKfree(son->prompt);
-		son->prompt = GDKstrdup(father->prompt);
-		son->promptlength = strlen(father->prompt);
+		son->prompt = NULL;
+		son->promptlength = 0;
 		son->nspace = newModule(NULL, putName("child"));
 	}
 	return son;
@@ -619,13 +616,13 @@ MCvalid(Client tc)
 str
 PROFinitClient(Client c){
 	(void) c;
-	return startProfiler();
+	return MAL_SUCCEED;
 }
 
 str
 PROFexitClient(Client c){
 	(void) c;
-	return stopProfiler();
+	return MAL_SUCCEED;
 }
 
 

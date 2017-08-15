@@ -241,16 +241,17 @@ BATCH_LEVEL_ONE(Double, jdouble, Double, sizeof(dbl))
         BAT_CAST *array = (BAT_CAST *) Tloc(b, 0); \
         jobject next; \
         BAT_CAST nvalue; \
+        jint i; \
         array += first; \
         if (b->tnonil && !b->tnil) { \
-            for (jint i = 0; i < size; i++) { \
+            for (i = 0; i < size; i++) { \
                 nvalue = array[i]; \
                 next = CONVERT_ATOM; \
                 (*env)->SetObjectArrayElement(env, input, i, next); \
                 (*env)->DeleteLocalRef(env, next); \
             } \
         } else { \
-            for (jint i = 0; i < size; i++) { \
+            for (i = 0; i < size; i++) { \
                 nvalue = array[i]; \
                 if(nvalue != NULL_ATOM##_nil) { \
                     next = CONVERT_ATOM; \
@@ -278,9 +279,10 @@ BATCH_LEVEL_ONE_OBJECT(Double, jdouble, dbl, CREATE_NEW_DOUBLE)
         BAT_CAST nvalue; \
         jobject next; \
         jlong value; \
+        jint i; \
         array += first; \
         if (b->tnonil && !b->tnil) { \
-            for (jint i = 0; i < size; i++) { \
+            for (i = 0; i < size; i++) { \
                 nvalue = array[i]; \
                 GET_ATOM \
                 next = CONVERT_ATOM; \
@@ -288,7 +290,7 @@ BATCH_LEVEL_ONE_OBJECT(Double, jdouble, dbl, CREATE_NEW_DOUBLE)
                 (*env)->DeleteLocalRef(env, next); \
             } \
         } else { \
-            for (jint i = 0; i < size; i++) { \
+            for (i = 0; i < size; i++) { \
                 nvalue = array[i]; \
                 if(NOT_NULL_CMP) { \
                     GET_ATOM \
@@ -313,10 +315,11 @@ BATCH_LEVEL_TWO(Timestamp, timestamp, GET_NEXT_JTIMESTAMP, CHECK_NULL_BTIMESTAMP
         jclass lbigDecimalClassID = getBigDecimalClassID(); \
         jmethodID lbigDecimalConstructorID = getBigDecimalConstructorID(); \
         jstring aux; \
+        jint i; \
         jobject next; \
         array += first; \
         if (b->tnonil && !b->tnil) { \
-            for (jint i = 0; i < size; i++) { \
+            for (i = 0; i < size; i++) { \
                 decimal_to_str_java(value, (CONVERSION_CAST) array[i], scale); \
                 aux = (*env)->NewStringUTF(env, value); \
                 next = (*env)->NewObject(env, lbigDecimalClassID, lbigDecimalConstructorID, aux); \
@@ -325,7 +328,7 @@ BATCH_LEVEL_TWO(Timestamp, timestamp, GET_NEXT_JTIMESTAMP, CHECK_NULL_BTIMESTAMP
                 (*env)->DeleteLocalRef(env, next); \
             } \
         } else { \
-            for (jint i = 0; i < size; i++) { \
+            for (i = 0; i < size; i++) { \
                 BAT_CAST nvalue = array[i]; \
                 if(nvalue != BAT_CAST##_nil) { \
                     decimal_to_str_java(value, (CONVERSION_CAST) nvalue, scale); \
@@ -349,11 +352,12 @@ BATCH_LEVEL_THREE(lng, lng)
 #define BATCH_LEVEL_FOUR(NAME, GET_ATOM, CHECK_NOT_NULL, CONVERT_ATOM, ONE_CAST, TWO_CAST) \
     void get##NAME##Column(JNIEnv* env, jobjectArray input, jint first, jint size, BAT* b) { \
         jint i = 0; \
+        BUN p, q; \
         BATiter li = bat_iterator(b); \
         ONE_CAST nvalue; \
         TWO_CAST value; \
         if (b->tnonil && !b->tnil) { \
-            for (BUN p = first, q = (BUN) size; p < q; p++) { \
+            for (p = first, q = (BUN) size; p < q; p++) { \
                 GET_ATOM \
                 CONVERT_ATOM \
                 (*env)->SetObjectArrayElement(env, input, i, value); \
@@ -361,7 +365,7 @@ BATCH_LEVEL_THREE(lng, lng)
                 (*env)->DeleteLocalRef(env, value); \
             } \
         } else { \
-            for (BUN p = (BUN) first, q = (BUN) size; p < q; p++) { \
+            for (p = (BUN) first, q = (BUN) size; p < q; p++) { \
                 GET_ATOM \
                 if (CHECK_NOT_NULL) { \
                     CONVERT_ATOM \
@@ -385,6 +389,7 @@ BATCH_LEVEL_FOUR(Blob, GET_BAT_BLOB, CHECK_NULL_BLOB, BAT_TO_JBLOB, blob*, jbyte
 #define CONVERSION_LEVEL_ONE(NAME, BAT_CAST, JAVA_CAST, COPY_METHOD) \
     void store##NAME##Column(JNIEnv *env, BAT** b, JAVA_CAST##Array data, size_t cnt, jint localtype) { \
         BAT *aux = COLnew(0, localtype, cnt, TRANSIENT); \
+        size_t i; \
         BAT_CAST *p; \
         BAT_CAST value, prev = BAT_CAST##_nil; \
         if (!aux) { \
@@ -400,7 +405,7 @@ BATCH_LEVEL_FOUR(Blob, GET_BAT_BLOB, CHECK_NULL_BLOB, BAT_TO_JBLOB, blob*, jbyte
         aux->tdense = 0; \
         p = (BAT_CAST *) Tloc(aux, 0); \
         (*env)->Get##COPY_METHOD##ArrayRegion(env, data, 0, cnt, (JAVA_CAST *) p); \
-        for(size_t i = 0; i < cnt; i++, p++) { \
+        for(i = 0; i < cnt; i++, p++) { \
             value = p[i]; \
             if (value == BAT_CAST##_nil) { \
                 aux->tnil = 1; \
@@ -459,6 +464,7 @@ CONVERSION_LEVEL_ONE(Double, dbl, jdouble, Double)
 #define CONVERSION_LEVEL_TWO(NAME, BAT_CAST, NULL_CONST, CONVERT_TO_BAT, ORDER_CMP) \
     void store##NAME##Column(JNIEnv *env, BAT** b, jobjectArray data, size_t cnt, jint localtype) { \
         BAT *aux = COLnew(0, localtype, cnt, TRANSIENT); \
+        size_t i; \
         jlong nvalue; \
         BAT_CAST *p; \
         BAT_CAST prev = NULL_CONST; \
@@ -476,7 +482,7 @@ CONVERSION_LEVEL_ONE(Double, dbl, jdouble, Double)
         aux->trevsorted = 1; \
         aux->tdense = 0; \
         p = (BAT_CAST *) Tloc(aux, 0); \
-        for(size_t i = 0; i < cnt; i++, p++) { \
+        for(i = 0; i < cnt; i++, p++) { \
             value = (*env)->GetObjectArrayElement(env, data, i); \
             if (value == NULL) { \
                 aux->tnil = 1; \
@@ -510,6 +516,7 @@ CONVERSION_LEVEL_TWO(Timestamp, timestamp, *timestamp_nil, JTIMESTAMP_TO_BAT, TI
 #define CONVERSION_LEVEL_THREE(BAT_CAST) \
     void storeDecimal##BAT_CAST##Column(JNIEnv *env, BAT** b, jobjectArray data, size_t cnt, jint localtype, jint scale, jint roundingMode) { \
         BAT *aux = COLnew(0, localtype, cnt, TRANSIENT); \
+        size_t i; \
         BAT_CAST *p; \
         BAT_CAST prev = BAT_CAST##_nil; \
         jmethodID lbigDecimalToStringID = getBigDecimalToStringID(); \
@@ -529,7 +536,7 @@ CONVERSION_LEVEL_TWO(Timestamp, timestamp, *timestamp_nil, JTIMESTAMP_TO_BAT, TI
         aux->trevsorted = 1; \
         aux->tdense = 0; \
         p = (BAT_CAST *) Tloc(aux, 0); \
-        for(size_t i = 0; i < cnt; i++, p++) { \
+        for(i = 0; i < cnt; i++, p++) { \
             value = (*env)->GetObjectArrayElement(env, data, i); \
             if (value == NULL) { \
                 aux->tnil = 1; \
@@ -618,6 +625,7 @@ CONVERSION_LEVEL_THREE(lng)
 #define CONVERSION_LEVEL_FOUR(NAME, BAT_CAST, NULL_CONST, START_STEP, CONVERT_TO_BAT, ORDER_CMP, PUT_IN_HEAP) \
     void store##NAME##Column(JNIEnv *env, BAT** b, jobjectArray data, size_t cnt, jint localtype) { \
         BAT *aux = COLnew(0, localtype, cnt, TRANSIENT); \
+        size_t i; \
         jint previousToFree = 0; \
         BAT_CAST p; \
         BAT_CAST prev = NULL_CONST; \
@@ -633,7 +641,7 @@ CONVERSION_LEVEL_THREE(lng)
         aux->tkey = 0; \
         aux->tsorted = 1; \
         aux->trevsorted = 1; \
-        for(size_t i = 0; i < cnt; i++) { \
+        for(i = 0; i < cnt; i++) { \
             value = (*env)->GetObjectArrayElement(env, data, i); \
             if (value == NULL) { \
                 aux->tnil = 1; \

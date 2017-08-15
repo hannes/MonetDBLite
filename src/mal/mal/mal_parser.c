@@ -956,69 +956,6 @@ static str parseModule(Client cntxt)
 	return "";
 }
 
-/*
- * Include statement
- * An include statement is immediately taken into effect. This
- * calls for temporary switching the input for a particular client.
- * The administration for this is handled by malInclude.
- * No listing is produced, because module sources are assumed to
- * be debugged upfront already.
- * @multitable @columnfractions 0.15 0.8
- * @item includeStmt
- * @tab : @sc{include} identifier
- * @item
- * @tab | @sc{include} string_literal
- * @end multitable
- *
- * Include files should be handled in line with parsing. This way we
- * are ensured that any possible signature definition will be known
- * afterwards. The effect is that errors in the include sequence are
- * marked as warnings.
- */
-static str
-parseInclude(Client cntxt)
-{
-	str modnme = 0, s;
-	int x;
-	char *nxt;
-
-	if (!MALkeyword(cntxt, "include", 7))
-		return 0;
-	nxt = CURRENT(cntxt);
-
-	if ((x = idLength(cntxt)) > 0) {
-		modnme = putNameLen(nxt, x);
-		advance(cntxt, x);
-	} else if ((x = stringLength(cntxt)) > 0) {
-		modnme = putNameLen(nxt + 1, x - 1);
-		advance(cntxt, x);
-	} else
-		return parseError(cntxt, "<module name> expected\n");
-
-	if (currChar(cntxt) != ';') {
-		parseError(cntxt, "';' expected\n");
-		skipToEnd(cntxt);
-		return 0;
-	}
-	skipToEnd(cntxt);
-
-	if (!malLibraryEnabled(modnme)) {
-		return "";
-	}
-
-	s = loadLibrary(modnme, FALSE);
-	if (s) {
-		parseError(cntxt, s);
-		GDKfree(s);
-		return 0;
-	}
-	if ((s = malInclude(cntxt, modnme, 0))) {
-		parseError(cntxt, s);
-		GDKfree(s);
-		return 0;
-	}
-	return "";
-}
 
 /*
  * Definition
@@ -1833,9 +1770,10 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			goto allLeft;
 		case 'C': case 'c':
 			if (MALkeyword(cntxt, "command", 7)) {
-				parseCommandPattern(cntxt, COMMANDsymbol);
-				if (!cntxt->curprg) {
-					return 1;
+				MalBlkPtr p = parseCommandPattern(cntxt, COMMANDsymbol);
+				if (p) {
+					p->unsafeProp = unsafeProp;
+					p->sealedProp = sealedProp;
 				}
 				cntxt->curprg->def->unsafeProp = unsafeProp;
 				cntxt->curprg->def->sealedProp = sealedProp;
@@ -1863,8 +1801,12 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			goto allLeft;
 		case 'F': case 'f':
 			if (MALkeyword(cntxt, "function", 8)) {
+				MalBlkPtr p;
 				cntxt->blkmode++;
-				if (parseFunction(cntxt, FUNCTIONsymbol)){
+				if ((p = parseFunction(cntxt, FUNCTIONsymbol))){
+					p->inlineProp = inlineProp;
+					p->unsafeProp = unsafeProp;
+					p->sealedProp = sealedProp;
 					cntxt->curprg->def->inlineProp = inlineProp;
 					cntxt->curprg->def->unsafeProp = unsafeProp;
 					cntxt->curprg->def->sealedProp = sealedProp;
@@ -1894,8 +1836,10 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 				skipSpace(cntxt);
 				continue;
 			} else
-			if (parseInclude(cntxt))
-				continue;
+//			if (parseInclude(cntxt))
+//				continue;
+			showException(cntxt->fdout, SYNTAX, "parseError", "include ignored");
+
 			goto allLeft;
 		case 'L': case 'l':
 			if (MALkeyword(cntxt, "leave", 5))
@@ -1908,11 +1852,13 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			goto allLeft;
 		case 'P': case 'p':
 			if (MALkeyword(cntxt, "pattern", 7)) {
+				MalBlkPtr p;
 				if( inlineProp )
 					showException(cntxt->fdout, SYNTAX, "parseError", "INLINE ignored");
-				parseCommandPattern(cntxt, PATTERNsymbol);
-				if (!cntxt->curprg) {
-					return 1;
+				p = parseCommandPattern(cntxt, PATTERNsymbol);
+				if (p) {
+					p->unsafeProp = unsafeProp;
+					p->sealedProp = sealedProp;
 				}
 				cntxt->curprg->def->unsafeProp = unsafeProp;
 				cntxt->curprg->def->sealedProp = sealedProp;
