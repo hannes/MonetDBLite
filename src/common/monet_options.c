@@ -20,13 +20,13 @@
  */
 #include "monetdb_config.h"
 #include "monet_options.h"
-#ifndef HAVE_GETOPT_LONG
+/*#ifndef HAVE_GETOPT_LONG //MonetDBJavaLite compilation on MinGW64
 #  include "monet_getopt.h"
 #else
 # ifdef HAVE_GETOPT_H
 #  include "getopt.h"
 # endif
-#endif
+#endif*/
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -35,10 +35,10 @@
 #include <unistd.h>
 #endif
 
-#ifndef HAVE_GETOPT_LONG
+/*#ifndef HAVE_GETOPT_LONG //MonetDBJavaLite compilation on MinGW64
 #  include "getopt.c"
 #  include "getopt1.c"
-#endif
+#endif*/
 
 #ifdef NATIVE_WIN32
 #define getpid _getpid

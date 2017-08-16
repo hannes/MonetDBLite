@@ -5,8 +5,7 @@ build
 *.so
 MonetDBLite_*.t*
 
-# Windows generated sedscript file
-src/embedded/windows/sedscript
+src/monetdb_config.h
 
 # MonetDBJavaLite
 monetdb-java-lite/target/

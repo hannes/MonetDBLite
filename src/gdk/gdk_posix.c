@@ -836,7 +836,7 @@ MT_path_absolute(const char *pathname)
 }
 
 
-#ifndef HAVE_GETTIMEOFDAY
+/*#ifndef HAVE_GETTIMEOFDAY //MonetDBJavaLite, available on MinGW64
 static int nodays[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 #define LEAPYEAR(y) ((((y)%4)==0 && ((y)%100)!=0) || ((y)%400)==0)
@@ -862,7 +862,7 @@ gettimeofday(struct timeval *tv, int *ignore_zone)
 	tv->tv_usec = 1000 * st.wMilliseconds;
 	return 0;
 }
-#endif
+#endif*/
 
 void *
 mdlopen(const char *file, int mode)

@@ -12,6 +12,7 @@
 #ifndef _MATH_PRIVATE_H_
 #define _MATH_PRIVATE_H_
 
+#include "monetdb_config.h"
 #include <sys/types.h>
 
 /* The original fdlibm code used statements like:
@@ -33,7 +34,7 @@
  * big endian.
  */
 
-#if (BYTE_ORDER == BIG_ENDIAN) || (defined(__arm__) && !defined(__VFP_FP__))
+#if ((BYTE_ORDER == BIG_ENDIAN) || (defined(__arm__) && !defined(__VFP_FP__))) && !defined(NATIVE_WIN32)
 
 typedef union
 {

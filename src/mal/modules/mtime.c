@@ -191,10 +191,12 @@
 #include "monetdb_config.h"
 #include "mtime.h"
 
-#ifndef HAVE_STRPTIME
+//#ifndef HAVE_STRPTIME
 extern char *strptime(const char *, const char *, struct tm *);
+#ifdef NATIVE_WIN32
 #include "strptime.c"
 #endif
+//#endif
 
 
 #define get_rule(r)	((r).s.weekday | ((r).s.day<<6) | ((r).s.minutes<<10) | ((r).s.month<<21))

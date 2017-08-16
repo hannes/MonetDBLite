@@ -1,6 +1,5 @@
-CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER -DLIBSTREAM -DUSE_PTHREAD_LOCKS -fPIC -DPIC -D_XPG6
+CFLAGS=-DLIBGDK -DLIBMAL -DLIBOPTIMIZER -DLIBSTREAM -DUSE_PTHREAD_LOCKS -DPIC -D_XPG6 -DHAVE_EMBEDDED
 
-LDFLAGS=-lm -lpthread -ldl
 INCLUDE_FLAGS= -Isrc/ -Isrc/common \
 -Isrc/embedded -Isrc/gdk \
 -Isrc/mal/mal -Isrc/mal/modules -Isrc/mal/optimizer -Isrc/mal/sqlbackend \
@@ -17,7 +16,7 @@ endif
 ifeq ($(OS),Windows_NT)
     BUILDIR=windows
     SOEXT=dll
-    CFLAGS += -m64 -std=c99
+    CFLAGS += -m64 -std=c99 -DNATIVE_WIN32
     INCLUDE_FLAGS += -Isrc/embedded/incwindows
     EXTRA_LINK_FLAGS = -lws2_32 -lpthread -lpsapi
     EXTRA_SHARED_FLAGS = -fPIC -Wl,--export-all-symbols
@@ -34,11 +33,14 @@ ifeq ($(OS),Windows_NT)
 else ifeq ($(OS),Linux)
     BUILDIR=linux
     SOEXT=so
-    LDFLAGS += -lrt
+    CFLAGS += -fPIC
+    LDFLAGS = -lm -lpthread -ldl -lrt
     INCLUDE_FLAGS += -Isrc/embedded/inclinux
 else ifeq ($(OS),Darwin)
     BUILDIR=macosx
     SOEXT=dylib
+    CFLAGS += -fPIC
+    LDFLAGS = -lm -lpthread -ldl
     INCLUDE_FLAGS += -Isrc/embedded/incmacosx
 else
     $(error The operating system could not be detected)
@@ -334,9 +336,12 @@ DDIRS=$(subst $(OBJDIR), $(DEPSDIR), $(ODIRS))
 $(shell mkdir -p $(ODIRS) $(DDIRS))
 
 # TODO: find a nicer way building this
-# $(shell mkdir -p build && $(CC) src/embedded/defines.c -o build/defines)
-#CFLAGS += $(shell build/defines)
-CFLAGS += -DSIZEOF_INT=4 -DSIZEOF_LONG=8 -DSIZEOF_LONG_LONG=8 -DSIZEOF_SIZE_T=8 -DSIZEOF_VOID_P=8
+ifeq ($(OS),Linux)
+    $(shell mkdir -p build && $(CC) src/embedded/defines.c -o build/defines)
+    CFLAGS += $(shell build/defines)
+else
+    CFLAGS += -DSIZEOF_INT=4 -DSIZEOF_LONG=8 -DSIZEOF_LONG_LONG=8 -DSIZEOF_SIZE_T=8 -DSIZEOF_VOID_P=8
+endif
 
 LIBFILE=build/$(BUILDIR)/libmonetdb5.$(SOEXT)
 

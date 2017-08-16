@@ -19,6 +19,8 @@ if [ ! -z $TRAVIS  ] ; then
             apt-get -qq update && apt-get -qq -y install pkg-config pkgconf flex bison byacc
             if [ $1 == "macosx" ] ; then
                 export OS=Darwin
+            else
+                export OS=Linux
             fi
 
     esac
@@ -28,19 +30,22 @@ case "$1" in
     windows)
         BUILDSYS=windows
         BUILDLIBRARY=libmonetdb5.dll
-        CC=x86_64-w64-mingw32-gcc
+        export CC=x86_64-w64-mingw32-gcc
+        \cp -rf src/monetdb_config_windows.h src/monetdb_config.h
         ;;
 
     macosx)
         BUILDSYS=macosx
         BUILDLIBRARY=libmonetdb5.dylib
-        CC=o64-gcc
+        export CC=gcc
+        \cp -rf src/monetdb_config_unix.h src/monetdb_config.h
         ;;
 
     *)
         BUILDSYS=linux
         BUILDLIBRARY=libmonetdb5.so
-        CC=gcc
+        export CC=gcc
+        \cp -rf src/monetdb_config_unix.h src/monetdb_config.h
 esac
 
 # Save the previous directory
@@ -53,6 +58,7 @@ make clean && make init && make -j
 if [ $? -ne 0 ] ; then
     echo "build failure"
 fi
+rm src/monetdb_config.h
 
 # Move the compiled library to the Gradle directory
 mkdir -p monetdb-java-lite/src/main/resources/libs/$BUILDSYS

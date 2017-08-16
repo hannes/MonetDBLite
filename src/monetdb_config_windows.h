@@ -540,15 +540,15 @@
 
 /* Define to 1 if you have the `strncasecmp' function. */
 #define HAVE_STRNCASECMP 1
-#ifndef strncasecmp
+/*#ifndef strncasecmp
 #define strncasecmp(x,y,z) _strnicmp(x,y,z)
-#endif
+#endif*/
 
 /* Define to 1 if you have the <stropts.h> header file. */
 /* #undef HAVE_STROPTS_H */
 
 /* Define to 1 if you have the `strptime' function. */
-/* #undef HAVE_STRPTIME */
+#define HAVE_STRPTIME 1
 
 /* Define to 1 if you have the `strsignal' function. */
 /* #undef HAVE_STRSIGNAL */
@@ -1024,6 +1024,8 @@ c99_snprintf(char *outBuf, size_t size, const char *format, ...)
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
+typedef signed int int32_t;
+typedef unsigned int u_int32_t;
 typedef unsigned __int64 uint64_t;
 
 /* normally defined in stdbool.h, but that doesn't exist on Windows */
