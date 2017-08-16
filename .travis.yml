@@ -55,7 +55,7 @@ script:
     # Download the monetdb-jdbc-new jar
     - curl https://search.maven.org/remotecontent?filepath=monetdb/monetdb-jdbc-new/2.31/monetdb-jdbc-new-2.31.jar --output synchronizing/monetdb-jdbc-new-2.31.jar
     # Move the monetdb-java-lite jar
-    - mv build/libs/monetdb-java-lite-*.jar synchronizing
+    - mv build/libs/monetdb-java-lite-2.32.jar synchronizing
     # Rsync the library files to the monet.org machine
     - rsync -aqz --ignore-times synchronizing/* ferreira@monetdb.org:/var/www/html/downloads/Java-Experimental/
 

@@ -801,34 +801,34 @@
 /* #undef PROFILE */
 
 /* The size of `char', as computed by sizeof. */
-#define SIZEOF_CHAR 1
+/*#define SIZEOF_CHAR 1*/
 
 /* The size of `int', as computed by sizeof. */
-#define SIZEOF_INT 4
+/*#define SIZEOF_INT 4*/
 
 /* The size of `long', as computed by sizeof. */
-#define SIZEOF_LONG 4
+/*#define SIZEOF_LONG 4*/
 
 /* The size of `long long', as computed by sizeof. */
-#ifdef HAVE_LONG_LONG
+/*#ifdef HAVE_LONG_LONG
 #define SIZEOF_LONG_LONG 8
-#endif
+#endif*/
 
 /* The size of `short', as computed by sizeof. */
 #define SIZEOF_SHORT 2
 
 /* The size of `size_t', as computed by sizeof. */
-#ifdef _WIN64
+/*#ifdef _WIN64
 #define SIZEOF_SIZE_T 8
 #else
 #define SIZEOF_SIZE_T 4
-#endif
+#endif*/
 
 /* The size of `ssize_t', as computed by sizeof. */
 #define SIZEOF_SSIZE_T SIZEOF_SIZE_T
 
 /* The size of `void *', as computed by sizeof. */
-#define SIZEOF_VOID_P SIZEOF_SIZE_T
+/*#define SIZEOF_VOID_P SIZEOF_SIZE_T*/
 
 /* The size of `__int64', as computed by sizeof. */
 #define SIZEOF___INT64 8

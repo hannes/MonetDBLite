@@ -5,6 +5,9 @@ build
 *.so
 MonetDBLite_*.t*
 
+# MonetDB compilation files
+src/sql/server/sql_parser.tab.c
+src/sql/server/sql_parser.tab.h
 src/monetdb_config.h
 
 # MonetDBJavaLite
