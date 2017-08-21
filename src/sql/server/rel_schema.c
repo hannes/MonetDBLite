@@ -41,6 +41,8 @@ rel_table(mvc *sql, int cat_type, const char *sname, sql_table *t, int nr)
 {
 	sql_rel *rel = rel_create(sql->sa);
 	list *exps = new_exp_list(sql->sa);
+	if(!rel || !exps)
+		return NULL;
 
 	append(exps, exp_atom_int(sql->sa, nr));
 	append(exps, exp_atom_str(sql->sa, sname, sql_bind_localtype("str") ));
@@ -61,6 +63,8 @@ rel_alter_table(sql_allocator *sa, int cattype, char *sname, char *tname, char *
 {
 	sql_rel *rel = rel_create(sa);
 	list *exps = new_exp_list(sa);
+	if(!rel || !exps)
+		return NULL;
 
 	append(exps, exp_atom_clob(sa, sname));
 	append(exps, exp_atom_clob(sa, tname));
@@ -84,7 +88,8 @@ sql_rel *
 rel_list(sql_allocator *sa, sql_rel *l, sql_rel *r) 
 {
 	sql_rel *rel = rel_create(sa);
-
+	if(!rel)
+		return NULL;
 	if (!l)
 		return r;
 	rel->l = l;
@@ -1091,6 +1096,8 @@ rel_schema2(sql_allocator *sa, int cat_type, char *sname, char *auth, int nr)
 {
 	sql_rel *rel = rel_create(sa);
 	list *exps = new_exp_list(sa);
+	if(!rel || !exps)
+		return NULL;
 
 	append(exps, exp_atom_clob(sa, sname));
 	append(exps, exp_atom_clob(sa, auth));
@@ -1110,6 +1117,8 @@ rel_schema3(sql_allocator *sa, int cat_type, char *sname, char *tname, char *nam
 {
 	sql_rel *rel = rel_create(sa);
 	list *exps = new_exp_list(sa);
+	if(!rel || !exps)
+		return NULL;
 
 	append(exps, exp_atom_clob(sa, sname));
 	append(exps, exp_atom_clob(sa, tname));
@@ -1182,6 +1191,8 @@ rel_schema(sql_allocator *sa, int cat_type, char *sname, char *auth, int nr)
 {
 	sql_rel *rel = rel_create(sa);
 	list *exps = new_exp_list(sa);
+	if(!rel || !exps)
+		return NULL;
 
 	append(exps, exp_atom_int(sa, nr));
 	append(exps, exp_atom_clob(sa, sname));
@@ -1378,6 +1389,8 @@ rel_role(sql_allocator *sa, char *grantee, char *auth, int grantor, int admin, i
 {
 	sql_rel *rel = rel_create(sa);
 	list *exps = new_exp_list(sa);
+	if(!rel || !exps)
+		return NULL;
 
 	assert(type == DDL_GRANT_ROLES || type == DDL_REVOKE_ROLES);
 	append(exps, exp_atom_clob(sa, grantee));
@@ -1445,6 +1458,8 @@ rel_priv(sql_allocator *sa, char *sname, char *name, char *grantee, int privs, c
 {
 	sql_rel *rel = rel_create(sa);
 	list *exps = new_exp_list(sa);
+	if(!rel || !exps)
+		return NULL;
 
 	assert(type == DDL_GRANT || type == DDL_REVOKE);
 	append(exps, exp_atom_clob(sa, sname));
@@ -1469,6 +1484,8 @@ rel_func_priv(sql_allocator *sa, char *sname, int func, char *grantee, int privs
 {
 	sql_rel *rel = rel_create(sa);
 	list *exps = new_exp_list(sa);
+	if(!rel || !exps)
+		return NULL;
 
 	assert(type == DDL_GRANT_FUNC || type == DDL_REVOKE_FUNC);
 	append(exps, exp_atom_clob(sa, sname));
@@ -1911,6 +1928,8 @@ rel_create_user(sql_allocator *sa, char *user, char *passwd, int enc, char *full
 {
 	sql_rel *rel = rel_create(sa);
 	list *exps = new_exp_list(sa);
+	if(!rel || !exps)
+		return NULL;
 
 	append(exps, exp_atom_clob(sa, user));
 	append(exps, exp_atom_clob(sa, passwd));
@@ -1932,6 +1951,8 @@ rel_alter_user(sql_allocator *sa, char *user, char *passwd, int enc, char *schem
 {
 	sql_rel *rel = rel_create(sa);
 	list *exps = new_exp_list(sa);
+	if(!rel || !exps)
+		return NULL;
 
 	append(exps, exp_atom_clob(sa, user));
 	append(exps, exp_atom_clob(sa, passwd));

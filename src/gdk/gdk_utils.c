@@ -1492,14 +1492,16 @@ size_t
 GDKmem_cursize(void)
 {
 	/* RAM/swapmem that Monet is really using now */
-	return (size_t) ATOMIC_GET(GDK_mallocedbytes_estimate, mbyteslock);
+	//return (size_t) ATOMIC_GET(GDK_mallocedbytes_estimate, mbyteslock);
+	return 0;
 }
 
 size_t
 GDKvm_cursize(void)
 {
 	/* current Monet VM address space usage */
-	return (size_t) ATOMIC_GET(GDK_vm_cursize, mbyteslock) + GDKmem_cursize();
+	return 0;
+	//return (size_t) ATOMIC_GET(GDK_vm_cursize, mbyteslock) + GDKmem_cursize();
 }
 
 #define heapinc(_memdelta)						\
@@ -1582,6 +1584,10 @@ GDKmalloc_internal(size_t size)
 		return NULL;
 	}
 #endif
+	if (GDKvm_cursize() + size >= GDK_vm_maxsize) {
+		GDKerror("allocating too much memory\n");
+		return NULL;
+	}
 
 	/* pad to multiple of eight bytes and add some extra space to
 	 * write real size in front; when debugging, also allocate
@@ -1719,6 +1725,11 @@ GDKrealloc(void *s, size_t size)
 	nsize = (size + 7) & ~7;
 	asize = ((size_t *) s)[-1]; /* how much allocated last */
 
+	if (nsize > asize &&
+	    GDKvm_cursize() + nsize - asize >= GDK_vm_maxsize) {
+		GDKerror("allocating too much memory\n");
+		return NULL;
+	}
 #ifndef NDEBUG
 	assert((asize & 2) == 0);   /* check against duplicate free */
 	/* check for out-of-bounds writes */
