@@ -3,8 +3,8 @@ extern FILE* embedded_stderr;
 
 #define exit(status) ((void) (status))
 #ifdef NDEBUG
-#define assert(ignore) ((void) 0)
 #undef assert
+#define assert(ignore) ((void) 0)
 #endif
 #undef stdout
 #define stdout embedded_stdout
