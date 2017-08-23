@@ -1,11 +1,9 @@
+#include <assert.h>
+
 extern FILE* embedded_stdout;
 extern FILE* embedded_stderr;
 
 #define exit(status) ((void) (status))
-#ifdef NDEBUG
-#undef assert
-#define assert(ignore) ((void) 0)
-#endif
 #undef stdout
 #define stdout embedded_stdout
 #undef stderr
