@@ -261,7 +261,7 @@ MCinitClientRecord(Client c, oid user, bstream *fin, stream *fout)
 #else
 	c->progress_callback = NULL;
 	c->progress_data = NULL;
-	MT_lock_init(&c->progress_lock, "progress_lock");
+	//MT_lock_init(&c->progress_lock, "progress_lock");
 #endif
 	c->blocksize = BLOCK;
 	c->protocol = PROTOCOL_9;

@@ -2,9 +2,10 @@ extern FILE* embedded_stdout;
 extern FILE* embedded_stderr;
 
 #define exit(status) ((void) (status))
-#undef assert
-#define NDEBUG 1
+#ifdef NDEBUG
 #define assert(ignore) ((void) 0)
+#undef assert
+#endif
 #undef stdout
 #define stdout embedded_stdout
 #undef stderr

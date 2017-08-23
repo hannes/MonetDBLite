@@ -702,7 +702,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 111 "sql_parser.y"
+#line 111 "/Users/hannes/source/MonetDBLite/src/sql/server/sql_parser.y"
 {
 	int		i_val,bval;
 	lng		l_val,operation;

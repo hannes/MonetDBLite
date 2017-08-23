@@ -24500,8 +24500,7 @@ echo "* Available features/extensions:"
 for comp in \
 	'atomic_ops   ' \
 	'pthread      ' \
-	'zlib         '
-
+	'zlib         ' \
 ; do
 	eval "org=\$org_have_$comp"
 	eval "have=\$have_$comp"
