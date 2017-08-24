@@ -23,6 +23,15 @@ RUN cd /opt/ && \
     alternatives --set jar "/opt/jdk1.8.0_${DOWNLOAD_NUMBER}/bin/jar" && \
     alternatives --set javac "/opt/jdk1.8.0_${DOWNLOAD_NUMBER}/bin/javac"
 
+RUN cd /opt && \
+    MVN_VERSION="3.5.0" && \
+    wget "http://apache.40b.nl/maven/maven-3/${MVN_VERSION}/binaries/apache-maven-${MVN_VERSION}-bin.tar.gz" && \
+    tar xzf "apache-maven-${MVN_VERSION}-bin.tar.gz" && \
+    ln -s "apache-maven-${MVN_VERSION}" maven && \
+    touch /etc/profile.d/maven.sh && \
+    echo "export M2_HOME=/opt/maven" >> /etc/profile.d/maven.sh && \
+    echo "export PATH=${M2_HOME}/bin:${PATH}" >> /etc/profile.d/maven.sh
+
 WORKDIR /workdir
 
 CMD bash

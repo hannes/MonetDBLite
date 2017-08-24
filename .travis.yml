@@ -40,9 +40,7 @@ script:
     - openssl aes-256-cbc -K $encrypted_3eba8b62c709_key -iv $encrypted_3eba8b62c709_iv -in gradle.properties.enc -out monetdb-java-lite/gradle.properties -d
     - openssl aes-256-cbc -K $encrypted_aa4c171103b2_key -iv $encrypted_aa4c171103b2_iv -in id_monetdb.enc -out /tmp/id_monetdb -d
     - cd monetdb-java-lite
-    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true pedrotadim/compilemonetdblite bash -c 'export JAVA_HOME=/opt/jdk1.8.0_131 && ./gradlew -i build && ./gradlew javadoc && chmod -R 777 build'
-    # Upload to the Maven Central Repository -- but due to bugs in Gradle we are doing it manually
-    # ./gradlew uploadArchives
+    - docker run -it --rm -v $(pwd):/workdir:Z --privileged=true pedrotadim/compilemonetdblite bash build_and_upload.sh
     # Update the website downloads directory
     - eval "$(ssh-agent -s)"
     - chmod 600 /tmp/id_monetdb
