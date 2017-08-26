@@ -456,9 +456,11 @@ void monetdb_register_progress(monetdb_connection conn, monetdb_progress_callbac
 	if (!MCvalid(c)) {
 		return;
 	}
-
+	MT_lock_set(&c->progress_lock);
 	c->progress_callback = callback;
 	c->progress_data = data;
+	MT_lock_unset(&c->progress_lock);
+
 }
 
 void monetdb_unregister_progress(monetdb_connection conn) {
@@ -466,11 +468,12 @@ void monetdb_unregister_progress(monetdb_connection conn) {
 	if (!MCvalid(c)) {
 		return;
 	}
-
+	MT_lock_set(&c->progress_lock);
 	c->progress_callback = NULL;
 	if(c->progress_data)
 		free(c->progress_data);
 	c->progress_data = NULL;
+	MT_lock_unset(&c->progress_lock);
 }
 
 void monetdb_shutdown(void) {

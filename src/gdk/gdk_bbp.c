@@ -1606,7 +1606,7 @@ vheap_entry(FILE *fp, Heap *h)
 }
 
 static gdk_return
-new_bbpentry(FILE *fp, bat i)
+new_bbpentry(FILE *fp, bat i, const char *prefix)
 {
 #ifndef NDEBUG
 	assert(i > 0);
@@ -1622,8 +1622,9 @@ new_bbpentry(FILE *fp, bat i)
 	}
 #endif
 
-	if (fprintf(fp, SSZFMT " %d %s %s %d " BUNFMT " "
-		    BUNFMT " " OIDFMT, /* BAT info */
+	if (fprintf(fp, "%s" SSZFMT " %d %s %s %d " BUNFMT " "
+		    BUNFMT " " OIDFMT, prefix,
+		    /* BAT info */
 		    (ssize_t) i,
 		    BBP_status(i) & BBPPERSISTENT,
 		    BBP_logical(i),
@@ -1721,10 +1722,10 @@ BBPdir_subcommit(int cnt, bat *subcommit)
 			bat i = subcommit[j];
 			/* BBP.dir consists of all persistent bats only */
 			if (BBP_status(i) & BBPPERSISTENT) {
-				if (new_bbpentry(nbbpf, i) != GDK_SUCCEED) {
+				if (new_bbpentry(nbbpf, i, "") != GDK_SUCCEED) {
 					goto bailout;
 				}
-				IODEBUG new_bbpentry(stderr, i);
+				IODEBUG new_bbpentry(stderr, i, "#");
 			}
 			if (i == n)
 				n = 0;	/* read new entry (i.e. skip this one from old BBP.dir */
@@ -1737,7 +1738,7 @@ BBPdir_subcommit(int cnt, bat *subcommit)
 				GDKsyserror("BBPdir_subcommit: Copying BBP.dir entry failed\n");
 				goto bailout;
 			}
-			IODEBUG fprintf(stderr, "%s", buf);
+			IODEBUG fprintf(stderr, "#%s", buf);
 			n = 0;
 		}
 	}
@@ -1799,10 +1800,10 @@ BBPdir(int cnt, bat *subcommit)
 		/* write the entry
 		 * BBP.dir consists of all persistent bats */
 		if (BBP_status(i) & BBPPERSISTENT) {
-			if (new_bbpentry(fp, i) != GDK_SUCCEED) {
+			if (new_bbpentry(fp, i, "") != GDK_SUCCEED) {
 				goto bailout;
 			}
-			IODEBUG new_bbpentry(stderr, i);
+			IODEBUG new_bbpentry(stderr, i, "#");
 		}
 	}
 
@@ -3615,7 +3616,7 @@ BBPrecover_subdir(void)
 	if (ret == GDK_SUCCEED) {
 		ret = GDKremovedir(0, SUBDIR);
 		if (backup_dir == 2) {
-			IODEBUG fprintf(stderr, "BBPrecover_subdir: %s%cBBP.dir had disappeared!", SUBDIR, DIR_SEP);
+			IODEBUG fprintf(stderr, "#BBPrecover_subdir: %s%cBBP.dir had disappeared!", SUBDIR, DIR_SEP);
 			backup_dir = 0;
 		}
 	}
@@ -3698,9 +3699,6 @@ BBPdiskscan(const char *parent, size_t baseoff)
 			continue;
 
 		p = strchr(dent->d_name, '.');
-		bid = strtol(dent->d_name, NULL, 8);
-		ok = p && bid;
-		delete = FALSE;
 
 		if (strlen(dent->d_name) >= dstlen) {
 			/* found a file with too long a name
@@ -3717,53 +3715,61 @@ BBPdiskscan(const char *parent, size_t baseoff)
 			continue;
 		}
 
-		if (ok == FALSE || !persistent_bat(bid)) {
+		if (p && strcmp(p + 1, "tmp") == 0) {
 			delete = TRUE;
-		} else if (strstr(p + 1, ".tmp")) {
-			delete = 1;	/* throw away any .tmp file */
-		} else if (strncmp(p + 1, "tail", 4) == 0) {
-			BAT *b = getdesc(bid);
-			delete = (b == NULL || !b->ttype || b->batCopiedtodisk == 0);
-		} else if (strncmp(p + 1, "theap", 5) == 0) {
-			BAT *b = getdesc(bid);
-			delete = (b == NULL || !b->tvheap || b->batCopiedtodisk == 0);
-		} else if (strncmp(p + 1, "thash", 5) == 0) {
+			ok = TRUE;
+			bid = 0;
+		} else {
+			bid = strtol(dent->d_name, NULL, 8);
+			ok = p && bid;
+			delete = FALSE;
+
+			if (ok == FALSE || !persistent_bat(bid)) {
+				delete = TRUE;
+			} else if (strncmp(p + 1, "tail", 4) == 0) {
+				BAT *b = getdesc(bid);
+				delete = (b == NULL || !b->ttype || b->batCopiedtodisk == 0);
+			} else if (strncmp(p + 1, "theap", 5) == 0) {
+				BAT *b = getdesc(bid);
+				delete = (b == NULL || !b->tvheap || b->batCopiedtodisk == 0);
+			} else if (strncmp(p + 1, "thash", 5) == 0) {
 #ifdef PERSISTENTHASH
-			BAT *b = getdesc(bid);
-			delete = b == NULL;
-			if (!delete)
-				b->thash = (Hash *) 1;
+				BAT *b = getdesc(bid);
+				delete = b == NULL;
+				if (!delete)
+					b->thash = (Hash *) 1;
 #else
-			delete = TRUE;
+				delete = TRUE;
 #endif
-		} else if (strncmp(p + 1, "timprints", 9) == 0) {
-			BAT *b = getdesc(bid);
-			delete = b == NULL;
-			if (!delete)
-				b->timprints = (Imprints *) 1;
-		} else if (strncmp(p + 1, "torderidx", 9) == 0) {
+			} else if (strncmp(p + 1, "timprints", 9) == 0) {
+				BAT *b = getdesc(bid);
+				delete = b == NULL;
+				if (!delete)
+					b->timprints = (Imprints *) 1;
+			} else if (strncmp(p + 1, "torderidx", 9) == 0) {
 #ifdef PERSISTENTIDX
-			BAT *b = getdesc(bid);
-			delete = b == NULL;
-			if (!delete)
-				b->torderidx = (Heap *) 1;
+				BAT *b = getdesc(bid);
+				delete = b == NULL;
+				if (!delete)
+					b->torderidx = (Heap *) 1;
 #else
-			delete = TRUE;
+				delete = TRUE;
 #endif
-		} else if (strncmp(p + 1, "priv", 4) != 0 &&
-			   strncmp(p + 1, "new", 3) != 0 &&
-			   strncmp(p + 1, "head", 4) != 0 &&
-			   strncmp(p + 1, "tail", 4) != 0) {
-			ok = FALSE;
-		} else if (strncmp(p + 1, "head", 4) == 0 ||
-			   strncmp(p + 1, "hheap", 5) == 0 ||
-			   strncmp(p + 1, "hhash", 5) == 0 ||
-			   strncmp(p + 1, "himprints", 9) == 0 ||
-			   strncmp(p + 1, "horderidx", 9) == 0) {
-			/* head is VOID, so no head, hheap files, and
-			 * we do not support any indexes on the
-			 * head */
-			delete = 1;
+			} else if (strncmp(p + 1, "priv", 4) != 0 &&
+				   strncmp(p + 1, "new", 3) != 0 &&
+				   strncmp(p + 1, "head", 4) != 0 &&
+				   strncmp(p + 1, "tail", 4) != 0) {
+				ok = FALSE;
+			} else if (strncmp(p + 1, "head", 4) == 0 ||
+				   strncmp(p + 1, "hheap", 5) == 0 ||
+				   strncmp(p + 1, "hhash", 5) == 0 ||
+				   strncmp(p + 1, "himprints", 9) == 0 ||
+				   strncmp(p + 1, "horderidx", 9) == 0) {
+				/* head is VOID, so no head, hheap files, and
+				 * we do not support any indexes on the
+				 * head */
+				delete = 1;
+			}
 		}
 		if (!ok) {
 			/* found an unknown file; stop pruning in this

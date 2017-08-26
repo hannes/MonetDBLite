@@ -1971,7 +1971,6 @@ file_wastream(FILE *fp, const char *name)
 	return s;
 }
 
-/* ------------------------------------------------------------------ */
 
 void
 buffer_init(buffer *b, char *buf, size_t size)
@@ -2007,11 +2006,20 @@ buffer_get_buf(buffer *b)
 
 	if (b == NULL)
 		return NULL;
-	if (b->pos == b->len && (b->buf = realloc(b->buf, b->len + 1)) == NULL)
-		return NULL;
+	if (b->pos == b->len) {
+		if ((r = realloc(b->buf, b->len + 1)) == NULL) {
+			/* keep b->buf in tact */
+			return NULL;
+		}
+		b->buf = r;
+	}
 	r = b->buf;
 	r[b->pos] = '\0';
 	b->buf = malloc(b->len);
+	if (b->buf == NULL) {
+		free(b);
+		return NULL;
+	}
 	b->len = b->buf ? b->len : 0;
 	b->pos = 0;
 	return r;
@@ -2064,14 +2072,14 @@ buffer_write(stream *s, const void *buf, size_t elmsize, size_t cnt)
 		return -1;
 	}
 	if (b->pos + size > b->len) {
-		size_t ns = b->len;
+		char *p;
+		size_t ns = b->pos + size + 8192;
 
-		while (b->pos + size > ns)
-			ns *= 2;
-		if ((b->buf = realloc(b->buf, ns)) == NULL) {
+		if ((p = realloc(b->buf, ns)) == NULL) {
 			s->errnr = MNSTR_WRITE_ERROR;
 			return -1;
 		}
+		b->buf = p;
 		b->len = ns;
 	}
 	memcpy(b->buf + b->pos, buf, size);
@@ -2377,7 +2385,7 @@ bs_read(stream *ss, void *buf, size_t elmsize, size_t cnt)
 			{
 				ssize_t i;
 
-				fprintf(stderr, "RD %s %zd \"", ss->name, m);
+				fprintf(stderr, "RD %s " SSZFMT " \"", ss->name, m);
 				for (i = 0; i < m; i++)
 					if (' ' <= ((char *) buf)[i] &&
 					    ((char *) buf)[i] < 127)
@@ -3635,12 +3643,14 @@ bstream_read(bstream *s, size_t size)
 	}
 
 	assert(s->buf != NULL);
-	if (s->len == s->size &&
-	    (s->buf = realloc(s->buf, (s->size <<= 1) + 1)) == NULL) {
-		s->size = 0;
-		s->len = 0;
-		s->pos = 0;
-		return -1;
+	if (s->len == s->size) {
+		char *p;
+		size_t ns = s->size + size + 8192;
+		if ((p = realloc(s->buf, ns + 1)) == NULL) {
+			return -1;
+		}
+		s->size = ns;
+		s->buf = p;
 	}
 
 	if (size > s->size - s->len)
@@ -3686,12 +3696,14 @@ bstream_readline(bstream *s)
 	}
 
 	assert(s->buf != NULL);
-	if (s->len == s->size &&
-	    (s->buf = realloc(s->buf, (s->size <<= 1) + 1)) == NULL) {
-		s->size = 0;
-		s->len = 0;
-		s->pos = 0;
-		return -1;
+	if (s->len == s->size) {
+		char *p;
+		size_t ns = s->size + size + 8192;
+		if ((p = realloc(s->buf, ns + 1)) == NULL) {
+			return -1;
+		}
+		s->size = ns;
+		s->buf = p;
 	}
 
 	if (size > s->size - s->len)
@@ -3985,16 +3997,16 @@ getFileNo(stream *s)
 static ssize_t
 stream_blackhole_write(stream *s, const void *buf, size_t elmsize, size_t cnt)
 {
-	s = (stream *) s;
-	buf = (const void *) buf;
-	elmsize = (size_t) elmsize;
+	(void) s;
+	(void) buf;
+	(void) elmsize;
 	return (ssize_t) cnt;
 }
 
 static void
 stream_blackhole_close(stream *s)
 {
-	s = (stream *) s;
+	(void) s;
 	/* no resources to close */
 }
 

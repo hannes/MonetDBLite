@@ -531,11 +531,12 @@ static BAT* sexp_to_bat(SEXP s, int type) {
 			SXP_TO_BAT(int, NUMERIC_POINTER, ISNA(*p));
 		}
 		b = BATcalcaddcst(b, &val, NULL, TYPE_int, 1);
+		b->ttype = TYPE_date;
 	}
 
 	if (type == TYPE_timestamp && IS_NUMERIC(s) && strcmp("POSIXct", CHAR(STRING_ELT(GET_CLASS(s), 0))) == 0) {
 		size_t j; timestamp *p, epoch;
-		b = COLnew(0, TYPE_lng, cnt, TRANSIENT);
+		b = COLnew(0, TYPE_timestamp, cnt, TRANSIENT);
 		if (!b || MTIMEunix_epoch(&epoch) != MAL_SUCCEED) return NULL;
 		BATsettrivprop(b);
 
