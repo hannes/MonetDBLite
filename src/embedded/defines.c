@@ -2,7 +2,7 @@
 #include <stdio.h> 
 
 int main() {
-	printf("-DSIZEOF_INT=%zu -DSIZEOF_LONG=%zu -DSIZEOF_LONG_LONG=%zu -DSIZEOF_SIZE_T=%zu -DSIZEOF_VOID_P=%zu\n",
-			sizeof(int), sizeof(long), sizeof(long long), sizeof(size_t), sizeof(void*));
+	printf("-DSIZEOF_INT=%d -DSIZEOF_LONG=%d -DSIZEOF_LONG_LONG=%d -DSIZEOF_SIZE_T=%d -DSIZEOF_VOID_P=%d\n",
+			(int) sizeof(int), (int) sizeof(long), (int) sizeof(long long), (int) sizeof(size_t), (int) sizeof(void*));
 	return 0;
 }

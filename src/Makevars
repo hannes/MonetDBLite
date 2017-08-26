@@ -1,7 +1,8 @@
 OPTIMIZE=$(OPT)
 
 ifneq ($(OPTIMIZE), true)
-	OPTFLAGS=-O0 -g -Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition
+	OPTFLAGS=-O0 -g 
+	#-Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition
 	OBJDIR=build/debug
 else
 	OPTFLAGS=-O3 -g
@@ -24,7 +25,6 @@ OBJECTS=\
 $(OBJDIR)/common/monet_options.o \
 $(OBJDIR)/common/stream.o \
 $(OBJDIR)/common/mutils.o \
-$(OBJDIR)/common/s_nextafterf.o \
 $(OBJDIR)/embedded/embedded.o \
 $(OBJDIR)/embedded/embeddedr.o \
 $(OBJDIR)/mapisplit/mapisplit.o \

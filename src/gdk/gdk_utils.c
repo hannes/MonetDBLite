@@ -302,7 +302,11 @@ size_t _MT_npages = 0;		/* variable holding memory size in pages */
 void
 MT_init(void)
 {
+#ifdef NATIVE_WIN32
+	_MT_pagesize = 0x1000;
+#else
 	_MT_pagesize = sysconf(_SC_PAGESIZE);
+#endif
 	_MT_npages = 42;
 }
 

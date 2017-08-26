@@ -19,34 +19,6 @@
 #define mutils_export extern
 #endif
 
-#ifdef NATIVE_WIN32
-
-struct DIR {
-	char *dir_name;
-	int just_opened;
-	HANDLE find_file_handle;
-	void *find_file_data;
-};
-
-typedef struct DIR DIR;
-struct dirent {
-	char d_name[256];
-	int d_namelen;
-};
-
-mutils_export int winerror(int);
-mutils_export DIR *opendir(const char *dirname);
-mutils_export struct dirent *readdir(DIR *dir);
-mutils_export void rewinddir(DIR *dir);
-mutils_export int closedir(DIR *dir);
-
-mutils_export char *dirname(char *path);
-
-#ifndef HAVE_NEXTAFTERF
-mutils_export float nextafterf(float x, float y);
-#endif
-
-#endif
 
 #ifndef S_IRUSR
 #define S_IRUSR 0000400		/* read permission, owner */

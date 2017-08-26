@@ -181,9 +181,6 @@ gdk_export int dlclose(void *handle);
 gdk_export void *dlsym(void *handle, const char *name);
 gdk_export char *dlerror(void);
 
-#ifndef HAVE_GETTIMEOFDAY
-gdk_export int gettimeofday(struct timeval *tv, int *ignore_zone);
-#endif
 gdk_export int win_stat(const char *, struct stat *);
 gdk_export int win_rmdir(const char *);
 gdk_export int win_rename(const char *, const char *);

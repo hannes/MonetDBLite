@@ -24,17 +24,19 @@
 
 #ifdef NATIVE_WIN32
 
+#include <dirent.h>
+
+
+#include "fsync.c"
+
 /* Some definitions that we need to compile on Windows.
  * Note that Windows only runs on little endian architectures. */
-typedef unsigned int u_int32_t;
-typedef int int32_t;
-#define BIG_ENDIAN	4321
-#define LITTLE_ENDIAN	1234
-#define BYTE_ORDER	LITTLE_ENDIAN
+//typedef unsigned int u_int32_t;
+//typedef int int32_t;
+//#define BIG_ENDIAN	4321
+//#define LITTLE_ENDIAN	1234
+//#define BYTE_ORDER	LITTLE_ENDIAN
 
-#ifndef HAVE_NEXTAFTERF
-#include "s_nextafterf.c"
-#endif
 
 #include <stdio.h>
 
@@ -107,171 +109,6 @@ winerror(int e)
 	}
 }
 
-DIR *
-opendir(const char *dirname)
-{
-	DIR *result = NULL;
-	char *mask;
-	size_t k;
-	DWORD e;
-
-	if (dirname == NULL) {
-		errno = EFAULT;
-		return NULL;
-	}
-
-	result = (DIR *) malloc(sizeof(DIR));
-	if (result == NULL) {
-		errno = ENOMEM;
-		return NULL;
-	}
-	result->find_file_data = malloc(sizeof(WIN32_FIND_DATA));
-	result->dir_name = strdup(dirname);
-	if (result->find_file_data == NULL || result->dir_name == NULL) {
-		if (result->find_file_data)
-			free(result->find_file_data);
-		if (result->dir_name)
-			free(result->dir_name);
-		free(result);
-		errno = ENOMEM;
-		return NULL;
-	}
-
-	k = strlen(result->dir_name);
-	if (k && result->dir_name[k - 1] == '\\') {
-		result->dir_name[k - 1] = '\0';
-		k--;
-	}
-	mask = malloc(strlen(result->dir_name) + 3);
-	if (mask == NULL) {
-		free(result->find_file_data);
-		free(result->dir_name);
-		free(result);
-		errno = ENOMEM;
-		return NULL;
-	}
-	sprintf(mask, "%s\\*", result->dir_name);
-
-	result->find_file_handle = FindFirstFile(mask, (LPWIN32_FIND_DATA) result->find_file_data);
-	if (result->find_file_handle == INVALID_HANDLE_VALUE) {
-		e = GetLastError();
-		free(mask);
-		free(result->dir_name);
-		free(result->find_file_data);
-		free(result);
-		SetLastError(e);
-		errno = winerror(e);
-		return NULL;
-	}
-	free(mask);
-	result->just_opened = TRUE;
-
-	return result;
-}
-
-static char *
-basename(const char *file_name)
-{
-	const char *p;
-	const char *base;
-
-	if (file_name == NULL)
-		return NULL;
-
-	if (isalpha((int) (unsigned char) file_name[0]) && file_name[1] == ':')
-		file_name += 2;	/* skip over drive letter */
-
-	base = NULL;
-	for (p = file_name; *p; p++)
-		if (*p == '\\' || *p == '/')
-			base = p;
-	if (base)
-		return (char *) base + 1;
-
-	return (char *) file_name;
-}
-
-struct dirent *
-readdir(DIR *dir)
-{
-	static struct dirent result;
-
-	if (dir == NULL) {
-		errno = EFAULT;
-		return NULL;
-	}
-
-	if (dir->just_opened)
-		dir->just_opened = FALSE;
-	else if (!FindNextFile(dir->find_file_handle,
-			       (LPWIN32_FIND_DATA) dir->find_file_data))
-		return NULL;
-	strncpy(result.d_name, basename(((LPWIN32_FIND_DATA) dir->find_file_data)->cFileName), sizeof(result.d_name));
-	result.d_name[sizeof(result.d_name) - 1] = '\0';
-	result.d_namelen = (int) strlen(result.d_name);
-
-	return &result;
-}
-
-void
-rewinddir(DIR *dir)
-{
-	char *mask;
-
-	if (dir == NULL) {
-		errno = EFAULT;
-		return;
-	}
-
-	if (!FindClose(dir->find_file_handle))
-		fprintf(stderr, "#rewinddir(): FindClose() failed\n");
-
-	mask = malloc(strlen(dir->dir_name) + 3);
-	if (mask == NULL) {
-		errno = ENOMEM;
-		dir->find_file_handle = INVALID_HANDLE_VALUE;
-		return;
-	}
-	sprintf(mask, "%s\\*", dir->dir_name);
-	dir->find_file_handle = FindFirstFile(mask, (LPWIN32_FIND_DATA) dir->find_file_data);
-	free(mask);
-	if (dir->find_file_handle == INVALID_HANDLE_VALUE)
-		return;
-	dir->just_opened = TRUE;
-}
-
-int
-closedir(DIR *dir)
-{
-	if (dir == NULL) {
-		errno = EFAULT;
-		return -1;
-	}
-
-	if (!FindClose(dir->find_file_handle))
-		return -1;
-
-	free(dir->dir_name);
-	free(dir->find_file_data);
-	free(dir);
-
-	return 0;
-}
-
-char *
-dirname(char *path)
-{
-	char *p, *q;
-
-	for (p = path, q = NULL; *p; p++)
-		if (*p == '/' || *p == '\\')
-			q = p;
-	if (q == NULL)
-		return ".";
-	*q = '\0';
-	return path;
-}
-
 /* see contract of unix MT_lockf */
 int
 MT_lockf(char *filename, int mode, off_t off, off_t len)
@@ -287,21 +124,8 @@ MT_lockf(char *filename, int mode, off_t off, off_t len)
 	struct lockedfiles **fpp, *fp;
 
 	memset(&ov, 0, sizeof(ov));
-#if defined(DUMMYSTRUCTNAME) && (defined(NONAMELESSUNION) || !defined(_MSC_EXTENSIONS))	/* Windows SDK v7.0 */
-	ov.u.s.Offset = (unsigned int) off;
-#if 0
-	ov.u.s.OffsetHigh = off >> 32;
-#else
-	ov.u.s.OffsetHigh = 0;	/* sizeof(off) == 4, i.e. off >> 32 is not possible */
-#endif
-#else
 	ov.Offset = (unsigned int) off;
-#if 0
-	ov.OffsetHigh = off >> 32;
-#else
 	ov.OffsetHigh = 0;	/* sizeof(off) == 4, i.e. off >> 32 is not possible */
-#endif
-#endif
 
 	if (mode == F_ULOCK) {
 		for (fpp = &lockedfiles; (fp = *fpp) != NULL; fpp = &fp->next) {
