@@ -18,8 +18,6 @@ PKG_CFLAGS += -I. -Icommon  \
 -Imal/mal -Imal/modules -Imal/optimizer -Imal/sqlbackend \
 -Isql/include -Isql/common -Isql/server -Isql/storage -Isql/storage/bat
 
-$(shell mkdir -p build && $(CC) $(PKG_CFLAGS) embedded/defines.c -o ./build/defines)
-PKG_CFLAGS += $(shell build/defines) 
 
 OBJECTS=\
 $(OBJDIR)/common/monet_options.o \
