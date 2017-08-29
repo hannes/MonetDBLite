@@ -34,11 +34,25 @@
 ///* read-only architecture-independent data */
 //#define DATA_DIR "/usr/local/share"
 
+
+#ifndef NATIVE_WIN32
+
 /* Directory separator */
 #define DIR_SEP '/'
 
 /* Directory separator */
 #define DIR_SEP_STR "/"
+
+#else
+
+/* Directory separator */
+#define DIR_SEP '\\'
+
+/* Directory separator */
+#define DIR_SEP_STR "\\"
+
+#endif
+
 
 /* Define to nothing if C supports flexible array members, and to 1 if it does
    not. That way, with a declaration like `struct s { int n; double
