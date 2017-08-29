@@ -102,7 +102,7 @@ getAddress(stream *out, str modname, str fcnname, int silent)
 		/* shouldn't happen, really */
 		if (!silent)
 			showException(out, MAL, "MAL.getAddress",
-						  "address of '%s.%s' not found",
+						  "address of '%s.%s' not found (dlopen)",
 						  (modname?modname:"<unknown>"), fcnname);
 		return NULL;
 	}
@@ -116,7 +116,7 @@ getAddress(stream *out, str modname, str fcnname, int silent)
 		return adr; /* found it */
 
 	if (!silent)
-		showException(out, MAL,"MAL.getAddress", "address of '%s.%s' not found",
+		showException(out, MAL,"MAL.getAddress", "address of '%s.%s' not found (dlsym)",
 			(modname?modname:"<unknown>"), fcnname);
 	return NULL;
 }

@@ -853,6 +853,10 @@ void *
 dlopen(const char *file, int mode)
 {
 	(void) mode;
+#ifdef HAVE_EMBEDDED_R
+	file = monetdb_lib_path;
+#endif
+
 	if (file != NULL) {
 		return (void *) LoadLibrary(file);
 	}

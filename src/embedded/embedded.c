@@ -102,11 +102,6 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	monetdb_result* res = NULL;
 	void* c;
 
-// we probably don't want this.
-//	if (setlocale(LC_CTYPE, "") == NULL) {
-//		retval = GDKstrdup("setlocale() failed");
-//		goto cleanup;
-//	}
 	GDKfataljumpenable = 1;
 	if(setjmp(GDKfataljump) != 0) {
 		retval = GDKfatalmsg;
