@@ -76,7 +76,7 @@ directory, although it's not recommended to do so.
 In an IDE or when Maven runs tests from the command line, the application will use the unpacked library, already present
 in the `src/main/resources/libs` dir (since there isn't a `.jar` yet). When running "in production" - from a `.jar`, the
 application will stream copy the library to a temp dir, and load the library from there. This is needed, since one
-cannot use the packed libraries in a `.jar` directly.
+cannot use compressed libraries in a `.jar` directly.
 
 ## MonetDB database in the JVM
 
@@ -93,6 +93,10 @@ same time they are absent in the JDBC and MonetDB uses multiple threads in its q
 efficient. However if the user still wants to use `async` operations, this API can be embedded easily with the
 [CompletableFuture<T>](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html) class in
 Java 8.
+
+To shrink the size of the native library, some features of MonetDB were removed in the MonetDBLite version. Those
+features include: the GeoSpatial/geometry module, merge and remote tables functionality, the JSON module, 
+and the Data Vaults extension.
 
 ### Start the database and make connections
 
@@ -149,8 +153,8 @@ there is a explanation on how to easily check for SQL NULL values in query resul
 | second interval                      | long                                                                                        | Same as bigint                                                                                               |
 | blob                                 | byte&#91;&#93; &#40;an object&#33;&#41;                                                     | Null pointer                                                                                                 |
 
-Notice that other more rare data types such as `geometry`, `json` and `hugeint` are still missing, because they were
-taken off from MonetDBLite to shrink the size of the library.
+Notice that other more rare data types such as `geometry`, `json`, `inet`, `url`, `uuid` and `hugeint` are missing.
+These types were removed from MonetDBLite to shrink the size of the library.
 
 ## Just the Embedded API
 
