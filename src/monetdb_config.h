@@ -825,7 +825,7 @@ typedef lng ptrdiff_t;
 
 /* define printf format for printing pointer values */
 #define PTRFMT		"%p"
-#define PTRFMTCAST		/* no cast needed */
+#define PTRFMTCAST	(void *)	/* no cast needed */
 
 
 /* defines to help the compiler check printf-style format arguments */
@@ -867,7 +867,7 @@ typedef lng ptrdiff_t;
 
 /* These are required to make MonetDB's source tree CRAN-compliant */
 
-#ifdef HAVE_EMBEDDED_R
+#ifdef HAVE_EMBEDDED
 #include "embedded/undef.h"
 #endif
 

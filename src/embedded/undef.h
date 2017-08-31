@@ -15,8 +15,3 @@ extern int embedded_r_rand(void);
 #define rand embedded_r_rand
 #endif
 
-#undef PTRFMT
-#undef PTRFMTCAST
-
-#define PTRFMT "%p"
-#define PTRFMTCAST (void *)
