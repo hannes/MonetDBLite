@@ -205,7 +205,6 @@ $(OBJDIR)/mal/optimizer/opt_evaluate.o \
 $(OBJDIR)/mal/optimizer/opt_garbageCollector.o \
 $(OBJDIR)/mal/optimizer/opt_generator.o \
 $(OBJDIR)/mal/optimizer/opt_inline.o \
-$(OBJDIR)/mal/optimizer/opt_jit.o \
 $(OBJDIR)/mal/optimizer/opt_macro.o \
 $(OBJDIR)/mal/optimizer/opt_matpack.o \
 $(OBJDIR)/mal/optimizer/opt_mergetable.o \

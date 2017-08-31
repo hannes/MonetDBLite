@@ -33,7 +33,6 @@
 #include "opt_garbageCollector.h"
 #include "opt_generator.h"
 #include "opt_inline.h"
-#include "opt_jit.h"
 #include "opt_projectionpath.h"
 #include "opt_matpack.h"
 #include "opt_mergetable.h"
@@ -63,7 +62,6 @@ struct{
 	{"garbageCollector", &OPTgarbageCollectorImplementation,0,0},
 	{"generator", &OPTgeneratorImplementation,0,0},
 	{"inline", &OPTinlineImplementation,0,0},
-	{"jit", &OPTjitImplementation,0,0},
 	{"matpack", &OPTmatpackImplementation,0,0},
 	{"mergetable", &OPTmergetableImplementation,0,0},
 	{"mitosis", &OPTmitosisImplementation,0,0},
