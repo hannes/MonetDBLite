@@ -55,6 +55,7 @@ typedef struct {
 	monetdb_types type;
 	void *data;
 	size_t count;
+	char* name;
 } monetdb_column;
 
 typedef struct {
@@ -99,7 +100,7 @@ int   monetdb_is_initialized(void);
 
 char* monetdb_query(monetdb_connection conn, char* query, char execute, monetdb_result** result, long *affected_rows, long* prepare_id);
 monetdb_column* monetdb_result_fetch(monetdb_result* result, size_t column_index);
-size_t monetdb_result_fetch_bat(monetdb_result* result, size_t column_index);
+void* monetdb_result_fetch_rawcol(monetdb_result* result, size_t column_index); // actually a res_col
 
 char* monetdb_append(monetdb_connection conn, const char* schema, const char* table, append_data *data, int ncols);
 void  monetdb_cleanup_result(monetdb_connection conn, monetdb_result* result);

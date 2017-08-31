@@ -33,7 +33,6 @@
 #include <opt_pipes.h>
 #include "orderidx.h"
 #include "mal_instruction.h"
-#include "mal_resource.h"
 #include "bat5.h"
 
 
@@ -298,7 +297,11 @@ create_table_or_view(mvc *sql, char *sname, char *tname, sql_table *t, int temp)
 			sql_rel *r = NULL;
 
 			sql->sa = sa_create();
+			if(!sql->sa)
+				throw(SQL, "sql.catalog",MAL_MALLOC_FAIL);
 			buf = sa_alloc(sql->sa, strlen(c->def) + 8);
+			if(!buf)
+				throw(SQL, "sql.catalog",MAL_MALLOC_FAIL);
 			snprintf(buf, BUFSIZ, "select %s;", c->def);
 			r = rel_parse(sql, s, buf, m_deps);
 			if (!r || !is_project(r->op) || !r->exps || list_length(r->exps) != 1 || rel_check_type(sql, &c->type, r->exps->h->data, type_equal) == NULL)
@@ -335,6 +338,8 @@ create_table_or_view(mvc *sql, char *sname, char *tname, sql_table *t, int temp)
 		sql_rel *r = NULL;
 
 		sql->sa = sa_create();
+		if(!sql->sa)
+			throw(SQL, "sql.catalog",MAL_MALLOC_FAIL);
 		r = rel_parse(sql, s, nt->query, m_deps);
 		if (r)
 			r = rel_optimizer(sql, r);
@@ -365,8 +370,10 @@ create_table_from_emit(Client cntxt, char *sname, char *tname, sql_emit_col *col
 
 	/* for some reason we don't have an allocator here so make one */
 	sql->sa = sa_create();
+	if(!sql->sa)
+		throw(SQL, "sql.catalog",MAL_MALLOC_FAIL);
 
-    	if (!sname) 
+	if (!sname)
 		sname = "sys";
 	if (!(s = mvc_bind_schema(sql, sname))) {
 		msg = sql_error(sql, 02, "3F000!CREATE TABLE: no such schema '%s'", sname);
@@ -1045,11 +1052,17 @@ mvc_append_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if ( tpe == TYPE_bat)
 		b =  (BAT*) ins;
 	s = mvc_bind_schema(m, sname);
-	if (s == NULL)
+	if (s == NULL) {
+		if (b)
+			BBPunfix(b->batCacheid);
 		throw(SQL, "sql.append", "Schema missing");
+	}
 	t = mvc_bind_table(m, s, tname);
-	if (t == NULL)
+	if (t == NULL) {
+		if (b)
+			BBPunfix(b->batCacheid);
 		throw(SQL, "sql.append", "Table missing");
+	}
 	if( b && BATcount(b) > 4096 && b->batPersistence == PERSISTENT)
 		BATmsync(b);
 	if (cname[0] != '%' && (c = mvc_bind_column(m, t, cname)) != NULL) {
@@ -1059,8 +1072,8 @@ mvc_append_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		if (i)
 			store_funcs.append_idx(m->session->tr, i, ins, tpe);
 	}
-	if (tpe == TYPE_bat) {
-		BBPunfix(((BAT *) ins)->batCacheid);
+	if (b) {
+		BBPunfix(b->batCacheid);
 	}
 	return MAL_SUCCEED;
 }
@@ -1179,19 +1192,28 @@ mvc_delete_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 		tpe = TYPE_bat;
 	if (tpe == TYPE_bat && (b = BATdescriptor(*(int *) ins)) == NULL)
 		throw(SQL, "sql.delete", "Cannot access descriptor");
-	if (tpe != TYPE_bat || (b->ttype != TYPE_oid && b->ttype != TYPE_void))
+	if (tpe != TYPE_bat || (b->ttype != TYPE_oid && b->ttype != TYPE_void)) {
+		if (b)
+			BBPunfix(b->batCacheid);
 		throw(SQL, "sql.delete", "Cannot access descriptor");
+	}
 	s = mvc_bind_schema(m, sname);
-	if (s == NULL)
+	if (s == NULL) {
+		if (b)
+			BBPunfix(b->batCacheid);
 		throw(SQL, "sql.delete", "3F000!Schema missing");
+	}
 	t = mvc_bind_table(m, s, tname);
-	if (t == NULL)
+	if (t == NULL) {
+		if (b)
+			BBPunfix(b->batCacheid);
 		throw(SQL, "sql.delete", "42S02!Table missing");
+	}
 	if( b && BATcount(b) > 4096 && b->batPersistence == PERSISTENT)
 		BATmsync(b);
 	store_funcs.delete_tab(m->session->tr, t, b, tpe);
-	if (tpe == TYPE_bat)
-		BBPunfix(((BAT *) ins)->batCacheid);
+	if (b)
+		BBPunfix(b->batCacheid);
 	return MAL_SUCCEED;
 }
 
@@ -1265,8 +1287,10 @@ DELTAbat(bat *result, const bat *col, const bat *uid, const bat *uval, const bat
 	}
 	BBPunfix(c->batCacheid);
 
-	if ((u_val = BATdescriptor(*uval)) == NULL)
+	if ((u_val = BATdescriptor(*uval)) == NULL) {
+		BBPunfix(res->batCacheid);
 		throw(MAL, "sql.delta", RUNTIME_OBJECT_MISSING);
+	}
 	u_id = BATdescriptor(*uid);
 	assert(BATcount(u_id) == BATcount(u_val));
 	if (BATcount(u_id) &&
@@ -2278,13 +2302,8 @@ mvc_drop_declared_tables_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPt
 str
 mvc_affected_rows_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
-
-#ifndef HAVE_EMBEDDED
 	backend *b = NULL;
 	int *res = getArgReference_int(stk, pci, 0), error;
-#ifndef NDEBUG
-	int mtype = getArgType(mb, pci, 2);
-#endif
 	lng nr;
 	str msg;
 
@@ -2292,18 +2311,11 @@ mvc_affected_rows_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	if ((msg = checkSQLContext(cntxt)) != NULL)
 		return msg;
 	*res = 0;
-	assert(mtype == TYPE_lng);
 	nr = *getArgReference_lng(stk, pci, 2);
 	b = cntxt->sqlcontext;
 	error = mvc_export_affrows(b, b->out, nr, "", mb->tag);
 	if (error)
 		throw(SQL, "sql.affectedRows", "failed");
-#else
-	(void) cntxt;
-	(void) mb;
-	(void) stk;
-	(void) pci;
-#endif
 	return MAL_SUCCEED;
 }
 
@@ -2795,6 +2807,7 @@ zero_or_one(ptr ret, const bat *bid)
 		p = BUNtail(bi, 0);
 	} else {
 		p = NULL;
+		BBPunfix(b->batCacheid);
 		throw(SQL, "zero_or_one", "21000!cardinality violation, scalar value expected");
 	}
 	_s = ATOMsize(ATOMtype(b->ttype));
@@ -3637,8 +3650,10 @@ do_sql_rank(bat *rid, const bat *bid, int nrank, int dense, const char *name)
 
 	if ((b = BATdescriptor(*bid)) == NULL)
 		throw(SQL, name, "Cannot access descriptor");
-	if (!BATtordered(b) && !BATtrevordered(b))
+	if (!BATtordered(b) && !BATtrevordered(b)) {
+		BBPunfix(b->batCacheid);
 		throw(SQL, name, "bat not sorted");
+	}
 
 	bi = bat_iterator(b);
 	cmp = ATOMcompare(b->ttype);
@@ -4378,19 +4393,20 @@ BATSTRindex_int(bat *res, const bat *src, const bit *u)
 		}
 		pos = GDK_STRHASHSIZE;
 		while (pos < h->free) {
-			const char *s;
+			const char *p;
 
 			pad = GDK_VARALIGN - (pos & (GDK_VARALIGN - 1));
 			if (pad < sizeof(stridx_t))
 				pad += GDK_VARALIGN;
 			pos += pad + extralen;
-			s = h->base + pos;
+			p = h->base + pos;
 			v = (int) (pos - GDK_STRHASHSIZE);
 			if (BUNappend(r, &v, FALSE) != GDK_SUCCEED) {
 				BBPreclaim(r);
+				BBPunfix(s->batCacheid);
 				throw(SQL, "calc.index", MAL_MALLOC_FAIL);
 			}
-			pos += GDK_STRLEN(s);
+			pos += GDK_STRLEN(p);
 		}
 	} else {
 		r = VIEWcreate(s->hseqbase, s);
@@ -4494,19 +4510,20 @@ BATSTRindex_bte(bat *res, const bat *src, const bit *u)
 		}
 		pos = GDK_STRHASHSIZE;
 		while (pos < h->free) {
-			const char *s;
+			const char *p;
 
 			pad = GDK_VARALIGN - (pos & (GDK_VARALIGN - 1));
 			if (pad < sizeof(stridx_t))
 				pad += GDK_VARALIGN;
 			pos += pad + extralen;
-			s = h->base + pos;
+			p = h->base + pos;
 			v = (bte) (pos - GDK_STRHASHSIZE);
 			if (BUNappend(r, &v, FALSE) != GDK_SUCCEED) {
 				BBPreclaim(r);
+				BBPunfix(s->batCacheid);
 				throw(SQL, "calc.index", MAL_MALLOC_FAIL);
 			}
-			pos += GDK_STRLEN(s);
+			pos += GDK_STRLEN(p);
 		}
 	} else {
 		r = VIEWcreate(s->hseqbase, s);
@@ -4551,18 +4568,19 @@ BATSTRstrings(bat *res, const bat *src)
 	}
 	pos = GDK_STRHASHSIZE;
 	while (pos < h->free) {
-		const char *s;
+		const char *p;
 
 		pad = GDK_VARALIGN - (pos & (GDK_VARALIGN - 1));
 		if (pad < sizeof(stridx_t))
 			pad += GDK_VARALIGN;
 		pos += pad + extralen;
-		s = h->base + pos;
-		if (BUNappend(r, s, FALSE) != GDK_SUCCEED) {
+		p = h->base + pos;
+		if (BUNappend(r, p, FALSE) != GDK_SUCCEED) {
 			BBPreclaim(r);
+			BBPunfix(s->batCacheid);
 			throw(SQL, "calc.strings", MAL_MALLOC_FAIL);
 		}
-		pos += GDK_STRLEN(s);
+		pos += GDK_STRLEN(p);
 	}
 	BBPunfix(s->batCacheid);
 	BBPkeepref((*res = r->batCacheid));
@@ -4578,9 +4596,14 @@ SQLflush_log(void *ret)
 }
 
 str
-SQLexist_val(bit *res, void *v)
+SQLexist_val(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 {
-	if (v) 
+	bit *res = getArgReference_bit(stk, pci, 0);
+	ptr v = getArgReference(stk, pci, 1);
+	int mtype = getArgType(mb, pci, 1);
+
+	(void)cntxt;
+	if (ATOMcmp(mtype, v, ATOMnilptr(mtype)) != 0)
 		*res = TRUE;
 	else
 		*res = FALSE;

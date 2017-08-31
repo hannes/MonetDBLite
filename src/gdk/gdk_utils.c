@@ -302,7 +302,11 @@ size_t _MT_npages = 0;		/* variable holding memory size in pages */
 void
 MT_init(void)
 {
+#ifdef NATIVE_WIN32
+	_MT_pagesize = 0x1000;
+#else
 	_MT_pagesize = sysconf(_SC_PAGESIZE);
+#endif
 	_MT_npages = 42;
 }
 
@@ -415,6 +419,8 @@ GDKinit(opt *set, int setlen)
 
 
 	n = (opt *) malloc(setlen * sizeof(opt));
+	if (n == NULL)
+		GDKfatal("GDKinit: malloc failed\n");
 	for (i = 0; i < setlen; i++) {
 		int done = 0;
 		int j;
@@ -566,6 +572,7 @@ GDKreset(int status, int exit)
 	Thread t, s;
 	struct serverthread *st;
 	int farmid;
+	int i;
 
 	(void) exit;
 
@@ -656,8 +663,16 @@ GDKreset(int status, int exit)
 		GDKnrofthreads = 0;
 		close_stream((stream *) THRdata[0]);
 		close_stream((stream *) THRdata[1]);
-		memset((char*) GDKbatLock,0, sizeof(GDKbatLock));
-		memset((char*) GDKbbpLock,0,sizeof(GDKbbpLock));
+		for (i = 0; i <= BBP_BATMASK; i++) {
+			MT_lock_destroy(&GDKbatLock[i].swap);
+			MT_lock_destroy(&GDKbatLock[i].hash);
+			MT_lock_destroy(&GDKbatLock[i].imprints);
+		}
+		for (i = 0; i <= BBP_THREADMASK; i++) {
+			MT_lock_destroy(&GDKbbpLock[i].alloc);
+			MT_lock_destroy(&GDKbbpLock[i].trim);
+			GDKbbpLock[i].free = 0;
+		}
 
 		memset((char*) GDKthreads, 0, sizeof(GDKthreads));
 		memset((char*) THRdata, 0, sizeof(THRdata));
@@ -666,6 +681,19 @@ GDKreset(int status, int exit)
 		MT_lock_unset(&GDKthreadLock);
 		//gdk_system_reset(); CHECK OUT
 	}
+#ifdef NEED_MT_LOCK_INIT
+	MT_lock_destroy(&MT_system_lock);
+#if defined(USE_PTHREAD_LOCKS) && defined(ATOMIC_LOCK)
+	MT_lock_destroy(&GDKstoppedLock);
+	MT_lock_destroy(&mbyteslock);
+#endif
+	MT_lock_destroy(&GDKnameLock);
+	MT_lock_destroy(&GDKthreadLock);
+	MT_lock_destroy(&GDKtmLock);
+#ifndef NDEBUG
+	MT_lock_destroy(&mallocsuccesslock);
+#endif
+#endif
 #ifndef HAVE_EMBEDDED
 	if (exit) {
 		MT_global_exit(status);
@@ -916,7 +944,7 @@ GDKerror(const char *format, ...)
 	}
 	va_start(ap, format);
 	if (vsnprintf(message + len, sizeof(message) - (len + 2), format, ap) < 0)
-		strcpy(message, GDKERROR "an error occurred within GDKerror, possibly malloc failure.\n");
+		strcpy(message, GDKERROR "an error occurred within GDKerror.\n");
 	va_end(ap);
 
 	GDKaddbuf(message);
@@ -1270,7 +1298,8 @@ THRprintf(stream *s, const char *format, ...)
 		if (bf != THRprintbuf)
 			free(bf);
 		bf = (str) malloc(bfsz);
-		assert(bf != NULL);
+		if (bf == NULL)
+			return -1;
 	} while (1);
 
 	p += n;
@@ -1323,14 +1352,16 @@ size_t
 GDKmem_cursize(void)
 {
 	/* RAM/swapmem that Monet is really using now */
-	return (size_t) ATOMIC_GET(GDK_mallocedbytes_estimate, mbyteslock);
+	//return (size_t) ATOMIC_GET(GDK_mallocedbytes_estimate, mbyteslock);
+	return 0;
 }
 
 size_t
 GDKvm_cursize(void)
 {
 	/* current Monet VM address space usage */
-	return (size_t) ATOMIC_GET(GDK_vm_cursize, mbyteslock) + GDKmem_cursize();
+	return 0;
+	//return (size_t) ATOMIC_GET(GDK_vm_cursize, mbyteslock) + GDKmem_cursize();
 }
 
 #define heapinc(_memdelta)						\
@@ -1413,6 +1444,10 @@ GDKmalloc_internal(size_t size)
 		return NULL;
 	}
 #endif
+	if (GDKvm_cursize() + size >= GDK_vm_maxsize) {
+		GDKerror("allocating too much memory\n");
+		return NULL;
+	}
 
 	/* pad to multiple of eight bytes and add some extra space to
 	 * write real size in front; when debugging, also allocate
@@ -1550,6 +1585,11 @@ GDKrealloc(void *s, size_t size)
 	nsize = (size + 7) & ~7;
 	asize = ((size_t *) s)[-1]; /* how much allocated last */
 
+	if (nsize > asize &&
+	    GDKvm_cursize() + nsize - asize >= GDK_vm_maxsize) {
+		GDKerror("allocating too much memory\n");
+		return NULL;
+	}
 #ifndef NDEBUG
 	assert((asize & 2) == 0);   /* check against duplicate free */
 	/* check for out-of-bounds writes */
@@ -1673,11 +1713,6 @@ void *
 GDKmmap(const char *path, int mode, size_t len)
 {
 	void *ret;
-
-	if (GDKvm_cursize() + len >= GDK_vm_maxsize) {
-		GDKerror("allocating too much virtual address space\n");
-		return NULL;
-	}
 	ret = MT_mmap(path, mode, len);
 	if (ret == NULL) {
 		GDKmemfail("GDKmmap", len);
@@ -1705,12 +1740,6 @@ void *
 GDKmremap(const char *path, int mode, void *old_address, size_t old_size, size_t *new_size)
 {
 	void *ret;
-
-	if (*new_size > old_size &&
-	    GDKvm_cursize() + *new_size - old_size >= GDK_vm_maxsize) {
-		GDKerror("allocating too much virtual address space\n");
-		return NULL;
-	}
 	ret = MT_mremap(path, mode, old_address, old_size, new_size);
 	if (ret == NULL) {
 		GDKmemfail("GDKmremap", *new_size);

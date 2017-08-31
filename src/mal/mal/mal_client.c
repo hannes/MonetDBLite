@@ -55,7 +55,7 @@ void
 mal_client_reset(void)
 {
 	MAL_MAXCLIENTS = 0;
-	if ( mal_clients)
+	if (mal_clients) 
 		GDKfree(mal_clients);
 }
 
@@ -172,7 +172,7 @@ MCgetClient(int id)
 	return mal_clients + id;
 }
 
-void
+static void
 MCexitClient(Client c)
 {
 #ifdef MAL_CLIENT_DEBUG
@@ -259,7 +259,7 @@ MCinitClientRecord(Client c, oid user, bstream *fin, stream *fout)
 #else
 	c->progress_callback = NULL;
 	c->progress_data = NULL;
-	MT_lock_init(&c->progress_lock, "progress_lock");
+	//MT_lock_init(&c->progress_lock, "progress_lock");
 #endif
 	c->blocksize = BLOCK;
 	c->protocol = PROTOCOL_9;
@@ -341,8 +341,8 @@ MCforkClient(Client father)
 		son->scenario = father->scenario;
 		if (son->prompt)
 			GDKfree(son->prompt);
-		son->prompt = GDKstrdup(father->prompt);
-		son->promptlength = strlen(father->prompt);
+		son->prompt = NULL;
+		son->promptlength = 0;
 		son->nspace = newModule(NULL, putName("child"));
 	}
 	return son;

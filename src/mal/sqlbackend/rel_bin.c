@@ -271,6 +271,9 @@ value_list(backend *be, list *vals, stmt *left, stmt *sel)
 		sql_exp *e = n->data;
 		stmt *i = exp_bin(be, e, left, NULL, NULL, NULL, NULL, sel);
 
+		if (!i)
+			return NULL;
+
 		if (list_length(vals) == 1)
 			return i;
 		
@@ -2851,6 +2854,10 @@ sql_parse(backend *be, sql_allocator *sa, char *query, char mode)
 	len++;
 	buffer_init(b, query, len);
 	buf = buffer_rastream(b, "sqlstatement");
+	if(buf == NULL) {
+		buffer_destroy(b);
+		return sql_error(m, 02, MAL_MALLOC_FAIL);
+	}
 	scanner_init( &m->scanner, bstream_create(buf, b->len), NULL);
 	m->scanner.mode = LINE_1; 
 	bstream_next(m->scanner.rs);
@@ -2863,6 +2870,12 @@ sql_parse(backend *be, sql_allocator *sa, char *query, char mode)
 
 	/* create private allocator */
 	m->sa = (sa)?sa:sa_create();
+	if (!m->sa) {
+		GDKfree(query);
+		GDKfree(b);
+		bstream_destroy(m->scanner.rs);
+		return sql_error(m, 02, MAL_MALLOC_FAIL);
+	}
 
 	if (sqlparse(m) || !m->sym) {
 		/* oops an error */

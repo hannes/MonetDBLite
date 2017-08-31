@@ -286,12 +286,48 @@ STRwidth(const char *s)
 			if (--n == 0) {
 				/* last byte of a multi-byte character */
 				len++;
-				/* the following code points are all East
-				 * Asian Fullwidth and East Asian Wide
-				 * characters as defined in Unicode 8.0 */
+				/* this list was created by combining
+				 * the code points marked as
+				 * Emoji_Presentation in
+				 * /usr/share/unicode/emoji/emoji-data.txt
+				 * and code points marked either F or
+				 * W in EastAsianWidth.txt; this list
+				 * is up-to-date with Unicode 9.0 */
 				if ((0x1100 <= c && c <= 0x115F) ||
-				    c == 0x2329 ||
-				    c == 0x232A ||
+				    (0x231A <= c && c <= 0x231B) ||
+				    (0x2329 <= c && c <= 0x232A) ||
+				    (0x23E9 <= c && c <= 0x23EC) ||
+				    c == 0x23F0 ||
+				    c == 0x23F3 ||
+				    (0x25FD <= c && c <= 0x25FE) ||
+				    (0x2614 <= c && c <= 0x2615) ||
+				    (0x2648 <= c && c <= 0x2653) ||
+				    c == 0x267F ||
+				    c == 0x2693 ||
+				    c == 0x26A1 ||
+				    (0x26AA <= c && c <= 0x26AB) ||
+				    (0x26BD <= c && c <= 0x26BE) ||
+				    (0x26C4 <= c && c <= 0x26C5) ||
+				    c == 0x26CE ||
+				    c == 0x26D4 ||
+				    c == 0x26EA ||
+				    (0x26F2 <= c && c <= 0x26F3) ||
+				    c == 0x26F5 ||
+				    c == 0x26FA ||
+				    c == 0x26FD ||
+				    c == 0x2705 ||
+				    (0x270A <= c && c <= 0x270B) ||
+				    c == 0x2728 ||
+				    c == 0x274C ||
+				    c == 0x274E ||
+				    (0x2753 <= c && c <= 0x2755) ||
+				    c == 0x2757 ||
+				    (0x2795 <= c && c <= 0x2797) ||
+				    c == 0x27B0 ||
+				    c == 0x27BF ||
+				    (0x2B1B <= c && c <= 0x2B1C) ||
+				    c == 0x2B50 ||
+				    c == 0x2B55 ||
 				    (0x2E80 <= c && c <= 0x2E99) ||
 				    (0x2E9B <= c && c <= 0x2EF3) ||
 				    (0x2F00 <= c && c <= 0x2FD5) ||
@@ -305,7 +341,8 @@ STRwidth(const char *s)
 				    (0x31C0 <= c && c <= 0x31E3) ||
 				    (0x31F0 <= c && c <= 0x321E) ||
 				    (0x3220 <= c && c <= 0x3247) ||
-				    (0x3250 <= c && c <= 0x4DBF) ||
+				    (0x3250 <= c && c <= 0x32FE) ||
+				    (0x3300 <= c && c <= 0x4DBF) ||
 				    (0x4E00 <= c && c <= 0xA48C) ||
 				    (0xA490 <= c && c <= 0xA4C6) ||
 				    (0xA960 <= c && c <= 0xA97C) ||
@@ -315,12 +352,52 @@ STRwidth(const char *s)
 				    (0xFE30 <= c && c <= 0xFE52) ||
 				    (0xFE54 <= c && c <= 0xFE66) ||
 				    (0xFE68 <= c && c <= 0xFE6B) ||
-				    (0xFF01 <= c && c <= 0xFFE6) ||
+				    (0xFF01 <= c && c <= 0xFF60) ||
+				    (0xFFE0 <= c && c <= 0xFFE6) ||
+				    c == 0x16FE0 ||
+				    (0x17000 <= c && c <= 0x187EC) ||
+				    (0x18800 <= c && c <= 0x18AF2) ||
 				    (0x1B000 <= c && c <= 0x1B001) ||
+				    c == 0x1F004 ||
+				    c == 0x1F0CF ||
+				    c == 0x1F18E ||
+				    (0x1F191 <= c && c <= 0x1F19A) ||
+				    /* removed 0x1F1E6..0x1F1FF */
 				    (0x1F200 <= c && c <= 0x1F202) ||
-				    (0x1F210 <= c && c <= 0x1F23A) ||
+				    (0x1F210 <= c && c <= 0x1F23B) ||
 				    (0x1F240 <= c && c <= 0x1F248) ||
 				    (0x1F250 <= c && c <= 0x1F251) ||
+				    (0x1F300 <= c && c <= 0x1F320) ||
+				    (0x1F32D <= c && c <= 0x1F335) ||
+				    (0x1F337 <= c && c <= 0x1F37C) ||
+				    (0x1F37E <= c && c <= 0x1F393) ||
+				    (0x1F3A0 <= c && c <= 0x1F3CA) ||
+				    (0x1F3CF <= c && c <= 0x1F3D3) ||
+				    (0x1F3E0 <= c && c <= 0x1F3F0) ||
+				    c == 0x1F3F4 ||
+				    (0x1F3F8 <= c && c <= 0x1F43E) ||
+				    c == 0x1F440 ||
+				    (0x1F442 <= c && c <= 0x1F4FC) ||
+				    (0x1F4FF <= c && c <= 0x1F53D) ||
+				    (0x1F54B <= c && c <= 0x1F54E) ||
+				    (0x1F550 <= c && c <= 0x1F567) ||
+				    c == 0x1F57A ||
+				    (0x1F595 <= c && c <= 0x1F596) ||
+				    c == 0x1F5A4 ||
+				    (0x1F5FB <= c && c <= 0x1F64F) ||
+				    (0x1F680 <= c && c <= 0x1F6C5) ||
+				    c == 0x1F6CC ||
+				    (0x1F6D0 <= c && c <= 0x1F6D2) ||
+				    (0x1F6EB <= c && c <= 0x1F6EC) ||
+				    (0x1F6F4 <= c && c <= 0x1F6F6) ||
+				    (0x1F910 <= c && c <= 0x1F91E) ||
+				    (0x1F920 <= c && c <= 0x1F927) ||
+				    c == 0x1F930 ||
+				    (0x1F933 <= c && c <= 0x1F93E) ||
+				    (0x1F940 <= c && c <= 0x1F94B) ||
+				    (0x1F950 <= c && c <= 0x1F95E) ||
+				    (0x1F980 <= c && c <= 0x1F991) ||
+				    c == 0x1F9C0 ||
 				    (0x20000 <= c && c <= 0x2FFFD) ||
 				    (0x30000 <= c && c <= 0x3FFFD))
 					len++;
@@ -982,82 +1059,27 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 	node *n;
 	int nparam = c->params ? list_length(c->params) : 0;
 	int nrows = nparam;
-	size_t len1 = 0, len4 = 0, len5 = 0, len6 = 0;	/* column widths */
-	int len2 = 1, len3 = 1;
 	sql_arg *a;
 	sql_subtype *t;
 	sql_rel *r = q->rel;
-
-	if (!out)
-		return 0;
+	BAT *b_inout  = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	BAT *b_offset = COLnew(0, TYPE_int, nrows, TRANSIENT);
+	BAT *b_type   = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	BAT *b_digits = COLnew(0, TYPE_int, nrows, TRANSIENT);
+	BAT *b_scale  = COLnew(0, TYPE_int, nrows, TRANSIENT);
+	BAT *b_schema = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	BAT *b_table  = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	BAT *b_column = COLnew(0, TYPE_str, nrows, TRANSIENT);
+	int result_offset = 0, param_offset = 0;
+	(void) out;
+	if (!b_inout || !b_type || !b_digits || !b_scale || !b_schema || !b_table || !b_column) {
+		return -1;
+	}
+	(void) w;
+	(void) out;
 
 	if (is_topn(r->op))
 		r = r->l;
-	if (r && is_project(r->op) && r->exps) {
-		unsigned int max2 = 10, max3 = 10;	/* to help calculate widths */
-		nrows += list_length(r->exps);
-
-		for (n = r->exps->h; n; n = n->next) {
-			const char *name;
-			sql_exp *e = n->data;
-			size_t slen;
-
-			t = exp_subtype(e);
-			slen = strlen(t->type->sqlname);
-			if (slen > len1)
-				len1 = slen;
-			while (t->digits >= max2) {
-				len2++;
-				max2 *= 10;
-			}
-			while (t->scale >= max3) {
-				len3++;
-				max3 *= 10;
-			}
-			name = e->rname;
-			if (!name && e->type == e_column && e->l)
-				name = e->l;
-			slen = name ? strlen(name) : 0;
-			if (slen > len5)
-				len5 = slen;
-			name = e->name;
-			if (!name && e->type == e_column && e->r)
-				name = e->r;
-			slen = name ? strlen(name) : 0;
-			if (slen > len6)
-				len6 = slen;
-		}
-	}
-	/* calculate column widths */
-	if (c->params) {
-		unsigned int max2 = 10, max3 = 10;	/* to help calculate widths */
-
-		for (n = c->params->h; n; n = n->next) {
-			size_t slen;
-
-			a = n->data;
-			t = &a->type;
-			slen = strlen(t->type->sqlname);
-			if (slen > len1)
-				len1 = slen;
-			while (t->digits >= max2) {
-				len2++;
-				max2 *= 10;
-			}
-			while (t->scale >= max3) {
-				len3++;
-				max3 *= 10;
-			}
-
-		}
-	}
-
-	/* write header, query type: Q_PREPARE */
-	if (mnstr_printf(out, "&5 %d %d 6 %d\n"	/* TODO: add type here: r(esult) or u(pdate) */
-			 "%% .prepare,\t.prepare,\t.prepare,\t.prepare,\t.prepare,\t.prepare # table_name\n" "%% type,\tdigits,\tscale,\tschema,\ttable,\tcolumn # name\n" "%% varchar,\tint,\tint,\tstr,\tstr,\tstr # type\n" "%% " SZFMT ",\t%d,\t%d,\t"
-			 SZFMT ",\t" SZFMT ",\t" SZFMT " # length\n", q->id, nrows, nrows, len1, len2, len3, len4, len5, len6) < 0) {
-		return -1;
-	}
 
 	if (r && is_project(r->op) && r->exps) {
 		for (n = r->exps->h; n; n = n->next) {
@@ -1072,9 +1094,17 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 			if (!rname && e->type == e_column && e->l)
 				rname = e->l;
 
-			if (mnstr_printf(out, "[ \"%s\",\t%d,\t%d,\t\"%s\",\t\"%s\",\t\"%s\"\t]\n", t->type->sqlname, t->digits, t->scale, schema ? schema : "", rname ? rname : "", name ? name : "") < 0) {
+			if (BUNappend(b_inout,  "result",             FALSE) != GDK_SUCCEED ||
+				BUNappend(b_offset, &result_offset,       FALSE) != GDK_SUCCEED ||
+				BUNappend(b_type,   t->type->sqlname,     FALSE) != GDK_SUCCEED ||
+				BUNappend(b_digits, &(t->digits),         FALSE) != GDK_SUCCEED ||
+				BUNappend(b_scale,  &(t->scale),          FALSE) != GDK_SUCCEED ||
+				BUNappend(b_schema, schema ? schema : "", FALSE) != GDK_SUCCEED ||
+				BUNappend(b_table,  rname ? rname : "",   FALSE) != GDK_SUCCEED ||
+				BUNappend(b_column, name ? name : "",     FALSE) != GDK_SUCCEED) {
 				return -1;
 			}
+			result_offset++;
 		}
 	}
 	if (c->params) {
@@ -1087,18 +1117,39 @@ mvc_export_prepare(mvc *c, stream *out, cq *q, str w)
 			t = &a->type;
 
 			if (t) {
-				if (mnstr_printf(out, "[ \"%s\",\t%d,\t%d,\tNULL,\tNULL,\tNULL\t]\n", t->type->sqlname, t->digits, t->scale) < 0) {
+				if (BUNappend(b_inout,  "param",          FALSE) != GDK_SUCCEED ||
+					BUNappend(b_offset, &param_offset,    FALSE) != GDK_SUCCEED ||
+					BUNappend(b_type,   t->type->sqlname, FALSE) != GDK_SUCCEED ||
+					BUNappend(b_digits, &(t->digits),     FALSE) != GDK_SUCCEED ||
+					BUNappend(b_scale,  &(t->scale),      FALSE) != GDK_SUCCEED ||
+					BUNappend(b_schema, str_nil,          FALSE) != GDK_SUCCEED ||
+					BUNappend(b_table,  str_nil,          FALSE) != GDK_SUCCEED ||
+					BUNappend(b_column, str_nil,          FALSE) != GDK_SUCCEED) {
 					return -1;
 				}
+
 				/* add to the query cache parameters */
 				q->params[i] = *t;
+				param_offset++;
 			} else {
 				return -1;
 			}
 		}
 	}
-	if (mvc_export_warning(out, w) != 1)
+
+	c->results = res_table_create(c->session->tr, c->result_id++, q->id, 8, Q_PREPARE, NULL, NULL);
+	if (!c->results ||
+			!res_col_create(c->session->tr, c->results, "prepare", "result_or_param",   "varchar", 0, 0, TYPE_bat, b_inout) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "col_index",         "int",     0, 0, TYPE_bat, b_offset) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "type",              "varchar", 0, 0, TYPE_bat, b_type) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "digits",            "int",     0, 0, TYPE_bat, b_digits) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "scale",             "int",     0, 0, TYPE_bat, b_scale) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "schema",            "varchar", 0, 0, TYPE_bat, b_schema) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "table",             "varchar", 0, 0, TYPE_bat, b_table) ||
+			!res_col_create(c->session->tr, c->results, "prepare", "column",            "varchar", 0, 0, TYPE_bat, b_column)) {
 		return -1;
+	}
+	// all is well we have a result set
 	return 0;
 }
 
@@ -1390,8 +1441,7 @@ mvc_export_table_prot10(backend *b, stream *s, res_table *t, BAT *order, BUN off
 
 	iterators = GDKzalloc(sizeof(BATiter) * t->nr_cols);
 	if (!iterators) {
-		fres = -1;
-		goto cleanup;
+		return -1;
 	}
 
 	// ensure the buffer is currently empty
@@ -1401,11 +1451,21 @@ mvc_export_table_prot10(backend *b, stream *s, res_table *t, BAT *order, BUN off
 	for (i = 0; i < (size_t) t->nr_cols; i++) {
 		res_col *c = t->cols + i;
 		BAT *b = BATdescriptor(c->b);
-		int mtype = b->ttype;
-		int typelen = ATOMsize(mtype);
+		int mtype;
+		int typelen;
 		int convert_to_string = !type_supports_binary_transfer(c->type.type);
 		sql_type *type = c->type.type;
 
+		if (b == NULL) {
+			while (i > 0) {
+				i--;
+				BBPunfix(iterators[i].b->batCacheid);
+			}
+			GDKfree(iterators);
+			return -1;
+		}
+		mtype = b->ttype;
+		typelen = ATOMsize(mtype);
 		iterators[i] = bat_iterator(b);
 		
 		if (type->eclass == EC_TIMESTAMP || type->eclass == EC_DATE) {
@@ -1672,6 +1732,11 @@ mvc_export_table_prot10(backend *b, stream *s, res_table *t, BAT *order, BUN off
 		srow = row;
 	}
 cleanup:
+	if (iterators) {
+		for (i = 0; i < (size_t) t->nr_cols; i++)
+			BBPunfix(iterators[i].b->batCacheid);
+		GDKfree(iterators);
+	}
 	if (result) {
 		GDKfree(result);
 	}
@@ -1721,6 +1786,13 @@ mvc_export_table(backend *b, stream *s, res_table *t, BAT *order, BUN offset, BU
 			break;
 
 		fmt[i].c = BATdescriptor(c->b);
+		if (fmt[i].c == NULL) {
+			while (--i >= 1)
+				BBPunfix(fmt[i].c->batCacheid);
+			GDKfree(fmt);
+			GDKfree(tres);
+			return -1;
+		}
 		fmt[i].ci = bat_iterator(fmt[i].c);
 		fmt[i].name = NULL;
 		if (csv) {
@@ -2076,20 +2148,26 @@ mvc_export_head_prot10(backend *b, stream *s, int res_id, int only_header, int c
 	for (i = 0; i < (size_t) t->nr_cols; i++) {
 		res_col *c = t->cols + i;
 		BAT *b = BATdescriptor(c->b);
-		int mtype = b->ttype;
-		int typelen = ATOMsize(mtype);
+		int mtype;
+		int typelen;
 		int nil_len = -1;
-		int nil_type = ATOMstorage(mtype);
+		int nil_type;
 		int retval = -1;
 		int convert_to_string = !type_supports_binary_transfer(c->type.type);
 		sql_type *type = c->type.type;
 		lng print_width = -1;
-		
+
+		if (b == NULL)
+			return -1;
+
+		mtype = b->ttype;
+		typelen = ATOMsize(mtype);
+		nil_type = ATOMstorage(mtype);
+
 		// if the client wants print widths, we compute them for this column
 		if (compute_lengths) {
 			print_width = get_print_width(mtype, type->eclass, c->type.digits, c->type.scale, type_has_tz(&c->type), b->batCacheid, c->p);
 		}
-		BBPunfix(b->batCacheid);
 
 		if (type->eclass == EC_TIMESTAMP || type->eclass == EC_DATE) {
 			// timestamps are converted to Unix Timestamps
@@ -2114,6 +2192,7 @@ mvc_export_head_prot10(backend *b, stream *s, int res_id, int only_header, int c
 		if (!write_str_term(s, c->tn) || !write_str_term(s, c->name) || !write_str_term(s, type->sqlname) ||
 				!mnstr_writeInt(s, typelen) || !mnstr_writeInt(s, c->type.digits) || !mnstr_writeInt(s, type->eclass == EC_SEC ? 3 : c->type.scale)) {
 			fres = -1;
+			BBPunfix(b->batCacheid);
 			goto cleanup;
 		}
 
@@ -2121,6 +2200,7 @@ mvc_export_head_prot10(backend *b, stream *s, int res_id, int only_header, int c
 			nil_len = 0;
 		}
 
+		BBPunfix(b->batCacheid);
 
 		// write NULL values for this column to the stream
 		// NULL values are encoded as [size:int][NULL value] ([size] is always [typelen] for fixed size columns)
@@ -2464,9 +2544,7 @@ mvc_export_chunk(backend *b, stream *s, int res_id, BUN offset, BUN nr)
 	}
 
 	res = mvc_export_table(b, s, t, order, offset, cnt, "[ ", ",\t", "\t]\n", "\"", "NULL");
-	if (order) {
-		BBPunfix(order->batCacheid);	
-	}
+	BBPunfix(order->batCacheid);	
 	return res;
 }
 

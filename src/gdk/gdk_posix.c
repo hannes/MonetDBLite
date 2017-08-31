@@ -66,6 +66,10 @@
 #define MMAP_ADVISE		7
 #define MMAP_WRITABLE		(MMAP_WRITE|MMAP_COPY)
 
+#ifndef O_CLOEXEC
+#define O_CLOEXEC 0
+#endif
+
 /* DDALERT: AIX4.X 64bits needs HAVE_SETENV==0 due to a AIX bug, but
  * it probably isn't detected so by configure */
 
@@ -276,7 +280,7 @@ MT_mmap_addr(const char *path, int mode, size_t len, void* addr)
 	int fd = -1;
 	void *ret;
 	if (path != NULL) {
-		fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY), MONETDB_MODE);
+		fd = open(path, O_CREAT | ((mode & MMAP_WRITE) ? O_RDWR : O_RDONLY) | O_CLOEXEC, MONETDB_MODE);
 		if (fd < 0) {
 			GDKsyserror("MT_mmap: open %s failed\n", path);
 			return MAP_FAILED;
@@ -685,11 +689,6 @@ MT_init_posix(void)
 size_t
 MT_getrss(void)
 {
-#ifdef _WIN64
-	PROCESS_MEMORY_COUNTERS ctr;
-	if (GetProcessMemoryInfo(GetCurrentProcess(), &ctr, sizeof(ctr)))
-		return ctr.WorkingSetSize;
-#endif
 	return 0;
 }
 
@@ -844,34 +843,6 @@ MT_path_absolute(const char *pathname)
 }
 
 
-#ifndef HAVE_GETTIMEOFDAY
-static int nodays[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-
-#define LEAPYEAR(y) ((((y)%4)==0 && ((y)%100)!=0) || ((y)%400)==0)
-#define NODAYS(m,y) (((m)!=2)?nodays[(m)-1]:LEAPYEAR(y)?29:28)
-
-int
-gettimeofday(struct timeval *tv, int *ignore_zone)
-{
-	unsigned int year, day, month;
-	SYSTEMTIME st;
-
-	(void) ignore_zone;
-	GetSystemTime(&st);
-	day = 0;
-	for (year = 1970; year < st.wYear; year++)
-		day += LEAPYEAR(year) ? 366 : 365;
-
-	for (month = 1; month < st.wMonth; month++)
-		day += NODAYS(month, st.wYear);
-
-	day += st.wDay;
-	tv->tv_sec = 60 * (day * 24 * 60 + st.wMinute) + st.wSecond;
-	tv->tv_usec = 1000 * st.wMilliseconds;
-	return 0;
-}
-#endif
-
 void *
 mdlopen(const char *file, int mode)
 {
@@ -882,6 +853,10 @@ void *
 dlopen(const char *file, int mode)
 {
 	(void) mode;
+#ifdef HAVE_EMBEDDED_R
+	file = monetdb_lib_path;
+#endif
+
 	if (file != NULL) {
 		return (void *) LoadLibrary(file);
 	}
@@ -936,11 +911,14 @@ reduce_dir_name(const char *src, char *dst, size_t cap)
 
 #undef _stat64
 int
-win_stat(const char *pathname, struct _stat64 *st)
+win_stat(const char *pathname, struct stat *st)
 {
 	char buf[128], *p = reduce_dir_name(pathname, buf, sizeof(buf));
-	int ret = _stat64(p, st);
+	int ret;
 
+	if (p == NULL)
+		return -1;
+	ret = _stat64(p, (struct _stat64*) st);
 	if (p != buf)
 		free(p);
 	return ret;
@@ -950,8 +928,11 @@ int
 win_rmdir(const char *pathname)
 {
 	char buf[128], *p = reduce_dir_name(pathname, buf, sizeof(buf));
-	int ret = _rmdir(p);
+	int ret;
 
+	if (p == NULL)
+		return -1;
+	ret = _rmdir(p);
 	if (ret < 0 && errno != ENOENT) {
 		/* it could be the <expletive deleted> indexing
 		 * service which prevents us from doing what we have a
@@ -1017,9 +998,12 @@ int
 win_mkdir(const char *pathname, const int mode)
 {
 	char buf[128], *p = reduce_dir_name(pathname, buf, sizeof(buf));
-	int ret = _mkdir(p);
+	int ret;
 
 	(void) mode;
+	if (p == NULL)
+		return -1;
+	ret = _mkdir(p);
 	if (p != buf)
 		free(p);
 	return ret;

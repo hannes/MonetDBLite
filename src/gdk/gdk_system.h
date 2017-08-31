@@ -55,6 +55,7 @@ gdk_export int gprof_pthread_create(pthread_t * __restrict,
 # include <sys/sysctl.h>
 #endif
 
+
 /* new pthread interface, where the thread id changed to a struct */
 #ifdef PTW32_VERSION
 #define PTW32 1
@@ -94,16 +95,7 @@ gdk_export int MT_join_thread(MT_Id t);
 /*
  * @- MT Lock API
  */
-#if !defined(HAVE_PTHREAD_H) && defined(WIN32)
-typedef HANDLE pthread_mutex_t;
-typedef void *pthread_mutexattr_t;
-gdk_export void pthread_mutex_init(pthread_mutex_t *,
-				   const pthread_mutexattr_t *);
-gdk_export void pthread_mutex_destroy(pthread_mutex_t *);
-gdk_export int pthread_mutex_lock(pthread_mutex_t *);
-gdk_export int pthread_mutex_trylock(pthread_mutex_t *);
-gdk_export int pthread_mutex_unlock(pthread_mutex_t *);
-#endif
+
 
 #include "gdk_atomic.h"
 
@@ -209,8 +201,11 @@ gdk_export ATOMIC_TYPE volatile GDKlocksleepcnt;
 		/* SQL storage allocator, and hence we have no control */ \
 		/* over when the lock is destroyed and the memory freed */ \
 		if (strncmp((n), "sa_", 3) != 0) {			\
+			MT_Lock * volatile _p;				\
 			while (ATOMIC_TAS(GDKlocklistlock, dummy) != 0) \
 				;					\
+			for (_p = GDKlocklist; _p; _p = _p->next)	\
+				assert(_p != (l));			\
 			(l)->next = GDKlocklist;			\
 			GDKlocklist = (l);				\
 			ATOMIC_CLEAR(GDKlocklistlock, dummy);		\
@@ -225,19 +220,12 @@ gdk_export ATOMIC_TYPE volatile GDKlocksleepcnt;
 		/* SQL storage allocator, and hence we have no control */ \
 		/* over when the lock is destroyed and the memory freed */ \
 		if (strncmp((l)->name, "sa_", 3) != 0) {		\
-			MT_Lock * volatile _p;				\
-			/* save a copy for statistical purposes */	\
-			_p = GDKmalloc(sizeof(MT_Lock));		\
+			MT_Lock * volatile *_p;				\
 			while (ATOMIC_TAS(GDKlocklistlock, dummy) != 0) \
 				;					\
-			if (_p) {					\
-				memcpy(_p, l, sizeof(MT_Lock));		\
-				_p->next = GDKlocklist;			\
-				GDKlocklist = _p;			\
-			}						\
-			for (_p = GDKlocklist; _p; _p = _p->next)	\
-				if (_p->next == (l)) {			\
-					_p->next = (l)->next;		\
+			for (_p = &GDKlocklist; *_p; _p = &(*_p)->next)	\
+				if ((l) == *_p) {			\
+					*_p = (l)->next;		\
 					break;				\
 				}					\
 			ATOMIC_CLEAR(GDKlocklistlock, dummy);		\
@@ -292,6 +280,8 @@ gdk_export ATOMIC_TYPE volatile GDKlocksleepcnt;
 /*
  * @- MT Semaphore API
  */
+
+
 #if !defined(HAVE_PTHREAD_H) && defined(WIN32)
 
 typedef HANDLE pthread_sema_t;
@@ -322,6 +312,7 @@ gdk_export void pthread_sema_down(pthread_sema_t *s);
 #define pthread_sema_down(x)	while(sem_wait(x))
 
 #endif
+
 
 typedef struct {
 	pthread_sema_t sema;

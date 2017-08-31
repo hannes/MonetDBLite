@@ -775,8 +775,8 @@
 
 #define _atom_string(t, v)   atom_string(SA, t, v)
 
-#define YYMALLOC malloc
-#define YYFREE free
+#define YYMALLOC GDKmalloc
+#define YYFREE GDKfree
 
 #define YY_parse_LSP_NEEDED	/* needed for bison++ 1.21.11-3 */
 
@@ -1748,31 +1748,31 @@ static const yytype_uint16 yyrline[] =
     4905,  4910,  4911,  4913,  4915,  4924,  4925,  4934,  4935,  4936,
     4937,  4938,  4940,  4941,  4954,  4972,  4973,  4987,  5007,  5008,
     5009,  5010,  5011,  5012,  5013,  5015,  5016,  5018,  5030,  5044,
-    5058,  5065,  5080,  5095,  5102,  5122,  5134,  5149,  5164,  5165,
-    5169,  5170,  5171,  5174,  5175,  5178,  5180,  5183,  5184,  5185,
-    5186,  5187,  5188,  5192,  5193,  5194,  5195,  5196,  5197,  5198,
-    5199,  5203,  5204,  5205,  5206,  5207,  5208,  5209,  5210,  5211,
-    5212,  5213,  5214,  5215,  5217,  5218,  5219,  5220,  5221,  5222,
-    5223,  5224,  5225,  5226,  5227,  5228,  5229,  5230,  5232,  5233,
-    5234,  5235,  5236,  5237,  5238,  5239,  5240,  5241,  5242,  5243,
-    5244,  5245,  5246,  5248,  5249,  5250,  5251,  5252,  5253,  5254,
-    5255,  5257,  5258,  5259,  5260,  5261,  5262,  5263,  5264,  5265,
-    5266,  5267,  5268,  5269,  5270,  5271,  5272,  5273,  5274,  5275,
-    5276,  5277,  5278,  5279,  5280,  5284,  5285,  5290,  5313,  5334,
-    5366,  5368,  5376,  5383,  5388,  5403,  5404,  5408,  5411,  5414,
-    5418,  5420,  5425,  5429,  5430,  5431,  5432,  5433,  5434,  5435,
-    5436,  5437,  5438,  5442,  5450,  5458,  5465,  5479,  5480,  5484,
-    5488,  5492,  5496,  5500,  5504,  5511,  5515,  5519,  5520,  5530,
-    5538,  5539,  5543,  5547,  5551,  5558,  5560,  5565,  5569,  5570,
-    5574,  5575,  5576,  5577,  5578,  5582,  5595,  5596,  5600,  5602,
-    5607,  5613,  5617,  5618,  5622,  5627,  5636,  5637,  5641,  5652,
-    5656,  5657,  5662,  5672,  5675,  5677,  5681,  5685,  5686,  5690,
-    5691,  5695,  5699,  5702,  5704,  5708,  5709,  5713,  5721,  5730,
-    5731,  5735,  5736,  5740,  5741,  5742,  5757,  5761,  5762,  5772,
-    5773,  5777,  5781,  5785,  5795,  5799,  5802,  5804,  5808,  5809,
-    5812,  5814,  5818,  5823,  5824,  5828,  5829,  5833,  5837,  5840,
-    5842,  5846,  5850,  5854,  5857,  5859,  5863,  5864,  5868,  5870,
-    5874,  5878,  5879,  5883,  5887,  5891
+    5058,  5065,  5080,  5095,  5102,  5128,  5145,  5165,  5180,  5181,
+    5185,  5186,  5187,  5190,  5191,  5194,  5196,  5199,  5200,  5201,
+    5202,  5203,  5204,  5208,  5209,  5210,  5211,  5212,  5213,  5214,
+    5215,  5219,  5220,  5221,  5222,  5223,  5224,  5225,  5226,  5227,
+    5228,  5229,  5230,  5231,  5233,  5234,  5235,  5236,  5237,  5238,
+    5239,  5240,  5241,  5242,  5243,  5244,  5245,  5246,  5248,  5249,
+    5250,  5251,  5252,  5253,  5254,  5255,  5256,  5257,  5258,  5259,
+    5260,  5261,  5262,  5264,  5265,  5266,  5267,  5268,  5269,  5270,
+    5271,  5273,  5274,  5275,  5276,  5277,  5278,  5279,  5280,  5281,
+    5282,  5283,  5284,  5285,  5286,  5287,  5288,  5289,  5290,  5291,
+    5292,  5293,  5294,  5295,  5296,  5300,  5301,  5306,  5329,  5350,
+    5382,  5384,  5392,  5399,  5404,  5419,  5420,  5424,  5427,  5430,
+    5434,  5436,  5441,  5445,  5446,  5447,  5448,  5449,  5450,  5451,
+    5452,  5453,  5454,  5458,  5466,  5474,  5481,  5495,  5496,  5500,
+    5504,  5508,  5512,  5516,  5520,  5527,  5531,  5535,  5536,  5546,
+    5554,  5555,  5559,  5563,  5567,  5574,  5576,  5581,  5585,  5586,
+    5590,  5591,  5592,  5593,  5594,  5598,  5611,  5612,  5616,  5618,
+    5623,  5629,  5633,  5634,  5638,  5643,  5652,  5653,  5657,  5668,
+    5672,  5673,  5678,  5688,  5691,  5693,  5697,  5701,  5702,  5706,
+    5707,  5711,  5715,  5718,  5720,  5724,  5725,  5729,  5737,  5746,
+    5747,  5751,  5752,  5756,  5757,  5758,  5773,  5777,  5778,  5788,
+    5789,  5793,  5797,  5801,  5811,  5815,  5818,  5820,  5824,  5825,
+    5828,  5830,  5834,  5839,  5840,  5844,  5845,  5849,  5853,  5856,
+    5858,  5862,  5866,  5870,  5873,  5875,  5879,  5880,  5884,  5886,
+    5890,  5894,  5895,  5899,  5903,  5907
 };
 #endif
 
@@ -12933,6 +12933,12 @@ yyreduce:
 		yyerror(m, msg);
 		_DELETE(msg);
 		YYABORT;
+	} else if (geoSubType == -1) {
+		char *msg = sql_message("allocation failure");
+		(yyval.type).type = NULL;
+		yyerror(m, msg);
+		_DELETE(msg);
+		YYABORT;
 	}  else if (!sql_find_subtype(&(yyval.type), "geometry", geoSubType, 0 )) {
 		char *msg = sql_message("\b22000!type (%s) unknown", (yyvsp[(1) - (1)].sval));
 		yyerror(m, msg);
@@ -12944,13 +12950,18 @@ yyreduce:
     break;
 
   case 885:
-#line 5122 "src/sql/server/sql_parser.y"
+#line 5128 "src/sql/server/sql_parser.y"
     {
 	int subtype = find_subgeometry_type((yyvsp[(1) - (1)].sval));
 	char* geoSubType = (yyvsp[(1) - (1)].sval);
 
 	if(subtype == 0) {
 		char *msg = sql_message("\b22000!type (%s) unknown", geoSubType);
+		yyerror(m, msg);
+		_DELETE(msg);
+		YYABORT;
+	} else if(subtype == -1) {
+		char *msg = sql_message("allocation failure");
 		yyerror(m, msg);
 		_DELETE(msg);
 		YYABORT;
@@ -12960,7 +12971,7 @@ yyreduce:
     break;
 
   case 886:
-#line 5134 "src/sql/server/sql_parser.y"
+#line 5145 "src/sql/server/sql_parser.y"
     {
 	int subtype = find_subgeometry_type((yyvsp[(1) - (1)].sval));
 	char* geoSubType = (yyvsp[(1) - (1)].sval);
@@ -12970,13 +12981,18 @@ yyreduce:
 		yyerror(m, msg);
 		_DELETE(msg);
 		YYABORT;
+	} else if (subtype == -1) {
+		char *msg = sql_message("allocation failure");
+		yyerror(m, msg);
+		_DELETE(msg);
+		YYABORT;
 	} 
 	(yyval.i_val) = subtype;	
 }
     break;
 
   case 887:
-#line 5150 "src/sql/server/sql_parser.y"
+#line 5166 "src/sql/server/sql_parser.y"
     { 	char *t = sql_bind_alias((yyvsp[(1) - (1)].sval));
 	  	if (!t) {
 			char *msg = sql_message("\b22000!type (%s) unknown", (yyvsp[(1) - (1)].sval));
@@ -12991,487 +13007,487 @@ yyreduce:
     break;
 
   case 888:
-#line 5164 "src/sql/server/sql_parser.y"
+#line 5180 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 889:
-#line 5165 "src/sql/server/sql_parser.y"
+#line 5181 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (2)].sval); }
     break;
 
   case 890:
-#line 5169 "src/sql/server/sql_parser.y"
-    { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
-    break;
-
-  case 891:
-#line 5170 "src/sql/server/sql_parser.y"
-    { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
-    break;
-
-  case 892:
-#line 5171 "src/sql/server/sql_parser.y"
-    { (yyval.sval) = (yyvsp[(1) - (3)].sval); }
-    break;
-
-  case 893:
-#line 5174 "src/sql/server/sql_parser.y"
-    { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
-    break;
-
-  case 894:
-#line 5175 "src/sql/server/sql_parser.y"
-    { (yyval.sval) = (yyvsp[(1) - (3)].sval); }
-    break;
-
-  case 897:
-#line 5183 "src/sql/server/sql_parser.y"
-    { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
-    break;
-
-  case 898:
-#line 5184 "src/sql/server/sql_parser.y"
-    { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
-    break;
-
-  case 899:
 #line 5185 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
-  case 900:
+  case 891:
 #line 5186 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
-  case 901:
+  case 892:
 #line 5187 "src/sql/server/sql_parser.y"
+    { (yyval.sval) = (yyvsp[(1) - (3)].sval); }
+    break;
+
+  case 893:
+#line 5190 "src/sql/server/sql_parser.y"
+    { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
+    break;
+
+  case 894:
+#line 5191 "src/sql/server/sql_parser.y"
+    { (yyval.sval) = (yyvsp[(1) - (3)].sval); }
+    break;
+
+  case 897:
+#line 5199 "src/sql/server/sql_parser.y"
+    { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
+    break;
+
+  case 898:
+#line 5200 "src/sql/server/sql_parser.y"
+    { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
+    break;
+
+  case 899:
+#line 5201 "src/sql/server/sql_parser.y"
+    { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
+    break;
+
+  case 900:
+#line 5202 "src/sql/server/sql_parser.y"
+    { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
+    break;
+
+  case 901:
+#line 5203 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 902:
-#line 5188 "src/sql/server/sql_parser.y"
+#line 5204 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 903:
-#line 5192 "src/sql/server/sql_parser.y"
+#line 5208 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 904:
-#line 5193 "src/sql/server/sql_parser.y"
+#line 5209 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 905:
-#line 5194 "src/sql/server/sql_parser.y"
+#line 5210 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 906:
-#line 5195 "src/sql/server/sql_parser.y"
+#line 5211 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 907:
-#line 5196 "src/sql/server/sql_parser.y"
+#line 5212 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 908:
-#line 5197 "src/sql/server/sql_parser.y"
+#line 5213 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 909:
-#line 5198 "src/sql/server/sql_parser.y"
+#line 5214 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 911:
-#line 5203 "src/sql/server/sql_parser.y"
+#line 5219 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "large"); }
     break;
 
   case 912:
-#line 5204 "src/sql/server/sql_parser.y"
+#line 5220 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "name"); }
     break;
 
   case 913:
-#line 5205 "src/sql/server/sql_parser.y"
+#line 5221 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "object"); }
     break;
 
   case 914:
-#line 5206 "src/sql/server/sql_parser.y"
+#line 5222 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "password"); }
     break;
 
   case 915:
-#line 5207 "src/sql/server/sql_parser.y"
+#line 5223 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "path"); }
     break;
 
   case 916:
-#line 5208 "src/sql/server/sql_parser.y"
+#line 5224 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "precision"); }
     break;
 
   case 917:
-#line 5209 "src/sql/server/sql_parser.y"
+#line 5225 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "privileges"); }
     break;
 
   case 918:
-#line 5210 "src/sql/server/sql_parser.y"
+#line 5226 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "role"); }
     break;
 
   case 919:
-#line 5211 "src/sql/server/sql_parser.y"
+#line 5227 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "size"); }
     break;
 
   case 920:
-#line 5212 "src/sql/server/sql_parser.y"
+#line 5228 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "type"); }
     break;
 
   case 921:
-#line 5213 "src/sql/server/sql_parser.y"
+#line 5229 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "release"); }
     break;
 
   case 922:
-#line 5214 "src/sql/server/sql_parser.y"
+#line 5230 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "value"); }
     break;
 
   case 923:
-#line 5215 "src/sql/server/sql_parser.y"
+#line 5231 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "zone"); }
     break;
 
   case 924:
-#line 5217 "src/sql/server/sql_parser.y"
+#line 5233 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "action"); }
     break;
 
   case 925:
-#line 5218 "src/sql/server/sql_parser.y"
+#line 5234 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "as"); }
     break;
 
   case 926:
-#line 5219 "src/sql/server/sql_parser.y"
+#line 5235 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "authorization"); }
     break;
 
   case 927:
-#line 5220 "src/sql/server/sql_parser.y"
+#line 5236 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "column"); }
     break;
 
   case 928:
-#line 5221 "src/sql/server/sql_parser.y"
+#line 5237 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "cycle"); }
     break;
 
   case 929:
-#line 5222 "src/sql/server/sql_parser.y"
+#line 5238 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "distinct"); }
     break;
 
   case 930:
-#line 5223 "src/sql/server/sql_parser.y"
+#line 5239 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "increment"); }
     break;
 
   case 931:
-#line 5224 "src/sql/server/sql_parser.y"
+#line 5240 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "maxvalue"); }
     break;
 
   case 932:
-#line 5225 "src/sql/server/sql_parser.y"
+#line 5241 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "minvalue"); }
     break;
 
   case 933:
-#line 5226 "src/sql/server/sql_parser.y"
+#line 5242 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "plan"); }
     break;
 
   case 934:
-#line 5227 "src/sql/server/sql_parser.y"
+#line 5243 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "schema"); }
     break;
 
   case 935:
-#line 5228 "src/sql/server/sql_parser.y"
+#line 5244 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "start"); }
     break;
 
   case 936:
-#line 5229 "src/sql/server/sql_parser.y"
+#line 5245 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "statement"); }
     break;
 
   case 937:
-#line 5230 "src/sql/server/sql_parser.y"
+#line 5246 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "table"); }
     break;
 
   case 938:
-#line 5232 "src/sql/server/sql_parser.y"
+#line 5248 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "cache"); }
     break;
 
   case 939:
-#line 5233 "src/sql/server/sql_parser.y"
+#line 5249 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "data"); }
     break;
 
   case 940:
-#line 5234 "src/sql/server/sql_parser.y"
+#line 5250 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "diagnostics"); }
     break;
 
   case 941:
-#line 5235 "src/sql/server/sql_parser.y"
+#line 5251 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "match"); }
     break;
 
   case 942:
-#line 5236 "src/sql/server/sql_parser.y"
+#line 5252 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "options"); }
     break;
 
   case 943:
-#line 5237 "src/sql/server/sql_parser.y"
+#line 5253 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "row"); }
     break;
 
   case 944:
-#line 5238 "src/sql/server/sql_parser.y"
+#line 5254 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "key"); }
     break;
 
   case 945:
-#line 5239 "src/sql/server/sql_parser.y"
+#line 5255 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "language"); }
     break;
 
   case 946:
-#line 5240 "src/sql/server/sql_parser.y"
+#line 5256 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "level"); }
     break;
 
   case 947:
-#line 5241 "src/sql/server/sql_parser.y"
+#line 5257 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "session"); }
     break;
 
   case 948:
-#line 5242 "src/sql/server/sql_parser.y"
+#line 5258 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "date"); }
     break;
 
   case 949:
-#line 5243 "src/sql/server/sql_parser.y"
+#line 5259 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "time"); }
     break;
 
   case 950:
-#line 5244 "src/sql/server/sql_parser.y"
+#line 5260 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "timestamp"); }
     break;
 
   case 951:
-#line 5245 "src/sql/server/sql_parser.y"
+#line 5261 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "interval"); }
     break;
 
   case 952:
-#line 5246 "src/sql/server/sql_parser.y"
+#line 5262 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "imprints"); }
     break;
 
   case 953:
-#line 5248 "src/sql/server/sql_parser.y"
+#line 5264 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "prepare"); }
     break;
 
   case 954:
-#line 5249 "src/sql/server/sql_parser.y"
+#line 5265 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "execute"); }
     break;
 
   case 955:
-#line 5250 "src/sql/server/sql_parser.y"
+#line 5266 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "explain"); }
     break;
 
   case 956:
-#line 5251 "src/sql/server/sql_parser.y"
+#line 5267 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "debug"); }
     break;
 
   case 957:
-#line 5252 "src/sql/server/sql_parser.y"
+#line 5268 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "trace"); }
     break;
 
   case 958:
-#line 5253 "src/sql/server/sql_parser.y"
+#line 5269 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "text"); }
     break;
 
   case 959:
-#line 5254 "src/sql/server/sql_parser.y"
+#line 5270 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "auto_commit"); }
     break;
 
   case 960:
-#line 5255 "src/sql/server/sql_parser.y"
+#line 5271 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "no"); }
     break;
 
   case 961:
-#line 5257 "src/sql/server/sql_parser.y"
+#line 5273 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "strip"); }
     break;
 
   case 962:
-#line 5258 "src/sql/server/sql_parser.y"
+#line 5274 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "whitespace"); }
     break;
 
   case 963:
-#line 5259 "src/sql/server/sql_parser.y"
+#line 5275 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "passing"); }
     break;
 
   case 964:
-#line 5260 "src/sql/server/sql_parser.y"
+#line 5276 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "nil"); }
     break;
 
   case 965:
-#line 5261 "src/sql/server/sql_parser.y"
+#line 5277 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "ref"); }
     break;
 
   case 966:
-#line 5262 "src/sql/server/sql_parser.y"
+#line 5278 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "absent"); }
     break;
 
   case 967:
-#line 5263 "src/sql/server/sql_parser.y"
+#line 5279 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "empty"); }
     break;
 
   case 968:
-#line 5264 "src/sql/server/sql_parser.y"
+#line 5280 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "document"); }
     break;
 
   case 969:
-#line 5265 "src/sql/server/sql_parser.y"
+#line 5281 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "element"); }
     break;
 
   case 970:
-#line 5266 "src/sql/server/sql_parser.y"
+#line 5282 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "content"); }
     break;
 
   case 971:
-#line 5267 "src/sql/server/sql_parser.y"
+#line 5283 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "namespace"); }
     break;
 
   case 972:
-#line 5268 "src/sql/server/sql_parser.y"
+#line 5284 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "returning"); }
     break;
 
   case 973:
-#line 5269 "src/sql/server/sql_parser.y"
+#line 5285 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "location"); }
     break;
 
   case 974:
-#line 5270 "src/sql/server/sql_parser.y"
+#line 5286 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "id"); }
     break;
 
   case 975:
-#line 5271 "src/sql/server/sql_parser.y"
+#line 5287 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "according"); }
     break;
 
   case 976:
-#line 5272 "src/sql/server/sql_parser.y"
+#line 5288 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "uri"); }
     break;
 
   case 977:
-#line 5273 "src/sql/server/sql_parser.y"
+#line 5289 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "filter"); }
     break;
 
   case 978:
-#line 5274 "src/sql/server/sql_parser.y"
+#line 5290 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "temporary"); }
     break;
 
   case 979:
-#line 5275 "src/sql/server/sql_parser.y"
+#line 5291 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "temp"); }
     break;
 
   case 980:
-#line 5276 "src/sql/server/sql_parser.y"
+#line 5292 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "analyze"); }
     break;
 
   case 981:
-#line 5277 "src/sql/server/sql_parser.y"
+#line 5293 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "MinMax"); }
     break;
 
   case 982:
-#line 5278 "src/sql/server/sql_parser.y"
+#line 5294 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "storage"); }
     break;
 
   case 983:
-#line 5279 "src/sql/server/sql_parser.y"
+#line 5295 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "geometry"); }
     break;
 
   case 984:
-#line 5280 "src/sql/server/sql_parser.y"
+#line 5296 "src/sql/server/sql_parser.y"
     { (yyval.sval) = sa_strdup(SA, "replace"); }
     break;
 
   case 985:
-#line 5284 "src/sql/server/sql_parser.y"
+#line 5300 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_string(L(), (yyvsp[(1) - (1)].sval)); }
     break;
 
   case 986:
-#line 5286 "src/sql/server/sql_parser.y"
+#line 5302 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_string((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sval)); }
     break;
 
   case 987:
-#line 5291 "src/sql/server/sql_parser.y"
+#line 5307 "src/sql/server/sql_parser.y"
     {
 		  char *end = NULL, *s = (yyvsp[(1) - (1)].sval);
 		  int l = _strlen(s);
@@ -13495,7 +13511,7 @@ yyreduce:
     break;
 
   case 988:
-#line 5314 "src/sql/server/sql_parser.y"
+#line 5330 "src/sql/server/sql_parser.y"
     {
 		  char *end = NULL, *s = (yyvsp[(1) - (1)].sval);
 		  int l = _strlen(s);
@@ -13519,7 +13535,7 @@ yyreduce:
     break;
 
   case 989:
-#line 5334 "src/sql/server/sql_parser.y"
+#line 5350 "src/sql/server/sql_parser.y"
     {
 		  char *name = (yyvsp[(1) - (1)].sval);
 		  sql_subtype *tpe;
@@ -13552,12 +13568,12 @@ yyreduce:
     break;
 
   case 990:
-#line 5367 "src/sql/server/sql_parser.y"
+#line 5383 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 991:
-#line 5369 "src/sql/server/sql_parser.y"
+#line 5385 "src/sql/server/sql_parser.y"
     { char *s = strconcat((yyvsp[(1) - (2)].sval),(yyvsp[(2) - (2)].sval)); 
 	 	  (yyval.sval) = sa_strdup(SA, s);	
 		  _DELETE(s);
@@ -13565,14 +13581,14 @@ yyreduce:
     break;
 
   case 992:
-#line 5377 "src/sql/server/sql_parser.y"
+#line 5393 "src/sql/server/sql_parser.y"
     {
 		  m->emode = m_execute;
 		  (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 993:
-#line 5384 "src/sql/server/sql_parser.y"
+#line 5400 "src/sql/server/sql_parser.y"
     { dlist *l = L();
   	  append_int(l, (yyvsp[(1) - (3)].i_val));
   	  append_list(l, NULL);
@@ -13580,7 +13596,7 @@ yyreduce:
     break;
 
   case 994:
-#line 5389 "src/sql/server/sql_parser.y"
+#line 5405 "src/sql/server/sql_parser.y"
     { dlist *l = L();
   	  append_int(l, (yyvsp[(1) - (4)].i_val));
   	  append_list(l, (yyvsp[(3) - (4)].l));
@@ -13588,27 +13604,27 @@ yyreduce:
     break;
 
   case 995:
-#line 5403 "src/sql/server/sql_parser.y"
+#line 5419 "src/sql/server/sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 997:
-#line 5408 "src/sql/server/sql_parser.y"
+#line 5424 "src/sql/server/sql_parser.y"
     { (yyval.sym) = _symbol_create_list( SQL_PATH, (yyvsp[(2) - (2)].l)); }
     break;
 
   case 1000:
-#line 5419 "src/sql/server/sql_parser.y"
+#line 5435 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 1001:
-#line 5421 "src/sql/server/sql_parser.y"
+#line 5437 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 1013:
-#line 5443 "src/sql/server/sql_parser.y"
+#line 5459 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (5)].sym));
 	  append_int(l, (yyvsp[(4) - (5)].i_val));
@@ -13616,7 +13632,7 @@ yyreduce:
     break;
 
   case 1014:
-#line 5451 "src/sql/server/sql_parser.y"
+#line 5467 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 	  append_list(l, (yyvsp[(3) - (5)].l));
 	  append_int(l, (yyvsp[(4) - (5)].i_val));
@@ -13624,7 +13640,7 @@ yyreduce:
     break;
 
   case 1015:
-#line 5459 "src/sql/server/sql_parser.y"
+#line 5475 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (5)].sym));
 	  append_int(l, (yyvsp[(4) - (5)].i_val));
@@ -13632,7 +13648,7 @@ yyreduce:
     break;
 
   case 1016:
-#line 5469 "src/sql/server/sql_parser.y"
+#line 5485 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(4) - (7)].sval));
 	  append_list(l, (yyvsp[(5) - (7)].l));
@@ -13642,71 +13658,71 @@ yyreduce:
     break;
 
   case 1017:
-#line 5479 "src/sql/server/sql_parser.y"
+#line 5495 "src/sql/server/sql_parser.y"
     { (yyval.l) = NULL; }
     break;
 
   case 1018:
-#line 5481 "src/sql/server/sql_parser.y"
+#line 5497 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(2) - (2)].sym));
 	  (yyval.l) = append_symbol((yyval.l), NULL);
 	  (yyval.l) = append_list((yyval.l), NULL); }
     break;
 
   case 1019:
-#line 5485 "src/sql/server/sql_parser.y"
+#line 5501 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(2) - (4)].sym));
 	  (yyval.l) = append_symbol((yyval.l), (yyvsp[(4) - (4)].sym));
 	  (yyval.l) = append_list((yyval.l), NULL); }
     break;
 
   case 1020:
-#line 5489 "src/sql/server/sql_parser.y"
+#line 5505 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(2) - (6)].sym));
 	  (yyval.l) = append_symbol((yyval.l), (yyvsp[(4) - (6)].sym));
 	  (yyval.l) = append_list((yyval.l), (yyvsp[(6) - (6)].l)); }
     break;
 
   case 1021:
-#line 5493 "src/sql/server/sql_parser.y"
+#line 5509 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(2) - (4)].sym));
 	  (yyval.l) = append_symbol((yyval.l), NULL);
 	  (yyval.l) = append_list((yyval.l), (yyvsp[(4) - (4)].l)); }
     break;
 
   case 1022:
-#line 5497 "src/sql/server/sql_parser.y"
+#line 5513 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol(L(), NULL);
 	  (yyval.l) = append_symbol((yyval.l), (yyvsp[(2) - (2)].sym));
 	  (yyval.l) = append_list((yyval.l), NULL); }
     break;
 
   case 1023:
-#line 5501 "src/sql/server/sql_parser.y"
+#line 5517 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol(L(), NULL);
 	  (yyval.l) = append_symbol((yyval.l), (yyvsp[(2) - (4)].sym));
 	  (yyval.l) = append_list((yyval.l), (yyvsp[(4) - (4)].l)); }
     break;
 
   case 1024:
-#line 5505 "src/sql/server/sql_parser.y"
+#line 5521 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol(L(), NULL);
 	  (yyval.l) = append_symbol((yyval.l), NULL);
 	  (yyval.l) = append_list((yyval.l), (yyvsp[(2) - (2)].l)); }
     break;
 
   case 1026:
-#line 5515 "src/sql/server/sql_parser.y"
+#line 5531 "src/sql/server/sql_parser.y"
     { (yyval.sym) = (yyvsp[(3) - (4)].sym); }
     break;
 
   case 1027:
-#line 5519 "src/sql/server/sql_parser.y"
+#line 5535 "src/sql/server/sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 1028:
-#line 5521 "src/sql/server/sql_parser.y"
+#line 5537 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 		  append_list(l, 
 		  	append_string(L(), sa_strdup(SA, "concat")));
@@ -13716,7 +13732,7 @@ yyreduce:
     break;
 
   case 1029:
-#line 5531 "src/sql/server/sql_parser.y"
+#line 5547 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(2) - (2)].sval));
 	  append_symbol(l, (yyvsp[(1) - (2)].sym));
@@ -13724,69 +13740,69 @@ yyreduce:
     break;
 
   case 1030:
-#line 5538 "src/sql/server/sql_parser.y"
+#line 5554 "src/sql/server/sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 1031:
-#line 5539 "src/sql/server/sql_parser.y"
+#line 5555 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(2) - (2)].sval); }
     break;
 
   case 1034:
-#line 5552 "src/sql/server/sql_parser.y"
+#line 5568 "src/sql/server/sql_parser.y"
     { (yyval.l) = L();
 		  (yyval.l) = append_list((yyval.l), (yyvsp[(1) - (2)].l));
 		  (yyval.l) = append_int((yyval.l), (yyvsp[(2) - (2)].i_val)); 	}
     break;
 
   case 1035:
-#line 5559 "src/sql/server/sql_parser.y"
+#line 5575 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (1)].sym)); }
     break;
 
   case 1036:
-#line 5561 "src/sql/server/sql_parser.y"
+#line 5577 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].sym)); }
     break;
 
   case 1038:
-#line 5569 "src/sql/server/sql_parser.y"
+#line 5585 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1039:
-#line 5570 "src/sql/server/sql_parser.y"
+#line 5586 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = (yyvsp[(2) - (2)].i_val); }
     break;
 
   case 1040:
-#line 5574 "src/sql/server/sql_parser.y"
+#line 5590 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1041:
-#line 5575 "src/sql/server/sql_parser.y"
+#line 5591 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 1042:
-#line 5576 "src/sql/server/sql_parser.y"
+#line 5592 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 2; }
     break;
 
   case 1043:
-#line 5577 "src/sql/server/sql_parser.y"
+#line 5593 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 3; }
     break;
 
   case 1044:
-#line 5578 "src/sql/server/sql_parser.y"
+#line 5594 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 4; }
     break;
 
   case 1045:
-#line 5585 "src/sql/server/sql_parser.y"
+#line 5601 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (7)].sym));
 	  append_list(l, (yyvsp[(4) - (7)].l));
@@ -13797,53 +13813,53 @@ yyreduce:
     break;
 
   case 1046:
-#line 5595 "src/sql/server/sql_parser.y"
+#line 5611 "src/sql/server/sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 1047:
-#line 5596 "src/sql/server/sql_parser.y"
+#line 5612 "src/sql/server/sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (2)].sym); }
     break;
 
   case 1048:
-#line 5601 "src/sql/server/sql_parser.y"
+#line 5617 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_list(L(), (yyvsp[(1) - (1)].l)); }
     break;
 
   case 1049:
-#line 5603 "src/sql/server/sql_parser.y"
+#line 5619 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_list((yyvsp[(1) - (3)].l), (yyvsp[(3) - (3)].l)); }
     break;
 
   case 1050:
-#line 5608 "src/sql/server/sql_parser.y"
+#line 5624 "src/sql/server/sql_parser.y"
     { (yyval.l) = append_symbol(L(), (yyvsp[(1) - (2)].sym));
 		  (yyval.l) = append_string((yyval.l), (yyvsp[(2) - (2)].sval)); }
     break;
 
   case 1051:
-#line 5613 "src/sql/server/sql_parser.y"
+#line 5629 "src/sql/server/sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 1052:
-#line 5617 "src/sql/server/sql_parser.y"
+#line 5633 "src/sql/server/sql_parser.y"
     { (yyval.sval) = NULL; }
     break;
 
   case 1053:
-#line 5618 "src/sql/server/sql_parser.y"
+#line 5634 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(2) - (2)].sval); }
     break;
 
   case 1054:
-#line 5622 "src/sql/server/sql_parser.y"
+#line 5638 "src/sql/server/sql_parser.y"
     { (yyval.sval) = (yyvsp[(1) - (1)].sval); }
     break;
 
   case 1055:
-#line 5629 "src/sql/server/sql_parser.y"
+#line 5645 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 	  append_int(l, (yyvsp[(3) - (6)].i_val) );
 	  append_symbol(l, (yyvsp[(4) - (6)].sym));
@@ -13852,17 +13868,17 @@ yyreduce:
     break;
 
   case 1056:
-#line 5636 "src/sql/server/sql_parser.y"
+#line 5652 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1057:
-#line 5637 "src/sql/server/sql_parser.y"
+#line 5653 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 1058:
-#line 5644 "src/sql/server/sql_parser.y"
+#line 5660 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 	  append_string(l, (yyvsp[(4) - (7)].sval));
 	  append_symbol(l, (yyvsp[(5) - (7)].sym));
@@ -13871,22 +13887,22 @@ yyreduce:
     break;
 
   case 1060:
-#line 5656 "src/sql/server/sql_parser.y"
+#line 5672 "src/sql/server/sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 1061:
-#line 5658 "src/sql/server/sql_parser.y"
+#line 5674 "src/sql/server/sql_parser.y"
     { (yyval.sym) = (yyvsp[(2) - (2)].sym); }
     break;
 
   case 1062:
-#line 5669 "src/sql/server/sql_parser.y"
+#line 5685 "src/sql/server/sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 1077:
-#line 5715 "src/sql/server/sql_parser.y"
+#line 5731 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 	  append_symbol(l, (yyvsp[(3) - (5)].sym));
 	  append_int(l, (yyvsp[(4) - (5)].i_val));
@@ -13894,52 +13910,52 @@ yyreduce:
     break;
 
   case 1078:
-#line 5726 "src/sql/server/sql_parser.y"
+#line 5742 "src/sql/server/sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 1080:
-#line 5731 "src/sql/server/sql_parser.y"
+#line 5747 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 2; }
     break;
 
   case 1081:
-#line 5735 "src/sql/server/sql_parser.y"
+#line 5751 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1082:
-#line 5736 "src/sql/server/sql_parser.y"
+#line 5752 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 1083:
-#line 5740 "src/sql/server/sql_parser.y"
+#line 5756 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1084:
-#line 5741 "src/sql/server/sql_parser.y"
+#line 5757 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 0; }
     break;
 
   case 1085:
-#line 5742 "src/sql/server/sql_parser.y"
+#line 5758 "src/sql/server/sql_parser.y"
     { (yyval.i_val) = 1; }
     break;
 
   case 1086:
-#line 5757 "src/sql/server/sql_parser.y"
+#line 5773 "src/sql/server/sql_parser.y"
     { (yyval.sym) = (yyvsp[(3) - (4)].sym); }
     break;
 
   case 1087:
-#line 5761 "src/sql/server/sql_parser.y"
+#line 5777 "src/sql/server/sql_parser.y"
     { (yyval.sym) = (yyvsp[(1) - (1)].sym); }
     break;
 
   case 1088:
-#line 5763 "src/sql/server/sql_parser.y"
+#line 5779 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 		  append_list(l, 
 		  	append_string(L(), sa_strdup(SA, "concat")));
@@ -13949,7 +13965,7 @@ yyreduce:
     break;
 
   case 1093:
-#line 5786 "src/sql/server/sql_parser.y"
+#line 5802 "src/sql/server/sql_parser.y"
     { char *s = strconcat("xmlns:", (yyvsp[(3) - (3)].sval));
 				  dlist *l = L();
 	  			  append_string(l, sa_strdup(SA, s));
@@ -13959,7 +13975,7 @@ yyreduce:
     break;
 
   case 1094:
-#line 5795 "src/sql/server/sql_parser.y"
+#line 5811 "src/sql/server/sql_parser.y"
     { dlist *l = L();
 	  			  append_string(l, sa_strdup(SA, "xmlns" ));
 	  			  append_symbol(l, (yyvsp[(2) - (2)].sym));
@@ -13967,12 +13983,12 @@ yyreduce:
     break;
 
   case 1095:
-#line 5799 "src/sql/server/sql_parser.y"
+#line 5815 "src/sql/server/sql_parser.y"
     { (yyval.sym) = NULL; }
     break;
 
   case 1125:
-#line 5895 "src/sql/server/sql_parser.y"
+#line 5911 "src/sql/server/sql_parser.y"
     { 
           dlist *aggr = L();
 
@@ -13996,7 +14012,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 14000 "src/sql/server/sql_parser.tab.c"
+#line 14016 "src/sql/server/sql_parser.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -14210,7 +14226,7 @@ yyreturn:
 }
 
 
-#line 5916 "src/sql/server/sql_parser.y"
+#line 5932 "src/sql/server/sql_parser.y"
 
 int find_subgeometry_type(char* geoSubType) {
 	int subType = 0;
@@ -14231,21 +14247,26 @@ int find_subgeometry_type(char* geoSubType) {
 	else {
 		size_t strLength = strlen(geoSubType);
 		if(strLength > 0 ) {
-			char *typeSubStr = malloc(strLength);
+			char *typeSubStr = GDKmalloc(strLength);
 			char flag = geoSubType[strLength-1]; 
-			
+
+			if (typeSubStr == NULL) {
+				return -1;
+			}
 			memcpy(typeSubStr, geoSubType, strLength-1);
 			typeSubStr[strLength-1]='\0';
 			if(flag == 'z' || flag == 'm' ) {
 				subType = find_subgeometry_type(typeSubStr);
-			
-			
+				if (subType == -1) {
+					GDKfree(typeSubStr);
+					return -1;
+				}
 				if(flag == 'z')
 					SET_Z(subType);
 				if(flag == 'm')
 					SET_M(subType);
 			}
-			free(typeSubStr);
+			GDKfree(typeSubStr);
 		}
 
 	}

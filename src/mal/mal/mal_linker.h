@@ -29,4 +29,7 @@ mal_export str loadLibrary(str modulename, int flag);
 mal_export char *locate_file(const char *basename, const char *ext, bit recurse);
 mal_export int malLibraryEnabled(str name);
 mal_export char* malLibraryHowToEnable(str name);
+mal_export char * MSP_locate_script(const char *filename);
+mal_export void mal_linker_reset(void);
+
 #endif /* _MAL_LINKER_H */

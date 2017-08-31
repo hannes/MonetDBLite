@@ -17,10 +17,6 @@
 
 #ifdef NATIVE_WIN32
 # include <float.h>
-#if _MSC_VER <= 1600
-/* Windows spells these differently */
-# define isnan(x)	_isnan(x)
-#endif
 # define finite(x)	_finite(x)
 /* NOTE: HAVE_FPCLASS assumed... */
 # define fpclass(x)	_fpclass(x)

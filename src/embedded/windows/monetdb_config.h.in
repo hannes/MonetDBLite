@@ -347,9 +347,6 @@
 /* Define to 1 if you have the <malloc.h> header file. */
 #define HAVE_MALLOC_H 1
 
-/* Define to 1 if you have the `mallopt' function. */
-/* #undef HAVE_MALLOPT */
-
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
@@ -768,7 +765,7 @@
 #define PACKAGE "MonetDB"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "11.27.2"
+#define PACKAGE_VERSION "11.27.6"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "https://bugs.monetdb.org/"
@@ -781,9 +778,6 @@
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "MonetDB"
-
-/* Define to the version of this package. */
-#define PACKAGE_VERSION "11.27.0"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL "https://www.monetdb.org/"

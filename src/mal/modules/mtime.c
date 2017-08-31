@@ -191,7 +191,7 @@
 #include "monetdb_config.h"
 #include "mtime.h"
 
-#ifndef HAVE_STRPTIME
+#ifdef NATIVE_WIN32
 extern char *strptime(const char *, const char *, struct tm *);
 #include "strptime.c"
 #endif

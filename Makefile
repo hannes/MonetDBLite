@@ -100,7 +100,6 @@ src/mal/modules/mat.mal \
 src/mal/modules/mkey.mal \
 src/mal/modules/mmath.mal \
 src/mal/modules/mtime.mal \
-src/mal/modules/oltp.mal \
 src/mal/modules/orderidx.mal \
 src/mal/modules/pcre.mal \
 src/mal/modules/sample.mal \
@@ -129,7 +128,6 @@ COBJECTS=\
 $(OBJDIR)/common/monet_options.o \
 $(OBJDIR)/common/stream.o \
 $(OBJDIR)/common/mutils.o \
-$(OBJDIR)/common/s_nextafterf.o \
 $(OBJDIR)/embedded/embedded.o \
 $(OBJDIR)/gdk/gdk_aggr.o \
 $(OBJDIR)/gdk/gdk_align.o \
@@ -167,7 +165,6 @@ $(OBJDIR)/mal/mal/mal_builder.o \
 $(OBJDIR)/mal/mal/mal_client.o \
 $(OBJDIR)/mal/mal/mal_dataflow.o \
 $(OBJDIR)/mal/mal/mal_exception.o \
-$(OBJDIR)/mal/mal/mal_factory.o \
 $(OBJDIR)/mal/mal/mal_function.o \
 $(OBJDIR)/mal/mal/mal_import.o \
 $(OBJDIR)/mal/mal/mal_instruction.o \
@@ -178,7 +175,6 @@ $(OBJDIR)/mal/mal/mal_module.o \
 $(OBJDIR)/mal/mal/mal_namespace.o \
 $(OBJDIR)/mal/mal/mal_parser.o \
 $(OBJDIR)/mal/mal/mal_resolve.o \
-$(OBJDIR)/mal/mal/mal_resource.o \
 $(OBJDIR)/mal/mal/mal_runtime.o \
 $(OBJDIR)/mal/mal/mal_scenario.o \
 $(OBJDIR)/mal/mal/mal_session.o \
@@ -202,7 +198,6 @@ $(OBJDIR)/mal/modules/mat.o \
 $(OBJDIR)/mal/modules/mkey.o \
 $(OBJDIR)/mal/modules/mmath.o \
 $(OBJDIR)/mal/modules/mtime.o \
-$(OBJDIR)/mal/modules/oltp.o \
 $(OBJDIR)/mal/modules/orderidx.o \
 $(OBJDIR)/mal/modules/pcre.o \
 $(OBJDIR)/mal/modules/projectionpath.o \
@@ -228,13 +223,11 @@ $(OBJDIR)/mal/optimizer/opt_matpack.o \
 $(OBJDIR)/mal/optimizer/opt_mergetable.o \
 $(OBJDIR)/mal/optimizer/opt_mitosis.o \
 $(OBJDIR)/mal/optimizer/opt_multiplex.o \
-$(OBJDIR)/mal/optimizer/opt_oltp.o \
 $(OBJDIR)/mal/optimizer/opt_pipes.o \
 $(OBJDIR)/mal/optimizer/opt_prelude.o \
 $(OBJDIR)/mal/optimizer/opt_profiler.o \
 $(OBJDIR)/mal/optimizer/opt_projectionpath.o \
 $(OBJDIR)/mal/optimizer/opt_pushselect.o \
-$(OBJDIR)/mal/optimizer/opt_reduce.o \
 $(OBJDIR)/mal/optimizer/opt_remap.o \
 $(OBJDIR)/mal/optimizer/opt_reorder.o \
 $(OBJDIR)/mal/optimizer/opt_support.o \
@@ -313,10 +306,6 @@ $(OBJDIR)/sql/storage/store_sequence.o
 ODIRS=$(dir $(COBJECTS))
 DDIRS=$(subst $(OBJDIR), $(DEPSDIR), $(ODIRS))
 $(shell mkdir -p $(ODIRS) $(DDIRS))
-
-# TODO: find a nicer way building this
-$(shell mkdir -p build && $(CC) $(CFLAGS) src/embedded/defines.c -o ./build/defines)
-CFLAGS += $(shell build/defines) 
 
 LIBFILE=build/libmonetdb5.$(SOEXT)
 

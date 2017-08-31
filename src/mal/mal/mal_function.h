@@ -36,6 +36,10 @@ mal_export void printFunction(stream *fd, MalBlkPtr mb, MalStkPtr stk, int flg);
 mal_export void fprintFunction(FILE *fd, MalBlkPtr mb, MalStkPtr stk, int flg);
 mal_export void debugFunction(stream *fd, MalBlkPtr mb, MalStkPtr stk, int flg, int first, int size);
 
+mal_export int getBarrierEnvelop(MalBlkPtr mb);
+
+mal_export Symbol cloneFunction(stream *out, Module scope, Symbol proc, MalBlkPtr mb, InstrPtr p);
+
 #include "mal_exception.h"
 
 #define MAXDEPTH 32

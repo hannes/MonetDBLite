@@ -6,6 +6,25 @@
 #define _SEEN_MONETDB_CONFIG_H 1
 
 
+#define SIZEOF_INT __SIZEOF_INT__
+#define SIZEOF_LONG __SIZEOF_LONG__
+#define SIZEOF_LONG_LONG __SIZEOF_LONG_LONG__
+#ifndef SIZEOF_SIZE_T
+#define SIZEOF_SIZE_T __SIZEOF_SIZE_T__
+#endif
+#define SIZEOF_VOID_P __SIZEOF_POINTER__
+
+
+#ifdef __MINGW32__
+#define NATIVE_WIN32 1
+#endif
+
+#ifdef NATIVE_WIN32
+#include <windows.h>
+#undef ERROR
+#endif
+
+
 ///* Define if building universal (internal helper macro) */
 ///* #undef AC_APPLE_UNIVERSAL_BUILD */
 //
@@ -15,11 +34,25 @@
 ///* read-only architecture-independent data */
 //#define DATA_DIR "/usr/local/share"
 
+
+#ifndef NATIVE_WIN32
+
 /* Directory separator */
 #define DIR_SEP '/'
 
 /* Directory separator */
 #define DIR_SEP_STR "/"
+
+#else
+
+/* Directory separator */
+#define DIR_SEP '\\'
+
+/* Directory separator */
+#define DIR_SEP_STR "\\"
+
+#endif
+
 
 /* Define to nothing if C supports flexible array members, and to 1 if it does
    not. That way, with a declaration like `struct s { int n; double
@@ -60,8 +93,10 @@
    */
 #define HAVE_DIRENT_H 1
 
+#ifndef NATIVE_WIN32
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
+#endif
 
 /* Support for MonetDB as a library */
 #define HAVE_EMBEDDED 1
@@ -127,7 +162,7 @@
 #define HAVE_GETTIMEOFDAY 1
 
 /* Define to 1 if you have the `getuid' function. */
-#define HAVE_GETUID 1
+// #define HAVE_GETUID 1
 
 ///* Define if you have the iconv() function and it works. */
 //#define HAVE_ICONV 1
@@ -215,10 +250,10 @@
 /* #undef HAVE_NDIR_H */
 
 /* Define to 1 if you have the <netdb.h> header file. */
-#define HAVE_NETDB_H 1
+//#define HAVE_NETDB_H 1
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
-#define HAVE_NETINET_IN_H 1
+//#define HAVE_NETINET_IN_H 1
 
 /* Define to 1 if you have the `nextafterf' function. */
 #define HAVE_NEXTAFTERF 1
@@ -248,7 +283,7 @@
 #define HAVE_PTHREAD_KILL 1
 
 /* Define if you have the pthread_sigmask function */
-#define HAVE_PTHREAD_SIGMASK 1
+//#define HAVE_PTHREAD_SIGMASK 1
 
 /* Define to 1 if the system has the type `ptrdiff_t'. */
 #define HAVE_PTRDIFF_T 1
@@ -257,7 +292,7 @@
 #define HAVE_PUTENV 1
 
 /* Define to 1 if you have the <pwd.h> header file. */
-#define HAVE_PWD_H 1
+// #define HAVE_PWD_H 1
 
 /* Define to 1 if you have the `round' function. */
 #define HAVE_ROUND 1
@@ -350,8 +385,10 @@
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 #define HAVE_SYS_IOCTL_H 1
 
+#ifndef NATIVE_WIN32
 /* Define to 1 if you have the <sys/mman.h> header file. */
 #define HAVE_SYS_MMAN_H 1
+#endif
 
 /* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
    */
@@ -372,8 +409,10 @@
 /* Define to 1 if you have the <sys/sysctl.h> header file. */
 //#define HAVE_SYS_SYSCTL_H 1
 
+#ifndef NATIVE_WIN32
 /* Define to 1 if you have the <sys/times.h> header file. */
 #define HAVE_SYS_TIMES_H 1
+#endif
 
 /* Define to 1 if you have the <sys/time.h> header file. */
 #define HAVE_SYS_TIME_H 1
@@ -546,8 +585,9 @@
 //#define SIZEOF___INT64 0
 
 /* type used for sockets */
+#ifndef NATIVE_WIN32
 #define SOCKET int
-
+#endif
 ///* Shared Object extension */
 //#define SO_EXT ".dylib"
 
@@ -642,7 +682,9 @@
 #define __hidden /* empty */
 
 /* function to close a socket */
+#ifndef NATIVE_WIN32
 #define closesocket close
+#endif
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
@@ -755,10 +797,7 @@ typedef lng ptrdiff_t;
 #endif
 
 /* define printf formats for printing size_t and ssize_t variables */
-#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901 && !defined(__svr4__) && !defined(WIN32) && !defined(__sgi)) || __GNUC__ > 3
-# define SZFMT "%zu"
-# define SSZFMT "%zd"
-#elif SIZEOF_SIZE_T == SIZEOF_INT
+#if  SIZEOF_SIZE_T == SIZEOF_INT
 # define SZFMT "%u"
 # define SSZFMT "%d"
 #elif SIZEOF_SIZE_T == SIZEOF_LONG
@@ -821,7 +860,7 @@ typedef lng ptrdiff_t;
 #if !defined(_MSC_VER) && !defined(_In_z_)
 # define _In_z_
 # define _Printf_format_string_
-#ifndef __CYGWIN__
+#if !defined(__CYGWIN__) && !defined(__MINGW32__)
 # define __declspec(x)
 #endif
 #endif

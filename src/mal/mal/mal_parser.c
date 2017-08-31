@@ -1770,7 +1770,6 @@ parseMAL(Client cntxt, Symbol curPrg, int skipcomments)
 			goto allLeft;
 		case 'C': case 'c':
 			if (MALkeyword(cntxt, "command", 7)) {
-
 				MalBlkPtr p = parseCommandPattern(cntxt, COMMANDsymbol);
 				if (p) {
 					p->unsafeProp = unsafeProp;

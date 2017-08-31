@@ -59,6 +59,8 @@ typedef struct {
 
 monetdb_connection monetdb_connect(void) {
 	Client conn = NULL;
+	str msg;
+	mvc *m;
 	if (!monetdb_embedded_initialized) {
 		return NULL;
 	}
@@ -69,7 +71,9 @@ monetdb_connection monetdb_connect(void) {
 	if (SQLinitClient(conn) != MAL_SUCCEED) {
 		return NULL;
 	}
-	((backend *) conn->sqlcontext)->mvc->session->auto_commit = 1;
+	if ((msg = getSQLContext(conn, NULL, &m, NULL)) != MAL_SUCCEED)
+		return msg;
+	m->session->auto_commit = 1;
 
 	return conn;
 }
@@ -98,11 +102,6 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 	monetdb_result* res = NULL;
 	void* c;
 
-// we probably don't want this.
-//	if (setlocale(LC_CTYPE, "") == NULL) {
-//		retval = GDKstrdup("setlocale() failed");
-//		goto cleanup;
-//	}
 	GDKfataljumpenable = 1;
 	if(setjmp(GDKfataljump) != 0) {
 		retval = GDKfatalmsg;
@@ -145,6 +144,8 @@ char* monetdb_startup(char* dbdir, char silent, char sequential) {
 		goto cleanup;
 	}
 	GDKsetenv("monet_mod_path", "");
+	GDKsetenv("max_clients", "256");
+
 	GDKsetenv("mapi_disable", "true");
 	if (sequential) {
 		GDKsetenv("sql_optimizer", "sequential_pipe");
@@ -204,6 +205,14 @@ char* monetdb_query(monetdb_connection conn, char* query, char execute, monetdb_
 	mvc* m;
 	backend *b;
 	char* qname = "somequery";
+	size_t query_len = strlen(query) + 3;
+	char* nq;
+	buffer query_buf;
+	stream *query_stream;
+
+	// TODO what about execute flag?! remove when result set is there for prepared stmts
+	(void) execute;
+
 	if (!monetdb_is_initialized()) {
 		return GDKstrdup("Embedded MonetDB is not started");
 	}
@@ -214,21 +223,16 @@ char* monetdb_query(monetdb_connection conn, char* query, char execute, monetdb_
 	b = (backend *) c->sqlcontext;
 	m = b->mvc;
 
-	// TODO what about execute flag?! remove when result set is there for prepared stmts
-	(void) execute;
+	query_stream = buffer_rastream(&query_buf, qname);
+	if (!query_stream) {
+		return GDKstrdup( "WARNING: could not setup query stream.");
+	}
 
-	size_t query_len = strlen(query) + 3;
-	char* nq = GDKmalloc(query_len);
+	nq = GDKmalloc(query_len);
 	if (!nq) {
 		return GDKstrdup( "WARNING: could not setup query stream.");
 	}
 	sprintf(nq, "%s\n;", query);
-
-	buffer query_buf;
-	stream* query_stream = buffer_rastream(&query_buf, qname);
-	if (!query_stream) {
-		return GDKstrdup( "WARNING: could not setup query stream.");
-	}
 
 	query_buf.pos = 0;
 	query_buf.len = query_len;
@@ -246,7 +250,7 @@ char* monetdb_query(monetdb_connection conn, char* query, char execute, monetdb_
 	m->scanner.rs = c->fdin;
 	b->output_format = OFMT_NONE;
 	m->user_id = m->role_id = USER_MONETDB;
-	m->cache = 0;
+	m->errstr[0] = '\0';
 
 	if (result) {
 		m->reply_size = -2; /* do not clean up result tables */
@@ -258,7 +262,7 @@ char* monetdb_query(monetdb_connection conn, char* query, char execute, monetdb_
 		goto cleanup;
 	}
 
-	if (prepare_id && (m->emode & m_prepare)) {
+	if (prepare_id && m->emode == m_prepare) {
 		*prepare_id = b->q->id;
 	}
 
@@ -303,7 +307,6 @@ cleanup:
 	bstream_destroy(c->fdin);
 	c->fdin = NULL;
 
-
 	sres = SQLautocommit(c, m);
 	if (!sres && !res) {
 		return GDKstrdup("Cannot COMMIT/ROLLBACK without a valid transaction.");
@@ -335,9 +338,13 @@ char* monetdb_append(monetdb_connection conn, const char* schema, const char* ta
 	}
 
 	SQLtrans(m);
+	if (!m->sa) { // unclear why this is required
+		m->sa = sa_create();
+	}
 	{
 		sql_rel *rel;
 		node *n;
+
 		list *exps = sa_list(m->sa), *args = sa_list(m->sa), *types = sa_list(m->sa);
 		sql_schema *s = mvc_bind_schema(m, schema);
 		sql_table *t = mvc_bind_table(m, s, table);
@@ -359,6 +366,7 @@ char* monetdb_append(monetdb_connection conn, const char* schema, const char* ta
 		f->res = types;
 		rel = rel_insert(m, rel_basetable(m, t, t->base.name), rel_table_func(m->sa, NULL, exp_op(m->sa,  args, f), exps, 1));
 		m->scanner.rs = NULL;
+		m->errstr[0] = '\0';
 
 		if (rel && backend_dumpstmt((backend *) c->sqlcontext, c->curprg->def, rel, 1, 1, "append") < 0) {
 			return GDKstrdup("Append plan generation failure");
@@ -443,9 +451,11 @@ void monetdb_register_progress(monetdb_connection conn, monetdb_progress_callbac
 	if (!MCvalid(c)) {
 		return;
 	}
-
+	MT_lock_set(&c->progress_lock);
 	c->progress_callback = callback;
 	c->progress_data = data;
+	MT_lock_unset(&c->progress_lock);
+
 }
 
 void monetdb_unregister_progress(monetdb_connection conn) {
@@ -453,15 +463,17 @@ void monetdb_unregister_progress(monetdb_connection conn) {
 	if (!MCvalid(c)) {
 		return;
 	}
-
+	MT_lock_set(&c->progress_lock);
 	c->progress_callback = NULL;
 	if(c->progress_data)
 		free(c->progress_data);
 	c->progress_data = NULL;
+	MT_lock_unset(&c->progress_lock);
 }
 
 void monetdb_shutdown(void) {
 	if (monetdb_embedded_initialized) {
+		SQLepilogue(NULL); // just do it here, i don't trust mserver_reset to call this
 		mserver_reset(0);
 		fclose(embedded_stdout);
 		monetdb_embedded_initialized = 0;
@@ -470,20 +482,20 @@ void monetdb_shutdown(void) {
 
 
 #define GENERATE_BASE_HEADERS(type, tpename)                                   \
-	static int tpename##_is_null(type value);
+	static int tpename##_is_null(type value)
 
 #define GENERATE_BASE_FUNCTIONS(tpe, tpename, mname)                                  \
 	GENERATE_BASE_HEADERS(tpe, tpename);                                       \
 	static int tpename##_is_null(tpe value) { return value == mname##_nil; }
 
-GENERATE_BASE_FUNCTIONS(int8_t, int8_t, bte);
-GENERATE_BASE_FUNCTIONS(int16_t, int16_t, sht);
-GENERATE_BASE_FUNCTIONS(int32_t, int32_t, int);
-GENERATE_BASE_FUNCTIONS(int64_t, int64_t, lng);
-GENERATE_BASE_FUNCTIONS(size_t, size_t, oid);
+GENERATE_BASE_FUNCTIONS(int8_t, int8_t, bte)
+GENERATE_BASE_FUNCTIONS(int16_t, int16_t, sht)
+GENERATE_BASE_FUNCTIONS(int32_t, int32_t, int)
+GENERATE_BASE_FUNCTIONS(int64_t, int64_t, lng)
+GENERATE_BASE_FUNCTIONS(size_t, size_t, oid)
 
-GENERATE_BASE_FUNCTIONS(float, float, flt);
-GENERATE_BASE_FUNCTIONS(double, double, dbl);
+GENERATE_BASE_FUNCTIONS(float, float, flt)
+GENERATE_BASE_FUNCTIONS(double, double, dbl)
 
 GENERATE_BASE_HEADERS(char*, str);
 GENERATE_BASE_HEADERS(monetdb_data_blob, blob);
@@ -733,12 +745,11 @@ wrapup:
 	return NULL;
 }
 
-size_t monetdb_result_fetch_bat(monetdb_result* res, size_t column_index) {
-	// we simply return the BAT id
+void* monetdb_result_fetch_rawcol(monetdb_result* res, size_t column_index) {
 	monetdb_result_internal* result = (monetdb_result_internal*) res;
 	if (column_index >= res->ncols) // index out of range
-		return (size_t)-1;
-	return result->monetdb_resultset->cols[column_index].b;
+		return NULL;
+	return &(result->monetdb_resultset->cols[column_index]);
 }
 
 void data_from_date(date d, monetdb_data_date *ptr)

@@ -13,7 +13,6 @@
 #include "monetdb_config.h"
 #include "mal_runtime.h"
 #include "mal_interpreter.h"
-#include "mal_resource.h"
 #include "mal_listing.h"
 #include "mal_type.h"
 #include "mal_private.h"
@@ -442,8 +441,7 @@ callMAL(Client cntxt, MalBlkPtr mb, MalStkPtr *env, ValPtr argv[], char debug)
 		break;
 	case FACTORYsymbol:
 	case FACcall:
-		ret = callFactory(cntxt, mb, argv, debug);
-		break;
+		throw(MAL, "mal.interpreter", RUNTIME_UNKNOWN_INSTRUCTION);
 	case PATcall:
 	case CMDcall:
 	default:
@@ -592,7 +590,7 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 		 * garbage collected are identified. In the post-execution
 		 * phase they are removed.
 		 */
-		for (i = 0; i < pci->retc; i++)
+		for (i = 0; i < pci->retc; i++) 
 			backup[i] = stk->stk[getArg(pci, i)];
 
 		if (garbageControl(pci)) {
@@ -687,28 +685,7 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 #endif
 			break;
 		case FACcall:
-			/*
-			 * Factory calls are more involved. At this stage it
-			 * is a synchrononous call to the factory manager.
-			 * Factory calls should deal with the reference
-			 * counting.
-			 */
-			if (pci->blk == NULL)
-				ret = createScriptException(mb, stkpc, MAL, NULL,
-					"reference to MAL function missing");
-			else {
-				/* show call before entering the factory */
-				if (cntxt->itrace || mb->trap) {
-					if (stk->cmd == 0)
-						stk->cmd = cntxt->itrace;
-					if (stk->cmd == 'x') {
-						stk->cmd = 0;
-						stkpc = mb->stop;
-					}
-				}
-				ret = runFactory(cntxt, pci->blk, mb, stk, pci);
-			}
-			break;
+			throw(MAL, "mal.interpreter", RUNTIME_UNKNOWN_INSTRUCTION);
 		case FCNcall:
 			/*
 			 * MAL function calls are relatively expensive,
@@ -765,7 +742,7 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 			break;
 		case ENDsymbol:
 			if (getInstrPtr(mb, 0)->token == FACTORYsymbol)
-				ret = shutdownFactory(cntxt, mb);
+				ret = createException(MAL, "mal.interpreter", RUNTIME_UNKNOWN_INSTRUCTION);
 			runtimeProfileExit(cntxt, mb, stk, pci, &runtimeProfile);
 			runtimeProfileExit(cntxt, mb, stk, getInstrPtr(mb,0), &runtimeProfileFunction);
 			if (pcicaller && garbageControl(getInstrPtr(mb, 0)))
@@ -1147,17 +1124,12 @@ str runMALsequence(Client cntxt, MalBlkPtr mb, int startpc,
 					"Exception raised");
 			break;
 		case YIELDsymbol:     /* to be defined */
-			if( startedProfileQueue)
-				runtimeProfileFinish(cntxt, mb, stk);
-			if ( backup != backups) GDKfree(backup);
-			if ( garbage != garbages) GDKfree(garbage);
-			return yieldFactory(mb, pci, stkpc);
+			return createScriptException(mb, stkpc, MAL, ret, RUNTIME_UNKNOWN_INSTRUCTION);
 		case RETURNsymbol:
 			/* Return from factory involves cleanup */
 
 			if (getInstrPtr(mb, 0)->token == FACTORYsymbol) {
-				yieldResult(mb, pci, stkpc);
-				shutdownFactory(cntxt, mb);
+				ret = createScriptException(mb, stkpc, MAL, ret, RUNTIME_UNKNOWN_INSTRUCTION);
 			} else {
 				/* a fake multi-assignment */
 				if (env != NULL && pcicaller != NULL) {

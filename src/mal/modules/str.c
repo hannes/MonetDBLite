@@ -1091,7 +1091,6 @@ static BAT *UTF8_upperBat = NULL, *UTF8_lowerBat = NULL;
 str
 strPrelude(void *ret)
 {
-	(void) ret;
 //	if (UTF8_upperBat == NULL) { // always, lite, ya know
 		int i = UTF8_CONVERSIONS;
 
@@ -1119,6 +1118,7 @@ strPrelude(void *ret)
 	UTF8_upperBat = NULL;
 	UTF8_lowerBat = NULL;
 	throw(MAL, "str.prelude", GDK_EXCEPTION);
+	(void) ret;
 }
 
 str
@@ -2460,7 +2460,7 @@ bit STRlike(const char* const_pattern, const char* const_data, bit case_insensit
 	BATiter toi = bat_iterator(UTF8_lowerBat);
 	BATiter fromi = bat_iterator(UTF8_upperBat);
 	BUN UTF8_CONV_r;
-	char *back_pat = 0, *back_str = back_str;
+	char *back_pat = NULL, *back_str = NULL;
 	str pattern = (char*) const_pattern;
 	str pattern_start = NULL;
 	str data = (char*) const_data;

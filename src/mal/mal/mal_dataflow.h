@@ -14,5 +14,7 @@
 
 mal_export str runMALdataflow(Client cntxt, MalBlkPtr mb, int startpc, int stoppc, MalStkPtr stk);
 mal_export str deblockdataflow(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci);
+mal_export void stopMALdataflow(void);
+mal_export void mal_dataflow_reset(void);
 
 #endif /*  _MAL_DATAFLOW_H*/

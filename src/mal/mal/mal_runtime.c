@@ -17,7 +17,6 @@
 #include "mal_interpreter.h"
 #include "mal_function.h"
 #include "mal_listing.h"
-#include "mal_resource.h"
 #include "mal_private.h"
 
 
@@ -275,27 +274,6 @@ runtimeProfileExit(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci, Runt
 #endif
 }
 
-/*
- * For performance evaluation it is handy to estimate the
- * amount of bytes produced by an instruction.
- * The actual amount is harder to guess, because an instruction
- * may trigger a side effect, such as creating a hash-index.
- * Side effects are ignored.
- */
-
-lng
-getBatSpace(BAT *b){
-	lng space=0;
-	if( b == NULL)
-		return 0;
-	space += BATcount(b) * b->twidth;
-	if( space){
-		if( b->tvheap) space += heapinfo(b->tvheap, b->batCacheid); 
-		space += hashinfo(b->thash, b->batCacheid); 
-		space += IMPSimprintsize(b);
-	}
-	return space;
-}
 
 lng getVolume(MalStkPtr stk, InstrPtr pci, int rd)
 {

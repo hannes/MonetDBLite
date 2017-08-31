@@ -242,6 +242,8 @@ rel_insert_idxs(mvc *sql, sql_table *t, sql_rel *inserts)
 	}
 	if (inserts->r != p) {
 		sql_rel *r = rel_create(sql->sa);
+		if(!r)
+			return NULL;
 
 		r->op = op_insert;
 		r->l = rel_dup(p);
@@ -257,6 +259,8 @@ rel_insert(mvc *sql, sql_rel *t, sql_rel *inserts)
 {
 	sql_rel * r = rel_create(sql->sa);
 	sql_table *tab = get_table(t);
+	if(!r)
+		return NULL;
 
 	r->op = op_insert;
 	r->l = t;
@@ -498,7 +502,7 @@ insert_into(mvc *sql, dlist *qname, dlist *columns, symbol *val_or_q)
 							inner = rel_crossproduct(sql->sa, inner, r, op_join);
 						else if (r) 
 							inner = r;
-						if (inner && !ins->name) {
+						if (inner && !ins->name && !is_atom(ins->type)) {
 							exp_label(sql->sa, ins, ++sql->label);
 							ins = exp_column(sql->sa, exp_relname(ins), exp_name(ins), exp_subtype(ins), ins->card, has_nil(ins), is_intern(ins));
 						}
@@ -774,7 +778,8 @@ rel_update_idxs(mvc *sql, sql_table *t, sql_rel *relup)
 	}
 	if (relup->r != p) {
 		sql_rel *r = rel_create(sql->sa);
-
+		if(!r)
+			return NULL;
 		r->op = op_update;
 		r->l = rel_dup(p);
 		r->r = relup;
@@ -808,6 +813,8 @@ rel_update(mvc *sql, sql_rel *t, sql_rel *uprel, sql_exp **updates, list *exps)
 	sql_rel *r = rel_create(sql->sa);
 	sql_table *tab = get_table(t);
 	node *m;
+	if(!r)
+		return NULL;
 
 	if (tab)
 	for (m = tab->columns.set->h; m; m = m->next) {
@@ -1077,6 +1084,8 @@ sql_rel *
 rel_delete(sql_allocator *sa, sql_rel *t, sql_rel *deletes)
 {
 	sql_rel *r = rel_create(sa);
+	if(!r)
+		return NULL;
 
 	r->op = op_delete;
 	r->l = t;
@@ -1579,6 +1588,8 @@ rel_output(mvc *sql, sql_rel *l, sql_exp *sep, sql_exp *rsep, sql_exp *ssep, sql
 {
 	sql_rel *rel = rel_create(sql->sa);
 	list *exps = new_exp_list(sql->sa);
+	if(!rel || !exps)
+		return NULL;
 
 	append(exps, sep);
 	append(exps, rsep);
@@ -1625,7 +1636,7 @@ copyto(mvc *sql, symbol *sq, str filename, dlist *seps, str null_string)
 		if (filename && !MT_path_absolute(filename))
 			return sql_error(sql, 02, "COPY INTO: filename must "
 					"have absolute path: %s", filename);
-		if (lstat(filename, &fs) == 0)
+		if (stat(filename, &fs) == 0)
 			return sql_error(sql, 02, "COPY INTO: file already "
 					"exists: %s", filename);
 	}

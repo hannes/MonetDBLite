@@ -41,29 +41,6 @@
 #include <direct.h>
 #endif
 
-/* Some systems (SGI, Sun) call malloc before we get a chance to call
- * mallopt, and mallopt should be called before the first call to
- * malloc.  Therefore we do as if we don't have mallopt, even though
- * in reality we do. */
-#ifdef HAVE_MALLOPT
-#undef HAVE_MALLOPT
-#endif
-
-#ifndef M_MXFAST
-#define M_MXFAST	1	/* set size of blocks to be fast */
-#endif
-#ifndef M_NLBLKS
-#define M_NLBLKS	2	/* set number of block in a holding block */
-#endif
-#ifndef M_GRAIN
-#define M_GRAIN		3	/* set number of sizes mapped to one, for */
-				/* small blocks */
-#endif
-#ifndef M_KEEP
-#define M_KEEP		4	/* retain contents of block after a free */
-				/* until another allocation */
-#endif
-
 /*
  * @- locking, sleep
  */
@@ -204,9 +181,6 @@ gdk_export int dlclose(void *handle);
 gdk_export void *dlsym(void *handle, const char *name);
 gdk_export char *dlerror(void);
 
-#ifndef HAVE_GETTIMEOFDAY
-gdk_export int gettimeofday(struct timeval *tv, int *ignore_zone);
-#endif
 gdk_export int win_stat(const char *, struct stat *);
 gdk_export int win_rmdir(const char *);
 gdk_export int win_rename(const char *, const char *);

@@ -1,55 +1,27 @@
-language: c
-script: make test
+language: r
+sudo: false
+cache: packages
+r:
+  - oldrel
+  - release
+  - devel
 
-matrix:
-  include:
-    - os: osx
-      osx_image: xcode6.4
+r_github_packages:
+  - rstats-db/DBI
+  - rstats-db/DBItest
 
-    - os: osx
-      osx_image: xcode7.3
+#   - hadley/testthat
+#   - hadley/dplyr
+#   - hadley/dbplyr
+  
+script:
+  - |
+    R CMD build .
+    travis_wait 80 R CMD check MonetDBLite*tar.gz
+  
+addons:
+  apt_packages:
+    - pandoc
 
-    - os: osx
-      osx_image: xcode8
-
-    - os: osx
-      osx_image: xcode8.1
-
-    - os: osx
-      osx_image: xcode8.2
-
-    - os: osx
-      osx_image: xcode8.3
-
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.9
-      env:
-         - MATRIX_EVAL="CC=gcc-4.9"
-
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-      env:
-         - MATRIX_EVAL="CC=gcc-5"
-
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-6
-      env:
-        - MATRIX_EVAL="CC=gcc-6"
-
-before_install:
-    - eval "${MATRIX_EVAL}"
+after_failure:
+  - ./travis-tool.sh dump_logs

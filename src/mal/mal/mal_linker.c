@@ -43,6 +43,10 @@ typedef struct{
 static FileRecord filesLoaded[MAXMODULES];
 static int lastfile = 0;
 
+#ifndef O_CLOEXEC
+#define O_CLOEXEC 0
+#endif
+
 /*
  * returns 1 if the file exists
  */
@@ -64,7 +68,7 @@ getAddress(stream *out, str modname, str fcnname, int silent)
 
 	/* First try the last module loaded */
 	if( prev >= 0){
-		adr = (MALfcn) dlsym(filesLoaded[prev].handle, fcnname);
+		adr = (MALfcn) (intptr_t) dlsym(filesLoaded[prev].handle, fcnname);
 		if( adr != NULL)
 			return adr; /* found it */
 	}
@@ -78,7 +82,7 @@ getAddress(stream *out, str modname, str fcnname, int silent)
 		if (idx != prev &&		/* skip already searched module */
 			filesLoaded[idx].handle &&
 			(idx == 0 || filesLoaded[idx].handle != filesLoaded[0].handle)) {
-			adr = (MALfcn) dlsym(filesLoaded[idx].handle, fcnname);
+			adr = (MALfcn) (intptr_t) dlsym(filesLoaded[idx].handle, fcnname);
 			if (adr != NULL)  {
 				prev = idx;
 				return adr; /* found it */
@@ -98,12 +102,12 @@ getAddress(stream *out, str modname, str fcnname, int silent)
 		/* shouldn't happen, really */
 		if (!silent)
 			showException(out, MAL, "MAL.getAddress",
-						  "address of '%s.%s' not found",
+						  "address of '%s.%s' not found (dlopen)",
 						  (modname?modname:"<unknown>"), fcnname);
 		return NULL;
 	}
 
-	adr = (MALfcn) dlsym(dl, fcnname);
+	adr = (MALfcn) (intptr_t) dlsym(dl, fcnname);
 	filesLoaded[lastfile].modname = GDKstrdup("libmonetdb5");
 	filesLoaded[lastfile].fullname = GDKstrdup("libmonetdb5");
 	filesLoaded[lastfile].handle = dl;
@@ -112,7 +116,7 @@ getAddress(stream *out, str modname, str fcnname, int silent)
 		return adr; /* found it */
 
 	if (!silent)
-		showException(out, MAL,"MAL.getAddress", "address of '%s.%s' not found",
+		showException(out, MAL,"MAL.getAddress", "address of '%s.%s' not found (dlsym)",
 			(modname?modname:"<unknown>"), fcnname);
 	return NULL;
 }

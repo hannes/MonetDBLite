@@ -15,7 +15,6 @@
 #define _MAL_INTERPRET_H
 
 #include "mal_client.h"
-#include "mal_factory.h"
 
 /*
  * Activation of a thread requires construction of the argument list
