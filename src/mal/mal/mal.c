@@ -31,7 +31,8 @@ int have_hge;
 #include "mal_dataflow.h"
 #include "mal_private.h"
 #include "mal_runtime.h"
-#include "mal_resource.h"
+#include "mal_dataflow.h"
+#include "mal_runtime.h"
 
 MT_Lock     mal_contextLock MT_LOCK_INITIALIZER("mal_contextLock");
 MT_Lock     mal_namespaceLock MT_LOCK_INITIALIZER("mal_namespaceLock");
@@ -95,7 +96,6 @@ int mal_init(void){
 #ifndef HAVE_EMBEDDED
 	initHeartbeat();
 #endif
-	initResource();
 	if( malBootstrap() == 0)
 		return -1;
 	return 0;
@@ -115,7 +115,6 @@ void mserver_reset(int exit)
 {
 	GDKprepareExit();
 	MCstopClients(0);
-	mal_factory_reset();
 	mal_dataflow_reset();
 	if (mal_clients) {
 		THRdel(mal_clients->mythread);
@@ -130,7 +129,6 @@ void mserver_reset(int exit)
 	}
 	mal_client_reset();
 	mal_linker_reset();
-	mal_resource_reset();
 	mal_runtime_reset();
 	mal_module_reset();
 

@@ -1,10 +1,10 @@
-#include "monetdb_config.h"
-
 #ifdef HAVE_EMBEDDED_R
 #include <R.h>
 #include <Rdefines.h>
 #include "mapisplit.h"
 #include "mapisplit-r.h"
+
+#include "monetdb_config.h"
 
 char nullstr[] = "NULL";
 

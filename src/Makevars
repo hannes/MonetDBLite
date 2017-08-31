@@ -1,8 +1,7 @@
 OPTIMIZE=$(OPT)
 
 ifneq ($(OPTIMIZE), true)
-	OPTFLAGS=-O0 -g 
-	#-Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition
+	OPTFLAGS=-O0 -g -Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition
 	OBJDIR=build/debug
 else
 	OPTFLAGS=-O3 -g
@@ -17,7 +16,6 @@ PKG_CFLAGS += -I. -Icommon  \
 -Iembedded -Imapisplit -Igdk \
 -Imal/mal -Imal/modules -Imal/optimizer -Imal/sqlbackend \
 -Isql/include -Isql/common -Isql/server -Isql/storage -Isql/storage/bat
-
 
 OBJECTS=\
 $(OBJDIR)/common/monet_options.o \
@@ -63,7 +61,6 @@ $(OBJDIR)/mal/mal/mal_builder.o \
 $(OBJDIR)/mal/mal/mal_client.o \
 $(OBJDIR)/mal/mal/mal_dataflow.o \
 $(OBJDIR)/mal/mal/mal_exception.o \
-$(OBJDIR)/mal/mal/mal_factory.o \
 $(OBJDIR)/mal/mal/mal_function.o \
 $(OBJDIR)/mal/mal/mal_import.o \
 $(OBJDIR)/mal/mal/mal_instruction.o \
@@ -74,7 +71,6 @@ $(OBJDIR)/mal/mal/mal_module.o \
 $(OBJDIR)/mal/mal/mal_namespace.o \
 $(OBJDIR)/mal/mal/mal_parser.o \
 $(OBJDIR)/mal/mal/mal_resolve.o \
-$(OBJDIR)/mal/mal/mal_resource.o \
 $(OBJDIR)/mal/mal/mal_runtime.o \
 $(OBJDIR)/mal/mal/mal_scenario.o \
 $(OBJDIR)/mal/mal/mal_session.o \

@@ -55,5 +55,7 @@ mal_export str	getExceptionMessage(str);
 mal_export void dumpExceptionsToStream(stream *out, str msg);
 mal_export void freeException(str);
 
+mal_export str createScriptException(MalBlkPtr mb, int pc, enum malexception type, const char *prev, const char *format, ...);
+
 #include "mal_errors.h"
 #endif /*  _MAL_EXCEPTION_H*/

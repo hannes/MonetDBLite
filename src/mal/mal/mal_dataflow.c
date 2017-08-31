@@ -29,7 +29,8 @@
 #include "mal_dataflow.h"
 #include "mal_private.h"
 #include "mal_runtime.h"
-#include "mal_resource.h"
+#include "mal_interpreter.h"
+
 
 #define DFLOWpending 0		/* runnable */
 #define DFLOWrunning 1		/* currently in progress */

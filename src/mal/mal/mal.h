@@ -270,4 +270,7 @@ typedef unsigned char OLTPlocks[MAXOLTPLOCKS];
 
 #define OLTPclear(X)  memset((char*)X, 0, sizeof(X))
 
+#define heapinfo(X,Id)	(((X) && (X)->base ) ? (X)->free : 0)
+#define hashinfo(X,Id) ((X) && (X) != (Hash *) 1 ? heapinfo((X)->heap, Id) : 0)
+
 #endif /*  _MAL_H*/

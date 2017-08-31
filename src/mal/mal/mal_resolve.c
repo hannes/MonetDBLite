@@ -772,7 +772,6 @@ chkProgram(stream *out, Module s, MalBlkPtr mb)
 	if (mb->errors)
 		return;
 	chkDeclarations(out, mb);
-	/* malGarbageCollector(mb); */
 }
 
 /*

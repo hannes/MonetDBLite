@@ -216,4 +216,11 @@ mal_export int	   MCvalid(Client c);
 
 mal_export str PROFinitClient(Client c);
 mal_export str PROFexitClient(Client c);
+
+mal_export void mal_client_reset(void);
+
+mal_export void MCpopClientInput(Client c);
+
+mal_export int MCreadClient(Client c);
+
 #endif /* _MAL_CLIENT_H_ */

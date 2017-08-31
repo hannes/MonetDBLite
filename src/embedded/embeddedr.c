@@ -1,4 +1,3 @@
-#include "monetdb_config.h"
 
 #ifdef HAVE_EMBEDDED_R
 #include "embeddedr.h"
@@ -10,6 +9,8 @@
 
 #include <Rdefines.h>
 #include <Rinternals.h>
+
+#include "monetdb_config.h"
 
 #include "monet_options.h"
 #include "mal.h"

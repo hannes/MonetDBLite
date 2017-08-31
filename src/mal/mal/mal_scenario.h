@@ -70,4 +70,6 @@ mal_export void resetScenario(Client c);
 mal_export Scenario findScenario(str nme);
 mal_export void updateScenario(str scen, str nme, MALfcn fcn);
 
+mal_export str defaultScenario(Client c);
+
 #endif /* _MAL_SCENARIO_H */

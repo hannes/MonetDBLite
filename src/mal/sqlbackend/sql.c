@@ -33,7 +33,6 @@
 #include <opt_pipes.h>
 #include "orderidx.h"
 #include "mal_instruction.h"
-#include "mal_resource.h"
 #include "bat5.h"
 
 

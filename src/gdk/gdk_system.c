@@ -385,6 +385,48 @@ MT_kill_thread(MT_Id t)
 #endif
 }
 
+#if defined(_AIX) || defined(__APPLE__)
+void
+pthread_sema_init(pthread_sema_t *s, int flag, int nresources)
+{
+	(void) flag;
+	s->cnt = nresources;
+	pthread_mutex_init(&(s->mutex), 0);
+	pthread_cond_init(&(s->cond), 0);
+}
+
+void
+pthread_sema_destroy(pthread_sema_t *s)
+{
+	pthread_mutex_destroy(&(s->mutex));
+	pthread_cond_destroy(&(s->cond));
+}
+
+void
+pthread_sema_up(pthread_sema_t *s)
+{
+	(void)pthread_mutex_lock(&(s->mutex));
+
+	if (s->cnt++ < 0) {
+		/* wake up sleeping thread */
+		(void)pthread_cond_signal(&(s->cond));
+	}
+	(void)pthread_mutex_unlock(&(s->mutex));
+}
+
+void
+pthread_sema_down(pthread_sema_t *s)
+{
+	(void)pthread_mutex_lock(&(s->mutex));
+
+	if (--s->cnt < 0) {
+		/* thread goes to sleep */
+		(void)pthread_cond_wait(&(s->cond), &(s->mutex));
+	}
+	(void)pthread_mutex_unlock(&(s->mutex));
+}
+#endif
+
 /* coverity[+kill] */
 void
 MT_global_exit(int s)
