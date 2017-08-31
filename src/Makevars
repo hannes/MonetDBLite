@@ -94,7 +94,6 @@ $(OBJDIR)/mal/modules/mat.o \
 $(OBJDIR)/mal/modules/mkey.o \
 $(OBJDIR)/mal/modules/mmath.o \
 $(OBJDIR)/mal/modules/mtime.o \
-$(OBJDIR)/mal/modules/oltp.o \
 $(OBJDIR)/mal/modules/orderidx.o \
 $(OBJDIR)/mal/modules/pcre.o \
 $(OBJDIR)/mal/modules/projectionpath.o \
@@ -120,7 +119,6 @@ $(OBJDIR)/mal/optimizer/opt_matpack.o \
 $(OBJDIR)/mal/optimizer/opt_mergetable.o \
 $(OBJDIR)/mal/optimizer/opt_mitosis.o \
 $(OBJDIR)/mal/optimizer/opt_multiplex.o \
-$(OBJDIR)/mal/optimizer/opt_oltp.o \
 $(OBJDIR)/mal/optimizer/opt_pipes.o \
 $(OBJDIR)/mal/optimizer/opt_prelude.o \
 $(OBJDIR)/mal/optimizer/opt_profiler.o \

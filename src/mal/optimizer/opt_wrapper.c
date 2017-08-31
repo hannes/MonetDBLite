@@ -36,7 +36,6 @@
 #include "opt_jit.h"
 #include "opt_projectionpath.h"
 #include "opt_matpack.h"
-#include "opt_oltp.h"
 #include "opt_mergetable.h"
 #include "opt_mitosis.h"
 #include "opt_multiplex.h"
@@ -70,7 +69,6 @@ struct{
 	{"mergetable", &OPTmergetableImplementation,0,0},
 	{"mitosis", &OPTmitosisImplementation,0,0},
 	{"multiplex", &OPTmultiplexImplementation,0,0},
-	{"oltp", &OPToltpImplementation,0,0},
 	{"profiler", &OPTprofilerImplementation,0,0},
 	{"projectionpath", &OPTprojectionpathImplementation,0,0},
 	{"pushselect", &OPTpushselectImplementation,0,0},
