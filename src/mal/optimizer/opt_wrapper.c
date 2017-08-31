@@ -41,7 +41,6 @@
 #include "opt_multiplex.h"
 #include "opt_profiler.h"
 #include "opt_pushselect.h"
-#include "opt_reduce.h"
 #include "opt_remap.h"
 #include "opt_reorder.h"
 
@@ -72,7 +71,6 @@ struct{
 	{"profiler", &OPTprofilerImplementation,0,0},
 	{"projectionpath", &OPTprojectionpathImplementation,0,0},
 	{"pushselect", &OPTpushselectImplementation,0,0},
-	{"reduce", &OPTreduceImplementation,0,0},
 	{"remap", &OPTremapImplementation,0,0},
 	{"reorder", &OPTreorderImplementation,0,0},
 	{0,0,0,0}

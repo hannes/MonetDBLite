@@ -124,7 +124,6 @@ $(OBJDIR)/mal/optimizer/opt_prelude.o \
 $(OBJDIR)/mal/optimizer/opt_profiler.o \
 $(OBJDIR)/mal/optimizer/opt_projectionpath.o \
 $(OBJDIR)/mal/optimizer/opt_pushselect.o \
-$(OBJDIR)/mal/optimizer/opt_reduce.o \
 $(OBJDIR)/mal/optimizer/opt_remap.o \
 $(OBJDIR)/mal/optimizer/opt_reorder.o \
 $(OBJDIR)/mal/optimizer/opt_support.o \
