@@ -301,7 +301,7 @@
 #define HAVE_SCHED_H 1
 
 /* Define to 1 if you have the <semaphore.h> header file. */
-#define HAVE_SEMAPHORE_H 1
+#define HAVE_SEMAPHORE_H 0
 
 /* Define to 1 if you have the `setenv' function. */
 #define HAVE_SETENV 1

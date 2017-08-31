@@ -281,37 +281,22 @@ gdk_export ATOMIC_TYPE volatile GDKlocksleepcnt;
  * @- MT Semaphore API
  */
 
-
-#if !defined(HAVE_PTHREAD_H) && defined(WIN32)
-
-typedef HANDLE pthread_sema_t;
-gdk_export void pthread_sema_init(pthread_sema_t *s, int flag, int nresources);
-gdk_export void pthread_sema_destroy(pthread_sema_t *s);
-gdk_export void pthread_sema_up(pthread_sema_t *s);
-gdk_export void pthread_sema_down(pthread_sema_t *s);
-
-#elif defined(_AIX) || defined(__MACH__)
-
+#if defined(_AIX) || defined(__MACH__)
 typedef struct {
 	int cnt;
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;
 } pthread_sema_t;
+#endif
+
+#if !defined(HAVE_PTHREAD_H) && defined(WIN32)
+typedef HANDLE pthread_sema_t;
+#endif
 
 gdk_export void pthread_sema_init(pthread_sema_t *s, int flag, int nresources);
 gdk_export void pthread_sema_destroy(pthread_sema_t *s);
 gdk_export void pthread_sema_up(pthread_sema_t *s);
 gdk_export void pthread_sema_down(pthread_sema_t *s);
-
-#else
-
-#define pthread_sema_t		sem_t
-#define pthread_sema_init	sem_init
-#define pthread_sema_destroy	sem_destroy
-#define pthread_sema_up		sem_post
-#define pthread_sema_down(x)	while(sem_wait(x))
-
-#endif
 
 
 typedef struct {
