@@ -2396,9 +2396,14 @@ mvc_export_operation_wrap(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 	(void) pci;		/* NOT USED */
 	if ((msg = checkSQLContext(cntxt)) != NULL)
 		return msg;
+#ifndef HAVE_EMBEDDED
 	b = cntxt->sqlcontext;
 	if (mvc_export_operation(b, b->out, ""))
 		throw(SQL, "sql.exportOperation", "failed");
+#else
+	(void) cntxt;
+	(void) b;
+#endif
 	return NULL;
 }
 

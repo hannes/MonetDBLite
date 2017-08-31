@@ -2085,13 +2085,18 @@ mvc_export_affrows(backend *b, stream *s, lng val, str w, oid query_id)
 		return 0;
 
 	stack_set_number(m, "rowcnt", m->rowcnt);
+#ifndef HAVE_EMBEDDED
 	if (mnstr_write(s, "&2 ", 3, 1) != 1 || !mvc_send_lng(s, val) || mnstr_write(s, " ", 1, 1) != 1
 			|| !mvc_send_lng(s, m->last_id) || mnstr_write(s, " ", 1, 1) != 1
 			|| !mvc_send_lng(s, (lng) query_id) || mnstr_write(s, "\n", 1, 1) != 1)
 		return -1;
 	if (mvc_export_warning(s, w) != 1)
 		return -1;
+#else
+	(void) w;
+	(void) query_id;
 
+#endif
 	return 0;
 }
 
