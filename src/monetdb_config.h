@@ -824,24 +824,9 @@ typedef lng ptrdiff_t;
 #endif
 
 /* define printf format for printing pointer values */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901
 #define PTRFMT		"%p"
 #define PTRFMTCAST		/* no cast needed */
-#elif defined(_MSC_VER)
-#define PTRFMT		"%p"
-#define PTRFMTCAST
-#elif SIZEOF_VOID_P == SIZEOF_INT
-#define PTRFMT		"%x"
-#define PTRFMTCAST	(unsigned int)
-#elif SIZEOF_VOID_P == SIZEOF_LONG
-#define PTRFMT		"%lx"
-#define PTRFMTCAST	(unsigned long)
-#elif SIZEOF_VOID_P == SIZEOF_LONG_LONG
-#define PTRFMT		"%llx"
-#define PTRFMTCAST	(unsigned long long)
-#else
-#error no definition for PTRFMT
-#endif
+
 
 /* defines to help the compiler check printf-style format arguments */
 #if !defined(__GNUC__) || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 5)
