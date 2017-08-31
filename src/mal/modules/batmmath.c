@@ -71,6 +71,7 @@ str CMDscience_bat_##TYPE##_##FUNC(bat *ret, const bat *bid)		\
 						   FE_OVERFLOW)) != 0) {					\
 		const char *err;											\
 		BBPunfix(bn->batCacheid);									\
+		BBPunfix(b->batCacheid);									\
 		if (e) {													\
 			err = strerror(e);										\
 		} else if (ex & FE_DIVBYZERO)								\
@@ -121,6 +122,7 @@ str CMDscience_bat_cst_##FUNC##_##TYPE(bat *ret, const bat *bid,		\
 		(ex = fetestexcept(FE_INVALID | FE_DIVBYZERO |					\
 						   FE_OVERFLOW)) != 0) {						\
 		const char *err;												\
+		BBPunfix(b->batCacheid);										\
 		BBPunfix(bn->batCacheid);										\
 		if (e) {														\
 			err = strerror(e);											\
@@ -171,6 +173,7 @@ str CMDscience_cst_bat_##FUNC##_##TYPE(bat *ret, const TYPE *d,			\
 		(ex = fetestexcept(FE_INVALID | FE_DIVBYZERO |					\
 						   FE_OVERFLOW)) != 0) {						\
 		const char *err;												\
+		BBPunfix(b->batCacheid);										\
 		BBPunfix(bn->batCacheid);										\
 		if (e) {														\
 			err = strerror(e);											\
