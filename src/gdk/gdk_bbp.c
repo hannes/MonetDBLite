@@ -326,6 +326,16 @@ BBPselectfarm(int role, int type, enum heaptype hptype)
 	assert(role >= 0 && role < 32);
 	(void) type;		/* may use in future */
 	(void) hptype;		/* may use in future */
+
+	assert(role >= 0 && role < 32);
+#ifndef PERSISTENTHASH
+	if (hptype == hashheap)
+		role = TRANSIENT;
+#endif
+#ifndef PERSISTENTIDX
+	if (hptype == orderidxheap)
+		role = TRANSIENT;
+#endif
 	for (i = 0; i < MAXFARMS; i++)
 		if (BBPfarms[i].dirname && BBPfarms[i].roles & (1 << role))
 			return i;
@@ -1921,7 +1931,9 @@ BBPdump(void)
 				vm += HEAPvmsize(b->thash->heap);
 			}
 		}
-		fprintf(stderr, "\n");
+		fprintf(stderr, " role: %s, persistence: %s\n",
+			b->batRole == PERSISTENT ? "persistent" : "transient",
+			b->batPersistence == PERSISTENT ? "persistent" : "transient");
 	}
 	fprintf(stderr,
 		"# %d bats: mem=" SZFMT ", vm=" SZFMT " %d cached bats: mem=" SZFMT ", vm=" SZFMT "\n",
@@ -3042,7 +3054,7 @@ file_exists(int farmid, const char *dir, const char *name, const char *ext)
 static gdk_return
 heap_move(Heap *hp, const char *srcdir, const char *dstdir, const char *nme, const char *ext)
 {
-	/* see doc at BATsetaccess()/gdk_bat.mx for an expose on mmap
+	/* see doc at BATsetaccess()/gdk_bat.c for an expose on mmap
 	 * heap modes */
 	if (file_exists(hp->farmid, dstdir, nme, ext)) {
 		/* dont overwrite heap with the committed state

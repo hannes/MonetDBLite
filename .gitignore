@@ -4,3 +4,4 @@
 build
 *.so
 MonetDBLite_*.t*
+.settings

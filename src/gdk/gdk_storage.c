@@ -335,6 +335,10 @@ GDKextendf(int fd, size_t size, const char *fn)
 	int t0 = 0;
 	assert(!GDKinmemory());
 
+#ifdef STATIC_CODE_ANALYSIS
+	if (fd < 0)		/* in real life, if fd < 0, fstat will fail */
+		return GDK_FAIL;
+#endif
 	if (fstat(fd, &stb) < 0) {
 		/* shouldn't happen */
 		GDKsyserror("GDKextendf: fstat unexpectedly failed\n");
@@ -800,7 +804,7 @@ BATsave(BAT *bd)
 
 
 /*
- * TODO: move to gdk_bbp.mx
+ * TODO: move to gdk_bbp.c
  */
 BAT *
 BATload_intern(bat bid, int lock)
