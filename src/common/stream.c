@@ -77,6 +77,9 @@
 # include <netdb.h>
 #endif
 
+#ifdef NATIVE_WIN32
+#include <io.h>
+#endif
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
@@ -190,6 +193,14 @@ mnstr_init(void)
 	if (inited)
 		return 0;
 
+#ifdef NATIVE_WIN32
+	{
+		WSADATA w;
+
+		if (WSAStartup(0x0101, &w) != 0)
+			return -1;
+	}
+#endif
 	inited = 1;
 	return 0;
 }
@@ -1838,7 +1849,6 @@ append_wastream(const char *filename)
 	return open_wastream_(filename, "a");
 }
 
-
 static stream *
 file_stream(const char *name)
 {
@@ -1939,6 +1949,26 @@ file_rastream(FILE *fp, const char *name)
 			return NULL;
 		}
 	}
+#ifdef _MSC_VER
+	if (fileno(fp) == 0 && isatty(0)) {
+		struct console *c = malloc(sizeof(struct console));
+		s->stream_data.p = c;
+		c->h = GetStdHandle(STD_INPUT_HANDLE);
+		c->i = 0;
+		c->len = 0;
+		c->rd = 0;
+		s->read = console_read;
+		s->write = NULL;
+		s->destroy = console_destroy;
+		s->close = NULL;
+		s->flush = NULL;
+		s->fsync = NULL;
+		s->fgetpos = NULL;
+		s->fsetpos = NULL;
+		s->isutf8 = 1;
+		return s;
+	}
+#endif
 	return s;
 }
 
@@ -1956,6 +1986,26 @@ file_wastream(FILE *fp, const char *name)
 		return NULL;
 	s->access = ST_WRITE;
 	s->type = ST_ASCII;
+#ifdef _MSC_VER
+	if ((fileno(fp) == 1 || fileno(fp) == 2) && isatty(fileno(fp))) {
+		struct console *c = malloc(sizeof(struct console));
+		s->stream_data.p = c;
+		c->h = GetStdHandle(STD_OUTPUT_HANDLE);
+		c->i = 0;
+		c->len = 0;
+		c->rd = 0;
+		s->read = NULL;
+		s->write = console_write;
+		s->destroy = console_destroy;
+		s->close = NULL;
+		s->flush = NULL;
+		s->fsync = NULL;
+		s->fgetpos = NULL;
+		s->fsetpos = NULL;
+		s->isutf8 = 1;
+		return s;
+	}
+#endif
 	s->stream_data.p = (void *) fp;
 	return s;
 }
@@ -2675,13 +2725,13 @@ bs2_create(stream *s, size_t bufsiz, compression_method comp)
 		ns->compbufsiz = compress_bound;
 		ns->compbuf = malloc(ns->compbufsiz);
 		if (!ns->compbuf) {
-			free(ns);
 			free(ns->buf);
+			free(ns);
 			return NULL;
 		}
 	} else if (compress_bound < 0) {
-		free(ns);
 		free(ns->buf);
+		free(ns);
 		return NULL;
 	}
 	return ns;
@@ -3967,6 +4017,12 @@ callback_stream(void *private,
 FILE *
 getFile(stream *s)
 {
+#ifdef _MSC_VER
+	if (s->read == console_read)
+		return stdin;
+	if (s->write == console_write)
+		return stdout;
+#endif
 	if (s->read != file_read)
 		return NULL;
 	return (FILE *) s->stream_data.p;

@@ -1729,10 +1729,10 @@ SQLtid(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pci)
 	}
 
 	/* create void,void bat with length and oid's set */
-	tids = BATdense(sb, sb, nr);
-	if (tids == NULL) {
+
+	tids = BATdense(sb, sb, (BUN) nr);
+	if (tids == NULL)
 		throw(SQL, "sql.tid", MAL_MALLOC_FAIL);
-	}
 
 	if (store_funcs.count_del(tr, t)) {
 		BAT *d = store_funcs.bind_del(tr, t, RD_INS);

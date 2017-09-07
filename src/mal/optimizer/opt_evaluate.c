@@ -124,14 +124,14 @@ OPTevaluateImplementation(Client cntxt, MalBlkPtr mb, MalStkPtr stk, InstrPtr pc
 	int *alias = 0, *assigned = 0, atop, use; 
 	str msg = MAL_SUCCEED;
 
-	cntxt->itrace = 0;
 	(void)stk;
 	(void)pci;
 
 	if ( mb->inlineProp )
 		return MAL_SUCCEED;
 
-	(void)cntxt;
+	cntxt->itrace = 0;
+
 #ifdef DEBUG_OPT_EVALUATE
 	fprintf(stderr, "Constant expression optimizer started\n");
 #endif

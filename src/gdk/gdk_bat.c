@@ -1384,6 +1384,7 @@ BATsetcount(BAT *b, BUN cnt)
 {
 	/* head column is always VOID, and some head properties never change */
 	assert(b->hseqbase != oid_nil);
+	assert(cnt <= BUN_MAX);
 
 	b->batCount = cnt;
 	b->batDirtydesc = TRUE;
