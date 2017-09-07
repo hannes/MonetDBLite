@@ -38,7 +38,6 @@ mal/modules/mat.mal \
 mal/modules/mkey.mal \
 mal/modules/mmath.mal \
 mal/modules/mtime.mal \
-mal/modules/oltp.mal \
 mal/modules/orderidx.mal \
 mal/modules/pcre.mal \
 mal/modules/sample.mal \
