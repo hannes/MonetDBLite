@@ -6,7 +6,7 @@ ifneq ($(OPTIMIZE), true)
 	OPTFLAGS=-O0 -g -Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition
 	OBJDIR=build/debug
 else
-	OPTFLAGS=-O3 -g
+	OPTFLAGS=-O2 -g
 	OBJDIR=build/optimized
 endif
 
