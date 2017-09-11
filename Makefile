@@ -1,7 +1,5 @@
 OPTIMIZE=$(OPT)
 
-CC=gcc
-
 ifneq ($(OPTIMIZE), true)
 	OPTFLAGS=-O0 -g -Wall -Wextra -Werror -Wmissing-prototypes -Wold-style-definition
 	OBJDIR=build/debug
@@ -25,6 +23,7 @@ SOEXT=so
 		
 ifeq ($(OS),Windows_NT)
 	SOEXT=dll
+	CC=gcc
     CFLAGS += -DWIN32 -D__CYGWIN__
 #    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
 #        CFLAGS += -D AMD64
