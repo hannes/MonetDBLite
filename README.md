@@ -1,4 +1,4 @@
-# MonetDBLite
+# MonetDBLite for C
 
 [![Build Status](https://travis-ci.org/hannesmuehleisen/MonetDBLite.svg?branch=Jul2017Lite-C)](https://travis-ci.org/hannesmuehleisen/MonetDBLite)
 
