@@ -323,8 +323,10 @@ init: sqlparser inlines
 test: $(LIBFILE)
 	rm -rf build/tests
 	mkdir -p build/tests 
-	$(CC) $(OPTFLAGS) tests/tpchq1/test1.c -o build/tests/tpchq1 -Isrc/embedded -Lbuild -lmonetdb5 $(LDFLAGS)
+	$(CC) $(OPTFLAGS) tests/readme/readme.c -o build/tests/readme -Isrc/embedded -Lbuild -lmonetdb5 $(LDFLAGS)
+		$(CC) $(OPTFLAGS) tests/tpchq1/test1.c -o build/tests/tpchq1 -Isrc/embedded -Lbuild -lmonetdb5 $(LDFLAGS)
 	$(CC) $(OPTFLAGS) tests/sqlitelogic/sqllogictest.c tests/sqlitelogic/md5.c -o build/tests/sqlitelogic -Itests/sqlitelogic -Isrc/embedded -Lbuild -lmonetdb5 $(LDFLAGS)
+	PATH=${PATH}:build/ LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/readme
 	PATH=${PATH}:build/ LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/tpchq1 $(shell pwd)/tests/tpchq1
 	PATH=${PATH}:build/ LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select1.test
 #	PATH=${PATH}:build/ LD_LIBRARY_PATH=build/ DYLD_LIBRARY_PATH=build/ ./build/tests/sqlitelogic  --engine MonetDBLite --halt --verify tests/sqlitelogic/select2.test
