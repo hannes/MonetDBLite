@@ -24,7 +24,7 @@ matrix:
           packages:
             - g++-4.9
       env:
-         - MATRIX_EVAL="CC=gcc-4.9"
+         - MATRIX_EVAL="export CC=gcc-4.9"
 
     - os: linux
       addons:
@@ -34,7 +34,7 @@ matrix:
           packages:
             - g++-5
       env:
-         - MATRIX_EVAL="CC=gcc-5"
+         - MATRIX_EVAL="export CC=gcc-5"
 
     - os: linux
       addons:
@@ -44,7 +44,7 @@ matrix:
           packages:
             - g++-6
       env:
-        - MATRIX_EVAL="CC=gcc-6"
+        - MATRIX_EVAL="export CC=gcc-6"
  
     - os: linux
       addons:
@@ -54,7 +54,7 @@ matrix:
           packages:
             - clang-3.9
       env:
-        - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
+        - MATRIX_EVAL="export CC=clang-3.9"
 
     - os: linux
       addons:
@@ -64,7 +64,7 @@ matrix:
           packages:
             - clang-4.0
       env:
-        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
+        - MATRIX_EVAL="export CC=clang-4.0"
 
     - os: linux
       addons:
@@ -74,8 +74,7 @@ matrix:
           packages:
             - clang-5.0
       env:
-        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
-       
+        - MATRIX_EVAL="export CC=clang-5.0"
 
 before_install:
     - eval "${MATRIX_EVAL}"
