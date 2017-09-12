@@ -3,10 +3,11 @@
 
 #define error(msg) {fprintf(stderr, "Failure: %s\n", msg); return -1;}
 
-int main() {
+int main(void) {
 	char* err = 0;
 	void* conn = 0;
 	monetdb_result* result = 0;
+	size_t r, c;
 
 	// first argument is a string for the db directory or NULL for in-memory mode
 	err = monetdb_startup(NULL, 0, 0);
@@ -29,15 +30,15 @@ int main() {
 		error(err)
 
 	err = monetdb_query(conn, "SELECT x, y FROM test; ", 1, &result, NULL,
-	NULL);
+			NULL);
 	if (err != 0)
 		error(err)
 
 	fprintf(stdout, "Query result with %zu cols and %zu rows\n", result->ncols,
 			result->nrows);
 
-	for (size_t r = 0; r < result->nrows; r++) {
-		for (size_t c = 0; c < result->ncols; c++) {
+	for (r = 0; r < result->nrows; r++) {
+		for (c = 0; c < result->ncols; c++) {
 			monetdb_column* rcol = monetdb_result_fetch(result, c);
 			switch (rcol->type) {
 			case monetdb_int32_t: {
